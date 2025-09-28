@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SGC ツールポータル</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Noto Sans JP', sans-serif;
+      background: #f4f4f4;
+    }
+
+    header {
+      background: #003D2E;
+      color: #fff;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+
+    header img {
+      width: 160px;
+      height: auto;
+      margin-bottom: 0.5rem;
+    }
+
+    header h1 {
+      font-size: 2.4rem;
+      margin: 0.5rem 0 0;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 0.75rem;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      text-decoration: none;
+      color: #003D2E;
+      font-size: 1.4rem;
+      font-weight: bold;
+      box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+      background: #e9f7fc;
+    }
+
+    footer {
+      text-align: center;
+      margin: 2rem 0;
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="https://www.sgc-gold.co.jp/img/header-logo.png" alt="SGCロゴ">
+  <h1>SGC ツールポータル</h1>
+</header>
+
+<div class="container">
+  <div class="grid">
+    <a href="serial-check.html" class="card">IGシリアル番号照合</a>
+    <a href="coin-price.html" class="card">記念金貨買取価格表</a>
+    <a href="diamond-price.html" class="card">ダイヤ参考価格表</a>
+    <a href="ig-check.html" class="card">IG買取・分割確認</a>
+    <a href="gem-weight.html" class="card">色石重量検索</a>
+  </div>
+</div>
+
+<footer>
+  <p>© 2025 SGC Co., Ltd. All Rights Reserved.</p>
+</footer>
+
+</body>
+</html>
