@@ -27,7 +27,7 @@
   }
 
   header img {
-    width: 100px;
+    width: 150px;
     height: auto;
   }
 
@@ -58,11 +58,12 @@
 
   .sidebar {
     position: fixed;
-    top: 70px; /* ヘッダーの高さに合わせて調整 */
+    top: 0;
     left: -260px;
     width: 240px;
-    height: calc(100% - 70px); /* 高さもヘッダー分減らす */
+    height: 100%;
     background: #00281f;
+    color: #fff;
     padding: 2rem 1rem;
     box-shadow: 2px 0 10px rgba(0,0,0,0.4);
     transition: left 0.3s ease;
@@ -168,8 +169,8 @@
     <span></span>
     <span></span>
   </button>
+  <h1>SGC 社内ポータル</h1>
   <img src="https://www.sgc-gold.co.jp/img/header-logo.png" alt="SGCロゴ">
-  <h1>社内ポータル</h1>
 </header>
 
 <nav class="sidebar" id="sidebar">
