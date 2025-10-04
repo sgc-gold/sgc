@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SGC 社内ポータル</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
   body {
     margin: 0;
@@ -56,23 +57,25 @@
     transition: all 0.3s ease;
   }
 
+  /* サイドバー */
   .sidebar {
     position: fixed;
     top: 70px;
-    left: -260px;
+    left: 0;
     width: 240px;
     height: calc(100% - 70px);
     background: #00281f;
     color: #fff;
     padding: 2rem 1rem;
     box-shadow: 2px 0 10px rgba(0,0,0,0.4);
-    transition: left 0.3s ease;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
     z-index: 999;
     overflow-y: auto;
   }
 
   .sidebar.open {
-    left: 0;
+    transform: translateX(0);
   }
 
   .sidebar h2 {
@@ -80,6 +83,14 @@
     margin-bottom: 1rem;
     border-bottom: 1px solid rgba(255,255,255,0.2);
     padding-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .sidebar h2 .fa {
+    width: 20px;
+    text-align: center;
   }
 
   .sidebar a {
@@ -98,6 +109,7 @@
   .sidebar .eng {
     font-size: 0.85rem;
     color: #ccc;
+    margin-left: auto;
   }
 
   .container {
@@ -112,6 +124,7 @@
     gap: 1.5rem;
   }
 
+  /* カードデザイン */
   .card {
     background: #fff;
     border-radius: 1rem;
@@ -121,10 +134,18 @@
     color: #003D2E;
     font-size: 1.2rem;
     font-weight: bold;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
     overflow: hidden;
+  }
+
+  .card span.eng {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: #888;
+    margin-top: 0.3rem;
   }
 
   .card::before {
@@ -147,6 +168,12 @@
     box-shadow: 0 10px 18px rgba(0,0,0,0.15);
   }
 
+  /* カテゴリカラー */
+  .metal { border-left: 5px solid #D4AF37; }
+  .purchase { border-left: 5px solid #1AA260; }
+  .sales { border-left: 5px solid #1F78C1; }
+  .reference { border-left: 5px solid #666; }
+
   footer {
     text-align: center;
     margin: 2rem 0;
@@ -157,6 +184,9 @@
   @media (max-width: 600px) {
     header h1 {
       font-size: 1.2rem;
+    }
+    .sidebar {
+      width: 200px;
     }
   }
 </style>
@@ -174,46 +204,36 @@
 </header>
 
 <nav class="sidebar" id="sidebar">
-  <h2>貴金属価格情報 <span class="eng">Metal Market</span></h2>
+  <h2><i class="fa-solid fa-gem"></i> 貴金属価格情報 <span class="eng">Metal Market</span></h2>
   <a href="#"><s>田中公表価格</s></a>
   <a href="#"><s>市況情報</s></a>
 
-  <h2>買取関連 <span class="eng">Purchase</span></h2>
+  <h2><i class="fa-solid fa-hand-holding-dollar"></i> 買取関連 <span class="eng">Purchase</span></h2>
   <a href="https://script.google.com/macros/s/AKfycbxV4bMjhApWrwqTBLsuu0BnSQ5L8TyaV40_qCOO_RFjT3-WHvosgeesx_LxWZAO4MFr/exec">IGシリアル照合</a>
   <a href="https://script.google.com/macros/s/AKfycbyd9GrXvjDcYde3AVcOi5XJvMfSAteTui2r2IQJFIV9HC3tsQsHCm2lfB5LMlyrhs3U/exec">記念金貨 買取価格</a>
-  <a href="#"><s>買取/分割 確認</s></a>
+  <a href="#"><s>買取/分割確認</s></a>
   <a href="#"><s>ダイヤ 市場価格</s></a>
   <a href="#"><s>色石重量検索</s></a>
 
-  <h2>販売関連 <span class="eng">Sales</span></h2>
+  <h2><i class="fa-solid fa-cart-shopping"></i> 販売関連 <span class="eng">Sales</span></h2>
   <a href="#">-------</a>
   <a href="#">-------</a>
 
-  <h2>社内資料 <span class="eng">Reference</span></h2>
+  <h2><i class="fa-solid fa-file-lines"></i> 社内資料 <span class="eng">Reference</span></h2>
   <a href="#">-------</a>
   <a href="#">-------</a>
 </nav>
 
 <div class="container">
   <div class="grid">
-    <a href="https://script.google.com/macros/s/AKfycbxV4bMjhApWrwqTBLsuu0BnSQ5L8TyaV40_qCOO_RFjT3-WHvosgeesx_LxWZAO4MFr/exec" class="card">IGシリアル照合</a>
-    <a href="https://script.google.com/macros/s/AKfycbyd9GrXvjDcYde3AVcOi5XJvMfSAteTui2r2IQJFIV9HC3tsQsHCm2lfB5LMlyrhs3U/exec" class="card">記念金貨 買取価格</a>
-    <a href="#" class="card">IG買取・分割確認</a>
-    <a href="#" class="card">色石重量検索</a>
-    <a href="#" class="card">田中公表価格</a>
-    <a href="#" class="card">ドル建て相場</a>
+    <a href="https://script.google.com/macros/s/AKfycbxV4bMjhApWrwqTBLsuu0BnSQ5L8TyaV40_qCOO_RFjT3-WHvosgeesx_LxWZAO4MFr/exec" class="card purchase">IGシリアル照合 <span class="eng">Serial Check</span></a>
+    <a href="https://script.google.com/macros/s/AKfycbyd9GrXvjDcYde3AVcOi5XJvMfSAteTui2r2IQJFIV9HC3tsQsHCm2lfB5LMlyrhs3U/exec" class="card purchase">記念金貨 買取価格 <span class="eng">Commemorative Gold</span></a>
+    <a href="#" class="card purchase">IG買取・分割確認 <span class="eng">Purchase/Split</span></a>
+    <a href="#" class="card purchase">色石重量検索 <span class="eng">Gem Weight</span></a>
+    <a href="#" class="card metal">田中公表価格 <span class="eng">Tanaka Price</span></a>
+    <a href="#" class="card metal">ドル建て相場 <span class="eng">USD Market</span></a>
   </div>
 </div>
 
 <footer>
-  <p>© 2025 SGC Co., Ltd. All Rights Reserved.</p>
-</footer>
-
-<script>
-function toggleMenu() {
-  document.getElementById('sidebar').classList.toggle('open');
-}
-</script>
-
-</body>
-</html>
+ 
