@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>記念金貨 買取価格</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; padding:0; font-family:'Noto Sans JP',sans-serif; background:#f4f4f4; }
+  .container { max-width:60rem; margin:1rem auto; background:#fff; border-radius:0.5rem; padding:1rem; box-shadow:0 0.125rem 0.5rem rgba(0,0,0,0.1); font-size:1rem; }
+  .note { background:#fff3cd; color:#856404; padding:0.5rem; border-radius:0.3rem; margin-bottom:1rem; }
+  .search-box { background:#fff; padding:1rem; border-radius:0.5rem; margin-bottom:1rem; }
+  .search-row { display:flex; align-items:center; margin-bottom:1rem; }
+  .search-row label { width:40%; font-weight:bold; color:#003D2E; text-align:center; }
+  .search-row select { flex:1; padding:0.5rem; font-size:1rem; border-radius:0.3rem; }
+  #searchButton { width:100%; padding:0.75rem; background:#003D2E; color:#fff; border:none; border-radius:0.5rem; cursor:pointer; font-size:1rem; }
+  #searchButton:hover { background:#005c44; }
+  #resultCount { font-size:1rem; font-weight:bold; color:#003D2E; margin:0.5rem 0; text-align:right; }
+  .coins { display:flex; flex-direction:column; gap:1rem; }
+  .coin { background:#fff; border-radius:0.5rem; padding:1rem; box-shadow:0 0.0625rem 0.25rem rgba(0,0,0,0.1); border:1px solid #ccc; }
+  .coin-header { font-size:1.2rem; font-weight:bold; margin-bottom:0.5rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; }
+  .images { display:flex; justify-content:center; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; }
+  .coin-img { width:40%; max-width:180px; height:auto; border-radius:0.25rem; }
+  .price { font-size:1.2em; font-weight:bold; color:#d32f2f; background:#ffe082; padding:0.5rem 1rem; border-radius:0.5rem; text-align:center; }
+  table { width:100%; border-collapse:collapse; margin-bottom:1rem; }
+  th, td { border:1px solid #003D2E; padding:0.5rem; text-align:center; }
+  th { background-color:#e0f7fa; font-weight:bold; white-space:nowrap; }
+  td { background-color:#f9f9f9; white-space:normal; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="note">【お知らせ】10月1日（水）より価格改定いたします。</div>
+
+  <div class="search-box">
+    <div class="search-row">
+      <label for="faceValueSelect">額　面：</label>
+      <select id="faceValueSelect">
+        <option value="">選択</option>
+        <option value="10万円">10万円</option>
+        <option value="5万円">5万円</option>
+        <option value="1万円">1万円</option>
+        <option value="5千円">5千円</option>
+      </select>
+    </div>
+    <div class="search-row">
+      <label for="weightSelect">量　目：</label>
+      <select id="weightSelect">
+        <option value="">選択</option>
+        <option value="30g">30g</option>
+        <option value="20g">20g</option>
+        <option value="18g">18g</option>
+        <option value="15.6g">15.6g</option>
+        <option value="7.8g">7.8g</option>
+      </select>
+    </div>
+    <div class="search-row">
+      <label for="yearSelect">発行年：</label>
+      <select id="yearSelect">
+        <option value="">選択</option>
+        <option value="昭和61年（1986年）">昭和61年（1986年）</option>
+        <option value="昭和62年（1987年）">昭和62年（1987年）</option>
+        <option value="平成2年（1990年）">平成2年（1990年）</option>
+        <option value="平成5年（1993年）">平成5年（1993年）</option>
+        <option value="平成9年（1997年）">平成9年（1997年）</option>
+        <option value="平成10年（1998年）">平成10年（1998年）</option>
+        <option value="平成11年（1999年）">平成11年（1999年）</option>
+        <option value="平成14年（2002年）">平成14年（2002年）</option>
+        <option value="平成16年（2004年）">平成16年（2004年）</option>
+        <option value="平成21年（2009年）">平成21年（2009年）</option>
+        <option value="平成27年（2015年）">平成27年（2015年）</option>
+        <option value="平成30年（2018年）">平成30年（2018年）</option>
+        <option value="平成31年（2019年）">平成31年（2019年）</option>
+        <option value="令和元年（2019年）">令和元年（2019年）</option>
+        <option value="令和2年（2020年）">令和2年（2020年）</option>
+        <option value="令和3年（2021年）">令和3年（2021年）</option>
+        <option value="令和4年（2022年）">令和4年（2022年）</option>
+        <option value="令和7年（2025年）">令和7年（2025年）</option>
+      </select>
+    </div>
+    <div class="search-row">
+      <label for="diameterSelect">直　径：</label>
+      <select id="diameterSelect">
+        <option value="">選択</option>
+        <option value="33mm">33mm</option>
+        <option value="30mm">30mm</option>
+        <option value="28mm">28mm</option>
+        <option value="27mm">27mm</option>
+        <option value="26mm">26mm</option>
+        <option value="20mm">20mm</option>
+      </select>
+    </div>
+    <div class="search-row">
+      <button id="searchButton">検索</button>
+    </div>
+  </div>
+
+  <div id="resultCount" class="count"></div>
+  <div class="coins" id="coinsContainer"></div>
+
+</div>
+
+<script>
+let allData = [];
+
+// JSON データ読み込み
+fetch('coins.json') // coins.json は同じディレクトリに置く
+  .then(res => res.json())
+  .then(data => {
+    allData = data;
+    displayCoins(allData); // 最初は全件表示
+  })
+  .catch(err => console.error('データの読み込みに失敗しました', err));
+
+function createCoinHTML(d){
+  return `
+    <div class="coin">
+      <div class="coin-header">
+        <span>${d['記念テーマ']}</span>
+        <span>${d['貨幣種別']}</span>
+      </div>
+      <div class="images">
+        <img class="coin-img" src="${d['画像（表面）']}" alt="表面">
+        <img class="coin-img" src="${d['画像（裏面）']}" alt="裏面">
+      </div>
+      <table>
+        <tr>
+          <th>買取価格</th><td class="price">${d['買取価格']}</td>
+          <th>額面</th><td>${d['額面']}</td>
+        </tr>
+        <tr><th>量目</th><td>${d['量目']}</td><th>直径</th><td>${d['直径']}</td></tr>
+        <tr><th>発行年</th><td>${d['発行年']}</td><th>発行枚数</th><td>${d['発行枚数（千枚）']}</td></tr>
+        <tr>
+          <th>図柄</th>
+          <td colspan="3">
+            <div style="display:flex; flex-direction:column; gap:0.5rem; text-align:left;">
+              <div>【表面】 ${d['図柄（表面）']}</div>
+              <div>【裏面】 ${d['図柄（裏面）']}</div>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+  `;
+}
+
+function displayCoins(data){
+  document.getElementById('coinsContainer').innerHTML = data.map(createCoinHTML).join('');
+  document.getElementById('resultCount').textContent = `表示件数: ${data.length} 件`;
+}
+
+// 検索機能
+function filterData(){
+  const fv = document.getElementById('faceValueSelect').value;
+  const weight = document.getElementById('weightSelect').value;
+  const year = document.getElementById('yearSelect').value;
+  const dia = document.getElementById('diameterSelect').value;
+
+  const filtered = allData.filter(d=>{
+    return (!fv || d['額面']===fv) &&
+           (!weight || d['量目']===weight) &&
+           (!year || d['発行年']===year) &&
+           (!dia || d['直径']===dia);
+  });
+  displayCoins(filtered);
+}
+
+document.getElementById('searchButton').addEventListener('click', filterData);
+</script>
+</body>
+</html>
