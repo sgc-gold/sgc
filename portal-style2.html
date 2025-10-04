@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>参考ツールポータル - Modern</title>
+<style>
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: #f6f8fb;
+  color: #333;
+  margin: 0;
+}
+header {
+  background: #0077b6;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  font-size: 1.6em;
+  letter-spacing: 1px;
+}
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  padding: 40px;
+}
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  transition: 0.3s;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+.card h2 {
+  color: #0077b6;
+  font-size: 1.2em;
+  margin-bottom: 12px;
+}
+ul {
+  list-style: none;
+  padding: 0;
+}
+ul li {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+ul li a {
+  text-decoration: none;
+  color: #333;
+}
+ul li a:hover {
+  color: #0077b6;
+}
+</style>
+</head>
+<body>
+<header>参考ツールポータル（Modern Style）</header>
+<div class="container">
+  <div class="card"><h2>① 買取ツール</h2><ul><li><a href="#">査定シミュレーター</a></li><li><a href="#">比重計算ツール</a></li><li><a href="#">買取履歴検索</a></li></ul></div>
+  <div class="card"><h2>② 販売ツール</h2><ul><li><a href="#">在庫管理</a></li><li><a href="#">顧客別販売履歴</a></li></ul></div>
+  <div class="card"><h2>③ 社内規約・マニュアル</h2><ul><li><a href="#">コンプライアンスガイド</a></li><li><a href="#">接客マナー資料</a></li></ul></div>
+  <div class="card"><h2>④ 貴金属価格情報</h2><ul><li><a href="#">金・銀・プラチナ価格推移</a></li><li><a href="#">相場速報リンク</a></li></ul></div>
+</div>
+</body>
+</html>
