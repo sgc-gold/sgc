@@ -179,6 +179,9 @@ function toggleMenu() {
 function openFrame(e, url){
   e.preventDefault();
   document.getElementById('main-frame').src = url;
+
+  // サイドバーを閉じる
+  document.getElementById('sidebar').classList.remove('open');
 }
 </script>
 
