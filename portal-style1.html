@@ -1,174 +1,97 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>社内ポータル（シック＆プレミアム）</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Noto Sans JP', sans-serif;
-      background: #f4f4f4;
-      color: #003D2E;
-    }
-
-    /* ヘッダー */
-    header {
-      background: linear-gradient(90deg, #003D2E, #015C45);
-      color: white;
-      text-align: center;
-      padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-    header img {
-      width: 160px;
-      height: auto;
-    }
-    header h1 {
-      margin: 0.5rem 0 0;
-      font-size: 1.8rem;
-      font-weight: 600;
-    }
-
-    /* ナビゲーション */
-    nav {
-      background: #fff;
-      display: flex;
-      justify-content: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    nav ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-    }
-    nav li {
-      position: relative;
-    }
-    nav > ul > li {
-      margin: 0 1rem;
-    }
-    nav a {
-      display: block;
-      padding: 1rem;
-      color: #003D2E;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    nav a:hover {
-      color: #C1A25F;
-    }
-
-    /* ドロップダウン */
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      background: #fff;
-      min-width: 200px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      border-radius: 0.5rem;
-      z-index: 100;
-    }
-    .dropdown-content a {
-      padding: 0.8rem 1rem;
-      display: block;
-      color: #003D2E;
-    }
-    .dropdown-content a:hover {
-      background: #f0f7f4;
-      color: #C1A25F;
-    }
-    li:hover .dropdown-content {
-      display: block;
-    }
-
-    /* カードグリッド */
-    .container {
-      max-width: 1000px;
-      margin: 2rem auto;
-      padding: 1rem;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.5rem;
-    }
-    .card {
-      background: white;
-      border-radius: 0.75rem;
-      padding: 1.2rem;
-      text-align: center;
-      font-weight: bold;
-      color: #003D2E;
-      text-decoration: none;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-      transition: all 0.2s ease;
-    }
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-      color: #C1A25F;
-    }
-
-    footer {
-      text-align: center;
-      padding: 1rem;
-      font-size: 0.9rem;
-      color: #666;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>参考ツールポータル - Premium</title>
+<style>
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: linear-gradient(135deg, #1a1a1a, #2b2b2b);
+  color: #f8f8f8;
+  margin: 0;
+  padding: 0;
+}
+header {
+  background: linear-gradient(90deg, #c6a35b, #e0c38c);
+  padding: 20px;
+  text-align: center;
+  font-size: 1.6em;
+  color: #1a1a1a;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  padding: 40px;
+}
+.card {
+  background: #2b2b2b;
+  border: 1px solid #c6a35b;
+  border-radius: 16px;
+  padding: 20px;
+  transition: 0.3s;
+}
+.card:hover {
+  background: #3c3c3c;
+  transform: translateY(-4px);
+}
+.card h2 {
+  color: #e0c38c;
+  border-bottom: 1px solid #c6a35b;
+  padding-bottom: 8px;
+}
+ul {
+  list-style: none;
+  padding-left: 0;
+}
+ul li {
+  padding: 6px 0;
+  border-bottom: 1px dotted #555;
+}
+ul li a {
+  text-decoration: none;
+  color: #f8f8f8;
+}
+ul li a:hover {
+  color: #e0c38c;
+}
+</style>
 </head>
 <body>
-
-  <header>
-    <img src="https://www.sgc-gold.co.jp/img/header-logo.png" alt="SGCロゴ">
-    <h1>社内ポータル</h1>
-  </header>
-
-  <nav>
+<header>参考ツールポータル（Premium Style）</header>
+<div class="container">
+  <div class="card">
+    <h2>① 買取ツール</h2>
     <ul>
-      <li><a href="#">買取 ▾</a>
-        <div class="dropdown-content">
-          <a href="https://script.google.com/macros/s/AKfycbxV4bMjhApWrwqTBLsuu0BnSQ5L8TyaV40_qCOO_RFjT3-WHvosgeesx_LxWZAO4MFr/exec">IGシリアル照合</a>
-          <a href="https://script.google.com/macros/s/AKfycbyd9GrXvjDcYde3AVcOi5XJvMfSAteTui2r2IQJFIV9HC3tsQsHCm2lfB5LMlyrhs3U/exec">記念金貨 買取価格</a>
-          <a href="diamond-price.html">ダイヤ参考価格</a>
-          <a href="gem-weight.html">色石重量検索</a>
-        </div>
-      </li>
-      <li><a href="#">販売 ▾</a>
-        <div class="dropdown-content">
-          <a href="#">在庫管理（準備中）</a>
-          <a href="#">販売マニュアル（準備中）</a>
-        </div>
-      </li>
-      <li><a href="#">社内規約 ▾</a>
-        <div class="dropdown-content">
-          <a href="#">規程・ルール</a>
-          <a href="#">申請フォーム</a>
-        </div>
-      </li>
-      <li><a href="#">貴金属価格情報 ▾</a>
-        <div class="dropdown-content">
-          <a href="#">SGC独自価格</a>
-          <a href="#">田中貴金属</a>
-          <a href="#">海外相場（USD）</a>
-        </div>
-      </li>
+      <li><a href="#">査定シミュレーター</a></li>
+      <li><a href="#">比重計算ツール</a></li>
+      <li><a href="#">買取履歴検索</a></li>
     </ul>
-  </nav>
-
-  <div class="container">
-    <a href="#" class="card">本日の買取相場</a>
-    <a href="#" class="card">在庫・販売状況</a>
-    <a href="#" class="card">規約・手順書</a>
-    <a href="#" class="card">貴金属相場一覧</a>
   </div>
-
-  <footer>
-    © 2025 SGC Co., Ltd. All Rights Reserved.
-  </footer>
-
+  <div class="card">
+    <h2>② 販売ツール</h2>
+    <ul>
+      <li><a href="#">在庫管理</a></li>
+      <li><a href="#">顧客別販売履歴</a></li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>③ 社内規約・マニュアル</h2>
+    <ul>
+      <li><a href="#">コンプライアンスガイド</a></li>
+      <li><a href="#">接客マナー資料</a></li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>④ 貴金属価格情報</h2>
+    <ul>
+      <li><a href="#">金・銀・プラチナ価格推移</a></li>
+      <li><a href="#">相場速報リンク</a></li>
+    </ul>
+  </div>
+</div>
 </body>
 </html>
