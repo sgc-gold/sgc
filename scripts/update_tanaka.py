@@ -11,10 +11,13 @@ soup = BeautifulSoup(res.text, 'html.parser')
 prices = {}
 
 for metal, cls in [("GOLD", "gold"), ("PLATINUM", "pt"), ("SILVER", "silver")]:
-    buy = soup.select_one(f"tr.{cls} td.purchase_tax").text.strip()
-    buy_diff = soup.select_one(f"tr.{cls} td.purchase_ratio").text.strip()
-    retail = soup.select_one(f"tr.{cls} td.retail_tax").text.strip()
-    retail_diff = soup.select_one(f"tr.{cls} td.retail_ratio").text.strip()
+    # 買取価格と前日比
+    buy = soup.select_one(f"tr.{cls} td.purchase_tax").text.strip().replace(" yen","")
+    buy_diff = soup.select_one(f"tr.{cls} td.purchase_ratio").text.strip().replace(" yen","")
+    
+    # 小売価格と前日比
+    retail = soup.select_one(f"tr.{cls} td.retail_tax").text.strip().replace(" yen","")
+    retail_diff = soup.select_one(f"tr.{cls} td.retail_ratio").text.strip().replace(" yen","")
     
     prices[metal] = {
         "buy": buy,
