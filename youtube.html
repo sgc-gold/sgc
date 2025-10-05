@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background-color: #fafafa;
+      margin: 0;
+      padding: 0;
+      color: #003D2E;
+    }
+
+    header {
+      background: #003D2E;
+      color: #fff;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    main {
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .video-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease;
+    }
+
+    .video-card:hover {
+      transform: scale(1.02);
+    }
+
+    iframe {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border: none;
+    }
+
+    .video-info {
+      padding: 0.8rem;
+    }
+
+    .video-title {
+      font-size: 1rem;
+      font-weight: bold;
+      margin: 0 0 0.4rem 0;
+      color: #003D2E;
+    }
+
+    .video-date {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #777;
+      padding: 1rem;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>YouTube</h1>
+  </header>
+
+  <main id="youtube-list">
+    <p>動画を読み込み中です...</p>
+  </main>
+
+  <footer>
+    © SGC All Rights Reserved.
+  </footer>
+
+  <script>
+    const API_KEY = 'AIzaSyC4YLySfOAuuxslQiLMAIN5l-e5Trh44g4'; // ←制限済みキーを使用
+    const SEARCH_QUERY = 'SGC OR 大黄金展';
+    const MAX_RESULTS = 8;
+
+    async function fetchYouTubeVideos() {
+      try {
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(SEARCH_QUERY)}&type=video&order=date&maxResults=${MAX_RESULTS}&key=${API_KEY}`);
+        const data = await res.json();
+        const container = document.getElementById('youtube-list');
+        container.innerHTML = '';
+
+        if (!data.items || data.items.length === 0) {
+          container.innerHTML = '<p>該当する動画が見つかりませんでした。</p>';
+          return;
+        }
+
+        data.items.forEach(item => {
+          const videoId = item.id.videoId;
+          const title = item.snippet.title;
+          const publishedAt = new Date(item.snippet.publishedAt).toLocaleDateString('ja-JP');
+
+          const card = document.createElement('div');
+          card.className = 'video-card';
+          card.innerHTML = `
+            <iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen title="${title}"></iframe>
+            <div class="video-info">
+              <p class="video-title">${title}</p>
+              <p class="video-date">公開日: ${publishedAt}</p>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      } catch (e) {
+        document.getElementById('youtube-list').innerHTML = '<p>動画を取得できませんでした。</p>';
+        console.error(e);
+      }
+    }
+
+    fetchYouTubeVideos();
+  </script>
+</body>
+</html>
