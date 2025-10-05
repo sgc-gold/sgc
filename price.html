@@ -1,112 +1,113 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>田中貴金属 価格情報 | SGC 市況情報</title>
+<title>Tanaka Precious Metals | SGC Market Price</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
   body {
     font-family: 'Noto Sans JP', sans-serif;
-    background: linear-gradient(135deg, #f4f4f4, #e8e8e8);
+    background: #f5f5f5;
     color: #003D2E;
     margin: 0;
     padding: 2rem 1rem;
   }
 
-  h1 {
+  h3 {
     text-align: center;
-    font-size: 1.8rem;
+    font-size: 1.3rem;
     color: #003D2E;
-    margin-bottom: 0.5rem;
-    letter-spacing: 1px;
+    margin-bottom: 1rem;
   }
 
-  h2 {
-    text-align: center;
-    font-size: 1rem;
-    color: #666;
-    margin-bottom: 2rem;
+  h3 span {
+    display: block;
+    font-size: 0.9rem;
+    color: #777;
+    margin-top: 4px;
+  }
+
+  .contents_inner {
+    max-width: 850px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    padding: 1rem 1.5rem 2rem;
   }
 
   table {
     width: 100%;
     border-collapse: collapse;
-    margin: 0 auto 2rem auto;
-    border-radius: 12px;
-    overflow: hidden;
-    background: #fff;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    max-width: 700px;
+    margin-bottom: 1rem;
+  }
+
+  th, td {
+    text-align: center;
+    padding: 0.9rem;
+    border-bottom: 1px solid #eee;
   }
 
   th {
     background: #003D2E;
     color: #fff;
-    padding: 1rem;
+    font-size: 0.95rem;
+  }
+
+  tr.gold td { background: #fffbe6; }
+  tr.pt td { background: #f8f8f8; }
+  tr.silver td { background: #fefefe; }
+
+  td.metal_name {
     font-weight: 600;
-    text-align: center;
-    letter-spacing: 1px;
+    color: #003D2E;
   }
 
-  td {
-    text-align: center;
-    padding: 1rem;
-    font-size: 1.05rem;
-    border-bottom: 1px solid #eee;
-  }
-
-  tr:last-child td {
-    border-bottom: none;
-  }
-
-  tr.gold td {
-    background: linear-gradient(90deg, #fff9e6, #fff3b0);
-    color: #b8860b;
+  td.positive {
+    color: #c60000;
     font-weight: 600;
   }
 
-  tr.pt td {
-    background: linear-gradient(90deg, #f2f2f2, #e2e2e2);
-    color: #6b6b6b;
+  td.negative {
+    color: #0044cc;
+    font-weight: 600;
   }
 
-  tr.silver td {
-    background: linear-gradient(90deg, #fdfdfd, #f3f3f3);
+  ul.notice {
+    list-style: disc;
     color: #555;
-  }
-
-  .metal-icon {
-    font-size: 1.3rem;
-    margin-right: 6px;
-  }
-
-  footer {
-    text-align: center;
-    font-size: 0.85rem;
-    color: #888;
-    margin-top: 3rem;
-  }
-
-  .loading {
-    text-align: center;
-    color: #777;
-    font-size: 1rem;
-    margin-top: 2rem;
+    font-size: 0.9rem;
+    padding-left: 1.5rem;
   }
 
   @media (max-width: 600px) {
-    body { padding: 1rem 0.5rem; }
-    table { font-size: 0.9rem; }
-    td, th { padding: 0.75rem; }
+    th, td { font-size: 0.8rem; padding: 0.6rem; }
+    .contents_inner { padding: 0.8rem; }
   }
 </style>
 </head>
 <body>
-  <h1>田中貴金属 価格情報</h1>
-  <h2 id="update-time">読み込み中...</h2>
-  <div id="tanaka-price" class="loading">価格を取得中...</div>
+
+  <h3 id="title">Price information <span>(Loading...)</span></h3>
+
+  <div class="contents_inner">
+    <table id="metal_price">
+      <tr>
+        <th>&nbsp;</th>
+        <th class="retail_tax">TANAKA retail selling price<br />(tax included)</th>
+        <th class="retail_ratio">(Change from previous price)</th>
+        <th class="purchase_tax">TANAKA retail buying price<br />(tax included)</th>
+        <th class="purchase_ratio">(Change from previous price)</th>
+      </tr>
+    </table>
+
+    <ul class="notice">
+      <li>Prices for Gold, Platinum and Silver are per gram.</li>
+      <li>Bar charges and commission for small bars are excluded.</li>
+    </ul>
+  </div>
 
 <script>
 async function fetchTanaka() {
@@ -114,38 +115,37 @@ async function fetchTanaka() {
     const res = await fetch('data/tanaka_price.json?nocache=' + Date.now());
     const data = await res.json();
 
-    // 更新時刻を表示
-    document.getElementById('update-time').textContent = `更新時刻：${data.update_time}`;
+    document.querySelector("#title span").textContent = `(As of at ${data.update_time})`;
 
-    let html = `
-      <table>
-        <tr>
-          <th>金属</th>
-          <th>買取価格</th>
-          <th>小売価格</th>
+    const table = document.querySelector("#metal_price");
+    const metals = ["GOLD", "PLATINUM", "SILVER"];
+    const rows = [];
+
+    for (const metal of metals) {
+      const p = data.prices[metal];
+      const diffRetailClass = p.retail_diff.startsWith('+') ? 'positive' : p.retail_diff.startsWith('-') ? 'negative' : '';
+      const diffBuyClass = p.buy_diff.startsWith('+') ? 'positive' : p.buy_diff.startsWith('-') ? 'negative' : '';
+
+      const diffRetailSymbol = p.retail_diff.startsWith('+') ? '▲' : p.retail_diff.startsWith('-') ? '▼' : '';
+      const diffBuySymbol = p.buy_diff.startsWith('+') ? '▲' : p.buy_diff.startsWith('-') ? '▼' : '';
+
+      rows.push(`
+        <tr class="${metal.toLowerCase()}">
+          <td class="metal_name">${metal}</td>
+          <td class="retail_tax">${p.retail}</td>
+          <td class="retail_ratio ${diffRetailClass}">${diffRetailSymbol} ${p.retail_diff}</td>
+          <td class="purchase_tax">${p.buy}</td>
+          <td class="purchase_ratio ${diffBuyClass}">${diffBuySymbol} ${p.buy_diff}</td>
         </tr>
-    `;
-
-    for (const [metal, price] of Object.entries(data.prices)) {
-      let cls = '';
-      let icon = '';
-      if (metal === 'GOLD') { cls='gold'; icon='🥇'; }
-      if (metal === 'PLATINUM') { cls='pt'; icon='🏅'; }
-      if (metal === 'SILVER') { cls='silver'; icon='🥈'; }
-
-      html += `
-        <tr class="${cls}">
-          <td><span class="metal-icon">${icon}</span>${metal}</td>
-          <td>${price.buy}</td>
-          <td>${price.sell}</td>
-        </tr>
-      `;
+      `);
     }
 
-    html += '</table>';
-    document.getElementById('tanaka-price').innerHTML = html;
+    table.insertAdjacentHTML("beforeend", rows.join(""));
   } catch (err) {
-    document.getElementById('tanaka-price').innerHTML = '<p style="color:red;">価格データの取得に失敗しました。</p>';
+    document.querySelector("#metal_price").insertAdjacentHTML(
+      "afterend",
+      `<p style="color:red;text-align:center;">価格データの取得に失敗しました。</p>`
+    );
     console.error(err);
   }
 }
@@ -153,6 +153,5 @@ async function fetchTanaka() {
 fetchTanaka();
 </script>
 
-<footer>© 2025 SGC Market Data</footer>
 </body>
 </html>
