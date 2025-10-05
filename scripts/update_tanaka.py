@@ -17,15 +17,15 @@ data = {
     "prices": {
         "GOLD": {
             "buy": get_text("tr.gold td.purchase_tax"),
-            "sell": get_text("tr.gold td.selling_tax")
+            "sell": get_text("tr.gold td.retail_tax")
         },
         "PLATINUM": {
             "buy": get_text("tr.pt td.purchase_tax"),
-            "sell": get_text("tr.pt td.selling_tax")
+            "sell": get_text("tr.pt td.retail_tax")
         },
         "SILVER": {
             "buy": get_text("tr.silver td.purchase_tax"),
-            "sell": get_text("tr.silver td.selling_tax")
+            "sell": get_text("tr.silver td.retail_tax")
         }
     }
 }
