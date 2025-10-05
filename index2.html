@@ -134,9 +134,13 @@
     }
 
     /* メインコンテンツを右にずらす */
-    /* .container, #main-frame {
+    .container, #main-frame {
       margin-left: 240px; /* サイドバー幅と同じ */
-    } */   
+    } 
+
+    #main-frame {
+      width: calc(100% - 240px); /* ← iframeをサイドバー分だけ縮める */
+    }
   }
   @media (max-width: 900px) {
     header h1 {
