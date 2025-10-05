@@ -22,6 +22,11 @@
     padding-bottom: 0.5rem;
   }
 
+  p {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
   .market-container {
     display: flex;
     flex-wrap: wrap;
@@ -30,7 +35,7 @@
   }
 
   .market-card {
-    flex: 1 1 300px; /* 横並び・最小幅300px */
+    flex: 1 1 300px;
     background: #fff;
     border-radius: 0.5rem;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -53,6 +58,12 @@
     color: #003D2E;
   }
 
+  .market-card .icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 0.5rem;
+  }
+
   .market-card iframe {
     width: 100%;
     height: 200px;
@@ -69,30 +80,74 @@
 <body>
 
 <h1>市況情報</h1>
-<p>主要マーケットの情報をリアルタイムで確認できます。自動更新されます。</p>
+<p>主要マーケット情報をリアルタイムで確認できます。</p>
 
 <div class="market-container">
 
-  <!-- 貴金属相場 -->
+  <!-- 円建て金 -->
   <div class="market-card">
-    <h2>金・銀・プラチナ</h2>
-    <iframe src="https://www.kitco.com/widget/price/gold" scrolling="no"></iframe>
+    <img src="https://img.icons8.com/ios-filled/50/ffd700/gold-bar.png" class="icon" alt="円建て金">
+    <h2>金価格 (円建て)</h2>
+    <iframe src="https://www.kitco.com/widget/price/gold-jpy" scrolling="no"></iframe>
   </div>
 
-  <!-- 為替 -->
+  <!-- ドル建て金（TradingView） -->
   <div class="market-card">
+    <img src="https://img.icons8.com/ios-filled/50/ffd700/gold-bar.png" class="icon" alt="ドル建て金">
+    <h2>金価格 (ドル建て)</h2>
+    <!-- TradingView Widget BEGIN -->
+    <div class="tradingview-widget-container" style="width:100%; height:200px;">
+      <div class="tradingview-widget-container__widget"></div>
+      <div class="tradingview-widget-copyright"><a href="https://jp.tradingview.com/symbols/XAUUSD/?exchange=OANDA" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+      {
+      "symbol": "OANDA:XAUUSD",
+      "chartOnly": false,
+      "dateRange": "1D",
+      "noTimeScale": false,
+      "colorTheme": "light",
+      "isTransparent": false,
+      "locale": "ja",
+      "width": "100%",
+      "autosize": true,
+      "height": "100%"
+      }
+      </script>
+    </div>
+    <!-- TradingView Widget END -->
+  </div>
+
+  <!-- 銀 -->
+  <div class="market-card">
+    <img src="https://img.icons8.com/ios-filled/50/c0c0c0/silver.png" class="icon" alt="銀">
+    <h2>銀価格</h2>
+    <iframe src="https://www.kitco.com/widget/price/silver" scrolling="no"></iframe>
+  </div>
+
+  <!-- プラチナ -->
+  <div class="market-card">
+    <img src="https://img.icons8.com/ios-filled/50/aaa/platinum.png" class="icon" alt="プラチナ">
+    <h2>プラチナ価格</h2>
+    <iframe src="https://www.kitco.com/widget/price/platinum" scrolling="no"></iframe>
+  </div>
+
+  <!-- 為替 USD/JPY -->
+  <div class="market-card">
+    <img src="https://img.icons8.com/ios-filled/50/009688/us-dollar.png" class="icon" alt="為替">
     <h2>USD/JPY 為替</h2>
     <iframe src="https://www.investing.com/currencies/usd-jpy" scrolling="no"></iframe>
   </div>
 
-  <!-- 原油 -->
+  <!-- 原油 WTI -->
   <div class="market-card">
+    <img src="https://img.icons8.com/ios-filled/50/ff8c00/oil-barrel.png" class="icon" alt="原油">
     <h2>原油 WTI</h2>
     <iframe src="https://www.investing.com/commodities/crude-oil" scrolling="no"></iframe>
   </div>
 
-  <!-- 日経平均 -->
+  <!-- 日経225 -->
   <div class="market-card">
+    <img src="https://img.icons8.com/ios-filled/50/0077cc/nikkei.png" class="icon" alt="日経225">
     <h2>日経225</h2>
     <iframe src="https://www.investing.com/indices/japan-ni225" scrolling="no"></iframe>
   </div>
