@@ -1,8 +1,17 @@
 {
-  "update_time": "2025-10-05 15:37",
+  "update_time": "2025-10-05 15:42",
   "prices": {
-    "GOLD": "19,991 yen",
-    "PLATINUM": "8,122 yen",
-    "SILVER": "242.00 yen"
+    "GOLD": {
+      "buy": "19,991 yen",
+      "sell": "N/A"
+    },
+    "PLATINUM": {
+      "buy": "8,122 yen",
+      "sell": "N/A"
+    },
+    "SILVER": {
+      "buy": "242.00 yen",
+      "sell": "N/A"
+    }
   }
 }
