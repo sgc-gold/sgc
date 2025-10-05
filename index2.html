@@ -1,152 +1,152 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Favicon（ブラウザのタブ用） -->
-<link rel="icon" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png" type="image/png">
-<!-- Apple Touch Icon（スマホのホーム画面用） -->
-<link rel="apple-touch-icon" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">  
-<title>社内ポータル</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-<style>
-  body {
-    margin: 0;
-    font-family: 'Noto Sans JP', sans-serif;
-    background: #003D2E;
-    color: #003D2E;
-  }
-
-  header {
-    background: #003D2E;
-    color: #fff;
-    padding: 1rem 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  }
-
-  header img {
-    width: 80px;
-    height: auto;
-  }
-
-  header h1 {
-    margin: 0;
-    font-size: 1.4rem;
-    font-weight: 600;
-    flex: 1;
-    text-align: center;
-  }
-
-  .menu-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .menu-btn span {
-    width: 26px;
-    height: 3px;
-    background: #fff;
-    border-radius: 2px;
-    transition: all 0.3s ease;
-  }
-
-  .sidebar {
-    position: fixed;
-    top: 68px;
-    left: -275px;
-    width: 240px;
-    height: calc(100vh - 100px);
-    background: #00281f;
-    color: #fff;
-    padding: 1rem;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.4);
-    transition: left 0.3s ease;
-    z-index: 999;
-    overflow-y: auto;
-  }
-
-  .sidebar.open {
-    left: 0;
-  }
-
-  .sidebar h2 {
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid rgba(255,255,255,0.2);
-    padding-bottom: 0.5rem;
-  }
-
-  .sidebar a {
-    display: block;
-    color: #fff;
-    text-decoration: none;
-    padding: 0.6rem 0.5rem;
-    border-radius: 6px;
-    transition: background 0.2s;
-    margin-bottom: 0.2rem;
-  }
-
-  .sidebar a:hover {
-    background: rgba(255,255,255,0.1);
-  }
-
-  .sidebar .eng {
-    font-size: 0.85rem;
-    color: #ccc;
-  }
-
-  .container {
-    max-width: 100%;
-  }
-
-  #main-frame {
-    width: 100%;
-    height: 800px;
-    border: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-
-  footer {
-    text-align: center;
-    margin: 2rem 0;
-    font-size: 0.9rem;
-    background: #003D2E;
-    color: #fff;
-  }
-
-  /* PC用: 幅900px以上では常に表示 */
-  @media (min-width: 900px) {
-    .sidebar {
-      left: 0; /* 常に表示 */
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Favicon（ブラウザのタブ用） -->
+  <link rel="icon" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png" type="image/png">
+  <!-- Apple Touch Icon（スマホのホーム画面用） -->
+  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">  
+  <title>社内ポータル</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Noto Sans JP', sans-serif;
+      background: #003D2E;
+      color: #003D2E;
     }
   
-    /* メニューアイコンを非表示にする */
-    .menu-btn {
-      display: none;
+    header {
+      background: #003D2E;
+      color: #fff;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
   
-    /* メインコンテンツを右にずらす */
-    .container {
-      margin-left: 273px; /* サイドバー幅と同じ */
+    header img {
+      width: 80px;
+      height: auto;
     }
-  }
-
-  @media (max-width: 900px) {
+  
     header h1 {
-      font-size: 1.2rem;
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 600;
+      flex: 1;
+      text-align: center;
     }
-  }
-</style>
+  
+    .menu-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+  
+    .menu-btn span {
+      width: 26px;
+      height: 3px;
+      background: #fff;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+  
+    .sidebar {
+      position: fixed;
+      top: 68px;
+      left: -275px;
+      width: 240px;
+      height: calc(100vh - 100px);
+      background: #00281f;
+      color: #fff;
+      padding: 1rem;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.4);
+      transition: left 0.3s ease;
+      z-index: 999;
+      overflow-y: auto;
+    }
+  
+    .sidebar.open {
+      left: 0;
+    }
+  
+    .sidebar h2 {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      padding-bottom: 0.5rem;
+    }
+  
+    .sidebar a {
+      display: block;
+      color: #fff;
+      text-decoration: none;
+      padding: 0.6rem 0.5rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+      margin-bottom: 0.2rem;
+    }
+  
+    .sidebar a:hover {
+      background: rgba(255,255,255,0.1);
+    }
+  
+    .sidebar .eng {
+      font-size: 0.85rem;
+      color: #ccc;
+    }
+  
+    .container {
+      max-width: 100%;
+    }
+  
+    #main-frame {
+      width: 100%;
+      height: 800px;
+      border: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+  
+    footer {
+      text-align: center;
+      margin: 2rem 0;
+      font-size: 0.9rem;
+      background: #003D2E;
+      color: #fff;
+    }
+  
+    /* PC用: 幅900px以上では常に表示 */
+    @media (min-width: 900px) {
+      .sidebar {
+        left: 0; /* 常に表示 */
+      }
+    
+      /* メニューアイコンを非表示にする */
+      .menu-btn {
+        display: none;
+      }
+    
+      /* メインコンテンツを右にずらす */
+      .container {
+        margin-left: 273px; /* サイドバー幅と同じ */
+      }
+    }
+  
+    @media (max-width: 900px) {
+      header h1 {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
 </head>
 <body>
 
