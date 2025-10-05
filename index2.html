@@ -61,7 +61,7 @@
     top: 68px;
     left: -275px;
     width: 240px;
-    height: calc(100% - 70px);
+    height: calc(100vh - 500px);
     background: #00281f;
     color: #fff;
     padding: 2rem 1rem;
@@ -109,6 +109,7 @@
 
   #main-frame {
     width: 100%;
+    width: calc(100% - 240px); /* ← iframeをサイドバー分だけ縮める */
     height: 800px;
     border: none;
     border-radius: 1rem;
@@ -137,10 +138,6 @@
     .container, #main-frame {
       margin-left: 240px; /* サイドバー幅と同じ */
     } 
-
-    #main-frame {
-      width: calc(100% - 240px); /* ← iframeをサイドバー分だけ縮める */
-    }
   }
   @media (max-width: 900px) {
     header h1 {
