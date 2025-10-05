@@ -2,32 +2,36 @@ name: Update Tanaka Price
 
 on:
   schedule:
-    # UTC時間で指定：9:30 JST → 0:30 UTC、14:00 JST → 5:00 UTC
-    - cron: '30 0,5 * * *'
-  workflow_dispatch:  # 手動実行も可能
+    # 毎日 09:30 と 14:00 JST に実行
+    - cron: '30 0 * * *'   # UTC 0:30 → JST 9:30
+    - cron: '0 5 * * *'    # UTC 5:00 → JST 14:00
+  workflow_dispatch:      # 手動実行も可能
 
 jobs:
-  update:
+  fetch-price:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.x
+          python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install requests beautifulsoup4
-
-      - name: Update Tanaka price
-        run: python3 scripts/update_tanaka.py
-
-      - name: Commit & push
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@users.noreply.github.com"
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4
+
+      - name: Fetch Tanaka Price
+        run: python fetch_tanaka.py
+
+      - name: Commit and Push JSON
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
           git add data/tanaka_price.json
-          git commit -m "Update Tanaka price"
+          git commit -m "Update Tanaka price [skip ci]" || echo "No changes to commit"
           git push
