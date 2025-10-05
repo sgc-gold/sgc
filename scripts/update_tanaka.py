@@ -8,26 +8,24 @@ res = requests.get(url)
 res.encoding = 'iso-8859-1'
 soup = BeautifulSoup(res.text, 'html.parser')
 
-def get_text(selector):
-    el = soup.select_one(selector)
-    return el.text.strip() if el else "N/A"
+prices = {}
+
+for metal, cls in [("GOLD", "gold"), ("PLATINUM", "pt"), ("SILVER", "silver")]:
+    buy = soup.select_one(f"tr.{cls} td.purchase_tax").text.strip()
+    buy_diff = soup.select_one(f"tr.{cls} td.purchase_ratio").text.strip()
+    retail = soup.select_one(f"tr.{cls} td.retail_tax").text.strip()
+    retail_diff = soup.select_one(f"tr.{cls} td.retail_ratio").text.strip()
+    
+    prices[metal] = {
+        "buy": buy,
+        "buy_diff": buy_diff,
+        "retail": retail,
+        "retail_diff": retail_diff
+    }
 
 data = {
     "update_time": datetime.now().strftime("%Y-%m-%d %H:%M"),
-    "prices": {
-        "GOLD": {
-            "buy": get_text("tr.gold td.purchase_tax"),
-            "sell": get_text("tr.gold td.retail_tax")
-        },
-        "PLATINUM": {
-            "buy": get_text("tr.pt td.purchase_tax"),
-            "sell": get_text("tr.pt td.retail_tax")
-        },
-        "SILVER": {
-            "buy": get_text("tr.silver td.purchase_tax"),
-            "sell": get_text("tr.silver td.retail_tax")
-        }
-    }
+    "prices": prices
 }
 
 with open("data/tanaka_price.json", "w", encoding="utf-8") as f:
