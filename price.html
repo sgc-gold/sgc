@@ -24,6 +24,7 @@
     text-align: center;
     font-size: 1.3rem;
     margin-bottom: 1rem;
+    color: #0077cc;
   }
 
   table {
@@ -31,7 +32,7 @@
     border-collapse: separate;
     border-spacing: 0;
     margin-bottom: 2rem;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     border-radius: 0.5rem;
     overflow: hidden;
   }
@@ -62,8 +63,8 @@
     color: #555;
   }
 
-  .up { color: green; }
-  .down { color: red; }
+  .up { color: green; font-weight: 600; }
+  .down { color: red; font-weight: 600; }
 
   @media (max-width: 600px) {
     th, td { padding: 0.5rem; font-size: 0.85rem; }
@@ -83,23 +84,30 @@ async function fetchTanaka() {
     let html = `<h2>更新時刻: ${data.update_time}</h2>`;
 
     html += `<table>
-      <tr><th>金属</th><th>購入価格</th></tr>`;
+      <tr>
+        <th>金属</th>
+        <th>小売価格</th>
+        <th>買取価格</th>
+      </tr>`;
 
-    for (const [metal, price] of Object.entries(data.prices)) {
-      let cls = '';
-      let icon = '';
+    for (const [metal, priceObj] of Object.entries(data.prices)) {
+      let cls = '', icon = '';
       if (metal === 'GOLD') { cls='gold'; icon='🥇'; }
       if (metal === 'PLATINUM') { cls='pt'; icon='🏅'; }
       if (metal === 'SILVER') { cls='silver'; icon='🥈'; }
 
-      // 簡易的に価格変化が "-"なら down, "+"なら up
-      let changeClass = '';
-      if (price.includes('+')) changeClass='up';
-      if (price.includes('-')) changeClass='down';
+      // 小売価格と買取価格の変化に応じて色分け
+      let retailClass = '';
+      let purchaseClass = '';
+      if (priceObj.retail.includes('+')) retailClass='up';
+      if (priceObj.retail.includes('-')) retailClass='down';
+      if (priceObj.purchase.includes('+')) purchaseClass='up';
+      if (priceObj.purchase.includes('-')) purchaseClass='down';
 
       html += `<tr class="${cls}">
         <td>${icon} ${metal}</td>
-        <td class="${changeClass}">${price}</td>
+        <td class="${retailClass}">${priceObj.retail}</td>
+        <td class="${purchaseClass}">${priceObj.purchase}</td>
       </tr>`;
     }
 
@@ -111,8 +119,10 @@ async function fetchTanaka() {
   }
 }
 
+// 初回取得
 fetchTanaka();
-setInterval(fetchTanaka, 5*60*1000); // 5分ごとに更新
+// 5分ごとに更新
+setInterval(fetchTanaka, 5*60*1000);
 </script>
 </body>
 </html>
