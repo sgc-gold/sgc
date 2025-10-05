@@ -151,7 +151,7 @@
     <span></span>
     <span></span>
   </button>
-  <h1>社内ポータル v1.11</h1>
+  <h1>社内ポータル v1.12</h1>
   <img src="https://www.sgc-gold.co.jp/img/header-logo.png" alt="SGCロゴ">
 </header>
 
@@ -195,12 +195,20 @@ function toggleMenu() {
 }
 
 function openFrame(e, url){
-  e.preventDefault();
-  document.getElementById('main-frame').src = url;
+  e.preventDefault(); // デフォルトのリンク動作を止める
 
-  // スマホのみでサイドバーを閉じる
-  if(window.innerWidth < 900){
-    document.getElementById('sidebar').classList.remove('open');
+  const iframe = document.getElementById('main-frame');
+  const sidebar = document.getElementById('sidebar');
+
+  if(iframe){
+    iframe.src = url;
+  } else {
+    console.error('iframe が見つかりません');
+  }
+
+  // 幅が900px未満ならサイドバーを閉じる
+  if(sidebar && window.innerWidth < 900){
+    sidebar.classList.remove('open');
   }
 }
 </script>
