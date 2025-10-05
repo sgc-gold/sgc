@@ -3,99 +3,227 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Favicon（ブラウザのタブ用） -->
+  <!-- Favicon（ブラウザのタブ用） -->
   <link rel="icon" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png" type="image/png">
   <!-- Apple Touch Icon（スマホのホーム画面用） -->
-  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">  
   <title>社内ポータル</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
-      padding: 0;
       font-family: 'Noto Sans JP', sans-serif;
-      background: #f4f4f4;
+      background: #003D2E;
+      color: #003D2E;
     }
-
+  
     header {
       background: #003D2E;
       color: #fff;
-      text-align: center;
-      padding: 2rem 1rem;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
-
+  
     header img {
-      width: 160px;
+      width: 80px;
       height: auto;
-      margin-bottom: 0.5rem;
     }
-
+  
     header h1 {
-      font-size: 2.0rem;
-      margin: 0.5rem 0 0;
-    }
-
-    .container {
-      max-width: 960px;
-      margin: 2rem auto;
-      padding: 1rem;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 0.75rem;
-      padding: 1rem 0.5rem;
-      text-align: center;
-      text-decoration: none;
-      color: #003D2E;
+      margin: 0;
       font-size: 1.4rem;
-      font-weight: bold;
-      box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      font-weight: 600;
+      flex: 1;
+      text-align: center;
     }
-
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
-      background: #e9f7fc;
+  
+    .menu-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
     }
-
+  
+    .menu-btn span {
+      width: 26px;
+      height: 3px;
+      background: #fff;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+  
+    .sidebar {
+      position: fixed;
+      top: 68px;
+      left: -275px;
+      width: 240px;
+      height: calc(100vh - 100px);
+      background: #00281f;
+      color: #fff;
+      padding: 1rem;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.4);
+      transition: left 0.3s ease;
+      z-index: 999;
+      overflow-y: auto;
+    }
+  
+    .sidebar.open {
+      left: 0;
+    }
+  
+    .sidebar h2 {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      padding-bottom: 0.5rem;
+    }
+  
+    .sidebar a {
+      display: block;
+      color: #fff;
+      text-decoration: none;
+      padding: 0.6rem 0.5rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+      margin-bottom: 0.2rem;
+    }
+  
+    .sidebar a:hover {
+      background: rgba(255,255,255,0.1);
+    }
+  
+    .sidebar .eng {
+      font-size: 0.85rem;
+      color: #ccc;
+    }
+  
+    .container {
+      max-width: 100%;
+    }
+  
+    #main-frame {
+      width: 100%;
+      height: 800px;
+      border: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+  
     footer {
       text-align: center;
       margin: 2rem 0;
       font-size: 0.9rem;
-      color: #666;
+      background: #003D2E;
+      color: #fff;
+    }
+  
+    /* PC用: 幅900px以上では常に表示 */
+    @media (min-width: 900px) {
+      .sidebar {
+        left: 0; /* 常に表示 */
+      }
+    
+      /* メニューアイコンを非表示にする */
+      .menu-btn {
+        display: none;
+      }
+    
+      /* メインコンテンツを右にずらす */
+      .container {
+        margin-left: 273px; /* サイドバー幅と同じ */
+      }
+    }
+  
+    @media (max-width: 900px) {
+      header h1 {
+        font-size: 1.2rem;
+      }
     }
   </style>
 </head>
 <body>
 
 <header>
-  <a href="https://sgc-gold.github.io/sgc/">
-    <img src="https://www.sgc-gold.co.jp/img/header-logo.png" alt="SGCロゴ">
-  </a>
-  <h1>社内ポータル</h1>
+  <button class="menu-btn" onclick="toggleMenu()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  <h1>
+    <a href="#" style="color:#fff; text-decoration:none;" onclick="openFrame(event, 'main.html')">
+      社内ポータル v1.26
+    </a>
+  </h1>
+  <img src="https://www.sgc-gold.co.jp/img/header-logo.png" alt="SGCロゴ">
 </header>
 
+<nav class="sidebar" id="sidebar">
+
+  <h2>ホーム <span class="eng">Home</span></h2>
+  <a href="#" onclick="openFrame(event, 'main.html')">トップページ</a>
+  
+  <h2>貴金属価格情報 <span class="eng">Metal Market</span></h2>
+  <a href="#" onclick="openFrame(event, '#')">田中公表価格</a>
+  <a href="#" onclick="openFrame(event, '#')">市況情報</a>
+
+  <h2>買取関連 <span class="eng">Purchase</span></h2>
+  <a href="#" onclick="openFrame(event, 'https://script.google.com/macros/s/AKfycbxV4bMjhApWrwqTBLsuu0BnSQ5L8TyaV40_qCOO_RFjT3-WHvosgeesx_LxWZAO4MFr/exec')">IGシリアル照合</a>
+  <a href="#" onclick="openFrame(event, 'coin.html')">記念金貨 買取価格</a>
+  <a href="#" onclick="openFrame(event, 'https://script.google.com/macros/s/AKfycbwk4BDghG3StxpEK7AncyxKN-cojWfWToAiX24zfCDSNA5a0mSrkgofJPWRBTgW_AZjWw/exec')">買取/分割 確認</a>
+  <a href="#" onclick="openFrame(event, '#')">ダイヤ 市場価格</a>
+  <a href="#" onclick="openFrame(event, '#')">色石重量検索</a>
+
+  <h2>販売関連 <span class="eng">Sales</span></h2>
+  <a href="#" onclick="openFrame(event, '#')">-------</a>
+  <a href="#" onclick="openFrame(event, '#')">-------</a>
+
+  <h2>社内資料 <span class="eng">Reference</span></h2>
+  <a href="#" onclick="openFrame(event, '#')">-------</a>
+  <a href="#" onclick="openFrame(event, '#')">-------</a>
+
+  <h2>メディア <span class="eng">Media</span></h2>
+  <a href="#" onclick="openFrame(event, 'news.html')">ニュース</a>
+  <a href="#" onclick="openFrame(event, 'youtube.html')">YouTube</a>  
+</nav>
+
 <div class="container">
-  <div class="grid">
-    <a href="https://script.google.com/macros/s/AKfycbxV4bMjhApWrwqTBLsuu0BnSQ5L8TyaV40_qCOO_RFjT3-WHvosgeesx_LxWZAO4MFr/exec" class="card">IGシリアル照合</a>
-    <a href="https://script.google.com/macros/s/AKfycbyd9GrXvjDcYde3AVcOi5XJvMfSAteTui2r2IQJFIV9HC3tsQsHCm2lfB5LMlyrhs3U/exec" class="card">記念金貨 買取価格</a>
-    <a href="https://script.google.com/macros/s/AKfycbwk4BDghG3StxpEK7AncyxKN-cojWfWToAiX24zfCDSNA5a0mSrkgofJPWRBTgW_AZjWw/exec" class="card">IG買取・分割 確認（作成中）</a>
-    <a href="diamond-price.html" class="card">ダイヤ 参考価格（作成中）</a>
-    <a href="gem-weight.html" class="card">色石重量検索（作成中）</a>
-  </div>
+  <iframe id="main-frame" src="main.html"></iframe>
 </div>
 
 <footer>
   <p>© 2025 SGC Co., Ltd. All Rights Reserved.</p>
 </footer>
+
+<script>
+function toggleMenu() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+function openFrame(e, url){
+  e.preventDefault(); // デフォルトのリンク動作を止める
+
+  const iframe = document.getElementById('main-frame');
+  const sidebar = document.getElementById('sidebar');
+
+  if(iframe){
+    iframe.src = url;
+  } else {
+    console.error('iframe が見つかりません');
+  }
+
+  // 幅が900px未満ならサイドバーを閉じる
+  if(sidebar && window.innerWidth < 900){
+    sidebar.classList.remove('open');
+  }
+}
+</script>
 
 </body>
 </html>
