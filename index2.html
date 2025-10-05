@@ -109,7 +109,6 @@
 
   #main-frame {
     width: 100%;
-    width: calc(100% - 240px); /* ← iframeをサイドバー分だけ縮める */
     height: 800px;
     border: none;
     border-radius: 1rem;
@@ -133,12 +132,18 @@
     .menu-btn {
       display: none;
     }
-
+  
     /* メインコンテンツを右にずらす */
-    /* .container, #main-frame {
+    .container {
       margin-left: 240px; /* サイドバー幅と同じ */
-    }  */
+    }
+  
+    #main-frame {
+      margin-left: 240px; /* iframe単体にも適用（念のため） */
+      width: calc(100% - 240px); /* サイドバー分だけ縮める */
+    }
   }
+
   @media (max-width: 900px) {
     header h1 {
       font-size: 1.2rem;
@@ -159,7 +164,7 @@
 </header>
 
 <nav class="sidebar" id="sidebar">
-  <h2><a href="#" onclick="openFrame(event, 'index2.html')">トップページ <span class="eng">Top Page</span></a></h2>
+  <h2><a href="#" onclick="openFrame(event, 'index2.html')">トップペジ <span class="eng">Top Page</span></a></h2>
   
   <h2>貴金属価格情報 <span class="eng">Metal Market</span></h2>
   <a href="#" onclick="openFrame(event, 'https://script.google.com/macros/s/YOUR_TANAKA_APP_URL/exec')">田中公表価格</a>
