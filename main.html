@@ -46,22 +46,87 @@
     margin-bottom: 1rem;
   }
 
+  /* ----- アイコンメニュー ----- */
+  .menu-grid {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+  }
+
+  .menu-grid a {
+    text-decoration: none;
+    color: #003D2E;
+    flex: 0 0 calc(33.333% - 0.66rem);
+  }
+
+  .menu-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 2px solid #003D2E;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .menu-icon:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  }
+
+  .menu-icon .icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .menu-icon .label {
+    font-size: 1rem;
+    text-align: center;
+    font-weight: 600;
+  }
+
   @media (max-width: 600px) {
-    h1 {
-      font-size: 1.4rem;
-    }
-    h2 {
-      font-size: 1.1rem;
-    }
+    h1 { font-size: 1.4rem; }
+    h2 { font-size: 1.1rem; }
+    .menu-grid a { flex: 0 0 33.333%; }
   }
 </style>
 </head>
 <body>
+
+  <!-- ----- アイコンメニュー ----- -->
+  <div class="menu-grid">
+    <a href="#" onclick="openFrame(event, 'https://script.google.com/macros/s/AKfycbxV4bMjhApWrwqTBLsuu0BnSQ5L8TyaV40_qCOO_RFjT3-WHvosgeesx_LxWZAO4MFr/exec')">
+      <div class="menu-icon">
+        <span class="icon">📝</span>
+        <span class="label">IGシリアル照合</span>
+      </div>
+    </a>
+    
+    <a href="#" onclick="openFrame(event, 'coin.html')">
+      <div class="menu-icon">
+        <span class="icon">💰</span>
+        <span class="label">記念金貨 買取価格</span>
+      </div>
+    </a>
+    
+    <a href="#" onclick="openFrame(event, '#')">
+      <div class="menu-icon">
+        <span class="icon">🔍</span>
+        <span class="label">買取/分割 確認</span>
+      </div>
+    </a>
+  </div>
+
   <h1>社内案内</h1>
   <p>この社内ポータルは、買取業務を中心とした更新情報・お知らせを共有するためのページです。</p>
   <p>上記メニューのほか、サイドメニューより各ページにアクセスできます。</p>
   
-  <h12>更新履歴</h2>
+  <h2>更新履歴</h2>
   <ul>
     <li>2025/10/05　メインフレーム初期表示用ページを作成</li>
   </ul>
@@ -69,5 +134,16 @@
   <div class="note">
     ※初めて開いた際にはこのページが表示されます。
   </div>
+
+<script>
+function openFrame(e, url){
+  e.preventDefault();
+  const iframe = parent.document.getElementById('main-frame');
+  if(iframe){
+    iframe.src = url;
+  }
+}
+</script>
+
 </body>
 </html>
