@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YouTube検索</title>
+  <title>YouTube</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
   <style>
     body {
@@ -50,6 +50,21 @@
       color: #003D2E;
     }
     .video-date { font-size: 0.8rem; color: #666; }
+
+    .load-more {
+      display: block;
+      margin: 1rem auto;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #003D2E;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .load-more:hover {
+      background-color: #025d45;
+    }
   </style>
 </head>
 <body>
@@ -61,46 +76,78 @@
   <script>
     const API_KEY = 'AIzaSyC4YLySfOAuuxslQiLMAIN5l-e5Trh44g4';
     const KEYWORDS = ['池水雄一', '大黄金展'];
-    const MAX_RESULTS = 30;
+    const MAX_RESULTS = 20;
 
-    async function fetchVideos(keyword) {
-      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(keyword)}&type=video&order=date&maxResults=${MAX_RESULTS}&key=${API_KEY}`;
+    const nextPageTokens = {}; // キーワードごとの次ページトークンを保持
+
+    async function fetchVideos(keyword, pageToken = '') {
+      const url = new URL('https://www.googleapis.com/youtube/v3/search');
+      url.search = new URLSearchParams({
+        part: 'snippet',
+        q: keyword,
+        type: 'video',
+        order: 'date',
+        maxResults: MAX_RESULTS,
+        key: API_KEY,
+        pageToken
+      });
+
       const res = await fetch(url);
       const data = await res.json();
+      nextPageTokens[keyword] = data.nextPageToken || null;
       return data.items || [];
     }
 
-    async function loadAllVideos() {
-      const container = document.getElementById('video-container');
-      container.innerHTML = '';
-      for (const keyword of KEYWORDS) {
-        const videos = await fetchVideos(keyword);
-        const section = document.createElement('section');
-        section.innerHTML = `<h2>「${keyword}」の最新動画</h2>`;
-        const main = document.createElement('main');
+    async function renderVideos(keyword, append = false) {
+      const container = document.getElementById(`videos-${keyword}`);
+      if (!append) container.innerHTML = '';
+      const videos = await fetchVideos(keyword, nextPageTokens[keyword]);
 
-        if (videos.length === 0) {
-          main.innerHTML = '<p>該当する動画が見つかりませんでした。</p>';
-        } else {
-          videos.forEach(item => {
-            const videoId = item.id.videoId;
-            const title = item.snippet.title;
-            const publishedAt = new Date(item.snippet.publishedAt).toLocaleDateString('ja-JP');
-            const card = document.createElement('div');
-            card.className = 'video-card';
-            card.innerHTML = `
-              <iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen title="${title}"></iframe>
-              <div class="video-info">
-                <p class="video-title">${title}</p>
-                <p class="video-date">公開日: ${publishedAt}</p>
-              </div>
-            `;
-            main.appendChild(card);
-          });
+      if (videos.length === 0) {
+        container.innerHTML = '<p>該当する動画が見つかりませんでした。</p>';
+        return;
+      }
+
+      videos.forEach(item => {
+        const videoId = item.id.videoId;
+        const title = item.snippet.title;
+        const publishedAt = new Date(item.snippet.publishedAt).toLocaleDateString('ja-JP');
+        const card = document.createElement('div');
+        card.className = 'video-card';
+        card.innerHTML = `
+          <iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen title="${title}"></iframe>
+          <div class="video-info">
+            <p class="video-title">${title}</p>
+            <p class="video-date">公開日: ${publishedAt}</p>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      const btnId = `btn-${keyword}`;
+      let loadMoreBtn = document.getElementById(btnId);
+      if (nextPageTokens[keyword]) {
+        if (!loadMoreBtn) {
+          loadMoreBtn = document.createElement('button');
+          loadMoreBtn.id = btnId;
+          loadMoreBtn.className = 'load-more';
+          loadMoreBtn.textContent = 'さらに読み込む';
+          loadMoreBtn.onclick = () => renderVideos(keyword, true);
+          container.parentNode.appendChild(loadMoreBtn);
         }
+      } else if (loadMoreBtn) {
+        loadMoreBtn.remove();
+      }
+    }
 
-        section.appendChild(main);
-        container.appendChild(section);
+    async function loadAllVideos() {
+      const wrapper = document.getElementById('video-container');
+      wrapper.innerHTML = '';
+      for (const keyword of KEYWORDS) {
+        const section = document.createElement('section');
+        section.innerHTML = `<h2>「${keyword}」の最新動画</h2><main id="videos-${keyword}"></main>`;
+        wrapper.appendChild(section);
+        await renderVideos(keyword);
       }
     }
 
