@@ -3,8 +3,8 @@ name: Update Tanaka Price
 on:
   schedule:
     # 毎日 09:30 と 14:00 JST に実行
-    - cron: '30 0 * * *'   # UTC 0:30 → JST 9:30
-    - cron: '0 5 * * *'    # UTC 5:00 → JST 14:00
+    - cron: '40 0 * * *'   # UTC 0:40 → JST 9:40
+    - cron: '10 5 * * *'    # UTC 5:10 → JST 14:10
   workflow_dispatch:      # 手動実行も可能
 
 jobs:
