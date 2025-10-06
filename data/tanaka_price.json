@@ -1,23 +1,23 @@
 {
-  "update_time": "2025-10-06 02:12",
+  "update_time": "2025-10-06 05:26",
   "prices": {
     "GOLD": {
-      "buy": "20,555",
-      "buy_diff": "+539",
-      "retail": "20,747",
-      "retail_diff": "+539"
+      "buy": "20,848",
+      "buy_diff": "+832",
+      "retail": "21,039",
+      "retail_diff": "+831"
     },
     "PLATINUM": {
-      "buy": "8,511",
-      "buy_diff": "+363",
-      "retail": "8,730",
-      "retail_diff": "+363"
+      "buy": "8,604",
+      "buy_diff": "+456",
+      "retail": "8,823",
+      "retail_diff": "+456"
     },
     "SILVER": {
-      "buy": "251.46",
-      "buy_diff": "+10.01",
-      "retail": "257.51",
-      "retail_diff": "+10.01"
+      "buy": "255.53",
+      "buy_diff": "+14.08",
+      "retail": "261.58",
+      "retail_diff": "+14.08"
     }
   }
 }
