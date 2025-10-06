@@ -2,10 +2,13 @@ name: Update Tanaka Price
 
 on:
   schedule:
-    # 毎日 09:30 と 14:00 JST に実行
-    - cron: '40 0 * * *'   # UTC 0:40 → JST 9:40
-    - cron: '10 5 * * *'    # UTC 5:10 → JST 14:10
-  workflow_dispatch:      # 手動実行も可能
+    # JST 9:40 と 14:10 に自動実行（UTC換算）
+    - cron: '40 0 * * *'   # JST 9:40
+    - cron: '10 5 * * *'    # JST 14:10
+  workflow_dispatch:        # 手動実行も可能
+
+permissions:
+  contents: write           # ← GitHub Actionsがpushできるように追加
 
 jobs:
   fetch-price:
@@ -13,10 +16,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          ref: main   # ← mainブランチを明示
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
@@ -33,7 +38,5 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
           git add data/tanaka_price.json
-          git commit -m "Update Tanaka price [skip ci]" || echo "No changes to commit"
-          git push origin HEAD:main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          git commit -m "Auto-update Tanaka price [skip ci]" || echo "No changes to commit"
+          git push
