@@ -3,6 +3,21 @@ from bs4 import BeautifulSoup
 import json
 from datetime import datetime
 import os
+import sys
+
+# 手動トリガー時の引数（または環境変数）を確認
+force_run = os.getenv('FORCE_RUN', 'false').lower() == 'true'
+
+# 定刻外ならスキップするロジックがある場合、force_run=Trueならスキップしない
+if not force_run:
+    from datetime import datetime
+    now = datetime.now()
+    if not ((now.hour == 9 and now.minute >= 35 and now.minute <= 45) or
+            (now.hour == 14 and now.minute >= 5 and now.minute <= 15)):
+        print("⏸ 定刻外のためスキップ（force_run=False）")
+        sys.exit(0)
+else:
+    print("🚀 強制実行モード（force_run=True）")
 
 # 日本語ページから取得
 URL = "https://gold.tanaka.co.jp/commodity/souba/index.php"
