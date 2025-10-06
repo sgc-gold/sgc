@@ -2,8 +2,13 @@ name: Update Tanaka Price
 
 on:
   schedule:
-    - cron: '40 0,5 * * 1-5'  # JST: 月～金 9:40, 14:10
+    - cron: '40 0,5 * * 1-5' # JST: 月～金 9:40, 14:10
   workflow_dispatch:
+    inputs:
+      force_run:
+        description: 'Force run regardless of time (for testing)'
+        required: false
+        default: 'false'
 
 jobs:
   update_price:
