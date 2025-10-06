@@ -29,4 +29,6 @@ jobs:
         pip install requests beautifulsoup4
 
     - name: Run update_tanaka.py
-      run: python ./scripts/update_tanaka.py
+      run: python sgc/scripts/update_tanaka.py
+      env:
+        FORCE_RUN: ${{ github.event.inputs.force_run }}
