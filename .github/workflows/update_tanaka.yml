@@ -2,9 +2,8 @@ name: Update Tanaka Price
 
 on:
   schedule:
-    - cron: '40 0 * * 1-5'  # JST 9:40 → UTC 0:40
-    - cron: '10 5 * * 1-5'  # JST 14:10 → UTC 5:10
-  workflow_dispatch:
+    - cron: '40 0,5 * * 1-5' # JST: 月～金 9:40, 14:10
+  workflow_dispatch: # 手動実行対応
 
 jobs:
   update:
