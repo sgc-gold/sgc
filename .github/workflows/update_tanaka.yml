@@ -13,25 +13,20 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./sgc
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.x
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install requests beautifulsoup4
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4
 
-    - name: Run update script
-      run: python scripts/update_tanaka.py
-      env:
-        FORCE_RUN: ${{ github.event.inputs.force_run }}
+      - name: Run update script
+        run: python scripts/update_tanaka.py
