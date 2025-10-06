@@ -5,27 +5,33 @@ from datetime import datetime
 import os
 import sys
 
-# 手動トリガー時の引数（または環境変数）を確認
-force_run = os.getenv('FORCE_RUN', 'false').lower() == 'true'
+# ================================
+# GitHub Actionsでの手動実行判定
+# workflow_dispatchなら常に実行
+# ================================
+is_workflow_dispatch = os.getenv("GITHUB_EVENT_NAME") == "workflow_dispatch"
 
-# 定刻外ならスキップするロジックがある場合、force_run=Trueならスキップしない
-if not force_run:
-    from datetime import datetime
+if not is_workflow_dispatch:
     now = datetime.now()
     if not ((now.hour == 9 and now.minute >= 35 and now.minute <= 45) or
             (now.hour == 14 and now.minute >= 5 and now.minute <= 15)):
-        print("⏸ 定刻外のためスキップ（force_run=False）")
+        print("⏸ 定刻外のためスキップ（スケジュール実行）")
         sys.exit(0)
 else:
-    print("🚀 強制実行モード（force_run=True）")
+    print("🚀 手動実行モード（定刻外でも強制実行）")
 
-# 日本語ページから取得
+# ================================
+# 取得対象URL
+# ================================
 URL = "https://gold.tanaka.co.jp/commodity/souba/index.php"
 
 # 保存先
 PATH_MAIN = "data/tanaka_price.json"
 PATH_930 = "data/tanaka_price_930.json"
 
+# ================================
+# 金額取得関数
+# ================================
 def fetch_tanaka_prices():
     res = requests.get(URL)
     res.encoding = 'utf-8'
@@ -46,15 +52,17 @@ def fetch_tanaka_prices():
             "buy_diff": buy_diff
         }
 
-    # 公表時刻を取得
+    # 公表時刻
     update_time_raw = soup.select_one("h3 span").text.strip()
     return prices, update_time_raw
 
-
+# ================================
+# JSON保存・読み込み
+# ================================
 def save_json(path, data):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
-
 
 def load_json(path):
     if os.path.exists(path):
@@ -62,7 +70,9 @@ def load_json(path):
             return json.load(f)
     return None
 
-
+# ================================
+# メイン処理
+# ================================
 def main():
     now = datetime.now().strftime("%H:%M")
     prices, update_text = fetch_tanaka_prices()
@@ -91,7 +101,6 @@ def main():
                     retail_diff930 = curr_retail - morn_retail
                     buy_diff930 = curr_buy - morn_buy
 
-                    # 符号付きフォーマット（＋−付き、千区切りなし、整数 or 小数対応）
                     prices[metal]["retail_930diff"] = f"{retail_diff930:+,.2f}".rstrip("0").rstrip(".") + " 円"
                     prices[metal]["buy_930diff"] = f"{buy_diff930:+,.2f}".rstrip("0").rstrip(".") + " 円"
                 except Exception:
@@ -110,7 +119,7 @@ def main():
         print("✅ 14:00 更新データを保存しました（9:30比込み）")
 
     else:
-        print("⏸ 現在は定刻外です（実行なし）")
+        print("⏸ 現在は定刻外です（スケジュール実行時のみ）")
 
 
 if __name__ == "__main__":
