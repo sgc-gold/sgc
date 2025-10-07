@@ -88,9 +88,9 @@
       <tr>
         <th>&nbsp;</th>
         <th>小売価格<br>(税込)</th>
-        <th>前日比<br><span id="sub-label"></span></th>
+        <th>前日比</th>
         <th>買取価格<br>(税込)</th>
-        <th>前日比<br><span id="sub-label2"></span></th>
+        <th>前日比</th>
       </tr>
     </table>
 
@@ -106,34 +106,54 @@ async function fetchTanaka() {
     const res = await fetch('data/tanaka_price.json?nocache=' + Date.now());
     const data = await res.json();
 
-    document.querySelector("#title span").textContent = `(As of ${data.update_time})`;
+    // 更新時刻をタイトルに反映
+    document.querySelector("#title span").textContent = `(${data.update_time})`;
 
-    const isAfternoon = data.update_time.includes("14"); // 14時台の更新ならtrue
     const table = document.querySelector("#metal_price");
     const metals = ["GOLD", "PLATINUM", "SILVER"];
     const rows = [];
 
+    const isAfternoon = data.update_time.includes("14");
+
     for (const metal of metals) {
       const p = data.prices[metal];
-      const diffRetailClass = p.retail_diff.startsWith('+') ? 'positive' : p.retail_diff.startsWith('-') ? 'negative' : '';
-      const diffBuyClass = p.buy_diff.startsWith('+') ? 'positive' : p.buy_diff.startsWith('-') ? 'negative' : '';
+      if (!p) continue;
 
-      // 桁区切りと円表示
-      const retailPrice = Number(p.retail).toLocaleString() + "円";
-      const buyPrice = Number(p.buy).toLocaleString() + "円";
+      const diffRetailClass = p.retail_diff.startsWith('+')
+        ? 'positive'
+        : p.retail_diff.startsWith('-')
+        ? 'negative'
+        : '';
+      const diffBuyClass = p.buy_diff.startsWith('+')
+        ? 'positive'
+        : p.buy_diff.startsWith('-')
+        ? 'negative'
+        : '';
 
+      const retailPrice = p.retail.includes('.') 
+        ? Number(p.retail).toFixed(2) + "円"
+        : Number(p.retail).toLocaleString() + "円";
+
+      const buyPrice = p.buy.includes('.') 
+        ? Number(p.buy).toFixed(2) + "円"
+        : Number(p.buy).toLocaleString() + "円";
+
+      // 午後（14時更新）の場合は9:30比も追加表示
       let retailDiffText = `${p.retail_diff}円`;
       let buyDiffText = `${p.buy_diff}円`;
-
-      // 午後（14:30）の場合、9時半比を追加
       if (isAfternoon && p.retail_930diff && p.buy_930diff) {
         retailDiffText += `<br><span class="small_diff">(${p.retail_930diff}円)</span>`;
         buyDiffText += `<br><span class="small_diff">(${p.buy_930diff}円)</span>`;
       }
 
+      const metalName =
+        metal === "GOLD" ? "金" :
+        metal === "PLATINUM" ? "プラチナ" :
+        "銀";
+
       rows.push(`
         <tr class="${metal.toLowerCase()}">
-          <td class="metal_name">${metal}</td>
+          <td class="metal_name">${metalName}</td>
           <td class="retail_tax">${retailPrice}</td>
           <td class="retail_ratio ${diffRetailClass}">${retailDiffText}</td>
           <td class="purchase_tax">${buyPrice}</td>
@@ -148,7 +168,7 @@ async function fetchTanaka() {
       "afterend",
       `<p style="color:red;text-align:center;">価格データの取得に失敗しました。</p>`
     );
-    console.error(err);
+    console.error("価格データの読み込みエラー:", err);
   }
 }
 
