@@ -4,165 +4,251 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>トップページ</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&display=swap" rel="stylesheet">
 <style>
-html, body {
-  margin: 0;
-  padding: 0 1rem;
-  font-family: 'Noto Sans JP', sans-serif;
-  background: #111;
-  color: #fff;
-  box-sizing: border-box;
-}
-
-/* ===== 田中貴金属 高級カード ===== */
-.tanaka-section {
-  text-align: center;
-  margin: 2rem auto;
-  max-width: 700px;
-}
-
-.tanaka-header {
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  margin-bottom: 1rem;
-  color: #fff;
-  text-shadow: 0 2px 5px rgba(0,0,0,0.5);
-}
-
-.tanaka-update {
-  display: block;
-  font-size: 0.85rem;
-  color: #ddd;
-  margin-top: 0.3rem;
-}
-
-/* カード横並び */
-.tanaka-cards {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  flex-wrap: nowrap;
-}
-
-.tanaka-card {
-  flex: 1 1 0;
-  min-width: 140px;
-  max-width: 180px;
-  background: linear-gradient(135deg, #222, #000);
-  border-radius: 18px;
-  padding: 1rem 0.8rem;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-  transition: transform 0.25s, box-shadow 0.25s;
-  color: #fff;
-}
-
-.tanaka-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 28px rgba(0,0,0,0.7);
-}
-
-.tanaka-card.gold { border-top: 4px solid #FFD700; }
-.tanaka-card.platinum { border-top: 4px solid #E5E4E2; }
-
-.metal-name {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #fff;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-}
-
-.metal-buy {
-  font-size: 1.6rem;
-  font-weight: 700;
-  margin: 0.3rem 0;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.6);
-}
-
-.metal-diff {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-top: 0.3rem;
-}
-
-.metal-diff.positive { color: #ff4c4c; }
-.metal-diff.negative { color: #4cafff; }
-
-@media (max-width: 600px) {
-  .tanaka-cards {
-    gap: 0.6rem;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 0.5rem;
+  html, body {
+    margin: 0;
+    padding: 1rem;
+    font-family: 'Noto Sans JP', sans-serif;
+    background: #f8f9f8;
+    color: #003D2E;
+    box-sizing: border-box;
   }
-  .tanaka-card {
-    min-width: 120px;
-    max-width: 150px;
+
+  /* --- 金・プラチナ価格カード --- */
+  .price-bar {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 0.8rem;
+    margin: 0 auto 1.5rem;
+    max-width: 480px;
+  }
+
+  .price-card {
+    flex: 1;
+    text-align: center;
+    border-radius: 12px;
     padding: 0.8rem;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    backdrop-filter: blur(4px);
+    transition: transform 0.3s ease;
   }
-  .metal-buy { font-size: 1.3rem; }
-  .tanaka-header { font-size: 1rem; }
-  .tanaka-update { font-size: 0.8rem; }
-}
+
+  .price-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .gold {
+    background: linear-gradient(135deg, #b9934a, #f0d58c);
+  }
+
+  .platinum {
+    background: linear-gradient(135deg, #8c8c8c, #d9d9d9);
+  }
+
+  .price-card h3 {
+    font-size: 1rem;
+    margin: 0 0 0.3rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  .price-card .price {
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .price-card .diff {
+    font-size: 0.85rem;
+    margin-top: 0.2rem;
+  }
+
+  .positive { color: #ffebee; text-shadow: 0 0 3px rgba(255,255,255,0.6); }
+  .negative { color: #e3f2fd; text-shadow: 0 0 3px rgba(255,255,255,0.5); }
+
+  /* --- 見出しなど --- */
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 0.4rem;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+    margin-top: 2rem;
+    border-left: 4px solid #0077cc;
+    padding-left: 0.5rem;
+  }
+
+  p, li {
+    line-height: 1.6;
+  }
+
+  ul {
+    margin: 0.5rem 0 1rem 1.5rem;
+    padding: 0;
+  }
+
+  .note {
+    background: #fff3cd;
+    color: #856404;
+    padding: 0.5rem;
+    border-radius: 0.3rem;
+    margin-bottom: 1rem;
+  }
+
+  /* --- アイコンメニュー --- */
+  .menu-grid {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    justify-content: space-between;
+  }
+
+  .menu-grid a {
+    text-decoration: none;
+    color: #003D2E;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .menu-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 2px solid #003D2E;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .menu-icon:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  }
+
+  .menu-icon .icon {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 0.4rem;
+  }
+
+  .menu-icon .label {
+    font-size: 0.9rem;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  @media (max-width: 480px) {
+    .price-bar {
+      flex-wrap: nowrap;
+      gap: 0.6rem;
+      max-width: 100%;
+    }
+    .price-card {
+      padding: 0.6rem;
+      min-width: 140px;
+    }
+    .price-card .price { font-size: 1.2rem; }
+    .price-card h3 { font-size: 0.9rem; }
+  }
 </style>
 </head>
 <body>
 
-<!-- ===== 田中貴金属カード表示（金・プラチナのみ） ===== -->
-<div class="tanaka-section">
-  <div class="tanaka-header">
-    田中貴金属公表（9:30価格）
-    <span class="tanaka-update" id="tanaka-update">読み込み中...</span>
-  </div>
-  <div class="tanaka-cards">
-    <div class="tanaka-card gold">
-      <div class="metal-name">GOLD</div>
-      <div class="metal-buy">¥<span id="gold-buy">--</span></div>
-      <div class="metal-diff" id="gold-diff">--</div>
+  <!-- 金・プラチナ価格カード -->
+  <div class="price-bar">
+    <div class="price-card gold">
+      <h3>GOLD 買取</h3>
+      <div class="price" id="gold-price">-</div>
+      <div class="diff" id="gold-diff">-</div>
     </div>
-    <div class="tanaka-card platinum">
-      <div class="metal-name">PLATINUM</div>
-      <div class="metal-buy">¥<span id="pt-buy">--</span></div>
-      <div class="metal-diff" id="pt-diff">--</div>
+    <div class="price-card platinum">
+      <h3>PLATINUM 買取</h3>
+      <div class="price" id="pt-price">-</div>
+      <div class="diff" id="pt-diff">-</div>
     </div>
   </div>
-</div>
 
-<!-- ----- 以下は既存のアイコンメニューや社内案内 ----- -->
-<!-- 省略（前回と同じ） -->
+  <!-- ----- アイコンメニュー ----- -->
+  <div class="menu-grid">
+    <a href="#" onclick="openFrame(event, 'https://script.google.com/macros/s/AKfycbxV4bMjhApWrwqTBLsuu0BnSQ5L8TyaV40_qCOO_RFjT3-WHvosgeesx_LxWZAO4MFr/exec')">
+      <div class="menu-icon">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#003D2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+          <line x1="3" y1="9" x2="21" y2="9"/>
+          <line x1="9" y1="21" x2="9" y2="9"/>
+        </svg>
+        <span class="label">IGシリアル照合</span>
+      </div>
+    </a>
+
+    <a href="#" onclick="openFrame(event, 'coin.html')">
+      <div class="menu-icon">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#003D2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 8v8M8 12h8"/>
+        </svg>
+        <span class="label">記念金貨 買取価格</span>
+      </div>
+    </a>
+
+    <a href="#" onclick="openFrame(event, '#')">
+      <div class="menu-icon">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#003D2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v20M2 12h20"/>
+          <rect x="4" y="4" width="16" height="16" rx="2"/>
+        </svg>
+        <span class="label">買取/分割 確認</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="note">サイドメニューからも各ページにアクセスできます。</div>
+  
+  <h1>社内案内</h1>
+  <p>この社内ポータルは、買取業務を中心とした情報・お知らせを共有するためのページです。</p>
+  
+  <h2>更新履歴</h2>
+  <ul>
+    <li>2025/10/08　金・プラチナ買取価格カード（高級仕様）を追加</li>
+  </ul>
 
 <script>
-/* ----- 田中貴金属JSON読み込み ----- */
+function openFrame(e, url){
+  e.preventDefault();
+  const iframe = parent.document.getElementById('main-frame');
+  if(iframe){ iframe.src = url; }
+}
+
+// --- 金・プラチナ価格取得 ---
 fetch("data/tanaka_price.json")
   .then(res => res.json())
   .then(data => {
     const gold = data.prices.GOLD;
     const pt = data.prices.PLATINUM;
 
-    // 公表時刻
-    document.getElementById("tanaka-update").textContent = data.update_time;
+    document.getElementById("gold-price").textContent = `${gold.buy} 円`;
+    document.getElementById("pt-price").textContent = `${pt.buy} 円`;
 
-    // 9:30の価格
-    document.getElementById("gold-buy").textContent = gold.buy_930diff ? gold.buy_930diff : gold.buy;
-    document.getElementById("pt-buy").textContent = pt.buy_930diff ? pt.buy_930diff : pt.buy;
+    document.getElementById("gold-diff").textContent = `${gold.buy_diff} 円`;
+    document.getElementById("pt-diff").textContent = `${pt.buy_diff} 円`;
 
-    // 前日比
-    const metals = [
-      {diff: parseFloat(gold.buy_diff), el: document.getElementById("gold-diff")},
-      {diff: parseFloat(pt.buy_diff), el: document.getElementById("pt-diff")}
-    ];
-
-    metals.forEach(m => {
-      m.el.textContent = (m.diff >= 0 ? "+" : "") + m.diff + "円";
-      m.el.classList.add(m.diff >= 0 ? "positive" : "negative");
-    });
+    document.getElementById("gold-diff").className = gold.buy_diff.includes('-') ? 'diff negative' : 'diff positive';
+    document.getElementById("pt-diff").className = pt.buy_diff.includes('-') ? 'diff negative' : 'diff positive';
   })
   .catch(err => {
-    console.error("価格取得エラー:", err);
+    console.error("価格情報取得エラー:", err);
+    document.getElementById("gold-price").textContent = "取得失敗";
+    document.getElementById("pt-price").textContent = "取得失敗";
   });
 </script>
 
