@@ -107,7 +107,7 @@ async function fetchTanaka() {
     const data = await res.json();
 
     // 更新時刻をタイトルに反映
-    document.querySelector("#title span").textContent = `(${data.update_time})`;
+    document.querySelector("#title span").textContent = data.update_time;
 
     const table = document.querySelector("#metal_price");
     const metals = ["GOLD", "PLATINUM", "SILVER"];
