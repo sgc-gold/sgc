@@ -77,7 +77,21 @@ def main():
     now = datetime.now().strftime("%H:%M")
     prices, update_text = fetch_tanaka_prices()
 
+    # -------------------------------
+    # 手動実行時：常に更新を実行
+    # -------------------------------
+    if is_workflow_dispatch:
+        data = {
+            "update_time": update_text,
+            "prices": prices
+        }
+        save_json(PATH_MAIN, data)
+        print("✅ 手動実行モードでデータを保存しました")
+        return
+
+    # -------------------------------
     # 9:30 の場合 → 保存
+    # -------------------------------
     if now.startswith("09:3"):
         data = {
             "update_time": update_text,
@@ -87,7 +101,9 @@ def main():
         save_json(PATH_930, data)
         print("✅ 9:30 更新データを保存しました")
 
+    # -------------------------------
     # 14:00 の場合 → 9:30比を算出
+    # -------------------------------
     elif now.startswith("14:0"):
         morning_data = load_json(PATH_930)
         if morning_data:
