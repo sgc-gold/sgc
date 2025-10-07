@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>トップページ</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&display=swap" rel="stylesheet">
 <style>
   html, body {
     margin: 0;
@@ -15,6 +15,58 @@
     box-sizing: border-box;
   }
 
+  /* --- 上部 買取価格カード --- */
+  .price-board {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin: 1rem auto 2rem;
+    max-width: 600px;
+    flex-wrap: wrap;
+  }
+  .metal-card {
+    flex: 1 1 45%;
+    background: linear-gradient(135deg, #ffffff 0%, #f3f3f3 100%);
+    border: 2px solid #003D2E;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 1rem;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .metal-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+  }
+  .metal-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #003D2E;
+  }
+  .metal-price {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-top: 0.4rem;
+  }
+  .diff {
+    font-size: 0.9rem;
+    margin-top: 0.3rem;
+    font-weight: 500;
+  }
+  .positive {
+    color: #c60000;
+  }
+  .negative {
+    color: #0044cc;
+  }
+  .update-time {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #777;
+    margin-bottom: 0.5rem;
+  }
+
+  /* --- 元々のスタイル --- */
   h1 {
     font-size: 1.6rem;
     margin-bottom: 1rem;
@@ -52,14 +104,14 @@
     gap: 1rem;
     margin-top: 1.5rem;
     margin-bottom: 1.5rem;
-    justify-content: space-between; /* 均等配置 */
+    justify-content: space-between;
   }
 
   .menu-grid a {
     text-decoration: none;
     color: #003D2E;
-    flex: 1 1 0;     /* 横幅を自動で均等に */
-    min-width: 0;    /* 子要素がはみ出さないように */
+    flex: 1 1 0;
+    min-width: 0;
   }
 
   .menu-icon {
@@ -93,10 +145,10 @@
   }
 
   @media (max-width: 600px) {
-    h1 { font-size: 1.4rem; }
-    h2 { font-size: 1.1rem; }
-
-    /* アイコンを画面幅に合わせて縮小 */
+    .price-board { gap: 0.7rem; }
+    .metal-card { padding: 0.8rem; }
+    .metal-price { font-size: 1.4rem; }
+    th, td { font-size: 0.8rem; padding: 0.6rem; }
     .menu-icon .icon { width: 30px; height: 30px; }
     .menu-icon { padding: 0.75rem; }
     .menu-icon .label { font-size: 0.9rem; }
@@ -105,9 +157,15 @@
 </head>
 <body>
 
+  <!-- ----- 田中貴金属価格（上部に表示） ----- -->
+  <div class="update-time" id="update-time">価格情報を取得中...</div>
+  <div class="price-board" id="price-board">
+    <div class="metal-card"><div class="metal-name">金</div><div class="metal-price">-</div><div class="diff">-</div></div>
+    <div class="metal-card"><div class="metal-name">プラチナ</div><div class="metal-price">-</div><div class="diff">-</div></div>
+  </div>
+
   <!-- ----- アイコンメニュー ----- -->
   <div class="menu-grid">
-    <!-- IGシリアル照合 -->
     <a href="#" onclick="openFrame(event, 'https://script.google.com/macros/s/AKfycbxV4bMjhApWrwqTBLsuu0BnSQ5L8TyaV40_qCOO_RFjT3-WHvosgeesx_LxWZAO4MFr/exec')">
       <div class="menu-icon">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#003D2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -119,7 +177,6 @@
       </div>
     </a>
 
-    <!-- 記念金貨 買取価格 -->
     <a href="#" onclick="openFrame(event, 'coin.html')">
       <div class="menu-icon">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#003D2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -130,7 +187,6 @@
       </div>
     </a>
 
-    <!-- 買取/分割 確認 -->
     <a href="#" onclick="openFrame(event, '#')">
       <div class="menu-icon">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#003D2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -142,9 +198,7 @@
     </a>
   </div>
 
-  <div class="note">
-    サイドメニューからも各ページにアクセスできます。
-  </div>
+  <div class="note">サイドメニューからも各ページにアクセスできます。</div>
   
   <h1>社内案内</h1>
   <p>この社内ポータルは、買取業務を中心とした情報・お知らせを共有するためのページです。</p>
@@ -162,6 +216,29 @@ function openFrame(e, url){
     iframe.src = url;
   }
 }
+
+// ---- 田中貴金属 価格情報の読み込み ----
+fetch('data/tanaka_price.json')
+  .then(res => res.json())
+  .then(data => {
+    const metals = ['金', 'プラチナ'];
+    const cards = document.querySelectorAll('.metal-card');
+    document.getElementById('update-time').textContent = data.update_time + ' 更新';
+
+    metals.forEach((name, i) => {
+      const item = data.prices.find(m => m.metal === name);
+      if (item) {
+        cards[i].querySelector('.metal-price').textContent = item.buy_price.toLocaleString() + ' 円';
+        const diff = item.buy_diff;
+        const diffEl = cards[i].querySelector('.diff');
+        diffEl.textContent = (diff > 0 ? '+' : '') + diff + ' 円';
+        diffEl.classList.add(diff > 0 ? 'positive' : diff < 0 ? 'negative' : '');
+      }
+    });
+  })
+  .catch(() => {
+    document.getElementById('update-time').textContent = '価格情報の取得に失敗しました';
+  });
 </script>
 
 </body>
