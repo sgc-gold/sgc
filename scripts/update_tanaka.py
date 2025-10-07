@@ -5,46 +5,24 @@ from datetime import datetime
 import os
 import sys
 
-# ================================
-# GitHub Actionsでの手動実行判定
-# workflow_dispatchなら常に実行
-# ================================
-is_workflow_dispatch = os.getenv("GITHUB_EVENT_NAME") == "workflow_dispatch"
-
-if not is_workflow_dispatch:
-    now = datetime.now()
-    if not ((now.hour == 9 and now.minute >= 35 and now.minute <= 45) or
-            (now.hour == 14 and now.minute >= 5 and now.minute <= 15)):
-        print("⏸ 定刻外のためスキップ（スケジュール実行）")
-        sys.exit(0)
-else:
-    print("🚀 手動実行モード（定刻外でも強制実行）")
-
-# ================================
-# 取得対象URL
-# ================================
 URL = "https://gold.tanaka.co.jp/commodity/souba/index.php"
-
-# 保存先
 PATH_MAIN = "data/tanaka_price.json"
 PATH_930 = "data/tanaka_price_930.json"
 
-# ================================
-# 金額取得関数
-# ================================
+# 手動実行判定
+is_workflow_dispatch = os.getenv("GITHUB_EVENT_NAME") == "workflow_dispatch"
+
 def fetch_tanaka_prices():
     res = requests.get(URL)
-    res.encoding = 'utf-8'
-    soup = BeautifulSoup(res.text, 'html.parser')
+    res.encoding = "utf-8"
+    soup = BeautifulSoup(res.text, "html.parser")
 
     prices = {}
-
     for metal, cls in [("GOLD", "gold"), ("PLATINUM", "pt"), ("SILVER", "silver")]:
         retail = soup.select_one(f"tr.{cls} td.retail_tax").text.strip().replace(" 円", "")
         retail_diff = soup.select_one(f"tr.{cls} td.retail_ratio").text.strip().replace(" 円", "")
         buy = soup.select_one(f"tr.{cls} td.purchase_tax").text.strip().replace(" 円", "")
         buy_diff = soup.select_one(f"tr.{cls} td.purchase_ratio").text.strip().replace(" 円", "")
-
         prices[metal] = {
             "retail": retail,
             "retail_diff": retail_diff,
@@ -52,13 +30,9 @@ def fetch_tanaka_prices():
             "buy_diff": buy_diff
         }
 
-    # 公表時刻
     update_time_raw = soup.select_one("h3 span").text.strip()
     return prices, update_time_raw
 
-# ================================
-# JSON保存・読み込み
-# ================================
 def save_json(path, data):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
@@ -70,41 +44,31 @@ def load_json(path):
             return json.load(f)
     return None
 
-# ================================
-# メイン処理
-# ================================
 def main():
-    now = datetime.now().strftime("%H:%M")
     prices, update_text = fetch_tanaka_prices()
+    now = datetime.now()
+    current_time = now.strftime("%H:%M")
 
-    # -------------------------------
-    # 手動実行時：常に更新を実行
-    # -------------------------------
-    if is_workflow_dispatch:
-        data = {
-            "update_time": update_text,
-            "prices": prices
-        }
-        save_json(PATH_MAIN, data)
-        print("✅ 手動実行モードでデータを保存しました")
-        return
+    print(f"🕒 現在時刻: {current_time}")
+    print(f"📅 取得データの公表時刻: {update_text}")
 
-    # -------------------------------
-    # 9:30 の場合 → 保存
-    # -------------------------------
-    if now.startswith("09:3"):
-        data = {
-            "update_time": update_text,
-            "prices": prices
-        }
+    # 現在のJSONをロードして公表時刻を比較
+    existing_data = load_json(PATH_MAIN)
+    last_update_time = existing_data["update_time"] if existing_data else None
+
+    if not is_workflow_dispatch and update_text == last_update_time:
+        print("⏸ 公表時刻に変化なし → 更新スキップ")
+        sys.exit(0)
+
+    # === 9:30更新処理 ===
+    if "09:30" in update_text:
+        data = {"update_time": update_text, "prices": prices}
         save_json(PATH_MAIN, data)
         save_json(PATH_930, data)
-        print("✅ 9:30 更新データを保存しました")
+        print("✅ 9:30データ保存完了")
 
-    # -------------------------------
-    # 14:00 の場合 → 9:30比を算出
-    # -------------------------------
-    elif now.startswith("14:0"):
+    # === 14:00更新処理（差分算出） ===
+    elif "14:" in update_text or "午後" in update_text or now.hour == 14:
         morning_data = load_json(PATH_930)
         if morning_data:
             for metal in prices:
@@ -113,30 +77,25 @@ def main():
                     curr_buy = float(prices[metal]["buy"].replace(",", ""))
                     morn_retail = float(morning_data["prices"][metal]["retail"].replace(",", ""))
                     morn_buy = float(morning_data["prices"][metal]["buy"].replace(",", ""))
-
-                    retail_diff930 = curr_retail - morn_retail
-                    buy_diff930 = curr_buy - morn_buy
-
-                    prices[metal]["retail_930diff"] = f"{retail_diff930:+,.2f}".rstrip("0").rstrip(".") + " 円"
-                    prices[metal]["buy_930diff"] = f"{buy_diff930:+,.2f}".rstrip("0").rstrip(".") + " 円"
-                except Exception:
+                    prices[metal]["retail_930diff"] = f"{curr_retail - morn_retail:+,.2f}".rstrip("0").rstrip(".")
+                    prices[metal]["buy_930diff"] = f"{curr_buy - morn_buy:+,.2f}".rstrip("0").rstrip(".")
+                except Exception as e:
+                    print(f"⚠ 差分計算エラー: {metal} - {e}")
                     prices[metal]["retail_930diff"] = ""
                     prices[metal]["buy_930diff"] = ""
         else:
-            for metal in prices:
-                prices[metal]["retail_930diff"] = ""
-                prices[metal]["buy_930diff"] = ""
+            print("⚠ 9:30データが存在しません → 差分なしで保存")
 
-        data = {
-            "update_time": update_text,
-            "prices": prices
-        }
+        data = {"update_time": update_text, "prices": prices}
         save_json(PATH_MAIN, data)
-        print("✅ 14:00 更新データを保存しました（9:30比込み）")
+        print("✅ 14時データ保存完了（9:30比込み）")
 
     else:
-        print("⏸ 現在は定刻外です（スケジュール実行時のみ）")
+        print("ℹ 公表時刻が9:30でも14時でもないため、通常保存のみ実施")
+        data = {"update_time": update_text, "prices": prices}
+        save_json(PATH_MAIN, data)
 
+    print("💾 保存完了:", PATH_MAIN)
 
 if __name__ == "__main__":
     main()
