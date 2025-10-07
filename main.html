@@ -230,7 +230,7 @@ function openFrame(e, url){
 }
 
 // --- 金・プラチナ価格取得 ---
-fetch("./data/tanaka_price.json")
+fetch("data/tanaka_price.json")
   .then(res => res.json())
   .then(data => {
     const gold = data.prices.GOLD;
