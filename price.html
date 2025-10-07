@@ -106,50 +106,43 @@ async function fetchTanaka() {
     const res = await fetch('data/tanaka_price.json?nocache=' + Date.now());
     const data = await res.json();
 
-    // 更新時刻をタイトルに反映
+    // 更新時刻をタイトルに反映（括弧なし）
     document.querySelector("#title span").textContent = data.update_time;
 
     const table = document.querySelector("#metal_price");
     const metals = ["GOLD", "PLATINUM", "SILVER"];
     const rows = [];
 
-    const isAfternoon = data.update_time.includes("14");
+    // 14時更新か判定（data内にretail_930diffがあれば午後）
+    const isAfternoon = Object.values(data.prices).some(p => p.retail_930diff || p.buy_930diff);
 
     for (const metal of metals) {
       const p = data.prices[metal];
       if (!p) continue;
 
-      const diffRetailClass = p.retail_diff.startsWith('+')
-        ? 'positive'
-        : p.retail_diff.startsWith('-')
-        ? 'negative'
-        : '';
-      const diffBuyClass = p.buy_diff.startsWith('+')
-        ? 'positive'
-        : p.buy_diff.startsWith('-')
-        ? 'negative'
-        : '';
+      // 差分の色判定
+      const diffRetailClass = p.retail_diff.startsWith('+') ? 'positive' :
+                              p.retail_diff.startsWith('-') ? 'negative' : '';
+      const diffBuyClass = p.buy_diff.startsWith('+') ? 'positive' :
+                           p.buy_diff.startsWith('-') ? 'negative' : '';
 
-      const retailPrice = p.retail.includes('.') 
-        ? Number(p.retail).toFixed(2) + "円"
-        : Number(p.retail).toLocaleString() + "円";
+      // カンマ削除して数値化
+      const retailPrice = Number(p.retail.replace(/,/g, '')).toLocaleString() + "円";
+      const buyPrice = Number(p.buy.replace(/,/g, '')).toLocaleString() + "円";
 
-      const buyPrice = p.buy.includes('.') 
-        ? Number(p.buy).toFixed(2) + "円"
-        : Number(p.buy).toLocaleString() + "円";
-
-      // 午後（14時更新）の場合は9:30比も追加表示
+      // 差分テキスト
       let retailDiffText = `${p.retail_diff}円`;
       let buyDiffText = `${p.buy_diff}円`;
-      if (isAfternoon && p.retail_930diff && p.buy_930diff) {
-        retailDiffText += `<br><span class="small_diff">(${p.retail_930diff}円)</span>`;
-        buyDiffText += `<br><span class="small_diff">(${p.buy_930diff}円)</span>`;
+
+      // 午後更新時は9:30比を追加
+      if (isAfternoon) {
+        if (p.retail_930diff) retailDiffText += `<br><span class="small_diff">(${p.retail_930diff})</span>`;
+        if (p.buy_930diff) buyDiffText += `<br><span class="small_diff">(${p.buy_930diff})</span>`;
       }
 
-      const metalName =
-        metal === "GOLD" ? "金" :
-        metal === "PLATINUM" ? "プラチナ" :
-        "銀";
+      // 金属名
+      const metalName = metal === "GOLD" ? "金" :
+                        metal === "PLATINUM" ? "プラチナ" : "銀";
 
       rows.push(`
         <tr class="${metal.toLowerCase()}">
