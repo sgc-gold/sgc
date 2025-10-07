@@ -142,8 +142,8 @@ async function fetchTanaka() {
 
       // 午後更新時は9:30比を追加
       if (isAfternoon) {
-        if (p.retail_930diff) retailDiffText += `<br><span class="small_diff">(${p.retail_930diff})</span>`;
-        if (p.buy_930diff) buyDiffText += `<br><span class="small_diff">(${p.buy_930diff})</span>`;
+        if (p.retail_930diff) retailDiffText += `<br><span class="small_diff">(${p.retail_930diff}円)</span>`;
+        if (p.buy_930diff) buyDiffText += `<br><span class="small_diff">(${p.buy_930diff}円)</span>`;
       }
 
       // 金属名
