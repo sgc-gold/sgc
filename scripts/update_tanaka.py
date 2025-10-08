@@ -56,9 +56,12 @@ def main():
     existing_data = load_json(PATH_MAIN)
     last_update_time = existing_data["update_time"] if existing_data else None
 
+    # ▼▼ 修正ポイント ▼▼
     if not is_workflow_dispatch and update_text == last_update_time:
-        print("⏸ 公表時刻に変化なし → 更新スキップ")
-        sys.exit(0)
+        print("⏸ 公表時刻に変化なし → 更新スキップ（再試行対象）")
+        # exit(1) にすることで GitHub Actions の retry による再実行を促す
+        sys.exit(1)
+    # ▲▲ 修正ここまで ▲▲
 
     # === 9:30更新処理 ===
     if "09:30" in update_text:
