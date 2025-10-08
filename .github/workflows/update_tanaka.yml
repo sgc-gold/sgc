@@ -2,8 +2,8 @@ name: Update Tanaka Price
 
 on:
   schedule:
-    - cron: '40 0 * * 1-5'  # JST 9:40（月〜金）
-    - cron: '10 5 * * 1-5'  # JST 14:10（月〜金）
+    - cron: '15 0 * * 1-5'  # JST 9:15（月〜金）
+    - cron: '45 4 * * 1-5'  # JST 13:45（月〜金）
   workflow_dispatch:  # 手動実行も可
 
 jobs:
@@ -24,8 +24,26 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4
 
-      - name: Run update script
-        run: python scripts/update_tanaka.py
+      # --- 最大4回リトライ付きの更新処理 ---
+      - name: Run update script with retries
+        run: |
+          MAX_RETRIES=4
+          RETRY_DELAY=300  # 5分（300秒）
+          COUNT=1
+          SUCCESS=false
+
+          while [ $COUNT -le $MAX_RETRIES ]; do
+            echo "Attempt $COUNT of $MAX_RETRIES..."
+            python scripts/update_tanaka.py && SUCCESS=true && break
+            echo "Update failed. Waiting $RETRY_DELAY seconds before retry..."
+            sleep $RETRY_DELAY
+            COUNT=$((COUNT+1))
+          done
+
+          if [ "$SUCCESS" = false ]; then
+            echo "All $MAX_RETRIES attempts failed. Exiting with error."
+            exit 1
+          fi
 
       - name: Commit and push changes
         run: |
