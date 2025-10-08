@@ -104,6 +104,24 @@
       font-size: 0.85rem;
       color: #ccc;
     }
+
+    .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+    z-index: 500; /* サイドバーの下、headerより上 */
+  }
+
+  .overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
   
     .container {
       max-width: 100%;
@@ -164,6 +182,8 @@
   <img src="https://www.sgc-gold.co.jp/img/header-logo.png" alt="SGCロゴ">
 </header>
 
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+  
 <nav class="sidebar" id="sidebar">
 
   <h2>ホーム <span class="eng">Home</span></h2>
@@ -204,24 +224,36 @@
 
 <script>
 function toggleMenu() {
-  document.getElementById('sidebar').classList.toggle('open');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('active');
+}
+
+function closeSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+
+  sidebar.classList.remove('open');
+  overlay.classList.remove('active');
 }
 
 function openFrame(e, url){
-  e.preventDefault(); // デフォルトのリンク動作を止める
+  e.preventDefault();
 
   const iframe = document.getElementById('main-frame');
   const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
 
   if(iframe){
     iframe.src = url;
-  } else {
-    console.error('iframe が見つかりません');
   }
 
-  // 幅が900px未満ならサイドバーを閉じる
-  if(sidebar && window.innerWidth < 900){
+  // 幅が900px未満なら閉じる
+  if(window.innerWidth < 900){
     sidebar.classList.remove('open');
+    overlay.classList.remove('active');
   }
 }
 </script>
