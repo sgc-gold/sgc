@@ -24,11 +24,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4
 
-      # --- 最大4回リトライ付きの更新処理 ---
+      # --- 最大40回リトライ付きの更新処理 ---
       - name: Run update script with retries
         run: |
-          MAX_RETRIES=4
-          RETRY_DELAY=300  # 5分（300秒）
+          MAX_RETRIES=40
+          RETRY_DELAY=60  # 1分（60秒）
           COUNT=1
           SUCCESS=false
 
