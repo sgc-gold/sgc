@@ -276,6 +276,14 @@ fetch("data/tanaka_price.json")
     document.getElementById("gold-price").textContent = "取得失敗";
     document.getElementById("pt-price").textContent = "取得失敗";
   });
+
+  function notifyHeight() {
+    const height = document.body.scrollHeight;
+    parent.postMessage({ type: 'resize-iframe', height }, '*');
+  }
+
+  window.addEventListener('load', notifyHeight);
+  window.addEventListener('resize', notifyHeight);  
 </script>
 
 </body>
