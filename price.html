@@ -200,6 +200,14 @@ async function fetchTanaka() {
 }
 
 fetchTanaka();
+
+  function notifyHeight() {
+    const height = document.body.scrollHeight;
+    parent.postMessage({ type: 'resize-iframe', height }, '*');
+  }
+
+  window.addEventListener('load', notifyHeight);
+  window.addEventListener('resize', notifyHeight);
 </script>
 
 </body>
