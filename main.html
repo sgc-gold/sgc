@@ -125,6 +125,7 @@
   ul {
     margin: 0.5rem 0 1rem 1.5rem;
     padding: 0;
+    margin-bottom: 3rem; /* ← 余白を増やす */
   }
 
   .note {
@@ -161,6 +162,7 @@
     padding: 1rem;
     box-shadow: 0 4px 8px rgba(0,0,0,0.08);
     transition: transform 0.2s, box-shadow 0.2s;
+    min-height: 100px;
   }
 
   .menu-icon:hover {
@@ -270,6 +272,8 @@ fetch("data/tanaka_price.json")
 
     document.getElementById("gold-diff").className = gold.buy_diff.includes('-') ? 'diff negative' : 'diff positive';
     document.getElementById("pt-diff").className = pt.buy_diff.includes('-') ? 'diff negative' : 'diff positive';
+
+    notifyHeight(); // ← 価格表示後に高さ再通知
   })
   .catch(err => {
     console.error("価格情報取得エラー:", err);
