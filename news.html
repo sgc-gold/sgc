@@ -37,13 +37,14 @@
       border: 1px solid #ccc;
       border-radius: 8px;
       margin-bottom: 2rem;
+      min-height: 75vh;
     }
     .linkbox {
       background: #fff;
       border: 1px solid #ddd;
       padding: 1rem;
       border-radius: 8px;
-      margin-bottom: 2rem;
+      margin-bottom: 3rem;
     }
     .linkbox a {
       color: #007b5e;
@@ -69,7 +70,11 @@
       parent.postMessage({ type: 'resize-iframe', height }, '*');
     }
   
-    window.addEventListener('load', notifyHeight);
+    window.addEventListener('load', () => {
+      notifyHeight();              // 通常の通知
+      setTimeout(notifyHeight, 500); // ウィジェット描画後に再通知
+    });
+  
     window.addEventListener('resize', notifyHeight);
   </script>
 </body>
