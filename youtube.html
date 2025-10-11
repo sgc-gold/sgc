@@ -74,12 +74,17 @@
   </div>
 
   <script>
+    // ① 高さ通知関数
+    function notifyHeight() {
+      const height = document.body.scrollHeight;
+      parent.postMessage({ type: 'resize-iframe', height }, '*');
+    }
+  
     const API_KEY = 'AIzaSyC4YLySfOAuuxslQiLMAIN5l-e5Trh44g4';
     const KEYWORDS = ['大黄金展', '池水雄一'];
     const MAX_RESULTS = 5;
-
-    const nextPageTokens = {}; // キーワードごとの次ページトークンを保持
-
+    const nextPageTokens = {};
+  
     async function fetchVideos(keyword, pageToken = '') {
       const url = new URL('https://www.googleapis.com/youtube/v3/search');
       url.search = new URLSearchParams({
@@ -91,23 +96,24 @@
         key: API_KEY,
         pageToken
       });
-
+  
       const res = await fetch(url);
       const data = await res.json();
       nextPageTokens[keyword] = data.nextPageToken || null;
       return data.items || [];
     }
-
+  
     async function renderVideos(keyword, append = false) {
       const container = document.getElementById(`videos-${keyword}`);
       if (!append) container.innerHTML = '';
       const videos = await fetchVideos(keyword, nextPageTokens[keyword]);
-
+  
       if (videos.length === 0) {
         container.innerHTML = '<p>該当する動画が見つかりませんでした。</p>';
+        notifyHeight(); // ③ 高さ通知（該当なし時）
         return;
       }
-
+  
       videos.forEach(item => {
         const videoId = item.id.videoId;
         const title = item.snippet.title;
@@ -123,7 +129,10 @@
         `;
         container.appendChild(card);
       });
-
+  
+      // ② 高さ通知（動画描画後）
+      notifyHeight();
+  
       const btnId = `btn-${keyword}`;
       let loadMoreBtn = document.getElementById(btnId);
       if (nextPageTokens[keyword]) {
@@ -134,12 +143,14 @@
           loadMoreBtn.textContent = 'さらに読み込む';
           loadMoreBtn.onclick = () => renderVideos(keyword, true);
           container.parentNode.appendChild(loadMoreBtn);
+          notifyHeight(); // ③ 高さ通知（ボタン追加後）
         }
       } else if (loadMoreBtn) {
         loadMoreBtn.remove();
+        notifyHeight(); // ③ 高さ通知（ボタン削除後）
       }
     }
-
+  
     async function loadAllVideos() {
       const wrapper = document.getElementById('video-container');
       wrapper.innerHTML = '';
@@ -148,9 +159,10 @@
         section.innerHTML = `<h2>「${keyword}」の最新動画</h2><main id="videos-${keyword}"></main>`;
         wrapper.appendChild(section);
         await renderVideos(keyword);
+        notifyHeight(); // ③ 高さ通知（各キーワード描画後）
       }
     }
-
+  
     loadAllVideos();
   </script>
 </body>
