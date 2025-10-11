@@ -300,13 +300,13 @@ function filterData(){
 
 document.getElementById('searchButton').addEventListener('click', filterData);
 
-function notifyHeight() {
-  const height = document.body.scrollHeight;
-  parent.postMessage({ type: 'resize-iframe', height }, '*');
-}
-
-window.addEventListener('load', notifyHeight);
-window.addEventListener('resize', notifyHeight);  
+  function notifyHeight() {
+    const height = document.body.scrollHeight;
+    parent.postMessage({ type: 'resize-iframe', height }, '*');
+  }
+  
+  window.addEventListener('load', notifyHeight);
+  window.addEventListener('resize', notifyHeight);  
 </script>
 </body>
 </html>
