@@ -32,6 +32,7 @@
     flex-wrap: wrap;
     gap: 1rem;
     margin-top: 1rem;
+    padding-bottom: 2rem;
   }
 
   .market-card {
@@ -44,6 +45,7 @@
     flex-direction: column;
     align-items: center;
     transition: transform 0.2s, box-shadow 0.2s;
+    min-height: 320px;
   }
 
   .market-card:hover {
@@ -257,6 +259,17 @@
   </div>
 
 </div>
+<script>
+  function notifyHeight() {
+    const height = document.body.scrollHeight;
+    parent.postMessage({ type: 'resize-iframe', height }, '*');
+  }
 
+  window.addEventListener('load', () => {
+    setTimeout(notifyHeight, 1000); // ウィジェット読み込み後に高さ通知
+  });
+
+  window.addEventListener('resize', notifyHeight);
+</script>
 </body>
 </html>
