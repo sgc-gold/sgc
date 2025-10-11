@@ -63,6 +63,14 @@
       <li><a href="https://news.yahoo.co.jp/search?p=大黄金展&ei=utf-8" target="_blank">Yahoo!ニュース（大黄金展）</a></li>
     </ul>
   </div>
-
+  <script>
+    function notifyHeight() {
+      const height = document.body.scrollHeight;
+      parent.postMessage({ type: 'resize-iframe', height }, '*');
+    }
+  
+    window.addEventListener('load', notifyHeight);
+    window.addEventListener('resize', notifyHeight);
+  </script>
 </body>
 </html>
