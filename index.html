@@ -256,6 +256,15 @@ function openFrame(e, url){
     overlay.classList.remove('active');
   }
 }
+
+window.addEventListener('message', event => {
+  if (event.data.type === 'resize-iframe' && typeof event.data.height === 'number') {
+    const iframe = document.getElementById('main-frame');
+    if (iframe) {
+      iframe.style.height = event.data.height + 'px';
+    }
+  }
+});
 </script>
 
 </body>
