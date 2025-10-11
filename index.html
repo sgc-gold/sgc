@@ -261,7 +261,7 @@ window.addEventListener('message', event => {
   if (event.data.type === 'resize-iframe' && typeof event.data.height === 'number') {
     const iframe = document.getElementById('main-frame');
     if (iframe) {
-      iframe.style.height = event.data.height + 'px';
+      iframe.style.height = (event.data.height + 100) + 'px'; // ← 余白を追加
     }
   }
 });
