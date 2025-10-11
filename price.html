@@ -190,11 +190,13 @@ async function fetchTanaka() {
     }
 
     table.insertAdjacentHTML("beforeend", rows.join(""));
+    notifyHeight(); // ← 高さを再通知
   } catch (err) {
     document.querySelector("#metal_price").insertAdjacentHTML(
       "afterend",
       `<p style="color:red;text-align:center;">価格データの取得に失敗しました。</p>`
     );
+    notifyHeight(); // ← エラー時も高さ通知
     console.error("価格データの読み込みエラー:", err);
   }
 }
