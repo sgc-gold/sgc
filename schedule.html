@@ -1,169 +1,148 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>大黄金展スケジュール</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>大黄金展スケジュール | SGC</title>
 
-<!-- FullCalendar 読み込み -->
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/main.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/main.global.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/locales-all.global.min.js"></script>
+  <!-- FullCalendar 6.x（ES Modules） -->
+  <script type="module">
+    import { Calendar } from 'https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.19/index.global.min.js';
+    import dayGridPlugin from 'https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.19/index.global.min.js';
+    import interactionPlugin from 'https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.19/index.global.min.js';
+    import jaLocale from 'https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.19/locales/ja.global.min.js';
 
-<style>
-  body {
-    font-family: "Noto Sans JP", sans-serif;
-    background-color: #111;
-    color: #fff;
-    margin: 0;
-    padding: 0;
-  }
-  .page-header {
-    background: linear-gradient(90deg, #b8860b, #ffd700);
-    color: #111;
-    text-align: center;
-    padding: 15px;
-    font-size: 1.6rem;
-    font-weight: bold;
-    letter-spacing: 1px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-  }
-  .calendar-container {
-    max-width: 95%;
-    margin: 20px auto;
-    background: #1f1f1f;
-    padding: 15px;
-    border-radius: 16px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-  }
-  .fc-toolbar { margin-bottom: 10px; }
-  .fc-toolbar-title { font-size: 1.2rem; font-weight: bold; }
-  .fc .fc-button {
-    background-color: #ffd700;
-    color: #111;
-    font-weight: bold;
-    border: none;
-    border-radius: 4px;
-    padding: 5px 10px;
-    transition: all 0.2s;
-  }
-  .fc .fc-button:hover { background-color: #b8860b; color: #fff; }
-  .fc .fc-col-header-cell-cushion { font-size: 0.9rem; font-weight: 600; }
-  .fc .fc-daygrid-day-number { font-size: 0.85rem; font-weight: 500; }
-  .fc .fc-event-title { font-size: 0.85rem; font-weight: bold; }
+    document.addEventListener('DOMContentLoaded', async () => {
+      const calendarEl = document.getElementById('calendar');
 
-  .modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.75);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 10px;
-  }
-  .modal-content {
-    background: #2c2c2c;
-    border-radius: 14px;
-    width: 360px;
-    max-width: 95%;
-    padding: 20px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
-    text-align: center;
-  }
-  .close {
-    float: right;
-    font-size: 1.4rem;
-    font-weight: bold;
-    cursor: pointer;
-    color: #ffd700;
-  }
-  .modal h2 { margin-top: 0.5rem; font-size: 1.2rem; }
-  .modal p { margin: 0.3rem 0; font-size: 1rem; }
+      // exhibition.jsonを取得
+      let events = [];
+      try {
+        const res = await fetch('./data/exhibition.json');
+        if (!res.ok) throw new Error('イベントデータの取得に失敗しました');
+        events = await res.json();
+      } catch (err) {
+        console.error(err);
+      }
 
-  @media (max-width: 1024px) {
-    .fc-toolbar-title { font-size: 1rem; }
-    .fc .fc-button { font-size: 0.8rem; padding: 4px 8px; }
-    .fc .fc-col-header-cell-cushion { font-size: 0.75rem; }
-    .fc .fc-daygrid-day-number { font-size: 0.7rem; }
-    .fc .fc-event-title { font-size: 0.75rem; }
-    .modal-content { width: 320px; padding: 15px; }
-    .modal h2 { font-size: 1.1rem; }
-    .modal p { font-size: 0.95rem; }
-  }
-  @media (max-width: 480px) {
-    .page-header { font-size: 1.3rem; padding: 10px; }
-    .fc-toolbar-title { font-size: 0.9rem; }
-    .fc .fc-button { font-size: 0.65rem; padding: 2px 5px; }
-    .fc .fc-col-header-cell-cushion { font-size: 0.6rem; }
-    .fc .fc-daygrid-day-number { font-size: 0.55rem; }
-    .fc .fc-event-title { font-size: 0.6rem; }
-    .calendar-container { padding: 8px; border-radius: 12px; }
-    .modal-content { width: 90%; padding: 12px; }
-    .modal h2 { font-size: 1rem; }
-    .modal p { font-size: 0.85rem; }
-  }
-</style>
-</head>
-<body>
-<header class="page-header">🏵️ 大黄金展スケジュール</header>
-<main>
-  <div id="calendar" class="calendar-container"></div>
-</main>
+      const calendar = new Calendar(calendarEl, {
+        plugins: [dayGridPlugin, interactionPlugin],
+        locale: jaLocale,
+        initialView: 'dayGridMonth',
+        events: events,
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: ''
+        },
+        height: 'auto',
+        contentHeight: 'auto',
+        aspectRatio: 1.2,
+        eventDisplay: 'block',
+      });
 
-<div id="eventModal" class="modal">
-  <div class="modal-content">
-    <span id="closeModal" class="close">&times;</span>
-    <h2 id="modalTitle"></h2>
-    <p id="modalDate"></p>
-    <p id="modalLocation"></p>
-    <p id="modalNote"></p>
-  </div>
-</div>
+      calendar.render();
+    });
+  </script>
 
-<script>
-window.addEventListener("load", async () => {
-  // JSONデータ読み込み
-  const res = await fetch("data/exhibition.json");
-  const exhibitions = await res.json();
-
-  const calendarEl = document.getElementById("calendar");
-  const calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: "dayGridMonth",
-    locale: "ja",
-    height: "auto",
-    contentHeight: "auto",
-    expandRows: true,
-    handleWindowResize: true,
-    events: exhibitions.map(e => ({
-      title: e.title,
-      start: e.start,
-      end: e.end,
-      extendedProps: e
-    })),
-    eventColor: "#ffd700",
-    eventTextColor: "#111",
-    headerToolbar: {
-      left: "prev,next today",
-      center: "title",
-      right: "dayGridMonth,dayGridWeek"
-    },
-    eventClick: info => {
-      const { title, start, end, extendedProps } = info.event;
-      document.getElementById("modalTitle").textContent = title;
-      document.getElementById("modalDate").textContent =
-        `${start.toLocaleDateString()} 〜 ${end ? new Date(end).toLocaleDateString() : ""}`;
-      document.getElementById("modalLocation").textContent = extendedProps.location;
-      document.getElementById("modalNote").textContent = extendedProps.note || "";
-      document.getElementById("eventModal").style.display = "flex";
+  <style>
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: linear-gradient(135deg, #fafafa, #e6e6e6);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
     }
-  });
 
-  calendar.render();
+    #calendar {
+      background: white;
+      margin: 20px auto;
+      padding: 15px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      width: 95%;
+      max-width: 1200px;
+      transition: all 0.3s ease;
+    }
 
-  document.getElementById("closeModal").onclick = () => {
-    document.getElementById("eventModal").style.display = "none";
-  };
-});
-</script>
+    /* タイトルやボタンの調整 */
+    .fc-toolbar-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #444;
+    }
+
+    .fc-button {
+      background-color: #333 !important;
+      border: none !important;
+      color: #fff !important;
+      border-radius: 8px !important;
+      padding: 6px 12px !important;
+      font-size: 0.9rem !important;
+    }
+
+    /* イベントのデザイン */
+    .fc-event {
+      font-size: 0.8rem;
+      border-radius: 8px;
+      padding: 4px 6px;
+      background: linear-gradient(135deg, #ffd700, #ffb300);
+      color: #333;
+      border: none;
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+
+    .fc-event:hover {
+      transform: scale(1.05);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ✅ スマホ対応 */
+    @media (max-width: 768px) {
+      #calendar {
+        width: 98%;
+        padding: 8px;
+        margin-top: 10px;
+      }
+      .fc-toolbar-title {
+        font-size: 1.1rem;
+      }
+      .fc-button {
+        font-size: 0.75rem !important;
+        padding: 4px 8px !important;
+      }
+      .fc-daygrid-day-number {
+        font-size: 0.8rem;
+      }
+      .fc-event {
+        font-size: 0.65rem;
+        padding: 2px 4px;
+      }
+    }
+
+    /* ✅ 特に小さいスマホ用 */
+    @media (max-width: 480px) {
+      .fc-toolbar-title {
+        font-size: 1rem;
+      }
+      .fc-button {
+        font-size: 0.7rem !important;
+      }
+      .fc-daygrid-day-number {
+        font-size: 0.7rem;
+      }
+      .fc-event {
+        font-size: 0.55rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="calendar"></div>
 </body>
 </html>
