@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SGC 大黄金展スケジュール</title>
+  <title>GC 大黄金展スケジュール</title>
 
   <!-- ✅ FullCalendar グローバル版 CDN -->
   <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.19/index.global.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.19/index.global.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.19/index.global.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.19/index.global.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.19/locales/ja.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.19/locales-all.global.min.js"></script>
 
   <style>
     html, body {
@@ -75,17 +75,17 @@
 
     @media (max-width: 600px) {
       .fc-toolbar-title {
-        font-size: 1.1rem;
+        font-size: 1rem;
       }
       .fc-button {
         font-size: 0.6rem;
         padding: 2px 4px;
       }
       .fc-daygrid-day-number {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
       }
       .fc-event {
-        font-size: 0.6rem;
+        font-size: 0.55rem;
         padding: 1px;
       }
     }
@@ -108,9 +108,9 @@
         console.error("イベントデータの読み込みに失敗しました:", error);
       }
 
-      // ✅ カレンダー作成
+      // ✅ グローバル版用（FullCalendar.なし）
       const calendar = new FullCalendar.Calendar(calendarEl, {
-        plugins: [FullCalendar.dayGridPlugin, FullCalendar.interactionPlugin],
+        plugins: [dayGridPlugin, interactionPlugin],
         initialView: "dayGridMonth",
         locale: "ja",
         height: "100%",
