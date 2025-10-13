@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>大黄金展スケジュール | SGC</title>
+  <title>大黄金展スケジュール</title>
 
-  <!-- ✅ FullCalendar v6（グローバルスクリプト方式） -->
+  <!-- ✅ FullCalendar グローバルスクリプト -->
   <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.19/index.global.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.19/index.global.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.19/index.global.min.js"></script>
@@ -13,9 +13,11 @@
   <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.19/locales/ja.global.min.js"></script>
 
   <style>
+    /* ===== ベース ===== */
     body {
-      font-family: 'Noto Sans JP', sans-serif;
-      background: linear-gradient(135deg, #fafafa, #e6e6e6);
+      font-family: "Noto Sans JP", sans-serif;
+      background: linear-gradient(135deg, #0e0e0e, #1c1c1c);
+      color: #fff;
       margin: 0;
       padding: 0;
       display: flex;
@@ -25,67 +27,69 @@
     }
 
     #calendar {
-      background: white;
+      background: #1a1a1a;
       margin: 20px auto;
       padding: 15px;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      border-radius: 18px;
+      box-shadow: 0 4px 25px rgba(255, 215, 0, 0.2);
       width: 95%;
       max-width: 1200px;
       transition: all 0.3s ease;
     }
 
     .fc-toolbar-title {
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: #333;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #ffd700;
+      text-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
     }
 
     .fc-button {
-      background-color: #333 !important;
+      background: linear-gradient(135deg, #ffd700, #b8860b) !important;
       border: none !important;
-      color: #fff !important;
-      border-radius: 8px !important;
+      color: #111 !important;
+      font-weight: bold !important;
+      border-radius: 10px !important;
       padding: 6px 12px !important;
-      font-size: 0.9rem !important;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .fc-button:hover {
+      transform: scale(1.05);
+      background: linear-gradient(135deg, #ffec80, #c9a000) !important;
     }
 
     .fc-event {
-      font-size: 0.8rem;
-      border-radius: 8px;
-      padding: 4px 6px;
-      background: linear-gradient(135deg, #ffd700, #ffb300);
-      color: #333;
+      font-size: 0.85rem;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #ffd700, #b8860b);
+      color: #111;
       border: none;
       text-align: center;
-      transition: transform 0.2s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .fc-event:hover {
       transform: scale(1.05);
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 3px 8px rgba(255, 215, 0, 0.3);
     }
 
-    /* 📱スマホ対応 */
+    /* ===== レスポンシブ ===== */
     @media (max-width: 768px) {
       #calendar {
         width: 98%;
         padding: 8px;
-        margin-top: 10px;
       }
       .fc-toolbar-title {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
       }
       .fc-button {
-        font-size: 0.75rem !important;
+        font-size: 0.8rem !important;
         padding: 4px 8px !important;
       }
-      .fc-daygrid-day-number {
-        font-size: 0.8rem;
-      }
       .fc-event {
-        font-size: 0.65rem;
-        padding: 2px 4px;
+        font-size: 0.7rem;
       }
     }
 
@@ -95,12 +99,10 @@
       }
       .fc-button {
         font-size: 0.7rem !important;
-      }
-      .fc-daygrid-day-number {
-        font-size: 0.7rem;
+        padding: 3px 6px !important;
       }
       .fc-event {
-        font-size: 0.55rem;
+        font-size: 0.6rem;
       }
     }
   </style>
@@ -110,32 +112,34 @@
   <div id="calendar"></div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', async function() {
-      const calendarEl = document.getElementById('calendar');
+    document.addEventListener("DOMContentLoaded", async function() {
+      const calendarEl = document.getElementById("calendar");
       let events = [];
 
       try {
-        const res = await fetch('./data/exhibition.json');
-        if (!res.ok) throw new Error('イベントデータの取得に失敗しました');
+        const res = await fetch("./data/exhibition.json");
+        if (!res.ok) throw new Error("データの取得に失敗しました");
         events = await res.json();
       } catch (err) {
-        console.error(err);
+        console.warn("イベントデータの取得に失敗しました。ダミーを使用します。");
+        events = [
+          { title: "名古屋髙島屋", start: "2025-10-15", end: "2025-10-20" },
+          { title: "京都大丸", start: "2025-11-02", end: "2025-11-08" }
+        ];
       }
 
       const calendar = new FullCalendar.Calendar(calendarEl, {
         plugins: [FullCalendar.dayGridPlugin, FullCalendar.interactionPlugin],
-        locale: 'ja',
-        initialView: 'dayGridMonth',
-        events: events,
+        locale: "ja",
+        initialView: "dayGridMonth",
         headerToolbar: {
-          left: 'prev,next today',
-          center: 'title',
-          right: ''
+          left: "prev,next today",
+          center: "title",
+          right: ""
         },
-        height: 'auto',
-        contentHeight: 'auto',
-        aspectRatio: 1.25,
-        eventDisplay: 'block'
+        events: events,
+        height: "auto",
+        eventDisplay: "block"
       });
 
       calendar.render();
