@@ -49,8 +49,47 @@
   .menu-icon .label { font-size: 0.9rem; text-align: center; font-weight: 600; }
 
   /* --- 今日・近日開催イベント --- */
-  #today-exhibition div, #upcoming-exhibition div { background: #fff3cd; color: #856404; padding: 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; }
-  #today-exhibition strong { color: #b8860b; }
+  #exhibition-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .exhibition-card {
+    background: linear-gradient(180deg, #fffaf0, #fff3e0);
+    border-radius: 12px;
+    padding: 0.8rem 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .exhibition-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  }
+  
+  .exhibition-card.today {
+    border-left: 5px solid #f4c430; /* ゴールドのアクセント */
+  }
+  
+  .exhibition-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #b8860b; /* ゴールド系 */
+    margin-bottom: 0.3rem;
+  }
+  
+  .exhibition-location {
+    font-size: 0.9rem;
+    color: #4a4025;
+    margin-bottom: 0.2rem;
+  }
+  
+  .exhibition-date {
+    font-size: 0.8rem;
+    color: #777;
+  }
 </style>
 </head>
 <body>
@@ -168,25 +207,27 @@ fetch("data/exhibition.json")
     const todayEvents = events.filter(e => e.start <= todayStr && e.end >= todayStr);
     const upcomingEvents = events.filter(e => e.start > todayStr).sort((a,b)=>a.start.localeCompare(b.start));
 
+    // 今日のイベント
     if(todayEvents.length === 0){
       todayBox.textContent = "本日開催中の大黄金展はありません。";
     } else {
       todayBox.innerHTML = todayEvents.map(e=>`
-        <div>
-          <strong>${e.title}</strong><br>
-          ${e.location}<br>
-          <small>${e.start}〜${e.end}</small>
+        <div class="exhibition-card today">
+          <div class="exhibition-title">${e.title}</div>
+          <div class="exhibition-location">${e.location}</div>
+          <div class="exhibition-date">${e.start} 〜 ${e.end}</div>
         </div>
       `).join("");
     }
 
+    // 近日開催
     if(upcomingEvents.length > 0){
       upcomingBox.innerHTML = "<strong>近日開催予定</strong>";
       upcomingBox.innerHTML += upcomingEvents.map(e=>`
-        <div>
-          ${e.title}<br>
-          ${e.location}<br>
-          <small>${e.start}〜${e.end}</small>
+        <div class="exhibition-card">
+          <div class="exhibition-title">${e.title}</div>
+          <div class="exhibition-location">${e.location}</div>
+          <div class="exhibition-date">${e.start} 〜 ${e.end}</div>
         </div>
       `).join("");
     }
