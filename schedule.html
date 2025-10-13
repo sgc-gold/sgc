@@ -3,9 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <title>大黄金展スケジュール</title>
+
+<!-- FullCalendar 読み込み -->
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/main.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/main.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/locales/ja.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/main.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/locales-all.global.min.js"></script>
+
 <style>
   body {
     font-family: "Noto Sans JP", sans-serif;
@@ -32,7 +35,6 @@
     border-radius: 16px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.5);
   }
-
   .fc-toolbar { margin-bottom: 10px; }
   .fc-toolbar-title { font-size: 1.2rem; font-weight: bold; }
   .fc .fc-button {
@@ -48,17 +50,16 @@
   .fc .fc-col-header-cell-cushion { font-size: 0.9rem; font-weight: 600; }
   .fc .fc-daygrid-day-number { font-size: 0.85rem; font-weight: 500; }
   .fc .fc-event-title { font-size: 0.85rem; font-weight: bold; }
-  
+
   .modal {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.75);
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     z-index: 1000;
     padding: 10px;
-    display: none;
   }
   .modal-content {
     background: #2c2c2c;
@@ -120,28 +121,31 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", async () => {
+window.addEventListener("load", async () => {
+  // JSONデータ読み込み
   const res = await fetch("data/exhibition.json");
   const exhibitions = await res.json();
 
   const calendarEl = document.getElementById("calendar");
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "dayGridMonth",
-    locale: 'ja',
-    height: window.innerHeight - 100,
-    contentHeight: 'auto',
+    locale: "ja",
+    height: "auto",
+    contentHeight: "auto",
+    expandRows: true,
+    handleWindowResize: true,
     events: exhibitions.map(e => ({
       title: e.title,
       start: e.start,
       end: e.end,
       extendedProps: e
     })),
-    eventColor: '#ffd700',
-    eventTextColor: '#111',
+    eventColor: "#ffd700",
+    eventTextColor: "#111",
     headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'dayGridMonth,dayGridWeek'
+      left: "prev,next today",
+      center: "title",
+      right: "dayGridMonth,dayGridWeek"
     },
     eventClick: info => {
       const { title, start, end, extendedProps } = info.event;
@@ -159,10 +163,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("closeModal").onclick = () => {
     document.getElementById("eventModal").style.display = "none";
   };
-
-  window.addEventListener("resize", () => {
-    calendar.setOption("height", window.innerHeight - 100);
-  });
 });
 </script>
 </body>
