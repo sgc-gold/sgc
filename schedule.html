@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>大黄金展スケジュール</title>
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="page-header">
+    <h1>🏵️ 大黄金展スケジュール</h1>
+  </header>
+
+  <main>
+    <div id="calendar" class="calendar-container"></div>
+  </main>
+
+  <!-- イベント詳細モーダル -->
+  <div id="eventModal" class="modal hidden">
+    <div class="modal-content">
+      <span id="closeModal" class="close">&times;</span>
+      <h2 id="modalTitle"></h2>
+      <p id="modalDate"></p>
+      <p id="modalLocation"></p>
+      <p id="modalNote"></p>
+    </div>
+  </div>
+
+  <script src="exhibition.js"></script>
+</body>
+</html>
