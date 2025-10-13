@@ -4,25 +4,112 @@
 <meta charset="UTF-8">
 <title>スケジュール</title>
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.js"></script>
 <style>
-  body { font-family: "Noto Sans JP", sans-serif; background:#111; color:#fff; margin:0; padding:0;}
-  .page-header { background: linear-gradient(90deg,#b8860b,#ffd700); color:#111; text-align:center; padding:20px; font-size:1.8rem; font-weight:bold; text-shadow:1px 1px 2px #000;}
-  .calendar-container { max-width:90%; margin:30px auto; background:#1c1c1c; padding:20px; border-radius:16px; box-shadow:0 6px 20px rgba(0,0,0,0.6);}
-  .fc .fc-daygrid-event { background: linear-gradient(135deg,#ffd700,#ffa500); border:none; border-radius:8px; color:#111; font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,0.5); transition: transform 0.2s, box-shadow 0.2s;}
-  .fc .fc-daygrid-event:hover { transform:scale(1.05); box-shadow:0 4px 16px rgba(0,0,0,0.8);}
-  .modal { position:fixed; inset:0; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:1000; opacity:0; pointer-events:none; transition:opacity 0.3s;}
-  .modal.show { opacity:1; pointer-events:auto;}
-  .modal-content { background:#2c2c2c; padding:20px; border-radius:12px; width:340px; color:#fff; box-shadow:0 6px 20px rgba(0,0,0,0.6); transform:scale(0.8); transition:transform 0.3s;}
-  .modal.show .modal-content { transform:scale(1);}
-  .close { float:right; cursor:pointer; font-size:1.3rem; font-weight:bold; color:#ffd700;}
+  body {
+    font-family: "Noto Sans JP", sans-serif;
+    background: #1c1c1c;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+  }
+
+  .page-header {
+    background: linear-gradient(90deg, #b8860b, #ffd700);
+    color: #1c1c1c;
+    text-align: center;
+    padding: 20px;
+    font-size: 1.8rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  }
+
+  .calendar-container {
+    max-width: 90%;
+    margin: 30px auto;
+    background: #2c2c2c;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+  }
+
+  /* FullCalendar カスタム */
+  .fc-theme-standard .fc-scrollgrid {
+    border: none;
+  }
+  .fc .fc-col-header-cell-cushion {
+    color: #ffd700;
+    font-weight: bold;
+  }
+  .fc .fc-daygrid-day-number {
+    color: #fff;
+  }
+  .fc .fc-event {
+    background-color: #ffb74d;
+    color: #1c1c1c;
+    border: none;
+    border-radius: 8px;
+    padding: 3px 5px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .fc .fc-event:hover {
+    background-color: #ffa000;
+  }
+
+  /* モーダル */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .modal.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .modal-content {
+    background: #2c2c2c;
+    padding: 20px;
+    border-radius: 12px;
+    width: 320px;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    text-align: center;
+  }
+  .close {
+    float: right;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ffd700;
+  }
+
+  @media (max-width: 768px) {
+    .calendar-container {
+      padding: 10px;
+    }
+    .modal-content {
+      width: 90%;
+    }
+  }
 </style>
 </head>
 <body>
-
 <header class="page-header">🏵️ 大黄金展スケジュール</header>
 
-<div id="calendar" class="calendar-container"></div>
+<main>
+  <div id="calendar" class="calendar-container"></div>
+</main>
 
+<!-- モーダル -->
 <div id="eventModal" class="modal">
   <div class="modal-content">
     <span id="closeModal" class="close">&times;</span>
@@ -33,41 +120,45 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/locales/ja.global.min.js"></script>
 <script>
-  document.addEventListener("DOMContentLoaded", function(){
-    const exhibitions = [
-      {"title":"西武福井店 大黄金展","location":"西武福井店", "start":"2025-10-08","end":"2025-10-13"},
-      {"title":"高松三越 大黄金展","location":"高松三越", "start":"2025-10-15","end":"2025-10-20"}
-    ];
+document.addEventListener("DOMContentLoaded", async () => {
+  // JSON 読み込み
+  const res = await fetch("./data/exhibition.json");
+  const exhibitions = await res.json();
 
-    const calendarEl = document.getElementById("calendar");
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: "dayGridMonth",
-      locale: 'ja',
-      events: exhibitions.map(e => ({
-        title: e.title,
-        start: e.start,
-        end: e.end,
-        extendedProps: e
-      })),
-      eventClick: function(info){
-        const { title, start, end, extendedProps } = info.event;
-        document.getElementById("modalTitle").textContent = title;
-        document.getElementById("modalDate").textContent = `${start.toLocaleDateString()} 〜 ${end ? new Date(end).toLocaleDateString() : ""}`;
-        document.getElementById("modalLocation").textContent = extendedProps.location;
-        document.getElementById("modalNote").textContent = extendedProps.note || "";
-        document.getElementById("eventModal").classList.add("show");
-      }
-    });
-
-    calendar.render();
-
-    document.getElementById("closeModal").onclick = function(){
-      document.getElementById("eventModal").classList.remove("show");
-    };
+  const calendarEl = document.getElementById("calendar");
+  const calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: "dayGridMonth",
+    locale: "ja",
+    themeSystem: "standard",
+    headerToolbar: {
+      left: "prev,next today",
+      center: "title",
+      right: "dayGridMonth,timeGridWeek,timeGridDay"
+    },
+    events: exhibitions.map(e => ({
+      title: e.title,
+      start: e.start,
+      end: e.end,
+      extendedProps: e
+    })),
+    eventClick: function(info) {
+      const { title, start, end, extendedProps } = info.event;
+      document.getElementById("modalTitle").textContent = title;
+      document.getElementById("modalDate").textContent =
+        `${start.toLocaleDateString()} 〜 ${end ? new Date(end).toLocaleDateString() : ""}`;
+      document.getElementById("modalLocation").textContent = extendedProps.location;
+      document.getElementById("modalNote").textContent = extendedProps.note || "";
+      document.getElementById("eventModal").classList.add("show");
+    }
   });
+  calendar.render();
+
+  // モーダル閉じる
+  document.getElementById("closeModal").onclick = () => {
+    document.getElementById("eventModal").classList.remove("show");
+  };
+});
 </script>
 </body>
 </html>
