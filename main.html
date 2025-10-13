@@ -16,172 +16,41 @@
   }
 
   /* --- 田中貴金属 公表価格タイトル --- */
-  .tanaka-header {
-    text-align: center;
-    margin-bottom: 1rem;
-    padding: 1rem 0.8rem 1.2rem;
-    border: 1px solid #d7c89e;
-    border-radius: 12px;
-    background: linear-gradient(180deg, #fffef9, #f8f6f1);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    max-width: 480px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .tanaka-title {
-    font-size: 1.15rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    color: #5a4b2e;
-    text-shadow: 0 1px 0 #fff;
-  }
-
-  .tanaka-update {
-    font-size: 0.85rem;
-    color: #777;
-    margin-top: 0.25rem;
-  }
-
-  .tanaka-divider {
-    margin: 0.8rem auto 0.8rem;
-    width: 80%;
-    border-top: 1px solid rgba(0,0,0,0.1);
-  }
-
-  /* --- 金・プラチナ価格 --- */
-  .tanaka-prices {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 420px;
-    margin: 0 auto;
-    gap: 0.5rem;
-    font-weight: 600;
-  }
-
-  .tanaka-item {
-    flex: 1;
-    text-align: center;
-    color: #4a4025;
-  }
-
-  .tanaka-item:not(:last-child) {
-    border-right: 1px solid rgba(0,0,0,0.08);
-  }
-
-  .tanaka-item h3 {
-    margin: 0;
-    font-size: 0.9rem;
-    letter-spacing: 0.05em;
-  }
-
-  .tanaka-item .price {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin: 0.3rem 0 0.15rem;
-    color: #3a2c0d;
-  }
-
-  .tanaka-item .diff {
-    font-size: 0.85rem;
-  }
-
+  .tanaka-header { text-align: center; margin-bottom: 1rem; padding: 1rem 0.8rem 1.2rem; border: 1px solid #d7c89e; border-radius: 12px; background: linear-gradient(180deg, #fffef9, #f8f6f1); box-shadow: 0 2px 8px rgba(0,0,0,0.05); max-width: 480px; margin-left: auto; margin-right: auto; }
+  .tanaka-title { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.08em; color: #5a4b2e; text-shadow: 0 1px 0 #fff; }
+  .tanaka-update { font-size: 0.85rem; color: #777; margin-top: 0.25rem; }
+  .tanaka-divider { margin: 0.8rem auto 0.8rem; width: 80%; border-top: 1px solid rgba(0,0,0,0.1); }
+  .tanaka-prices { display: flex; justify-content: space-between; align-items: center; max-width: 420px; margin: 0 auto; gap: 0.5rem; font-weight: 600; }
+  .tanaka-item { flex: 1; text-align: center; color: #4a4025; }
+  .tanaka-item:not(:last-child) { border-right: 1px solid rgba(0,0,0,0.08); }
+  .tanaka-item h3 { margin: 0; font-size: 0.9rem; letter-spacing: 0.05em; }
+  .tanaka-item .price { font-size: 1.3rem; font-weight: 700; margin: 0.3rem 0 0.15rem; color: #3a2c0d; }
+  .tanaka-item .diff { font-size: 0.85rem; }
   .positive { color: #b71c1c; }
   .negative { color: #1565c0; }
 
   @media (max-width: 480px) {
-    .tanaka-header {
-      padding: 0.9rem 0.6rem 1rem;
-      width: 95%;
-    }
-    .tanaka-prices {
-      max-width: 100%;
-      gap: 0.4rem;
-    }
+    .tanaka-header { padding: 0.9rem 0.6rem 1rem; width: 95%; }
+    .tanaka-prices { max-width: 100%; gap: 0.4rem; }
     .tanaka-item .price { font-size: 1.1rem; }
     .tanaka-item h3 { font-size: 0.85rem; }
   }
 
-  /* --- 以下、元コード --- */
-  h1 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    border-bottom: 2px solid #ccc;
-    padding-bottom: 0.4rem;
-  }
+  h1 { font-size: 1.5rem; margin-bottom: 1rem; border-bottom: 2px solid #ccc; padding-bottom: 0.4rem; }
+  h2 { font-size: 1.2rem; margin-top: 2rem; border-left: 4px solid #0077cc; padding-left: 0.5rem; }
+  p, li { line-height: 1.6; }
+  ul { margin: 0.5rem 0 1rem 1.5rem; padding: 0; margin-bottom: 3rem; }
+  .note { background: #fff3cd; color: #856404; padding: 0.5rem; border-radius: 0.3rem; margin-bottom: 1rem; }
+  .menu-grid { display: flex; gap: 1rem; margin-top: 1.5rem; margin-bottom: 1.5rem; justify-content: space-between; }
+  .menu-grid a { text-decoration: none; color: #003D2E; flex: 1 1 0; min-width: 0; }
+  .menu-icon { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fff; border: 2px solid #003D2E; border-radius: 0.5rem; padding: 1rem; box-shadow: 0 4px 8px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; min-height: 100px; }
+  .menu-icon:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+  .menu-icon .icon { width: 36px; height: 36px; margin-bottom: 0.4rem; }
+  .menu-icon .label { font-size: 0.9rem; text-align: center; font-weight: 600; }
 
-  h2 {
-    font-size: 1.2rem;
-    margin-top: 2rem;
-    border-left: 4px solid #0077cc;
-    padding-left: 0.5rem;
-  }
-
-  p, li {
-    line-height: 1.6;
-  }
-
-  ul {
-    margin: 0.5rem 0 1rem 1.5rem;
-    padding: 0;
-    margin-bottom: 3rem; /* ← 余白を増やす */
-  }
-
-  .note {
-    background: #fff3cd;
-    color: #856404;
-    padding: 0.5rem;
-    border-radius: 0.3rem;
-    margin-bottom: 1rem;
-  }
-
-  .menu-grid {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
-    justify-content: space-between;
-  }
-
-  .menu-grid a {
-    text-decoration: none;
-    color: #003D2E;
-    flex: 1 1 0;
-    min-width: 0;
-  }
-
-  .menu-icon {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: #fff;
-    border: 2px solid #003D2E;
-    border-radius: 0.5rem;
-    padding: 1rem;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-    transition: transform 0.2s, box-shadow 0.2s;
-    min-height: 100px;
-  }
-
-  .menu-icon:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-  }
-
-  .menu-icon .icon {
-    width: 36px;
-    height: 36px;
-    margin-bottom: 0.4rem;
-  }
-
-  .menu-icon .label {
-    font-size: 0.9rem;
-    text-align: center;
-    font-weight: 600;
-  }
-
+  /* --- 今日・近日開催イベント --- */
+  #today-exhibition div, #upcoming-exhibition div { background: #fff3cd; color: #856404; padding: 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; }
+  #today-exhibition strong { color: #b8860b; }
 </style>
 </head>
 <body>
@@ -243,10 +112,15 @@
 
   <h1>社内案内</h1>
   <p>この社内ポータルは、買取業務を中心とした情報・お知らせを共有するためのページです。</p>
-  
+
+  <!-- 今日・近日開催の大黄金展 -->
+  <h2>本日・近日開催の大黄金展</h2>
+  <div id="today-exhibition">読み込み中...</div>
+  <div id="upcoming-exhibition"></div>
+
   <h2>更新履歴</h2>
   <ul>
-    <li>2025/10/01　IG買取分割確認ページ 公開</li>
+    <li>2025/10/13　IG買取分割確認ページ 公開</li>
     <li>2025/10/01　記念金貨買取価格ページ 公開</li>
   </ul>
 
@@ -282,13 +156,55 @@ fetch("data/tanaka_price.json")
     document.getElementById("pt-price").textContent = "取得失敗";
   });
 
-  function notifyHeight() {
-    const height = document.body.scrollHeight;
-    parent.postMessage({ type: 'resize-iframe', height }, '*');
-  }
+// --- 今日・近日開催の大黄金展 ---
+fetch("data/exhibition.json")
+  .then(res => res.json())
+  .then(events => {
+    const today = new Date();
+    const todayStr = today.toISOString().split("T")[0];
+    const todayBox = document.getElementById("today-exhibition");
+    const upcomingBox = document.getElementById("upcoming-exhibition");
 
-  window.addEventListener('load', notifyHeight);
-  window.addEventListener('resize', notifyHeight);  
+    const todayEvents = events.filter(e => e.start <= todayStr && e.end >= todayStr);
+    const upcomingEvents = events.filter(e => e.start > todayStr).sort((a,b)=>a.start.localeCompare(b.start));
+
+    if(todayEvents.length === 0){
+      todayBox.textContent = "本日開催中の大黄金展はありません。";
+    } else {
+      todayBox.innerHTML = todayEvents.map(e=>`
+        <div>
+          <strong>${e.title}</strong><br>
+          ${e.location}<br>
+          <small>${e.start}〜${e.end}</small>
+        </div>
+      `).join("");
+    }
+
+    if(upcomingEvents.length > 0){
+      upcomingBox.innerHTML = "<strong>近日開催予定</strong>";
+      upcomingBox.innerHTML += upcomingEvents.map(e=>`
+        <div>
+          ${e.title}<br>
+          ${e.location}<br>
+          <small>${e.start}〜${e.end}</small>
+        </div>
+      `).join("");
+    }
+
+    notifyHeight();
+  })
+  .catch(err=>{
+    console.error("大黄金展データ取得エラー:", err);
+    document.getElementById("today-exhibition").textContent = "データ取得失敗";
+  });
+
+function notifyHeight() {
+  const height = document.body.scrollHeight;
+  parent.postMessage({ type: 'resize-iframe', height }, '*');
+}
+
+window.addEventListener('load', notifyHeight);
+window.addEventListener('resize', notifyHeight);  
 </script>
 
 </body>
