@@ -152,8 +152,8 @@
   <h1>社内案内</h1>
   <p>この社内ポータルは、買取業務を中心とした情報・お知らせを共有するためのページです。</p>
 
-  <!-- 今日・近日開催の大黄金展 -->
-  <h2>本日・近日開催の大黄金展</h2>
+  <!-- 現在開催の大黄金展 -->
+  <h2>開催の大黄金展</h2>
   <div id="today-exhibition">読み込み中...</div>
   <div id="upcoming-exhibition"></div>
 
@@ -195,7 +195,7 @@ fetch("data/tanaka_price.json")
     document.getElementById("pt-price").textContent = "取得失敗";
   });
 
-// --- 今日・近日開催の大黄金展 ---
+// --- 開催の大黄金展 ---
 fetch("data/exhibition.json")
   .then(res => res.json())
   .then(events => {
@@ -209,7 +209,7 @@ fetch("data/exhibition.json")
 
     // 今日のイベント
     if(todayEvents.length === 0){
-      todayBox.textContent = "本日開催中の大黄金展はありません。";
+      todayBox.textContent = "現在開催中の大黄金展はありません。";
     } else {
       todayBox.innerHTML = todayEvents.map(e=>`
         <div class="exhibition-card today">
@@ -220,9 +220,9 @@ fetch("data/exhibition.json")
       `).join("");
     }
 
-    // 近日開催
+    // 次回開催
     if(upcomingEvents.length > 0){
-      upcomingBox.innerHTML = "<strong>近日開催予定</strong>";
+      upcomingBox.innerHTML = "<strong>次回開催予定</strong>";
       upcomingBox.innerHTML += upcomingEvents.map(e=>`
         <div class="exhibition-card">
           <div class="exhibition-title">${e.title}</div>
