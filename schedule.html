@@ -77,7 +77,43 @@
     </div>
   </div>
 
-  <!-- ES Module で読み込み -->
-  <script type="module" src="exhibition.js"></script>
+  <script type="module">
+    import { Calendar } from 'https://cdn.skypack.dev/@fullcalendar/core@6.1.19';
+    import dayGridPlugin from 'https://cdn.skypack.dev/@fullcalendar/daygrid@6.1.19';
+    import interactionPlugin from 'https://cdn.skypack.dev/@fullcalendar/interaction@6.1.19';
+    import jaLocale from 'https://cdn.skypack.dev/@fullcalendar/core/locales/ja@6.1.19';
+  
+    document.addEventListener("DOMContentLoaded", () => {
+      const calendarEl = document.getElementById("calendar");
+      const calendar = new Calendar(calendarEl, {
+        initialView: "dayGridMonth",
+        locale: jaLocale,
+        plugins: [dayGridPlugin, interactionPlugin],
+        events: [
+          {
+            title: '展示会1',
+            start: '2025-10-20',
+            end: '2025-10-22',
+            location: '東京会場',
+            note: '詳細情報'
+          },
+          // 他のイベントデータもここに追加
+        ],
+        eventClick: function(info) {
+          const { title, start, end, extendedProps } = info.event;
+          document.getElementById("modalTitle").textContent = title;
+          document.getElementById("modalDate").textContent =
+            `${start.toLocaleDateString()} 〜 ${end ? new Date(end).toLocaleDateString() : ""}`;
+          document.getElementById("modalLocation").textContent = extendedProps.location;
+          document.getElementById("modalNote").textContent = extendedProps.note || "";
+          document.getElementById("eventModal").classList.remove("hidden");
+        }
+      });
+      calendar.render();
+  
+      document.getElementById("closeModal").onclick = () =>
+        document.getElementById("eventModal").classList.add("hidden");
+    });
+  </script>
 </body>
 </html>
