@@ -1,157 +1,170 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>大黄金展スケジュール</title>
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.js"></script>
-<style>
-  body {
-    font-family: "Noto Sans JP", sans-serif;
-    background: #1c1c1c;
-    color: #fff;
-    margin: 0;
-    padding: 0;
-  }
+  <meta charset="UTF-8">
+  <title>大黄金展スケジュール</title>
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/main.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/main.min.js"></script>
+  <style>
+    /* ===========================
+       共通スタイル
+       =========================== */
+    body {
+      font-family: "Noto Sans JP", sans-serif;
+      background-color: #1c1c1c;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    .page-header {
+      background: linear-gradient(90deg, #b8860b, #ffd700);
+      color: #1c1c1c;
+      text-align: center;
+      padding: 15px;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      font-weight: bold;
+    }
+    .calendar-container {
+      max-width: 95%;
+      margin: 15px auto;
+      background: #2c2c2c;
+      padding: 10px;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+    }
 
-  .page-header {
-    background: linear-gradient(90deg, #b8860b, #ffd700);
-    color: #1c1c1c;
-    text-align: center;
-    padding: 15px;
-    font-size: 1.4rem;
-    font-weight: bold;
-    letter-spacing: 1px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-  }
+    /* ===========================
+       カレンダー コンパクト化
+       =========================== */
+    .fc-toolbar {
+      font-size: 0.75rem;
+      margin-bottom: 5px;
+    }
+    .fc-toolbar-title {
+      font-size: 0.85rem;
+    }
+    .fc .fc-button {
+      font-size: 0.65rem;
+      padding: 2px 5px;
+    }
+    .fc .fc-button:hover {
+      background-color: #ffa000;
+    }
+    .fc .fc-col-header-cell-cushion {
+      font-size: 0.7rem;
+    }
+    .fc .fc-daygrid-day-number {
+      font-size: 0.65rem;
+    }
+    .fc .fc-event-title {
+      font-size: 0.65rem;
+    }
 
-  .calendar-container {
-    max-width: 95%;
-    margin: 15px auto;
-    background: #2c2c2c;
-    padding: 10px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-  }
+    /* ===========================
+       イベント詳細モーダル
+       =========================== */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: #2c2c2c;
+      padding: 15px;
+      border-radius: 10px;
+      width: 300px;
+      max-width: 90%;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    .close {
+      float: right;
+      cursor: pointer;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #ffd700;
+    }
+    .hidden { display: none; }
 
-  /* FullCalendar カスタム */
-  .fc .fc-col-header-cell-cushion { color: #ffd700; font-weight: bold; font-size: 0.75rem; }
-  .fc .fc-daygrid-day-number { color: #fff; font-size: 0.7rem; }
-  .fc .fc-event {
-    background-color: #ffb74d;
-    color: #1c1c1c;
-    border: none;
-    border-radius: 4px;
-    padding: 1px 3px;
-    font-weight: bold;
-    font-size: 0.65rem;
-    cursor: pointer;
-  }
-  .fc .fc-event:hover { background-color: #ffa000; }
-
-  /* モーダル */
-  .modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
-  }
-  .modal.show {
-    opacity: 1;
-    pointer-events: auto;
-  }
-  .modal-content {
-    background: #2c2c2c;
-    padding: 10px;
-    border-radius: 10px;
-    width: 280px;
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    text-align: center;
-    font-size: 0.8rem;
-  }
-  .close {
-    float: right;
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: bold;
-    color: #ffd700;
-  }
-
-  /* モバイル最適化 */
-  @media (max-width: 480px) {
-    .page-header { font-size: 1.2rem; padding: 10px; }
-    .calendar-container { padding: 5px; }
-    .fc .fc-col-header-cell-cushion { font-size: 0.65rem; }
-    .fc .fc-daygrid-day-number { font-size: 0.6rem; }
-    .fc .fc-event { font-size: 0.55rem; padding: 1px 2px; }
-    .modal-content { width: 95%; padding: 8px; font-size: 0.75rem; }
-    .close { font-size: 0.8rem; }
-  }
-</style>
+    /* ===========================
+       モバイル対応
+       =========================== */
+    @media (max-width: 480px) {
+      .page-header { font-size: 1.2rem; padding: 10px; }
+      .fc-toolbar { font-size: 0.65rem; }
+      .fc-toolbar-title { font-size: 0.75rem; }
+      .fc .fc-button { font-size: 0.55rem; padding: 1px 3px; }
+      .fc .fc-col-header-cell-cushion { font-size: 0.6rem; }
+      .fc .fc-daygrid-day-number { font-size: 0.55rem; }
+      .fc .fc-event-title { font-size: 0.55rem; }
+      .calendar-container { padding: 5px; }
+    }
+  </style>
 </head>
 <body>
+  <header class="page-header">
+    🏵️ 大黄金展スケジュール
+  </header>
 
-<header class="page-header">🏵️ 大黄金展スケジュール</header>
+  <main>
+    <div id="calendar" class="calendar-container"></div>
+  </main>
 
-<main>
-  <div id="calendar" class="calendar-container"></div>
-</main>
-
-<div id="eventModal" class="modal">
-  <div class="modal-content">
-    <span id="closeModal" class="close">&times;</span>
-    <h2 id="modalTitle"></h2>
-    <p id="modalDate"></p>
-    <p id="modalLocation"></p>
-    <p id="modalNote"></p>
+  <!-- イベント詳細モーダル -->
+  <div id="eventModal" class="modal hidden">
+    <div class="modal-content">
+      <span id="closeModal" class="close">&times;</span>
+      <h2 id="modalTitle"></h2>
+      <p id="modalDate"></p>
+      <p id="modalLocation"></p>
+      <p id="modalNote"></p>
+    </div>
   </div>
-</div>
 
-<script>
-document.addEventListener("DOMContentLoaded", async () => {
-  const res = await fetch("./data/exhibition.json");
-  const exhibitions = await res.json();
+  <script type="module">
+    import { Calendar } from 'https://cdn.skypack.dev/fullcalendar@6.1.19';
+    import jaLocale from 'https://cdn.skypack.dev/fullcalendar@6.1.19/locales/ja.js';
 
-  const calendarEl = document.getElementById("calendar");
-  const calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: "dayGridMonth",
-    locale: "ja",
-    themeSystem: "standard",
-    headerToolbar: {
-      left: "prev,next today",
-      center: "title",
-      right: "dayGridMonth,timeGridWeek,timeGridDay"
-    },
-    events: exhibitions.map(e => ({
-      title: e.title,
-      start: e.start,
-      end: e.end,
-      extendedProps: e
-    })),
-    eventClick: function(info) {
-      const { title, start, end, extendedProps } = info.event;
-      document.getElementById("modalTitle").textContent = title;
-      document.getElementById("modalDate").textContent =
-        `${start.toLocaleDateString()} 〜 ${end ? new Date(end).toLocaleDateString() : ""}`;
-      document.getElementById("modalLocation").textContent = extendedProps.location;
-      document.getElementById("modalNote").textContent = extendedProps.note || "";
-      document.getElementById("eventModal").classList.add("show");
-    }
-  });
-  calendar.render();
+    document.addEventListener("DOMContentLoaded", async () => {
+      const res = await fetch("data/exhibition.json");
+      const exhibitions = await res.json();
 
-  document.getElementById("closeModal").onclick = () => {
-    document.getElementById("eventModal").classList.remove("show");
-  };
-});
-</script>
+      const calendarEl = document.getElementById("calendar");
+      const calendar = new Calendar(calendarEl, {
+        initialView: "dayGridMonth",
+        locale: jaLocale,
+        height: window.innerHeight - 100, // 画面に収まる高さ
+        events: exhibitions.map(e => ({
+          title: e.title,
+          start: e.start,
+          end: e.end,
+          extendedProps: e
+        })),
+        eventClick: function(info) {
+          const { title, start, end, extendedProps } = info.event;
+          document.getElementById("modalTitle").textContent = title;
+          document.getElementById("modalDate").textContent = 
+            `${start.toLocaleDateString()} 〜 ${end ? new Date(end).toLocaleDateString() : ""}`;
+          document.getElementById("modalLocation").textContent = extendedProps.location;
+          document.getElementById("modalNote").textContent = extendedProps.note || "";
+          document.getElementById("eventModal").classList.remove("hidden");
+        }
+      });
+      calendar.render();
 
+      document.getElementById("closeModal").onclick = () =>
+        document.getElementById("eventModal").classList.add("hidden");
+
+      // リサイズ対応
+      window.addEventListener("resize", () => {
+        calendar.setOption("height", window.innerHeight - 100);
+      });
+    });
+  </script>
 </body>
 </html>
