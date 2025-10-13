@@ -18,8 +18,8 @@
     background: linear-gradient(90deg, #b8860b, #ffd700);
     color: #1c1c1c;
     text-align: center;
-    padding: 20px;
-    font-size: 1.8rem;
+    padding: 15px;
+    font-size: 1.4rem;
     font-weight: bold;
     letter-spacing: 1px;
     text-shadow: 0 1px 2px rgba(0,0,0,0.5);
@@ -27,25 +27,24 @@
 
   .calendar-container {
     max-width: 95%;
-    margin: 20px auto;
+    margin: 15px auto;
     background: #2c2c2c;
-    padding: 15px;
-    border-radius: 16px;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
   }
 
   /* FullCalendar カスタム */
-  .fc-theme-standard .fc-scrollgrid { border: none; }
-  .fc .fc-col-header-cell-cushion { color: #ffd700; font-weight: bold; font-size: 0.9rem; }
-  .fc .fc-daygrid-day-number { color: #fff; font-size: 0.85rem; }
+  .fc .fc-col-header-cell-cushion { color: #ffd700; font-weight: bold; font-size: 0.75rem; }
+  .fc .fc-daygrid-day-number { color: #fff; font-size: 0.7rem; }
   .fc .fc-event {
     background-color: #ffb74d;
     color: #1c1c1c;
     border: none;
-    border-radius: 6px;
-    padding: 2px 4px;
+    border-radius: 4px;
+    padding: 1px 3px;
     font-weight: bold;
-    font-size: 0.8rem;
+    font-size: 0.65rem;
     cursor: pointer;
   }
   .fc .fc-event:hover { background-color: #ffa000; }
@@ -69,44 +68,42 @@
   }
   .modal-content {
     background: #2c2c2c;
-    padding: 15px;
-    border-radius: 12px;
-    width: 320px;
+    padding: 10px;
+    border-radius: 10px;
+    width: 280px;
     color: #fff;
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     text-align: center;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   .close {
     float: right;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: bold;
     color: #ffd700;
   }
 
-  /* ====================
-     モバイル調整
-     ==================== */
-  @media (max-width: 768px) {
-    .page-header { font-size: 1.4rem; padding: 15px; }
-    .calendar-container { padding: 10px; }
-    .fc .fc-col-header-cell-cushion { font-size: 0.8rem; }
-    .fc .fc-daygrid-day-number { font-size: 0.75rem; }
-    .fc .fc-event { font-size: 0.7rem; padding: 2px 3px; }
-    .modal-content { width: 90%; padding: 12px; font-size: 0.85rem; }
-    .close { font-size: 0.9rem; }
+  /* モバイル最適化 */
+  @media (max-width: 480px) {
+    .page-header { font-size: 1.2rem; padding: 10px; }
+    .calendar-container { padding: 5px; }
+    .fc .fc-col-header-cell-cushion { font-size: 0.65rem; }
+    .fc .fc-daygrid-day-number { font-size: 0.6rem; }
+    .fc .fc-event { font-size: 0.55rem; padding: 1px 2px; }
+    .modal-content { width: 95%; padding: 8px; font-size: 0.75rem; }
+    .close { font-size: 0.8rem; }
   }
 </style>
 </head>
 <body>
+
 <header class="page-header">🏵️ 大黄金展スケジュール</header>
 
 <main>
   <div id="calendar" class="calendar-container"></div>
 </main>
 
-<!-- モーダル -->
 <div id="eventModal" class="modal">
   <div class="modal-content">
     <span id="closeModal" class="close">&times;</span>
@@ -155,5 +152,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 });
 </script>
+
 </body>
 </html>
