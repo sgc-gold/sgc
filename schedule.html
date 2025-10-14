@@ -167,11 +167,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   calendar.render();
-});
 
-  document.getElementById("closeModal").onclick = () => {
+  // ✅ モーダルを閉じる処理（閉じるボタン用）
+  document.getElementById("closeModal").onclick = () =>
     document.getElementById("eventModal").classList.remove("show");
-  };
 });
 </script>
 
