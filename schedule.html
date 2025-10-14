@@ -123,6 +123,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   const res = await fetch("./data/exhibition.json");
   const exhibitions = await res.json();
 
+  // ✅ end日を+1日補正して、最終日も帯に含まれるようにする
+  const adjustedEvents = exhibitions.map(e => {
+    const event = { ...e };
+    if (event.end) {
+      const endDate = new Date(event.end);
+      endDate.setDate(endDate.getDate() + 1); // ← ★ここで1日追加
+      event.end = endDate.toISOString().split("T")[0];
+    }
+    return event;
+  });
+
   const calendarEl = document.getElementById("calendar");
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "dayGridMonth",
@@ -133,23 +144,30 @@ document.addEventListener("DOMContentLoaded", async () => {
       center: "title",
       right: "dayGridMonth,timeGridWeek,timeGridDay"
     },
-    events: exhibitions.map(e => ({
-      title: e.title,
-      start: e.start,
-      end: e.end,
-      extendedProps: e
-    })),
+    events: adjustedEvents, // ← ★ここを exhibitions から変更！
     eventClick: function(info) {
       const { title, start, end, extendedProps } = info.event;
+
+      // ✅ モーダルの日付表示では、補正前の終了日を表示したいので1日戻す
+      const endDateDisplay = end
+        ? (() => {
+            const d = new Date(end);
+            d.setDate(d.getDate() - 1);
+            return d.toLocaleDateString();
+          })()
+        : "";
+
       document.getElementById("modalTitle").textContent = title;
       document.getElementById("modalDate").textContent =
-        `${start.toLocaleDateString()} 〜 ${end ? new Date(end).toLocaleDateString() : ""}`;
+        `${start.toLocaleDateString()} 〜 ${endDateDisplay}`;
       document.getElementById("modalLocation").textContent = extendedProps.location;
       document.getElementById("modalNote").textContent = extendedProps.note || "";
       document.getElementById("eventModal").classList.add("show");
     }
   });
+
   calendar.render();
+});
 
   document.getElementById("closeModal").onclick = () => {
     document.getElementById("eventModal").classList.remove("show");
