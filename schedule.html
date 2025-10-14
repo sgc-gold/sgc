@@ -6,122 +6,138 @@
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.js"></script>
 <style>
-/* ======= カレンダー全体のスタイル ======= */
-  body {
-    background-color: #0e0e0e;
-    color: #f5f5f5;
-    font-family: "Noto Sans JP", sans-serif;
+  html, body {
+    height: 100%;
     margin: 0;
     padding: 0;
+    font-family: "Noto Sans JP", sans-serif;
+    background: #1c1c1c;
+    color: #fff;
   }
-  
-  /* カレンダーコンテナ */
-  #calendar {
-    max-width: 1100px;
-    margin: 50px auto;
-    background: #1a1a1a;
-    border-radius: 16px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
-    overflow: hidden;
-    border: 1px solid rgba(255, 215, 0, 0.2);
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
   }
-  
-  /* ヘッダー部分 */
-  .fc-toolbar {
-    background: linear-gradient(90deg, #111, #222);
-    color: #f5f5f5;
-    padding: 15px 25px;
-    border-bottom: 1px solid rgba(255, 215, 0, 0.2);
-    font-weight: 500;
+
+  .page-header {
+    background: linear-gradient(90deg, #b8860b, #ffd700);
+    color: #1c1c1c;
+    text-align: center;
+    padding: 15px;
+    font-size: 1rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
   }
-  
-  .fc-toolbar-title {
-    font-size: 1.5rem;
+
+  .calendar-container {
+    flex-grow: 1;
+    max-width: 95%;
+    margin: 15px auto;
+    background: #2c2c2c;
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  }
+
+  /* FullCalendar テキスト系 */
+  .fc .fc-col-header-cell-cushion {
     color: #ffd700;
+    font-weight: bold;
+    font-size: 0.75rem;
   }
-  
-  /* ボタン */
-  .fc-button {
-    background: #333 !important;
-    border: none !important;
-    color: #ddd !important;
-    border-radius: 6px !important;
-    transition: all 0.2s ease;
+  .fc .fc-daygrid-day-number {
+    color: #fff;
+    font-size: 0.7rem;
   }
-  
-  .fc-button:hover {
-    background: #ffd700 !important;
-    color: #000 !important;
-  }
-  
-  /* ======= カテゴリ別の色設定 ======= */
-  
-  /* 大黄金展：黒×金 */
+
+  /* ===== カテゴリ別カラー ===== */
   .category-大黄金展 {
-    background: linear-gradient(135deg, #111 20%, #ffd700 100%) !important;
-    border: 1px solid #caa300 !important;
+    background: linear-gradient(90deg, #000000, #b8860b) !important;
+    border: 1px solid #ffd700 !important;
     color: #fff !important;
     font-weight: bold;
   }
-  
-  /* クルーズ：紺×銀 */
+
   .category-クルーズ {
-    background: linear-gradient(135deg, #001f3f 20%, #7fdbff 100%) !important;
-    border: 1px solid #5ca8d3 !important;
+    background: linear-gradient(90deg, #003366, #00bfff) !important;
+    border: 1px solid #00bfff !important;
     color: #fff !important;
   }
-  
-  /* 特別催事：ワインレッド×金 */
+
   .category-特別催事 {
-    background: linear-gradient(135deg, #4b0000 20%, #ffcc70 100%) !important;
-    border: 1px solid #b85c00 !important;
+    background: linear-gradient(90deg, #4b0000, #ffb347) !important;
+    border: 1px solid #ffb347 !important;
     color: #fff !important;
   }
-  
-  /* 出張販売：グリーン×黒 */
+
   .category-出張販売 {
-    background: linear-gradient(135deg, #003300 20%, #00cc88 100%) !important;
-    border: 1px solid #00aa66 !important;
+    background: linear-gradient(90deg, #004d00, #00cc66) !important;
+    border: 1px solid #00cc66 !important;
     color: #fff !important;
   }
-  
-  /* その他イベント：パープル×白 */
-  .category-イベント {
-    background: linear-gradient(135deg, #2e004f 20%, #b388ff 100%) !important;
-    border: 1px solid #b388ff !important;
-    color: #fff !important;
-  }
-  
-  /* ======= イベント共通 ======= */
+
+  /* イベント共通 */
   .fc-event {
-    border-radius: 10px !important;
-    padding: 3px 6px !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-    font-size: 0.85rem;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 6px !important;
+    padding: 3px 5px !important;
+    font-size: 0.75rem;
+    transition: transform 0.2s ease;
   }
-  
+
   .fc-event:hover {
     transform: scale(1.05);
-    box-shadow: 0 4px 14px rgba(255, 215, 0, 0.3);
+    filter: brightness(1.2);
   }
-  
-  /* ======= 日付部分 ======= */
-  .fc-daygrid-day {
-    background-color: #141414;
-    border: 1px solid #2a2a2a;
+
+  /* モーダル */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
   }
-  
-  .fc-daygrid-day:hover {
-    background-color: #1e1e1e;
+  .modal.show {
+    opacity: 1;
+    pointer-events: auto;
   }
-  
-  /* ======= 曜日ヘッダー ======= */
-  .fc-col-header-cell {
-    background-color: #111;
+  .modal-content {
+    background: #2c2c2c;
+    padding: 15px;
+    border-radius: 10px;
+    width: 280px;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    text-align: center;
+    font-size: 0.8rem;
+    position: relative;
+  }
+  .close {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
     color: #ffd700;
-    font-weight: 600;
-    border: 1px solid #2a2a2a;
+  }
+
+  /* モバイル最適化 */
+  @media (max-width: 480px) {
+    .page-header { font-size: 1.1rem; padding: 10px; }
+    .calendar-container { padding: 5px; }
+    .fc { font-size: 0.5rem; }
+    .fc .fc-col-header-cell-cushion { font-size: 0.65rem; }
+    .fc .fc-toolbar-title { font-size: 1.0rem; }
+    .fc .fc-daygrid-day-number { font-size: 0.6rem; }
+    .modal-content { width: 90%; padding: 10px; font-size: 0.75rem; }
   }
 </style>
 </head>
@@ -145,50 +161,35 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
+  // JSONからデータ取得
   const res = await fetch("./data/exhibition.json");
-  let exhibitions;
-  try {
-    exhibitions = await res.json();
-  } catch(e) {
-    console.error("大黄金展データ取得エラー:", e);
-    return;
-  }
+  const exhibitions = await res.json();
 
-  // end日を+1日補正して、最終日も帯に含まれるようにする
+  // 終了日を+1日補正
   const adjustedEvents = exhibitions.map(e => {
     const event = { ...e };
-    if(event.end){
-      const d = new Date(event.end);
-      d.setDate(d.getDate() + 1);
-      event.end = d.toISOString().split("T")[0];
+    if (event.end) {
+      const endDate = new Date(event.end);
+      endDate.setDate(endDate.getDate() + 1);
+      event.end = endDate.toISOString().split("T")[0];
     }
-
-    // カテゴリごとに色分け
-    switch(event.category){
-      case "大黄金展":
-        event.backgroundColor = "#111"; // 黒
-        event.textColor = "#ffd700";     // 金
-        break;
-      case "クルーズ":
-        event.backgroundColor = "#1e88e5"; // 青
-        event.textColor = "#fff";
-        break;
-      case "カテゴリ2":
-        event.backgroundColor = "#43a047"; // 緑
-        event.textColor = "#fff";
-        break;
-      case "カテゴリ3":
-        event.backgroundColor = "#e53935"; // 赤
-        event.textColor = "#fff";
-        break;
-      default:
-        event.backgroundColor = "#757575";
-        event.textColor = "#fff";
-    }
-
     return event;
   });
 
+  // ★ ここでカテゴリに応じたクラスを追加！
+  const eventsWithClasses = adjustedEvents.map(event => ({
+    title: event.title,
+    start: event.start,
+    end: event.end,
+    extendedProps: { 
+      location: event.location,
+      note: event.note || "",
+      category: event.category 
+    },
+    classNames: [`category-${event.category}`] // ← この1行がスタイル反映の要
+  }));
+
+  // カレンダー作成
   const calendarEl = document.getElementById("calendar");
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "dayGridMonth",
@@ -199,12 +200,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       center: "title",
       right: "dayGridMonth,timeGridWeek,timeGridDay"
     },
-    events: adjustedEvents,
+    events: eventsWithClasses, // ← ここを使う！
     eventClick: function(info) {
       const { title, start, end, extendedProps } = info.event;
-      const endDateDisplay = end ? (() => { const d = new Date(end); d.setDate(d.getDate()-1); return d.toLocaleDateString(); })() : "";
+
+      const endDateDisplay = end
+        ? (() => {
+            const d = new Date(end);
+            d.setDate(d.getDate() - 1);
+            return d.toLocaleDateString();
+          })()
+        : "";
+
       document.getElementById("modalTitle").textContent = title;
-      document.getElementById("modalDate").textContent = `${start.toLocaleDateString()} 〜 ${endDateDisplay}`;
+      document.getElementById("modalDate").textContent =
+        `${start.toLocaleDateString()} 〜 ${endDateDisplay}`;
       document.getElementById("modalLocation").textContent = extendedProps.location;
       document.getElementById("modalNote").textContent = extendedProps.note || "";
       document.getElementById("eventModal").classList.add("show");
@@ -213,7 +223,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   calendar.render();
 
-  // モーダルを閉じる
   document.getElementById("closeModal").onclick = () =>
     document.getElementById("eventModal").classList.remove("show");
 });
