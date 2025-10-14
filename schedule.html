@@ -19,7 +19,7 @@
     color: #1c1c1c;
     text-align: center;
     padding: 15px;
-    font-size: 1.2rem;
+    font-size: 1.0rem;
     font-weight: bold;
     letter-spacing: 1px;
     text-shadow: 0 1px 2px rgba(0,0,0,0.5);
@@ -29,10 +29,10 @@
     max-width: 95%;
     margin: 15px auto;
     background: #2c2c2c;
-    padding: 15px;
+    padding: 10px;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    min-height: 80vh; /* カレンダーが少ない月でも下まで背景を伸ばす */
+    min-height: 80vh; /* カレンダー背景を下まで伸ばす */
   }
 
   /* FullCalendar カスタム */
@@ -68,7 +68,7 @@
     background: #2c2c2c;
     padding: 10px;
     border-radius: 10px;
-    width: 300px;
+    width: 280px;
     color: #fff;
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     text-align: center;
@@ -84,13 +84,15 @@
 
   /* モバイル最適化 */
   @media (max-width: 480px) {
-    .page-header { font-size: 1.0rem; padding: 10px; }
+    .page-header { font-size: 1.2rem; padding: 10px; }
     .calendar-container { padding: 5px; }
     .fc { font-size: 0.5rem; }
     .fc .fc-col-header-cell-cushion { font-size: 0.65rem; }
-    .fc .fc-toolbar-title { font-size: 0.95rem; }
+    .fc .fc-button .fc-icon { font-size: 1.00rem; }
+    .fc .fc-toolbar-title { font-size: 1.00rem; }
     .fc .fc-daygrid-day-number { font-size: 0.6rem; }
     .fc .fc-event { font-size: 0.55rem; padding: 1px 2px; }
+    .fc .fc-scrollgrid-liquid { height: 162%; }
     .modal-content { width: 95%; padding: 8px; font-size: 0.75rem; }
     .close { font-size: 0.8rem; }
   }
@@ -125,7 +127,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // end日を+1日してカレンダーに表示
+  // end日を+1日補正して、最終日も帯に含まれるようにする
   const adjustedEvents = exhibitions.map(e => {
     const event = { ...e };
     if(event.end){
@@ -138,7 +140,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     switch(event.category){
       case "大黄金展":
         event.backgroundColor = "#111"; // 黒
-        event.textColor = "#ffd700"; // 金
+        event.textColor = "#ffd700";     // 金
         break;
       case "クルーズ":
         event.backgroundColor = "#1e88e5"; // 青
@@ -165,8 +167,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     initialView: "dayGridMonth",
     locale: "ja",
     themeSystem: "standard",
-    height: 'auto',
-    contentHeight: 'auto',
     headerToolbar: {
       left: "prev,next today",
       center: "title",
@@ -186,12 +186,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   calendar.render();
 
+  // モーダルを閉じる
   document.getElementById("closeModal").onclick = () =>
     document.getElementById("eventModal").classList.remove("show");
-
-  window.addEventListener("resize", () => {
-    calendar.setOption("height", 'auto');
-  });
 });
 </script>
 
