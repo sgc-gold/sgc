@@ -4,8 +4,8 @@ on:
   schedule:
     # JST 9:40（→ 実際はUTC 0:40）
     - cron: '40 0 * * 1-5'
-    # JST 14:00（→ 実際はUTC 5:00）
-    - cron: '00 5 * * 1-5'
+    # JST 14:10（→ 実際はUTC 5:10）
+    - cron: '10 5 * * 1-5'
   workflow_dispatch:  # 手動実行も可
 
 jobs:
@@ -25,6 +25,34 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4
+
+      # 🕒 JST 9:40 または 14:10 ちょうどまで待機
+      - name: Wait until scheduled JST time
+        run: |
+          echo "⏳ Checking current JST time..."
+          CURRENT_HOUR=$(TZ=Asia/Tokyo date '+%H')
+          CURRENT_MIN=$(TZ=Asia/Tokyo date '+%M')
+          echo "🕒 Current JST time: ${CURRENT_HOUR}:${CURRENT_MIN}"
+
+          # cron設定に応じて実行時刻を判定
+          if [ $CURRENT_HOUR -lt 12 ]; then
+            TARGET_HOUR=9
+            TARGET_MIN=40
+          else
+            TARGET_HOUR=14
+            TARGET_MIN=10
+          fi
+
+          TARGET_TIME=$(printf "%02d%02d" $TARGET_HOUR $TARGET_MIN)
+
+          echo "🎯 Waiting until ${TARGET_HOUR}:${TARGET_MIN} JST..."
+          while [ $(TZ=Asia/Tokyo date '+%H%M') -lt $TARGET_TIME ]; do
+            NOW=$(TZ=Asia/Tokyo date '+%H:%M:%S')
+            echo "  Still waiting... (Now: $NOW JST)"
+            sleep 20
+          done
+
+          echo "✅ Target time ${TARGET_HOUR}:${TARGET_MIN} JST reached! Starting update..."
 
       - name: Run update script with retry
         run: |
