@@ -4,8 +4,8 @@ on:
   schedule:
     # JST 9:40（→ 実際はUTC 0:40）
     - cron: '40 0 * * 1-5'
-    # JST 14:10（→ 実際はUTC 5:10）
-    - cron: '10 5 * * 1-5'
+    # JST 14:00（→ 実際はUTC 5:00）
+    - cron: '00 5 * * 1-5'
   workflow_dispatch:  # 手動実行も可
 
 jobs:
