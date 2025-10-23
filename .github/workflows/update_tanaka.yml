@@ -1,13 +1,13 @@
-name: Check Tanaka Price Update
+name: Check and Update Tanaka Price
 
 on:
   schedule:
-    # 24時間、10分おき（UTC） ※JST 0:00〜23:50 に相当
-    - cron: '0,10,20,30,40,50 * * * *'
+    # JST 0:00〜23:50 の間、10分おき（24時間チェック用）
+    - cron: '0-50/10 * * * *'
   workflow_dispatch:  # 手動実行も可
 
 jobs:
-  check:
+  check-and-update:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -23,13 +23,21 @@ jobs:
           pip install requests beautifulsoup4
 
       - name: Run check script
-        run: python scripts/check_tanaka_update.py
+        id: check
+        run: |
+          python scripts/check_tanaka_update.py
+
+      # ハッシュ変化があった場合のみ update_tanaka.py を実行
+      - name: Run update script
+        if: ${{ steps.check.outcome == 'success' }}
+        run: python scripts/update_tanaka.py
 
       - name: Commit changes if any
+        if: ${{ steps.check.outcome == 'success' }}
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add tanaka_hash.txt
+          git add data/*.json tanaka_hash.txt
           if ! git diff --cached --quiet; then
             git commit -m "📈 Tanaka update detected at $(date '+%Y-%m-%d %H:%M JST')"
             git push
