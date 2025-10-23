@@ -1,17 +1,19 @@
-name: Update Tanaka Price
+name: Check Tanaka Price Update
 
 on:
   schedule:
-    # JST 9:40（→ 実際はUTC 0:40）
-    - cron: '40 0 * * 1-5'
-    # JST 14:10（→ 実際はUTC 5:10）
-    - cron: '10 5 * * 1-5'
+    # JST 9:00〜17:00 の間、10分おき（→ UTC 0:00〜8:00）
+    - cron: '0 0-8 * * 1-5'
+    - cron: '10 0-8 * * 1-5'
+    - cron: '20 0-8 * * 1-5'
+    - cron: '30 0-8 * * 1-5'
+    - cron: '40 0-8 * * 1-5'
+    - cron: '50 0-8 * * 1-5'
   workflow_dispatch:  # 手動実行も可
 
 jobs:
-  update:
+  check:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -19,69 +21,21 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: 3.11
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
           pip install requests beautifulsoup4
 
-      # 🕒 JST 9:40 または 14:10 ちょうどまで待機
-      - name: Wait until scheduled JST time
-        run: |
-          echo "⏳ Checking current JST time..."
-          CURRENT_HOUR=$(TZ=Asia/Tokyo date '+%H')
-          CURRENT_MIN=$(TZ=Asia/Tokyo date '+%M')
-          echo "🕒 Current JST time: ${CURRENT_HOUR}:${CURRENT_MIN}"
+      - name: Run check script
+        run: python scripts/check_tanaka_update.py
 
-          # cron設定に応じて実行時刻を判定
-          if [ $CURRENT_HOUR -lt 12 ]; then
-            TARGET_HOUR=9
-            TARGET_MIN=40
-          else
-            TARGET_HOUR=14
-            TARGET_MIN=10
+      - name: Commit changes if any
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add tanaka_hash.txt
+          if ! git diff --cached --quiet; then
+            git commit -m "📈 Tanaka update detected at $(date '+%Y-%m-%d %H:%M JST')"
+            git push
           fi
-
-          TARGET_TIME=$(printf "%02d%02d" $TARGET_HOUR $TARGET_MIN)
-
-          echo "🎯 Waiting until ${TARGET_HOUR}:${TARGET_MIN} JST..."
-          while [ $(TZ=Asia/Tokyo date '+%H%M') -lt $TARGET_TIME ]; do
-            NOW=$(TZ=Asia/Tokyo date '+%H:%M:%S')
-            echo "  Still waiting... (Now: $NOW JST)"
-            sleep 20
-          done
-
-          echo "✅ Target time ${TARGET_HOUR}:${TARGET_MIN} JST reached! Starting update..."
-
-      - name: Run update script with retry
-        run: |
-          echo "🚀 Starting Tanaka price update workflow"
-          echo "🕒 Current UTC time: $(date -u '+%Y-%m-%d %H:%M:%S')"
-          echo "🕒 Current JST time: $(TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M:%S')"
-
-          MAX_RETRY=4
-          RETRY_COUNT=0
-          SUCCESS=0
-
-          while [ $RETRY_COUNT -lt $MAX_RETRY ]; do
-            echo "🔁 Try #$((RETRY_COUNT+1)) / $MAX_RETRY"
-            python scripts/update_tanaka.py && SUCCESS=1 && break
-
-            echo "⏸ Update not yet available. Retrying in 5 minutes..."
-            RETRY_COUNT=$((RETRY_COUNT+1))
-            sleep 300  # 5分待機
-          done
-
-          if [ $SUCCESS -eq 0 ]; then
-            echo "⚠ Maximum retry attempts reached. Exiting without update."
-            exit 0
-          fi
-
-      - name: Commit and push changes
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/tanaka_price.json data/tanaka_price_930.json
-          git commit -m "Auto-update Tanaka price [$(date '+%Y-%m-%d %H:%M:%S')]" || echo "No changes to commit"
-          git push
