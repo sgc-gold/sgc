@@ -2,58 +2,44 @@ import requests
 from bs4 import BeautifulSoup
 import hashlib
 import os
-import subprocess
-from datetime import datetime
 
-# --- 設定 ---
 URL = "https://gold.tanaka.co.jp/commodity/souba/english/index.php"
-HASH_PATH = "tanaka_hash.txt"
-UPDATE_SCRIPT = "scripts/update_tanaka.py"
+HASH_FILE = "tanaka_hash.txt"
 
-def load_last_hash():
-    if os.path.exists(HASH_PATH):
-        with open(HASH_PATH, "r", encoding="utf-8") as f:
-            return f.read().strip()
-    return None
+def get_h3_hash():
+    res = requests.get(URL, timeout=10)
+    res.encoding = "utf-8"
+    soup = BeautifulSoup(res.text, "html.parser")
+    h3_span = soup.select_one("h3 span")
+    if not h3_span:
+        raise ValueError("h3 span が見つかりません")
+    text = h3_span.text.strip()
+    hash_value = hashlib.md5(text.encode("utf-8")).hexdigest()
+    return hash_value, text
 
-def save_hash(h):
-    with open(HASH_PATH, "w", encoding="utf-8") as f:
-        f.write(h)
+def load_previous_hash():
+    if not os.path.exists(HASH_FILE):
+        return None
+    with open(HASH_FILE, "r", encoding="utf-8") as f:
+        return f.read().strip()
 
-def fetch_current_hash():
-    try:
-        res = requests.get(URL, timeout=10)
-        res.raise_for_status()
-        soup = BeautifulSoup(res.text, "html.parser")
-        h3 = soup.select_one("h3 span")
-        if h3 is None:
-            print("⚠ <h3> spanタグが見つかりません")
-            return None
-        text = h3.text.strip()
-        return hashlib.md5(text.encode("utf-8")).hexdigest(), text
-    except Exception as e:
-        print(f"⚠ ハッシュ取得エラー: {e}")
-        return None, None
+def save_hash(hash_value):
+    with open(HASH_FILE, "w", encoding="utf-8") as f:
+        f.write(hash_value)
 
 def main():
-    last_hash = load_last_hash()
-    current_hash, current_text = fetch_current_hash()
-    if current_hash is None:
-        print("⚠ 現在のハッシュが取得できず終了")
-        return
+    current_hash, update_text = get_h3_hash()
+    prev_hash = load_previous_hash()
 
-    print(f"📅 現在の公表時刻: {current_text}")
-    if last_hash == current_hash:
+    print(f"📅 公表時刻: {update_text}")
+
+    if current_hash == prev_hash:
         print("⏸ ハッシュに変化なし → 更新スキップ")
-        return
+        exit(1)
 
     print("✅ ハッシュが変化 → データ更新開始")
-    try:
-        subprocess.run(["python", UPDATE_SCRIPT], check=True)
-        save_hash(current_hash)
-        print("💾 ハッシュ更新完了")
-    except Exception as e:
-        print(f"⚠ 更新スクリプト実行エラー: {e}")
+    save_hash(current_hash)
+    print("💾 ハッシュ更新完了")
 
 if __name__ == "__main__":
     main()
