@@ -52,16 +52,13 @@ def main():
     print(f"🕒 現在時刻: {current_time}")
     print(f"📅 取得データの公表時刻: {update_text}")
 
-    # 現在のJSONをロードして公表時刻を比較
     existing_data = load_json(PATH_MAIN)
     last_update_time = existing_data["update_time"] if existing_data else None
 
-    # ▼▼ 修正ポイント ▼▼
+    # === 公表時刻が変わっていない場合はスキップ ===
     if not is_workflow_dispatch and update_text == last_update_time:
         print("⏸ 公表時刻に変化なし → 更新スキップ（再試行対象）")
-        # exit(1) にすることで GitHub Actions の retry による再実行を促す
         sys.exit(1)
-    # ▲▲ 修正ここまで ▲▲
 
     # === 9:30更新処理 ===
     if "09:30" in update_text:
@@ -70,8 +67,8 @@ def main():
         save_json(PATH_930, data)
         print("✅ 9:30データ保存完了")
 
-    # === 14:00更新処理（差分算出） ===
-    elif "14:" in update_text or "午後" in update_text or now.hour == 14:
+    # === 9:30以外（例：10:00 / 12:00 / 14:00）の更新処理 ===
+    else:
         morning_data = load_json(PATH_930)
         if morning_data:
             for metal in prices:
@@ -91,12 +88,7 @@ def main():
 
         data = {"update_time": update_text, "prices": prices}
         save_json(PATH_MAIN, data)
-        print("✅ 14時データ保存完了（9:30比込み）")
-
-    else:
-        print("ℹ 公表時刻が9:30でも14時でもないため、通常保存のみ実施")
-        data = {"update_time": update_text, "prices": prices}
-        save_json(PATH_MAIN, data)
+        print(f"✅ {update_text} データ保存完了（9:30比込み）")
 
     print("💾 保存完了:", PATH_MAIN)
 
