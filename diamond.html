@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>ダイヤ相場検索（複合条件）</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <h1>ダイヤ相場検索</h1>
+
+  <label>最小カラット:</label>
+  <input type="number" id="caratMin" step="0.01" value="0.3">
+  <label>最大カラット:</label>
+  <input type="number" id="caratMax" step="0.01" value="2.0"><br><br>
+
+  <label>カラー:</label>
+  <input type="text" id="color" placeholder="例: FANCY GREEN"><br><br>
+
+  <label>クラリティ:</label>
+  <input type="text" id="clarity" placeholder="例: SI1"><br><br>
+
+  <label>形状:</label>
+  <input type="text" id="shape" placeholder="例: RD"><br><br>
+
+  <button onclick="search()">検索</button>
+
+  <div id="result" style="margin-top:20px;"></div>
+
+  <script>
+    // 🔹 Firebase 初期化
+    const firebaseConfig = {
+      apiKey: "AIzaSyAh46ZVl6ICR9ynh6G8VZn6RlApcqpSq48",
+      authDomain: "sgc-diamond-db.firebaseapp.com",
+      projectId: "sgc-diamond-db",
+      storageBucket: "sgc-diamond-db.firebasestorage.app",
+      messagingSenderId: "552067864642",
+      appId: "1:552067864642:web:c4cb10821bdd7b1a85f5db",
+      measurementId: "G-DNMP8JJNB7"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // 🔹 検索関数
+    async function search() {
+      const caratMin = parseFloat(document.getElementById("caratMin").value);
+      const caratMax = parseFloat(document.getElementById("caratMax").value);
+      const color = document.getElementById("color").value.trim();
+      const clarity = document.getElementById("clarity").value.trim();
+      const shape = document.getElementById("shape").value.trim();
+
+      let query = db.collection("diamonds")
+        .where("carat", ">=", caratMin)
+        .where("carat", "<=", caratMax);
+
+      if(color) query = query.where("color", "==", color);
+      if(clarity) query = query.where("clarity", "==", clarity);
+      if(shape) query = query.where("shape", "==", shape);
+
+      const snapshot = await query.get();
+      const resultsDiv = document.getElementById("result");
+      resultsDiv.innerHTML = "";
+
+      if(snapshot.empty) {
+        resultsDiv.innerHTML = "<p>該当データはありません</p>";
+        return;
+      }
+
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        resultsDiv.innerHTML += `
+          <div style="border-bottom:1px solid #ccc; margin:5px 0;">
+            <strong>NO:</strong> ${data.NO} |
+            <strong>カラット:</strong> ${data.carat} |
+            <strong>カラー:</strong> ${data.color} |
+            <strong>クラリティ:</strong> ${data.clarity} |
+            <strong>形状:</strong> ${data.shape} |
+            <strong>単価:</strong> ￥${data.pricePerCarat}
+          </div>
+        `;
+      });
+    }
+  </script>
+</body>
+</html>
