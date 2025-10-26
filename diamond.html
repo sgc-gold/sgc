@@ -1,346 +1,254 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>ダイヤ相場検索（複合条件）</title>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <style>
-    body {
-      font-family: 'Noto Sans JP', sans-serif;
-      margin: 0;
-      padding: 1rem;
-      background: #f5f7fa;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ダイヤ検索フォーム</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<style>
+/* ========================== */
+/* カード風検索フォームスタイル */
+/* ========================== */
+body {
+  margin: 0;
+  font-family: 'Noto Sans JP', sans-serif;
+  background: #f5f7fa;
+}
 
-    .container {
-      max-width: 720px;
-      margin: 0 auto;
-      background: #fff;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
+.search-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  max-width: 720px;
+  margin: 1rem auto;
+}
 
-    h1 {
-      text-align: center;
-      color: #004d40;
-    }
+.field-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
 
-    .input-group {
-      margin-bottom: 1rem;
-    }
+.field-row label {
+  min-width: 5rem;
+  font-weight: 600;
+}
 
-    .input-group label {
-      font-weight: 600;
-      display: block;
-      margin-bottom: 0.3rem;
-    }
+.field-row input[type="text"],
+.field-row input[type="number"],
+.field-row select {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+}
 
-    input[type="number"],
-    input[type="text"],
-    select {
-      width: 100%;
-      padding: 0.6rem 0.8rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 1rem;
-    }
+.field-row.highlight input {
+  font-weight: 700;
+  font-size: 1rem;
+  border: 2px solid #bfa14a;
+}
 
-    .ct-row {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
+.field-row.highlight button {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #bfa14a, #d4b95e);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
 
-    .ct-row input[type="number"] {
-      flex: 1;
-      font-weight: bold;
-      font-size: 1.1rem;
-    }
+.field-row.highlight button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
 
-    .ct-row button {
-      background: linear-gradient(135deg, #bfa14a, #d4b95e);
-      border: none;
-      color: #fff;
-      padding: 0.6rem 1rem;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
-    }
+.range-display input {
+  text-align: center;
+  font-weight: 600;
+  border: none;
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+}
 
-    .ct-row button:hover {
-      opacity: 0.9;
-    }
+.search-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
 
-    #caratRange {
-      font-size: 1rem;
-      text-align: center;
-      margin-bottom: 1rem;
-      color: #333;
-    }
+#searchButton {
+  background: linear-gradient(135deg, #bfa14a, #d4b95e);
+  color: #fff;
+  padding: 0.6rem 2rem;
+  border-radius: 10px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
 
-    #keyword {
-      width: 100%;
-      padding: 0.6rem 0.8rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 1rem;
-    }
+#searchButton:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
 
-    .search-actions {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
+#clearButton {
+  background: #e0e0e0;
+  color: #333;
+  padding: 0.6rem 2rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
 
-    .search-actions button {
-      flex: 1;
-      padding: 0.6rem;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      font-size: 1rem;
-    }
+#clearButton:hover {
+  background: #ccc;
+}
 
-    #searchButton {
-      background: linear-gradient(135deg, #bfa14a, #d4b95e);
-      color: #fff;
-    }
-
-    #clearButton {
-      background: #e0e0e0;
-      color: #333;
-    }
-
-    #result {
-      margin-top: 1.5rem;
-    }
-
-    .result-item {
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 0.8rem;
-      margin-bottom: 1rem;
-      background: #fafafa;
-    }
-
-    .result-item .field {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.3rem;
-    }
-
-    @media (max-width: 600px) {
-      .ct-row {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .search-actions {
-        flex-direction: column;
-      }
-    }
-  </style>
+@media (max-width: 600px) {
+  .field-row label {
+    min-width: 4.5rem;
+  }
+  .search-actions {
+    flex-direction: column;
+  }
+  #searchButton, #clearButton {
+    width: 100%;
+  }
+}
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>ダイヤ相場検索</h1>
 
-    <!-- 上部 Ct 入力 -->
-    <div class="ct-row">
-      <input type="number" id="ctInput" step="0.001" placeholder="カラット (例: 0.725)">
-      <button onclick="setCtRange()">セット</button>
-    </div>
-
-    <!-- 最小～最大カラット表示 -->
-    <div id="caratRange">0.000 ～ 0.000</div>
-
-    <!-- 検索フォーム -->
-    <div class="input-group">
-      <label>開催日</label>
-      <select id="dateSelect">
-        <option value="">全て</option>
-      </select>
-    </div>
-    <div class="input-group">
-      <label>カラー</label>
-      <select id="colorSelect">
-        <option value="">全て</option>
-      </select>
-    </div>
-    <div class="input-group">
-      <label>クラリティ</label>
-      <select id="claritySelect">
-        <option value="">全て</option>
-      </select>
-    </div>
-    <div class="input-group">
-      <label>カット</label>
-      <select id="cutSelect">
-        <option value="">全て</option>
-      </select>
-    </div>
-    <div class="input-group">
-      <label>蛍光性</label>
-      <select id="fluorescenceSelect">
-        <option value="">全て</option>
-      </select>
-    </div>
-    <div class="input-group">
-      <label>形状</label>
-      <select id="shapeSelect">
-        <option value="">全て</option>
-      </select>
-    </div>
-
-    <!-- フリーワード検索 -->
-    <div class="input-group">
-      <label>フリーワード</label>
-      <input type="text" id="keyword" placeholder="例: D VS1 GD">
-    </div>
-
-    <!-- 検索・クリアボタン -->
-    <div class="search-actions">
-      <button id="searchButton" onclick="search()">検索</button>
-      <button id="clearButton" onclick="clearForm()">クリア</button>
-    </div>
-
-    <!-- 検索結果 -->
-    <div id="result"></div>
+<div class="search-card">
+  <!-- カラット入力 -->
+  <div class="field-row highlight">
+    <label for="caratInput">カラット</label>
+    <input type="number" id="caratInput" step="0.001" value="0.500">
+    <button id="setCaratBtn">セット</button>
   </div>
 
-  <script>
-    // Firebase 初期化（既存設定に置き換えてください）
-    const firebaseConfig = {
-      apiKey: "AIzaSyAh46ZVl6ICR9ynh6G8VZn6RlApcqpSq48",
-      authDomain: "sgc-diamond-db.firebaseapp.com",
-      projectId: "sgc-diamond-db",
-      storageBucket: "sgc-diamond-db.firebasestorage.app",
-      messagingSenderId: "552067864642",
-      appId: "1:552067864642:web:c4cb10821bdd7b1a85f5db",
-      measurementId: "G-DNMP8JJNB7"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+  <!-- Ct範囲表示 -->
+  <div class="field-row range-display">
+    <input type="text" id="caratMinMax" placeholder="0.000～0.999" readonly>
+  </div>
 
-    // 最小～最大カラット計算
-    function setCtRange() {
-      const ct = parseFloat(document.getElementById("ctInput").value);
-      if (isNaN(ct)) return;
-    
-      // 小数第一位で切り捨て
-      const min = Math.floor(ct * 10) / 10;
-      const max = min + 0.099;
-    
-      // 編集可能な input にセット
-      document.getElementById("caratMin").value = min.toFixed(3);
-      document.getElementById("caratMax").value = max.toFixed(3);
-    }
+  <!-- 検索項目 -->
+  <div class="field-row">
+    <label for="dateSelect">開催日</label>
+    <select id="dateSelect"></select>
+  </div>
 
-    // フォームクリア
-    function clearForm() {
-      document.getElementById("ctInput").value = "";
-      document.getElementById("caratRange").textContent = "0.000 ～ 0.000";
-      document.getElementById("dateSelect").value = "";
-      document.getElementById("colorSelect").value = "";
-      document.getElementById("claritySelect").value = "";
-      document.getElementById("cutSelect").value = "";
-      document.getElementById("fluorescenceSelect").value = "";
-      document.getElementById("shapeSelect").value = "";
-      document.getElementById("keyword").value = "";
-      document.getElementById("result").innerHTML = "";
-    }
+  <div class="field-row">
+    <label for="colorSelect">カラー</label>
+    <select id="colorSelect"></select>
+  </div>
 
-    // Firebase から選択肢を取得（サンプル。実際はdistinctな値を取得してください）
-    async function populateSelects() {
-      const snapshot = await db.collection("Diamonds").get();
-      const dates = new Set();
-      const colors = new Set();
-      const clarities = new Set();
-      const cuts = new Set();
-      const fluorescences = new Set();
-      const shapes = new Set();
+  <div class="field-row">
+    <label for="claritySelect">クラリティ</label>
+    <select id="claritySelect"></select>
+  </div>
 
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        dates.add(data.date);
-        colors.add(data.color);
-        clarities.add(data.clarity);
-        cuts.add(data.cut);
-        fluorescences.add(data.fluorescence);
-        shapes.add(data.shape);
-      });
+  <div class="field-row">
+    <label for="cutSelect">カット</label>
+    <select id="cutSelect"></select>
+  </div>
 
-      dates.forEach(d => {
-        const option = document.createElement("option");
-        option.value = d;
-        option.textContent = d;
-        document.getElementById("dateSelect").appendChild(option);
-      });
+  <div class="field-row">
+    <label for="fluorescenceSelect">蛍光性</label>
+    <select id="fluorescenceSelect"></select>
+  </div>
 
-      colors.forEach(v => document.getElementById("colorSelect").appendChild(new Option(v,v)));
-      clarities.forEach(v => document.getElementById("claritySelect").appendChild(new Option(v,v)));
-      cuts.forEach(v => document.getElementById("cutSelect").appendChild(new Option(v,v)));
-      fluorescences.forEach(v => document.getElementById("fluorescenceSelect").appendChild(new Option(v,v)));
-      shapes.forEach(v => document.getElementById("shapeSelect").appendChild(new Option(v,v)));
-    }
+  <div class="field-row">
+    <label for="shapeSelect">形状</label>
+    <select id="shapeSelect"></select>
+  </div>
 
-    populateSelects();
+  <!-- フリーワード検索 -->
+  <div class="field-row">
+    <label for="freeWord">フリーワード</label>
+    <input type="text" id="freeWord" placeholder="例：D VS1 GD">
+  </div>
 
-    async function search() {
-      const ctRangeText = document.getElementById("caratRange").textContent;
-      const [minCt, maxCt] = ctRangeText.split("～").map(x=>parseFloat(x.trim()));
-      const date = document.getElementById("dateSelect").value;
-      const color = document.getElementById("colorSelect").value;
-      const clarity = document.getElementById("claritySelect").value;
-      const cut = document.getElementById("cutSelect").value;
-      const fluorescence = document.getElementById("fluorescenceSelect").value;
-      const shape = document.getElementById("shapeSelect").value;
-      const keyword = document.getElementById("keyword").value.trim().toLowerCase().split(/\s+/);
+  <!-- 検索ボタン -->
+  <div class="search-actions">
+    <button id="searchButton">検索</button>
+    <button id="clearButton">クリア</button>
+  </div>
+</div>
 
-      let query = db.collection("Diamonds");
+<script>
+// Firebase 初期化（適宜設定してください）
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "SENDER_ID",
+  appId: "APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-      // 基本条件（カラット範囲）
-      query = query.where("carat", ">=", minCt).where("carat", "<=", maxCt);
+// 小数第一位で範囲計算
+document.getElementById('setCaratBtn').addEventListener('click', () => {
+  let carat = parseFloat(document.getElementById('caratInput').value);
+  if(isNaN(carat) || carat <= 0) return;
+  let floor = Math.floor(carat * 10) / 10;
+  let ceil = floor + 0.099;
+  let minStr = floor.toFixed(3);
+  let maxStr = ceil.toFixed(3);
+  document.getElementById('caratMinMax').value = `${minStr}～${maxStr}`;
+});
 
-      // Firebase では空文字の場合は where しない
-      if(date) query = query.where("date","==",date);
-      if(color) query = query.where("color","==",color);
-      if(clarity) query = query.where("clarity","==",clarity);
-      if(cut) query = query.where("cut","==",cut);
-      if(fluorescence) query = query.where("fluorescence","==",fluorescence);
-      if(shape) query = query.where("shape","==",shape);
+// 自動リスト化関数
+async function populateSelects() {
+  const diamondsSnap = await db.collection("Diamonds").get();
+  const dates = new Set();
+  const colors = new Set();
+  const clarities = new Set();
+  const cuts = new Set();
+  const shapes = new Set();
 
-      const snapshot = await query.get();
+  diamondsSnap.forEach(doc => {
+    const data = doc.data();
+    if(data.date) dates.add(data.date.toDate().toISOString().slice(0,10));
+    if(data.color) colors.add(data.color);
+    if(data.clarity) clarities.add(data.clarity);
+    if(data.cut) cuts.add(data.cut);
+    if(data.shape) shapes.add(data.shape);
+  });
 
-      const resultDiv = document.getElementById("result");
-      resultDiv.innerHTML = "";
+  const fillSelect = (selectId, values) => {
+    const sel = document.getElementById(selectId);
+    sel.innerHTML = '<option value="">全て</option>';
+    Array.from(values).sort().forEach(val => {
+      let opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = val;
+      sel.appendChild(opt);
+    });
+  }
 
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const textValues = `${data.color} ${data.clarity} ${data.cut} ${data.shape}`.toLowerCase();
-        const matchKeyword = keyword.every(k => textValues.includes(k));
-        if(!matchKeyword) return;
+  fillSelect('dateSelect', dates);
+  fillSelect('colorSelect', colors);
+  fillSelect('claritySelect', clarities);
+  fillSelect('cutSelect', cuts);
+  fillSelect('shapeSelect', shapes);
+}
 
-        const div = document.createElement("div");
-        div.classList.add("result-item");
-        div.innerHTML = `
-          <div class="field"><strong>開催日</strong> <span>${data.date}</span></div>
-          <div class="field"><strong>Ct</strong> <span>${data.carat}</span></div>
-          <div class="field"><strong>カラー</strong> <span>${data.color}</span></div>
-          <div class="field"><strong>クラリティ</strong> <span>${data.clarity}</span></div>
-          <div class="field"><strong>カット</strong> <span>${data.cut}</span></div>
-          <div class="field"><strong>蛍光性</strong> <span>${data.fluorescence}</span></div>
-          <div class="field"><strong>形状</strong> <span>${data.shape}</span></div>
-          <div class="field"><strong>備考</strong> <span>${data.note || ''}</span> <span><a href="${data.detailUrl || '#'}" target="_blank">詳細</a></span></div>
-        `;
-        resultDiv.appendChild(div);
-      });
-    }
-  </script>
+// ページロード時に選択肢を埋める
+window.addEventListener('DOMContentLoaded', populateSelects);
+</script>
+
 </body>
 </html>
