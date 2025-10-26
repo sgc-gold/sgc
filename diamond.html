@@ -3,59 +3,145 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ検索結果 1.03</title>
+<title>ダイヤ検索 1.04</title>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <style>
-  body {
-    font-family: 'Noto Sans JP', sans-serif;
-    background: #f5f7fa;
-    padding: 1rem;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-    background: #fff;
-    border-radius: 0.5rem;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: #f5f7fa;
+  padding: 1rem;
+}
+
+/* 検索フォーム */
+#searchForm {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+#searchForm label {
+  font-weight: 600;
+  min-width: 80px;
+  display: flex;
+  align-items: center;
+}
+
+#searchForm select,
+#searchForm input[type="text"] {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+}
+
+#searchForm .ct-set {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+#searchForm .ct-set input[type="text"] {
+  width: 70px;
+}
+
+#searchForm button {
+  background: linear-gradient(135deg,#bfa14a,#d4b95e);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+#searchForm button:hover {
+  opacity: 0.9;
+}
+
+/* 検索結果テーブル */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+th, td {
+  padding: 0.5rem 0.8rem;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+}
+
+th {
+  background: #00796B;
+  color: #fff;
+  font-weight: 600;
+}
+
+tr.detail-row td {
+  text-align: left;
+  background: #f9f9f9;
+  font-size: 0.85rem;
+}
+
+a.detail-toggle {
+  color: #00796B;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+select.rate-select {
+  padding: 2px 4px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+@media(max-width:768px){
+  #searchForm {
+    flex-direction: column;
   }
   th, td {
-    padding: 0.6rem 0.8rem;
-    text-align: center;
-    border-bottom: 1px solid #eee;
-    font-size: 0.95rem;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.5rem;
   }
-  th {
-    background: #00796B;
-    color: #fff;
-    font-weight: 600;
-  }
-  tr.detail-row td {
-    text-align: left;
-    background: #f9f9f9;
-    font-size: 0.9rem;
-  }
-  a.detail-toggle {
-    color: #00796B;
-    cursor: pointer;
-    text-decoration: underline;
-  }
-  select.rate-select {
-    padding: 2px 4px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-  }
-  @media (max-width: 768px) {
-    th, td {
-      font-size: 0.85rem;
-      padding: 0.4rem 0.5rem;
-    }
-  }
+}
 </style>
 </head>
 <body>
+
+<form id="searchForm">
+  <label>開催日<select id="dateSelect"><option value="">全て</option></select></label>
+  <label>カラー<select id="colorSelect"><option value="">全て</option></select></label>
+  <label>クラリティ<select id="claritySelect"><option value="">全て</option></select></label>
+  <label>カット<select id="cutSelect"><option value="">全て</option></select></label>
+  <label>蛍光性<select id="fluorescenceSelect"><option value="">全て</option></select></label>
+  <label>形状<select id="shapeSelect"><option value="">全て</option></select></label>
+
+  <input type="text" id="freeword" placeholder="フリーワード検索 (例: D VS1 GD)" style="flex:1 1 100%; margin-top:0.5rem;">
+
+  <div class="ct-set">
+    <strong>カラット</strong>
+    <input type="text" id="ctInput" placeholder="0.0">
+    <button type="button" id="setCt">セット</button>
+    <input type="text" id="ctMin" placeholder="最小" readonly>
+    <span>～</span>
+    <input type="text" id="ctMax" placeholder="最大" readonly>
+  </div>
+
+  <button type="button" id="searchButton">検索</button>
+</form>
 
 <table id="resultTable">
   <thead>
@@ -78,100 +164,132 @@
 </table>
 
 <script>
-  // Firebase設定
-  const firebaseConfig = {
-    apiKey: "AIzaSyAh46ZVl6ICR9ynh6G8VZn6RlApcqpSq48",
-    authDomain: "sgc-diamond-db.firebaseapp.com",
-    projectId: "sgc-diamond-db",
-    storageBucket: "sgc-diamond-db.firebasestorage.app",
-    messagingSenderId: "552067864642",
-    appId: "1:552067864642:web:c4cb10821bdd7b1a85f5db",
-    measurementId: "G-DNMP8JJNB7"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyAh46ZVl6ICR9ynh6G8VZn6RlApcqpSq48",
+  authDomain: "sgc-diamond-db.firebaseapp.com",
+  projectId: "sgc-diamond-db",
+  storageBucket: "sgc-diamond-db.firebasestorage.app",
+  messagingSenderId: "552067864642",
+  appId: "1:552067864642:web:c4cb10821bdd7b1a85f5db",
+  measurementId: "G-DNMP8JJNB7"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+const resultTableBody = document.querySelector("#resultTable tbody");
+const setCtBtn = document.getElementById("setCt");
+const ctInput = document.getElementById("ctInput");
+const ctMin = document.getElementById("ctMin");
+const ctMax = document.getElementById("ctMax");
 
-  const resultTableBody = document.querySelector("#resultTable tbody");
+// カラットセットボタン
+setCtBtn.addEventListener("click", () => {
+  let val = parseFloat(ctInput.value);
+  if(isNaN(val)) return;
+  let floor = Math.floor(val*10)/10;
+  let ceil = floor + 0.099;
+  ctMin.value = floor.toFixed(3);
+  ctMax.value = ceil.toFixed(3);
+  ctMin.readOnly = false;
+  ctMax.readOnly = false;
+});
 
-  // データ取得＆表示
-  db.collection("Diamonds").orderBy("開催日", "desc").get().then(snapshot => {
-    snapshot.forEach(doc => {
-      const data = doc.data();
+// 検索
+document.getElementById("searchButton").addEventListener("click", async() => {
+  const dateVal = document.getElementById("dateSelect").value;
+  const colorVal = document.getElementById("colorSelect").value;
+  const clarityVal = document.getElementById("claritySelect").value;
+  const cutVal = document.getElementById("cutSelect").value;
+  const fluorescenceVal = document.getElementById("fluorescenceSelect").value;
+  const shapeVal = document.getElementById("shapeSelect").value;
+  const freeword = document.getElementById("freeword").value.trim().toUpperCase();
+  const minCt = parseFloat(ctMin.value) || 0;
+  const maxCt = parseFloat(ctMax.value) || 1000;
 
-      // 日付変換
-      const date = data["開催日"]?.toDate ? data["開催日"].toDate() : new Date();
-      const dateStr = `${date.getFullYear()}年${date.getMonth()+1}月${date.getDate()}日`;
+  resultTableBody.innerHTML = "";
 
-      const carat = data["石目（ct）"] || 0;
-      const pricePerCarat = data["ガイ単価（円）"] || 0;
-      const defaultRate = 5;
-      let amount = carat * pricePerCarat * defaultRate;
+  let snapshot = await db.collection("Diamonds").orderBy("開催日","desc").get();
+  snapshot.forEach(doc=>{
+    const data = doc.data();
+    const carat = parseFloat(data["石目（ct）"] || 0);
+    if(carat<minCt || carat>maxCt) return;
 
-      // メイン行
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${dateStr}</td>
-        <td>${data["カラー"] || ""}</td>
-        <td>${data["クラリティ"] || ""}</td>
-        <td>${data["カット（総合/P/S）"] || ""}</td>
-        <td>${data["蛍光性"] || ""}</td>
-        <td>${data["形状"] || ""}</td>
-        <td>${carat.toFixed(3)}</td>
-        <td>${pricePerCarat.toLocaleString()}</td>
-        <td>
-          <select class="rate-select">
-            <option value="5" selected>5倍</option>
-            <option value="6">6倍</option>
-            <option value="7">7倍</option>
-            <option value="8">8倍</option>
-            <option value="9">9倍</option>
-          </select>
-        </td>
-        <td class="amount-cell">${amount.toLocaleString()}</td>
-        <td>${data["備考"] || ""}</td>
-        <td><a class="detail-toggle">表示</a></td>
-      `;
-      resultTableBody.appendChild(tr);
+    if(dateVal && data["開催日"]!==dateVal) return;
+    if(colorVal && data["カラー"]!==colorVal) return;
+    if(clarityVal && data["クラリティ"]!==clarityVal) return;
+    if(cutVal && data["カット（総合/P/S）"]!==cutVal) return;
+    if(fluorescenceVal && data["蛍光性"]!==fluorescenceVal) return;
+    if(shapeVal && data["形状"]!==shapeVal) return;
 
-      // 詳細行
-      const detailTr = document.createElement("tr");
-      detailTr.classList.add("detail-row");
-      detailTr.style.display = "none";
-      detailTr.innerHTML = `
-        <td colspan="12">
-          直径: ${data["直径（最小）（mm）"] || ""} ～ ${data["直径（最大）（mm）"] || ""} mm、
-          高さ: ${data["高さ（mm）"] || ""} mm、
-          不正円率: ${data["不正円率"] || ""}、
-          全高比: ${data["全高比（％）"] || ""} %
-        </td>
-      `;
-      resultTableBody.appendChild(detailTr);
+    // フリーワード検索
+    if(freeword){
+      const fwArr = freeword.split(/\s+/);
+      const targetStr = `${data["カラー"]} ${data["クラリティ"]} ${data["カット（総合/P/S）"]} ${data["形状"]}`.toUpperCase();
+      if(!fwArr.every(word => targetStr.includes(word))) return;
+    }
 
-      // 詳細リンククリックで展開
-      tr.querySelector(".detail-toggle").addEventListener("click", () => {
-        if(detailTr.style.display === "none") {
-          detailTr.style.display = "table-row";
-          tr.querySelector(".detail-toggle").textContent = "非表示";
-        } else {
-          detailTr.style.display = "none";
-          tr.querySelector(".detail-toggle").textContent = "表示";
-        }
-      });
+    const date = data["開催日"]?.toDate ? data["開催日"].toDate() : new Date();
+    const dateStr = `${date.getFullYear()}年${date.getMonth()+1}月${date.getDate()}日`;
 
-      // 掛率変更時に金額更新
-      const rateSelect = tr.querySelector(".rate-select");
-      const amountCell = tr.querySelector(".amount-cell");
-      rateSelect.addEventListener("change", () => {
-        const rate = parseFloat(rateSelect.value);
-        const newAmount = carat * pricePerCarat * rate;
-        amountCell.textContent = newAmount.toLocaleString();
-      });
+    const pricePerCarat = parseFloat(data["ガイ単価（円）"] || 0);
+    const defaultRate = 5;
+    let amount = carat * pricePerCarat * defaultRate;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${dateStr}</td>
+      <td>${data["カラー"]||""}</td>
+      <td>${data["クラリティ"]||""}</td>
+      <td>${data["カット（総合/P/S）"]||""}</td>
+      <td>${data["蛍光性"]||""}</td>
+      <td>${data["形状"]||""}</td>
+      <td>${carat.toFixed(3)}</td>
+      <td>${pricePerCarat.toLocaleString()}</td>
+      <td>
+        <select class="rate-select">
+          <option value="5" selected>5倍</option>
+          <option value="6">6倍</option>
+          <option value="7">7倍</option>
+          <option value="8">8倍</option>
+          <option value="9">9倍</option>
+        </select>
+      </td>
+      <td class="amount-cell">${amount.toLocaleString()}</td>
+      <td>${data["備考"]||""}</td>
+      <td><a class="detail-toggle">表示</a></td>
+    `;
+    resultTableBody.appendChild(tr);
+
+    const detailTr = document.createElement("tr");
+    detailTr.classList.add("detail-row");
+    detailTr.style.display = "none";
+    detailTr.innerHTML = `
+      <td colspan="12">
+        直径: ${data["直径（最小）（mm）"]||""} ～ ${data["直径（最大）（mm）"]||""} mm、
+        高さ: ${data["高さ（mm）"]||""} mm、
+        不正円率: ${data["不正円率"]||""}、
+        全高比: ${data["全高比（％）"]||""} %
+      </td>
+    `;
+    resultTableBody.appendChild(detailTr);
+
+    tr.querySelector(".detail-toggle").addEventListener("click",()=>{
+      if(detailTr.style.display==="none"){
+        detailTr.style.display="table-row";
+        tr.querySelector(".detail-toggle").textContent="非表示";
+      } else {
+        detailTr.style.display="none";
+        tr.querySelector(".detail-toggle").textContent="表示";
+      }
     });
-  }).catch(err => {
-    console.error(err);
-    alert("データ取得に失敗しました。");
+
+    tr.querySelector(".rate-select").addEventListener("change", e=>{
+      const rate = parseFloat(e.target.value);
+      const newAmount = carat * pricePerCarat * rate;
+      tr.querySelector(".amount-cell").textContent = newAmount.toLocaleString();
+    });
   });
+});
 </script>
 
 </body>
