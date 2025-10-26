@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGC ダイヤ検索　1.08</title>
+<title>SGC ダイヤ検索　1.09</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
@@ -227,14 +227,17 @@ document.getElementById("searchButton").addEventListener("click", async ()=>{
     tbody.appendChild(row);
 
     // 詳細行
-    const detailRow=document.createElement("tr");
+    const detailRow = document.createElement("tr");
     detailRow.classList.add("detailsRow");
-    detailRow.innerHTML=`
+   
+    // 🔸 不正円率・全高比の数値を変換
+    const unevenRate = d.unevenRate ? (parseFloat(d.unevenRate) * 100).toFixed(2) : "";
+    const heightRatio = d.heightRatio ? (parseFloat(d.heightRatio) * 100).toFixed(2) + "%" : "";
+   
+    detailRow.innerHTML = `
       <td colspan="11">
-        直径（最小）: ${d.diameterMin||""}mm / 直径（最大）: ${d.diameterMax||""}mm<br>
-        高さ: ${d.height||""}mm<br>
-        不正円率: ${d.unevenRate||""}<br>
-        全高比: ${d.heightRatio||""}%
+        直径（最小）: ${d.diameterMin || ""}mm ー（最大）: ${d.diameterMax || ""}mm ※ 高さ: ${d.height || ""}mm<br>
+        不正円率: ${unevenRate}　　全高比: ${heightRatio}
       </td>
     `;
     tbody.appendChild(detailRow);
