@@ -3,394 +3,175 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ検索フォーム 1.02</title>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<title>ダイヤ検索結果 1.03</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <style>
-body {
-  margin: 0;
-  font-family: 'Noto Sans JP', sans-serif;
-  background: #f5f7fa;
-}
-
-.search-card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-  max-width: 900px;
-  margin: 1rem auto;
-}
-
-.field-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.field-row label {
-  min-width: 5rem;
-  font-weight: 600;
-}
-
-.field-row input[type="text"],
-.field-row input[type="number"],
-.field-row select {
-  flex: 1;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.5rem;
-  border: 1px solid #ccc;
-  font-size: 0.95rem;
-}
-
-.field-row.highlight input {
-  font-weight: 700;
-  font-size: 1rem;
-  border: 2px solid #bfa14a;
-}
-
-.field-row.highlight button {
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  border: none;
-  background: linear-gradient(135deg, #bfa14a, #d4b95e);
-  color: #fff;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.field-row.highlight button:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.range-display input {
-  text-align: center;
-  font-weight: 600;
-  border: none;
-  background: #f9f9f9;
-  border-radius: 8px;
-  padding: 0.4rem 0.75rem;
-}
-
-.search-actions {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-#searchButton {
-  background: linear-gradient(135deg, #bfa14a, #d4b95e);
-  color: #fff;
-  padding: 0.6rem 2rem;
-  border-radius: 10px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-}
-
-#searchButton:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-#clearButton {
-  background: #e0e0e0;
-  color: #333;
-  padding: 0.6rem 2rem;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-}
-
-#clearButton:hover {
-  background: #ccc;
-}
-
-/* 結果表 */
-#searchResults table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
-
-#searchResults th, #searchResults td {
-  border: 1px solid #ddd;
-  padding: 0.5rem;
-  text-align: center;
-}
-
-#searchResults th {
-  background-color: #bfa14a;
-  color: #fff;
-}
-
-#searchResults tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-@media (max-width: 600px) {
-  .field-row label {
-    min-width: 4.5rem;
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: #f5f7fa;
+    padding: 1rem;
   }
-  .search-actions {
-    flex-direction: column;
-  }
-  #searchButton, #clearButton {
+  table {
     width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background: #fff;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   }
-}
+  th, td {
+    padding: 0.6rem 0.8rem;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    font-size: 0.95rem;
+  }
+  th {
+    background: #00796B;
+    color: #fff;
+    font-weight: 600;
+  }
+  tr.detail-row td {
+    text-align: left;
+    background: #f9f9f9;
+    font-size: 0.9rem;
+  }
+  a.detail-toggle {
+    color: #00796B;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  select.rate-select {
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  @media (max-width: 768px) {
+    th, td {
+      font-size: 0.85rem;
+      padding: 0.4rem 0.5rem;
+    }
+  }
 </style>
 </head>
 <body>
 
-<div class="search-card">
-  <!-- カラット入力 -->
-  <div class="field-row highlight">
-    <label for="caratInput">カラット</label>
-    <input type="number" id="caratInput" step="0.001" value="0.500">
-    <button id="setCaratBtn">セット</button>
-  </div>
-
-  <!-- Ct範囲表示（編集可能） -->
-  <div class="field-row range-display">
-    <input type="text" id="caratMinMax" placeholder="0.000～0.999">
-  </div>
-
-  <!-- 検索項目 -->
-  <div class="field-row">
-    <label for="dateSelect">開催日</label>
-    <select id="dateSelect"></select>
-  </div>
-
-  <div class="field-row">
-    <label for="colorSelect">カラー</label>
-    <select id="colorSelect"></select>
-  </div>
-
-  <div class="field-row">
-    <label for="claritySelect">クラリティ</label>
-    <select id="claritySelect"></select>
-  </div>
-
-  <div class="field-row">
-    <label for="cutSelect">カット</label>
-    <select id="cutSelect"></select>
-  </div>
-
-  <div class="field-row">
-    <label for="fluorescenceSelect">蛍光性</label>
-    <select id="fluorescenceSelect"></select>
-  </div>
-
-  <div class="field-row">
-    <label for="shapeSelect">形状</label>
-    <select id="shapeSelect"></select>
-  </div>
-
-  <!-- フリーワード検索 -->
-  <div class="field-row">
-    <label for="freeWord">フリーワード</label>
-    <input type="text" id="freeWord" placeholder="例：D VS1 GD">
-  </div>
-
-  <!-- 検索ボタン -->
-  <div class="search-actions">
-    <button id="searchButton">検索</button>
-    <button id="clearButton">クリア</button>
-  </div>
-
-  <!-- 検索結果 -->
-  <div id="searchResults"></div>
-</div>
-
-<script>
-// =====================
-// Firebase 初期化
-// =====================
-const firebaseConfig = {
-  apiKey: "AIzaSyAh46ZVl6ICR9ynh6G8VZn6RlApcqpSq48",
-  authDomain: "sgc-diamond-db.firebaseapp.com",
-  projectId: "sgc-diamond-db",
-  storageBucket: "sgc-diamond-db.firebasestorage.app",
-  messagingSenderId: "552067864642",
-  appId: "1:552067864642:web:c4cb10821bdd7b1a85f5db",
-  measurementId: "G-DNMP8JJNB7"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-// =====================
-// カラットセット処理（小数第一位）
-document.getElementById('setCaratBtn').addEventListener('click', () => {
-  let carat = parseFloat(document.getElementById('caratInput').value);
-  if(isNaN(carat) || carat <= 0) return;
-  let floor = Math.floor(carat * 10) / 10;
-  let ceil = floor + 0.099;
-  let minStr = floor.toFixed(3);
-  let maxStr = ceil.toFixed(3);
-  document.getElementById('caratMinMax').value = `${minStr}～${maxStr}`;
-});
-
-// =====================
-// 選択肢の自動生成
-// =====================
-async function populateSelects() {
-  const diamondsSnap = await db.collection("Diamonds").get();
-  const dates = new Set();
-  const colors = new Set();
-  const clarities = new Set();
-  const cuts = new Set();
-  const shapes = new Set();
-
-  diamondsSnap.forEach(doc => {
-    const data = doc.data();
-    if(data.date) dates.add(data.date.toDate().toISOString().slice(0,10));
-    if(data.color) colors.add(data.color);
-    if(data.clarity) clarities.add(data.clarity);
-    if(data.cut) cuts.add(data.cut);
-    if(data.shape) shapes.add(data.shape);
-  });
-
-  const fillSelect = (selectId, values) => {
-    const sel = document.getElementById(selectId);
-    sel.innerHTML = '<option value="">全て</option>';
-    Array.from(values).sort().forEach(val => {
-      let opt = document.createElement('option');
-      opt.value = val;
-      opt.textContent = val;
-      sel.appendChild(opt);
-    });
-  }
-
-  fillSelect('dateSelect', dates);
-  fillSelect('colorSelect', colors);
-  fillSelect('claritySelect', clarities);
-  fillSelect('cutSelect', cuts);
-  fillSelect('shapeSelect', shapes);
-}
-
-window.addEventListener('DOMContentLoaded', populateSelects);
-
-// =====================
-// 検索処理（表形式表示）
-document.getElementById('searchButton').addEventListener('click', async () => {
-  const resultsDiv = document.getElementById('searchResults');
-  resultsDiv.innerHTML = '';
-
-  let caratRange = document.getElementById('caratMinMax').value.split('～').map(v => parseFloat(v));
-  const dateVal = document.getElementById('dateSelect').value;
-  const colorVal = document.getElementById('colorSelect').value;
-  const clarityVal = document.getElementById('claritySelect').value;
-  const cutVal = document.getElementById('cutSelect').value;
-  const shapeVal = document.getElementById('shapeSelect').value;
-  const freeWord = document.getElementById('freeWord').value.trim().toUpperCase().split(/\s+/);
-
-  const snapshot = await db.collection("Diamonds").get();
-  let filtered = [];
-
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    let pass = true;
-
-    if(caratRange.length === 2) {
-      if(data.carat < caratRange[0] || data.carat > caratRange[1]) pass = false;
-    }
-
-    if(dateVal && data.date.toDate().toISOString().slice(0,10) !== dateVal) pass = false;
-    if(colorVal && data.color !== colorVal) pass = false;
-    if(clarityVal && data.clarity !== clarityVal) pass = false;
-    if(cutVal && data.cut !== cutVal) pass = false;
-    if(shapeVal && data.shape !== shapeVal) pass = false;
-
-    if(freeWord.length > 0 && !freeWord.every(w => {
-      return (data.color && data.color.toUpperCase().includes(w)) ||
-             (data.clarity && data.clarity.toUpperCase().includes(w)) ||
-             (data.cut && data.cut.toUpperCase().includes(w)) ||
-             (data.shape && data.shape.toUpperCase().includes(w));
-    })) pass = false;
-
-    if(pass) filtered.push(data);
-  });
-
-  if(filtered.length === 0){
-    resultsDiv.innerHTML = '<p>該当するデータはありません。</p>';
-    return;
-  }
-
-  // 平均単価・掛率
-  let totalPrice = 0;
-  let totalCarat = 0;
-  filtered.forEach(d => { totalPrice += d.price; totalCarat += d.carat; });
-  let avgPrice = (totalPrice / filtered.length).toFixed(2);
-  let avgPricePerCt = (totalPrice / totalCarat).toFixed(2);
-
-  // 表作成
-  const table = document.createElement('table');
-  const thead = document.createElement('thead');
-  thead.innerHTML = `
+<table id="resultTable">
+  <thead>
     <tr>
-      <th>カラット</th>
+      <th>日付</th>
       <th>カラー</th>
       <th>クラリティ</th>
       <th>カット</th>
+      <th>蛍光性</th>
       <th>形状</th>
-      <th>価格</th>
+      <th>カラット</th>
+      <th>ガイ単価</th>
+      <th>掛率</th>
+      <th>金額</th>
+      <th>備考</th>
+      <th>詳細</th>
     </tr>
-  `;
-  table.appendChild(thead);
+  </thead>
+  <tbody></tbody>
+</table>
 
-  const tbody = document.createElement('tbody');
-  filtered.forEach(d => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${d.carat}</td>
-      <td>${d.color}</td>
-      <td>${d.clarity}</td>
-      <td>${d.cut}</td>
-      <td>${d.shape}</td>
-      <td>${d.price}</td>
-    `;
-    tbody.appendChild(tr);
+<script>
+  // Firebase設定
+  const firebaseConfig = {
+    apiKey: "AIzaSyAh46ZVl6ICR9ynh6G8VZn6RlApcqpSq48",
+    authDomain: "sgc-diamond-db.firebaseapp.com",
+    projectId: "sgc-diamond-db",
+    storageBucket: "sgc-diamond-db.firebasestorage.app",
+    messagingSenderId: "552067864642",
+    appId: "1:552067864642:web:c4cb10821bdd7b1a85f5db",
+    measurementId: "G-DNMP8JJNB7"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  const resultTableBody = document.querySelector("#resultTable tbody");
+
+  // データ取得＆表示
+  db.collection("Diamonds").orderBy("開催日", "desc").get().then(snapshot => {
+    snapshot.forEach(doc => {
+      const data = doc.data();
+
+      // 日付変換
+      const date = data["開催日"]?.toDate ? data["開催日"].toDate() : new Date();
+      const dateStr = `${date.getFullYear()}年${date.getMonth()+1}月${date.getDate()}日`;
+
+      const carat = data["石目（ct）"] || 0;
+      const pricePerCarat = data["ガイ単価（円）"] || 0;
+      const defaultRate = 5;
+      let amount = carat * pricePerCarat * defaultRate;
+
+      // メイン行
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${dateStr}</td>
+        <td>${data["カラー"] || ""}</td>
+        <td>${data["クラリティ"] || ""}</td>
+        <td>${data["カット（総合/P/S）"] || ""}</td>
+        <td>${data["蛍光性"] || ""}</td>
+        <td>${data["形状"] || ""}</td>
+        <td>${carat.toFixed(3)}</td>
+        <td>${pricePerCarat.toLocaleString()}</td>
+        <td>
+          <select class="rate-select">
+            <option value="5" selected>5倍</option>
+            <option value="6">6倍</option>
+            <option value="7">7倍</option>
+            <option value="8">8倍</option>
+            <option value="9">9倍</option>
+          </select>
+        </td>
+        <td class="amount-cell">${amount.toLocaleString()}</td>
+        <td>${data["備考"] || ""}</td>
+        <td><a class="detail-toggle">表示</a></td>
+      `;
+      resultTableBody.appendChild(tr);
+
+      // 詳細行
+      const detailTr = document.createElement("tr");
+      detailTr.classList.add("detail-row");
+      detailTr.style.display = "none";
+      detailTr.innerHTML = `
+        <td colspan="12">
+          直径: ${data["直径（最小）（mm）"] || ""} ～ ${data["直径（最大）（mm）"] || ""} mm、
+          高さ: ${data["高さ（mm）"] || ""} mm、
+          不正円率: ${data["不正円率"] || ""}、
+          全高比: ${data["全高比（％）"] || ""} %
+        </td>
+      `;
+      resultTableBody.appendChild(detailTr);
+
+      // 詳細リンククリックで展開
+      tr.querySelector(".detail-toggle").addEventListener("click", () => {
+        if(detailTr.style.display === "none") {
+          detailTr.style.display = "table-row";
+          tr.querySelector(".detail-toggle").textContent = "非表示";
+        } else {
+          detailTr.style.display = "none";
+          tr.querySelector(".detail-toggle").textContent = "表示";
+        }
+      });
+
+      // 掛率変更時に金額更新
+      const rateSelect = tr.querySelector(".rate-select");
+      const amountCell = tr.querySelector(".amount-cell");
+      rateSelect.addEventListener("change", () => {
+        const rate = parseFloat(rateSelect.value);
+        const newAmount = carat * pricePerCarat * rate;
+        amountCell.textContent = newAmount.toLocaleString();
+      });
+    });
+  }).catch(err => {
+    console.error(err);
+    alert("データ取得に失敗しました。");
   });
-  table.appendChild(tbody);
-
-  // 平均行追加
-  const avgTr = document.createElement('tr');
-  avgTr.innerHTML = `
-    <td colspan="5">平均単価/件数</td>
-    <td>${avgPrice}</td>
-  `;
-  tbody.appendChild(avgTr);
-
-  const avgCtTr = document.createElement('tr');
-  avgCtTr.innerHTML = `
-    <td colspan="5">平均単価/ct</td>
-    <td>${avgPricePerCt}</td>
-  `;
-  tbody.appendChild(avgCtTr);
-
-  resultsDiv.appendChild(table);
-});
-
-// =====================
-// クリアボタン
-document.getElementById('clearButton').addEventListener('click', () => {
-  document.getElementById('caratInput').value = '';
-  document.getElementById('caratMinMax').value = '';
-  document.getElementById('dateSelect').value = '';
-  document.getElementById('colorSelect').value = '';
-  document.getElementById('claritySelect').value = '';
-  document.getElementById('cutSelect').value = '';
-  document.getElementById('fluorescenceSelect').value = '';
-  document.getElementById('shapeSelect').value = '';
-  document.getElementById('freeWord').value = '';
-  document.getElementById('searchResults').innerHTML = '';
-});
 </script>
 
 </body>
