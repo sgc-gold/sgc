@@ -3,13 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ検索フォーム 1.01</title>
+<title>ダイヤ検索フォーム 1.02</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
-/* ========================== */
-/* カード風検索フォームスタイル */
-/* ========================== */
 body {
   margin: 0;
   font-family: 'Noto Sans JP', sans-serif;
@@ -21,7 +18,7 @@ body {
   border-radius: 16px;
   padding: 1.5rem;
   box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-  max-width: 720px;
+  max-width: 900px;
   margin: 1rem auto;
 }
 
@@ -114,23 +111,26 @@ body {
   background: #ccc;
 }
 
-/* 検索結果カード */
-.result-card {
-  background: #fafafa;
-  border-radius: 12px;
-  padding: 1rem;
+/* 結果表 */
+#searchResults table {
+  width: 100%;
+  border-collapse: collapse;
   margin-top: 1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-.result-card h4 {
-  margin: 0 0 0.5rem 0;
-  color: #004d40;
+#searchResults th, #searchResults td {
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+  text-align: center;
 }
 
-.result-card p {
-  margin: 0.25rem 0;
-  font-size: 0.95rem;
+#searchResults th {
+  background-color: #bfa14a;
+  color: #fff;
+}
+
+#searchResults tr:nth-child(even) {
+  background-color: #f9f9f9;
 }
 
 @media (max-width: 600px) {
@@ -274,12 +274,10 @@ async function populateSelects() {
   fillSelect('shapeSelect', shapes);
 }
 
-// ページロード時に選択肢を埋める
 window.addEventListener('DOMContentLoaded', populateSelects);
 
 // =====================
-// 検索処理
-// =====================
+// 検索処理（表形式表示）
 document.getElementById('searchButton').addEventListener('click', async () => {
   const resultsDiv = document.getElementById('searchResults');
   resultsDiv.innerHTML = '';
@@ -299,7 +297,6 @@ document.getElementById('searchButton').addEventListener('click', async () => {
     const data = doc.data();
     let pass = true;
 
-    // カラット範囲チェック
     if(caratRange.length === 2) {
       if(data.carat < caratRange[0] || data.carat > caratRange[1]) pass = false;
     }
@@ -310,7 +307,6 @@ document.getElementById('searchButton').addEventListener('click', async () => {
     if(cutVal && data.cut !== cutVal) pass = false;
     if(shapeVal && data.shape !== shapeVal) pass = false;
 
-    // フリーワード検索
     if(freeWord.length > 0 && !freeWord.every(w => {
       return (data.color && data.color.toUpperCase().includes(w)) ||
              (data.clarity && data.clarity.toUpperCase().includes(w)) ||
@@ -326,42 +322,63 @@ document.getElementById('searchButton').addEventListener('click', async () => {
     return;
   }
 
-  // 平均単価・掛率計算
+  // 平均単価・掛率
   let totalPrice = 0;
   let totalCarat = 0;
   filtered.forEach(d => { totalPrice += d.price; totalCarat += d.carat; });
   let avgPrice = (totalPrice / filtered.length).toFixed(2);
   let avgPricePerCt = (totalPrice / totalCarat).toFixed(2);
 
-  // 結果表示
-  const resultCard = document.createElement('div');
-  resultCard.classList.add('result-card');
-  resultCard.innerHTML = `
-    <h4>検索結果：${filtered.length}件</h4>
-    <p>平均単価（総額/件数）：${avgPrice}円</p>
-    <p>平均単価/ct：${avgPricePerCt}円/ct</p>
+  // 表作成
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  thead.innerHTML = `
+    <tr>
+      <th>カラット</th>
+      <th>カラー</th>
+      <th>クラリティ</th>
+      <th>カット</th>
+      <th>形状</th>
+      <th>価格</th>
+    </tr>
   `;
-  resultsDiv.appendChild(resultCard);
+  table.appendChild(thead);
 
-  // 各件表示
+  const tbody = document.createElement('tbody');
   filtered.forEach(d => {
-    const card = document.createElement('div');
-    card.classList.add('result-card');
-    card.innerHTML = `
-      <p>カラット: ${d.carat}ct</p>
-      <p>カラー: ${d.color}</p>
-      <p>クラリティ: ${d.clarity}</p>
-      <p>カット: ${d.cut}</p>
-      <p>形状: ${d.shape}</p>
-      <p>価格: ${d.price}円</p>
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${d.carat}</td>
+      <td>${d.color}</td>
+      <td>${d.clarity}</td>
+      <td>${d.cut}</td>
+      <td>${d.shape}</td>
+      <td>${d.price}</td>
     `;
-    resultsDiv.appendChild(card);
+    tbody.appendChild(tr);
   });
+  table.appendChild(tbody);
+
+  // 平均行追加
+  const avgTr = document.createElement('tr');
+  avgTr.innerHTML = `
+    <td colspan="5">平均単価/件数</td>
+    <td>${avgPrice}</td>
+  `;
+  tbody.appendChild(avgTr);
+
+  const avgCtTr = document.createElement('tr');
+  avgCtTr.innerHTML = `
+    <td colspan="5">平均単価/ct</td>
+    <td>${avgPricePerCt}</td>
+  `;
+  tbody.appendChild(avgCtTr);
+
+  resultsDiv.appendChild(table);
 });
 
 // =====================
 // クリアボタン
-// =====================
 document.getElementById('clearButton').addEventListener('click', () => {
   document.getElementById('caratInput').value = '';
   document.getElementById('caratMinMax').value = '';
