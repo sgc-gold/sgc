@@ -3,166 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGC ダイヤ検索　1.06</title>
+<title>SGC ダイヤ検索　1.07</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
 /* =======================
    基本スタイル
 ======================= */
-/* =======================
-   基本スタイル
-======================= */
 body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Noto Sans JP', sans-serif;
-  background: #f5f7fa;
+  margin:0; padding:0; font-family:'Noto Sans JP', sans-serif; background:#f5f7fa;
 }
-
-.container {
-  max-width: 900px;
-  margin: 1.5rem auto;
-  background: #fff;
-  border-radius: 16px;
-  padding: 1.8rem;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-}
-
-h2 {
-  margin-bottom: 1rem;
-  color: #004d40;
-}
-
-input, select, button {
-  font-size: 1rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-input:focus, select:focus {
-  outline: none;
-  border-color: #bfa14a;
-  box-shadow: 0 0 0 2px rgba(191,161,74,0.2);
-}
-
-button {
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-#searchButton {
-  background: linear-gradient(135deg, #bfa14a, #d4b95e);
-  color: #fff;
-  font-weight: 600;
-}
-
-#searchButton:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-#clearButton {
-  background: #e0e0e0;
-  color: #333;
-}
-
-#clearButton:hover {
-  background: #ccc;
-}
-
-/* =======================
-   フォーム配置
-======================= */
-.flex-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  margin-bottom: 0.8rem;
-}
-
-.flex-row label {
-  width: 150px;
-  font-weight: 600;
-  text-align: center;
-}
-
-.carat-top {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-#caratRange {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-#caratRange input {
-  width: 80px;
-  text-align: center;
-}
-
-#caratRange span {
-  font-weight: 600;
-}
+.container { max-width:900px; margin:1.5rem auto; background:#fff; border-radius:16px; padding:1.8rem; box-shadow:0 4px 14px rgba(0,0,0,0.08);}
+h2 { margin-bottom:1rem; color:#004d40; }
+input, select, button { font-size:1rem; padding:0.5rem 0.75rem; border-radius:8px; border:1px solid #ccc; }
+input:focus, select:focus { outline:none; border-color:#bfa14a; box-shadow:0 0 0 2px rgba(191,161,74,0.2);}
+button { cursor:pointer; transition:all 0.2s ease;}
+#searchButton { background:linear-gradient(135deg,#bfa14a,#d4b95e); color:#fff; font-weight:600;}
+#searchButton:hover { opacity:0.9; transform:translateY(-1px);}
+#clearButton { background:#e0e0e0; color:#333;}
+#clearButton:hover { background:#ccc;}
+.flex-row { display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; margin-bottom:0.8rem;}
+.flex-row label { width:150px; font-weight:600; text-align:center;}
+.flex-row input[type="text"], .flex-row select { flex:1; min-width:120px;}
+#caratRange { display:flex; align-items:center; gap:0.5rem;}
+#caratRange input { width:80px; text-align:center;}
+#caratRange span { font-weight:600; }
 
 /* =======================
    テーブルスタイル
 ======================= */
-#resultTable {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
-
-#resultTable th, #resultTable td {
-  border: 1px solid #ddd;
-  padding: 6px 8px;
-  text-align: center;
-  font-size: 0.95rem;
-}
-
-#resultTable th {
-  background: #f0f0f0;
-  font-weight: 600;
-  color: #333;
-}
-
-.detailsRow {
-  display: none;
-  background: #fafafa;
-}
-
-.detailsRow td {
-  text-align: left;
-  font-size: 0.9rem;
-}
-
-.detailToggle {
-  color: #00796B;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-@media (max-width: 480px) {
-  .flex-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .flex-row label {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 0.2rem;
-  }
-
-  #caratRange {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+#resultTable { width:100%; border-collapse:collapse; margin-top:1rem; }
+#resultTable th, #resultTable td { border:1px solid #ddd; padding:6px 8px; text-align:center; font-size:0.95rem;}
+#resultTable th { background:#f0f0f0; font-weight:600; color:#333;}
+.detailsRow { display:none; background:#fafafa; }
+.detailsRow td { text-align:left; font-size:0.9rem; }
+.detailToggle { color:#00796B; cursor:pointer; font-weight:600; }
+@media(max-width:480px){
+  .flex-row { flex-direction:column; align-items:flex-start;}
+  .flex-row label { width:100%; text-align:center; margin-bottom:0.2rem;}
+  #caratRange { flex-direction:column; align-items:flex-start;}
 }
 </style>
 </head>
