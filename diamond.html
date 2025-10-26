@@ -1,150 +1,173 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>ダイヤ相場検索（複合条件）</title>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<meta charset="UTF-8">
+<title>ダイヤ相場検索（複合条件）</title>
+<style>
+body { font-family: "Noto Sans JP", sans-serif; margin:20px; background:#f4f4f4; }
+h1 { text-align:center; color:#333; }
+table { border-collapse: collapse; width: 100%; background:#fff; }
+th, td { border: 1px solid #ccc; padding: 8px; text-align:center; }
+th { background: #666; color: #fff; }
+tr:nth-child(even) { background:#f9f9f9; }
+button.detail-btn { padding:3px 6px; font-size:0.9em; cursor:pointer; }
+.detail-row { background:#eee; display:none; }
+.result-summary { margin:15px 0; font-weight:bold; }
+input, select { padding:5px; margin:2px 5px 10px 0; }
+.flex-row { display:flex; flex-wrap:wrap; align-items:center; }
+.flex-row label { margin-right:5px; }
+@media (max-width:768px){
+  table, th, td { font-size:12px; }
+}
+</style>
 </head>
 <body>
-  <h1>ダイヤ相場検索</h1>
 
-  <!-- Ct入力欄 -->
-  <label>基準 Ct:</label>
-  <input type="number" id="baseCt" step="0.001" value="0.700">
-  <button onclick="setCaratRange()">Ct設定</button><br><br>
+<h1>ダイヤ相場検索</h1>
 
-  <!-- 検索フォーム -->
+<div class="flex-row">
+  <label>参照Ct:</label>
+  <input type="number" id="ctInput" step="0.001" value="0.725">
+</div>
+
+<div class="flex-row">
   <label>最小カラット:</label>
-  <input type="number" id="caratMin" step="0.01" value="0.7">
+  <input type="number" id="caratMin" step="0.001" value="0.700">
   <label>最大カラット:</label>
-  <input type="number" id="caratMax" step="0.01" value="0.799"><br><br>
-
+  <input type="number" id="caratMax" step="0.001" value="0.799">
   <label>カラー:</label>
-  <input type="text" id="color" placeholder="例: FANCY GREEN"><br><br>
-
+  <input type="text" id="color" placeholder="例: FANCY GREEN">
   <label>クラリティ:</label>
-  <input type="text" id="clarity" placeholder="例: SI1"><br><br>
-
+  <input type="text" id="clarity" placeholder="例: SI1">
   <label>形状:</label>
-  <input type="text" id="shape" placeholder="例: RD"><br><br>
+  <input type="text" id="shape" placeholder="例: RD">
+  <label>カット:</label>
+  <input type="text" id="cut" placeholder="例: 総合/P/S">
+  <label>蛍光性:</label>
+  <input type="text" id="fluorescence" placeholder="例: None">
+  <button onclick="updateCaratRange()">自動設定</button>
+</div>
 
-  <button onclick="search()">検索</button><br><br>
+<button onclick="search()">検索</button>
 
-  <!-- 平均単価 & 金額計算 -->
-  <div>
-    <strong>平均単価:</strong> <span id="avgPrice">-</span> 円
-    &nbsp;&nbsp;
-    <label>掛率:</label>
-    <select id="rate" onchange="updateAmount()">
-      <option value="0.5">5掛け</option>
-      <option value="0.6">6掛け</option>
-      <option value="0.7" selected>7掛け</option>
-      <option value="0.8">8掛け</option>
-      <option value="0.9">9掛け</option>
-    </select>
-    &nbsp;&nbsp;
-    <strong>参考金額:</strong> <span id="amount">-</span> 円
-  </div>
+<div class="result-summary" id="summary"></div>
 
-  <!-- 検索結果 -->
-  <div id="result" style="margin-top:20px;"></div>
+<div style="overflow-x:auto;">
+  <table>
+    <thead>
+      <tr>
+        <th>開催日</th>
+        <th>石目（ct）</th>
+        <th>ガイ単価（円）</th>
+        <th>カラー</th>
+        <th>クラリティ</th>
+        <th>カット</th>
+        <th>蛍光性</th>
+        <th>形状</th>
+        <th>備考</th>
+        <th>詳細</th>
+      </tr>
+    </thead>
+    <tbody id="resultBody"></tbody>
+  </table>
+</div>
 
-  <script>
-    // 🔹 Firebase 初期化
-    const firebaseConfig = {
-      apiKey: "AIzaSyAh46ZVl6ICR9ynh6G8VZn6RlApcqpSq48",
-      authDomain: "sgc-diamond-db.firebaseapp.com",
-      projectId: "sgc-diamond-db",
-      storageBucket: "sgc-diamond-db.firebasestorage.app",
-      messagingSenderId: "552067864642",
-      appId: "1:552067864642:web:c4cb10821bdd7b1a85f5db",
-      measurementId: "G-DNMP8JJNB7"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAh46ZVl6ICR9ynh6G8VZn6RlApcqpSq48",
+  authDomain: "sgc-diamond-db.firebaseapp.com",
+  projectId: "sgc-diamond-db",
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-    let lastAvgPrice = 0;
-    let lastBaseCt = 0;
+function updateCaratRange(){
+  const ct = parseFloat(document.getElementById("ctInput").value);
+  document.getElementById("caratMin").value = (Math.floor(ct*100)/100).toFixed(3);
+  document.getElementById("caratMax").value = (Math.floor(ct*100)/100 + 0.099).toFixed(3);
+}
 
-    // 🔹 Ctから検索フォームの最小・最大カラットを設定
-    function setCaratRange() {
-      const baseCt = parseFloat(document.getElementById("baseCt").value);
-      const min = Math.floor(baseCt * 10) / 10;           // 小数第1位切り捨て
-      const max = min + 0.099;                             // 最大値は +0.099
-      document.getElementById("caratMin").value = min.toFixed(3);
-      document.getElementById("caratMax").value = max.toFixed(3);
-      lastBaseCt = baseCt;
-      updateAmount();
-    }
+async function search(){
+  const caratMin = parseFloat(document.getElementById("caratMin").value);
+  const caratMax = parseFloat(document.getElementById("caratMax").value);
+  const color = document.getElementById("color").value.trim();
+  const clarity = document.getElementById("clarity").value.trim();
+  const shape = document.getElementById("shape").value.trim();
+  const cut = document.getElementById("cut").value.trim();
+  const fluorescence = document.getElementById("fluorescence").value.trim();
 
-    // 🔹 検索関数
-    async function search() {
-      const caratMin = parseFloat(document.getElementById("caratMin").value);
-      const caratMax = parseFloat(document.getElementById("caratMax").value);
-      const color = document.getElementById("color").value.trim();
-      const clarity = document.getElementById("clarity").value.trim();
-      const shape = document.getElementById("shape").value.trim();
+  let query = db.collection("diamonds").where("carat", ">=", caratMin).where("carat", "<=", caratMax);
+  if(color) query = query.where("color","==",color);
+  if(clarity) query = query.where("clarity","==",clarity);
+  if(shape) query = query.where("shape","==",shape);
+  if(cut) query = query.where("cut","==",cut);
+  if(fluorescence) query = query.where("fluorescence","==",fluorescence);
 
-      let query = db.collection("Diamonds")
-        .where("carat", ">=", caratMin)
-        .where("carat", "<=", caratMax);
+  const snapshot = await query.get();
+  const tbody = document.getElementById("resultBody");
+  tbody.innerHTML = "";
 
-      if(color) query = query.where("color", "==", color);
-      if(clarity) query = query.where("clarity", "==", clarity);
-      if(shape) query = query.where("shape", "==", shape);
+  if(snapshot.empty){
+    document.getElementById("summary").innerHTML = "該当データはありません";
+    return;
+  }
 
-      const snapshot = await query.get();
-      const resultsDiv = document.getElementById("result");
-      resultsDiv.innerHTML = "";
+  let totalPrice=0;
+  let totalCount=0;
+  const ctRef = parseFloat(document.getElementById("ctInput").value);
 
-      if(snapshot.empty) {
-        document.getElementById("avgPrice").innerText = "-";
-        document.getElementById("amount").innerText = "-";
-        resultsDiv.innerHTML = "<p>該当データはありません</p>";
-        return;
-      }
+  snapshot.forEach((doc,index)=>{
+    const d = doc.data();
+    totalPrice += parseFloat(d.pricePerCarat || 0);
+    totalCount++;
 
-      // 🔹 平均単価計算
-      let sumPrice = 0;
-      let count = 0;
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        sumPrice += data.pricePerCarat;
-        count++;
-        resultsDiv.innerHTML += `
-          <div style="border-bottom:1px solid #ccc; margin:5px 0;">
-            <strong>NO:</strong> ${data.NO} |
-            <strong>カラット:</strong> ${data.carat} |
-            <strong>カラー:</strong> ${data.color} |
-            <strong>クラリティ:</strong> ${data.clarity} |
-            <strong>形状:</strong> ${data.shape} |
-            <strong>単価:</strong> ￥${data.pricePerCarat}
-          </div>
-        `;
-      });
+    // 基本行
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${d.date}</td>
+      <td>${d.carat}</td>
+      <td>${d.pricePerCarat}</td>
+      <td>${d.color}</td>
+      <td>${d.clarity}</td>
+      <td>${d.cut}</td>
+      <td>${d.fluorescence}</td>
+      <td>${d.shape}</td>
+      <td>${d.notes||""}</td>
+      <td><button class="detail-btn" onclick="toggleDetail('detail${index}')">詳細</button></td>
+    `;
+    tbody.appendChild(tr);
 
-      const avg = sumPrice / count;
-      lastAvgPrice = avg;
-      document.getElementById("avgPrice").innerText = Math.round(avg);
-      updateAmount();
-    }
+    // 詳細行
+    const trDetail = document.createElement("tr");
+    trDetail.id = `detail${index}`;
+    trDetail.className = "detail-row";
+    trDetail.innerHTML = `
+      <td colspan="10">
+        直径（最小）: ${d.diameterMin} mm |
+        直径（最大）: ${d.diameterMax} mm |
+        不正円率: ${d.unevenRate} % |
+        高さ: ${d.height} mm |
+        全高比: ${d.heightRatio} %
+      </td>
+    `;
+    tbody.appendChild(trDetail);
+  });
 
-    // 🔹 金額計算
-    function updateAmount() {
-      const rate = parseFloat(document.getElementById("rate").value);
-      const amountEl = document.getElementById("amount");
-      if(lastAvgPrice && lastBaseCt) {
-        const val = lastAvgPrice * lastBaseCt * rate;
-        amountEl.innerText = Math.round(val);
-      } else {
-        amountEl.innerText = "-";
-      }
-    }
+  const avgPrice = totalPrice/totalCount;
+  let html = `平均単価: ￥${avgPrice.toFixed(0)} `;
+  [5,6,7,8,9].forEach(rate=>{
+    html += ` | ${rate}掛け: ￥${(avgPrice*ctRef*rate).toFixed(0)}`;
+  });
+  document.getElementById("summary").innerHTML = html;
+}
 
-    // 🔹 ページロード時に初期 Ct 設定
-    window.onload = setCaratRange;
+function toggleDetail(id){
+  const tr = document.getElementById(id);
+  tr.style.display = tr.style.display==="none"?"":"none";
+}
+</script>
 
-  </script>
 </body>
 </html>
