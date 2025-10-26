@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGC ダイヤ検索　1.13</title>
+<title>SGC ダイヤ検索　1.14</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
@@ -206,7 +206,7 @@ document.getElementById("searchButton").addEventListener("click", async ()=>{
   const shapeVal=document.getElementById("shapeSelect").value;
   const keyword=document.getElementById("keyword").value.trim().toLowerCase();
 
-  const snapshot = await db.collection("Diamonds").get();
+  const snapshot = await db.collection("diamonds").get();
   const tbody=document.getElementById("resultBody");
   tbody.innerHTML="";
 
