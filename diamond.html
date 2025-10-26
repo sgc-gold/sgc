@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGC ダイヤ検索　1.14</title>
+<title>SGC ダイヤ検索　1.15</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
@@ -244,20 +244,36 @@ document.getElementById("searchButton").addEventListener("click", async ()=>{
     tbody.appendChild(row);
 
     // 詳細行
+    // 詳細行
     const detailRow = document.createElement("tr");
     detailRow.classList.add("detailsRow");
    
-    // 🔸 不正円率・全高比の数値を変換
-    const unevenRate = d.unevenRate ? (parseFloat(d.unevenRate) * 100).toFixed(2) : "";
-    const heightRatio = d.heightRatio ? (parseFloat(d.heightRatio) * 100).toFixed(2) + "%" : "";
+    // 🔸 不正円率・全高比を計算
+    let unevenRate = "";
+    let heightRatio = "";
+   
+    if (d.diameterMin && d.diameterMax) {
+      const min = parseFloat(d.diameterMin);
+      const max = parseFloat(d.diameterMax);
+      const avg = (min + max) / 2;
+   
+      // 不正円率 = (最大 - 最小) / 平均 × 100
+      unevenRate = ((max - min) / avg * 100).toFixed(2) + "%";
+   
+      // 全高比 = 高さ / 平均 × 100
+      if (d.height) {
+        const h = parseFloat(d.height);
+        heightRatio = ((h / avg) * 100).toFixed(2) + "%";
+      }
+    }
    
     detailRow.innerHTML = `
       <td colspan="11">
         直径（最小）: ${d.diameterMin || ""}mm ー（最大）: ${d.diameterMax || ""}mm ※ 高さ: ${d.height || ""}mm<br>
         不正円率: ${unevenRate}　　全高比: ${heightRatio}
       </td>
-    `;
-    tbody.appendChild(detailRow);
+   ` ;
+    tbody.appendChild(detailRow);  
 
     row.querySelector(".detailToggle").addEventListener("click", ()=>{
       detailRow.style.display = detailRow.style.display==="table-row"?"none":"table-row";
