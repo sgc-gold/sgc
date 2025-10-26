@@ -2,215 +2,256 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>ダイヤ相場検索（スマホ対応）</title>
+<title>ダイヤ相場検索</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
-body { font-family: 'Noto Sans JP', sans-serif; margin:10px; background:#f7f7f7; }
-h1 { text-align:center; font-size:20px; margin-bottom:15px; }
-.search-form { background:#fff; padding:10px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1); margin-bottom:15px; }
-.search-form label { margin-right:5px; font-size:14px; }
-.search-form input, .search-form select, .search-form button { margin-bottom:8px; padding:5px; font-size:14px; border-radius:4px; border:1px solid #ccc; width:100%; box-sizing:border-box; }
-.result { background:#fff; padding:5px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
-table { width:100%; border-collapse:collapse; margin-top:5px; }
-th, td { border:1px solid #ddd; padding:5px; text-align:center; font-size:12px; }
-th { background:#333; color:#fff; }
-.details { display:none; background:#f0f0f0; font-size:12px; }
-.detail-toggle { color:#007BFF; cursor:pointer; font-size:12px; margin-top:3px; display:inline-block; }
-.avg-price, .calc { font-weight:bold; margin-top:5px; font-size:14px; }
-.calc input, .calc select { width:60px; margin-right:5px; font-size:12px; }
-@media(max-width:768px){
-  th, td { font-size:12px; }
-}
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    margin: 0;
+    padding: 1rem;
+    background: #f5f7fa;
+  }
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .form-row label {
+    min-width: 80px;
+    font-weight: 600;
+    line-height: 2;
+  }
+  .form-row input, .form-row select {
+    flex: 1;
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+  }
+  button {
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #bfa14a, #d4b95e);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button:hover { opacity: 0.9; }
+
+  /* テーブル */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    text-align: left;
+    font-size: 0.9rem;
+  }
+  th {
+    background: #f0f0f0;
+  }
+  .details-row {
+    display: none;
+    background: #fafafa;
+  }
+  .detail-toggle {
+    background: #00796B;
+    color: #fff;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+
+  /* 平均単価と参考価格 */
+  .summary {
+    margin-top: 0.75rem;
+    font-weight: 600;
+  }
+
+  @media (max-width: 600px) {
+    .form-row {
+      flex-direction: column;
+    }
+    th, td {
+      font-size: 0.85rem;
+    }
+  }
 </style>
 </head>
 <body>
-<h1>ダイヤ相場検索</h1>
+<div class="container">
+  <h2>ダイヤ相場検索</h2>
+  
+  <!-- カラット入力 -->
+  <div class="form-row">
+    <label for="targetCarat">Ct</label>
+    <input type="number" id="targetCarat" step="0.001" value="0.725">
+  </div>
 
-<div class="search-form">
-  <label>石目 (Ct):</label>
-  <input type="number" id="ctInput" step="0.001" value="0.725">
+  <!-- 検索フォーム -->
+  <div class="form-row">
+    <label for="caratMin">最小カラット</label>
+    <input type="number" id="caratMin" step="0.01">
+    <label for="caratMax">最大カラット</label>
+    <input type="number" id="caratMax" step="0.01">
+  </div>
+  <div class="form-row">
+    <label for="date">開催日</label>
+    <select id="date"><option value="">指定なし</option></select>
+  </div>
+  <div class="form-row">
+    <label for="color">カラー</label>
+    <select id="color"><option value="">指定なし</option></select>
+    <label for="clarity">クラリティ</label>
+    <select id="clarity"><option value="">指定なし</option></select>
+  </div>
+  <div class="form-row">
+    <label for="cut">カット</label>
+    <select id="cut"><option value="">指定なし</option></select>
+    <label for="shape">形状</label>
+    <select id="shape"><option value="">指定なし</option></select>
+  </div>
+  <div class="form-row">
+    <label for="fluorescence">蛍光性</label>
+    <select id="fluorescence"><option value="">指定なし</option></select>
+  </div>
+  <button id="searchButton">検索</button>
 
-  <label>開催日:</label>
-  <select id="dateSelect"><option value="">すべて</option></select>
-
-  <label>最小カラット:</label>
-  <input type="number" id="caratMin" step="0.01" value="0.7">
-  <label>最大カラット:</label>
-  <input type="number" id="caratMax" step="0.01" value="0.799">
-
-  <label>カラー:</label>
-  <select id="colorSelect"><option value="">すべて</option></select>
-
-  <label>クラリティ:</label>
-  <select id="claritySelect"><option value="">すべて</option></select>
-
-  <label>カット:</label>
-  <select id="cutSelect"><option value="">すべて</option></select>
-
-  <label>形状:</label>
-  <select id="shapeSelect"><option value="">すべて</option></select>
-
-  <label>蛍光性:</label>
-  <select id="fluorescenceSelect"><option value="">すべて</option></select>
-
-  <button onclick="search()">検索</button>
+  <div class="summary" id="summary"></div>
+  <div id="result"></div>
 </div>
-
-<div class="avg-price" id="avgPrice"></div>
-<div class="calc" id="calcArea" style="display:none;">
-  <label>掛率:</label>
-  <select id="kakeSelect">
-    <option value="5">5掛け</option>
-    <option value="6">6掛け</option>
-    <option value="7">7掛け</option>
-    <option value="8">8掛け</option>
-    <option value="9">9掛け</option>
-  </select>
-  <span id="calcResult"></span>
-</div>
-
-<div class="result" id="result"></div>
 
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAh46ZVl6ICR9ynh6G8VZn6RlApcqpSq48",
-  authDomain: "sgc-diamond-db.firebaseapp.com",
-  projectId: "sgc-diamond-db",
-  storageBucket: "sgc-diamond-db.firebasestorage.app",
-  messagingSenderId: "552067864642",
-  appId: "1:552067864642:web:c4cb10821bdd7b1a85f5db",
-  measurementId: "G-DNMP8JJNB7"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+  // Firebase 初期化
+  const firebaseConfig = {
+    apiKey: "AIzaSyAh46ZVl6ICR9ynh6G8VZn6RlApcqpSq48",
+    authDomain: "sgc-diamond-db.firebaseapp.com",
+    projectId: "sgc-diamond-db",
+    storageBucket: "sgc-diamond-db.firebasestorage.app",
+    messagingSenderId: "552067864642",
+    appId: "1:552067864642:web:c4cb10821bdd7b1a85f5db",
+    measurementId: "G-DNMP8JJNB7"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-// 🔹 初期化
-async function initSelects(){
-  const snapshot = await db.collection("Diamonds").get();
-  const dates=new Set(), colors=new Set(), clarities=new Set(), cuts=new Set(), shapes=new Set(), fluorescences=new Set();
-  snapshot.forEach(doc=>{
-    const d=doc.data();
-    if(d.date) dates.add(d.date.toDate().toLocaleDateString('ja-JP'));
-    if(d.color) colors.add(d.color);
-    if(d.clarity) clarities.add(d.clarity);
-    if(d.cut) cuts.add(d.cut);
-    if(d.shape) shapes.add(d.shape);
-    if(d.fluorescence) fluorescences.add(d.fluorescence);
+  const targetCaratInput = document.getElementById("targetCarat");
+  const caratMinInput = document.getElementById("caratMin");
+  const caratMaxInput = document.getElementById("caratMax");
+
+  targetCaratInput.addEventListener("change", ()=>{
+    const ct = parseFloat(targetCaratInput.value);
+    caratMinInput.value = (ct-0.025).toFixed(3);
+    caratMaxInput.value = (ct+0.074).toFixed(3);
   });
-  const fillSelect=(id,set)=>{Array.from(set).sort().forEach(val=>document.getElementById(id).add(new Option(val,val)));};
-  fillSelect("dateSelect",dates);
-  fillSelect("colorSelect",colors);
-  fillSelect("claritySelect",clarities);
-  fillSelect("cutSelect",cuts);
-  fillSelect("shapeSelect",shapes);
-  fillSelect("fluorescenceSelect",fluorescences);
-}
-initSelects();
 
-// 🔹 Ct入力で自動カラット範囲
-document.getElementById("ctInput").addEventListener("input", e=>{
-  const ct=parseFloat(e.target.value);
-  if(isNaN(ct)) return;
-  const min=Math.floor(ct*10)/10;
-  const max=min+0.099;
-  document.getElementById("caratMin").value=min.toFixed(3);
-  document.getElementById("caratMax").value=max.toFixed(3);
-});
+  // 初期セット
+  targetCaratInput.dispatchEvent(new Event("change"));
 
-// 🔹 検索
-async function search(){
-  const caratMin=parseFloat(document.getElementById("caratMin").value);
-  const caratMax=parseFloat(document.getElementById("caratMax").value);
-  const color=document.getElementById("colorSelect").value;
-  const clarity=document.getElementById("claritySelect").value;
-  const cut=document.getElementById("cutSelect").value;
-  const shape=document.getElementById("shapeSelect").value;
-  const fluorescence=document.getElementById("fluorescenceSelect").value;
-  const dateSel=document.getElementById("dateSelect").value;
-
-  let query=db.collection("Diamonds").where("carat",">=",caratMin).where("carat","<=",caratMax);
-  if(color) query=query.where("color","==",color);
-  if(clarity) query=query.where("clarity","==",clarity);
-  if(cut) query=query.where("cut","==",cut);
-  if(shape) query=query.where("shape","==",shape);
-  if(fluorescence) query=query.where("fluorescence","==",fluorescence);
-
-  const snapshot=await query.get();
-  const resultsDiv=document.getElementById("result");
-  resultsDiv.innerHTML="";
-
-  if(snapshot.empty){
-    resultsDiv.innerHTML="<p>該当データはありません</p>";
-    document.getElementById("avgPrice").innerHTML="";
-    document.getElementById("calcArea").style.display="none";
-    return;
+  // 選択肢自動生成用
+  async function populateFilters() {
+    const snapshot = await db.collection("Diamonds").get();
+    const dates = new Set(), colors = new Set(), clarities = new Set(), cuts = new Set(), shapes = new Set(), fluorescences = new Set();
+    snapshot.forEach(doc=>{
+      const d = doc.data();
+      if(d.date) dates.add(d.date.toDate().toISOString().slice(0,10));
+      if(d.color) colors.add(d.color);
+      if(d.clarity) clarities.add(d.clarity);
+      if(d.cut) cuts.add(d.cut);
+      if(d.shape) shapes.add(d.shape);
+      if(d.fluorescence) fluorescences.add(d.fluorescence);
+    });
+    function fillSelect(id,set){const sel=document.getElementById(id);set.forEach(v=>{let opt=document.createElement("option");opt.value=v;opt.textContent=v;sel.appendChild(opt);});}
+    fillSelect("date",dates);
+    fillSelect("color",colors);
+    fillSelect("clarity",clarities);
+    fillSelect("cut",cuts);
+    fillSelect("shape",shapes);
+    fillSelect("fluorescence",fluorescences);
   }
+  populateFilters();
 
-  let totalPrice=0,count=0;
-  let rows="";
-  snapshot.forEach(doc=>{
-    const d=doc.data();
-    if(dateSel && new Date(d.date.toDate())<new Date(dateSel)) return;
-    totalPrice+=d.pricePerCarat||0;
-    count++;
-    rows+=`<tr>
-      <td>${d.date?d.date.toDate().toLocaleDateString('ja-JP'):""}</td>
-      <td>${d.carat||""}</td>
-      <td>${d.pricePerCarat||""}</td>
-      <td>${d.color||""}</td>
-      <td>${d.clarity||""}</td>
-      <td>${d.cut||""}</td>
-      <td>${d.fluorescence||""}</td>
-      <td>${d.shape||""}</td>
-      <td>${d.notes||""}</td>
-    </tr>
-    <tr class="details">
-      <td colspan="9">
-        直径(min-max): ${d.diameterMin||""}-${d.diameterMax||""} mm |
-        不正円率: ${d.unevenRate||""}% |
-        高さ: ${d.height||""} mm |
-        全高比: ${d.heightRatio||""} %
-      </td>
-    </tr>`;
+  document.getElementById("searchButton").addEventListener("click", async ()=>{
+    const caratMin = parseFloat(caratMinInput.value);
+    const caratMax = parseFloat(caratMaxInput.value);
+    const dateVal = document.getElementById("date").value;
+    const color = document.getElementById("color").value;
+    const clarity = document.getElementById("clarity").value;
+    const cut = document.getElementById("cut").value;
+    const shape = document.getElementById("shape").value;
+    const fluorescence = document.getElementById("fluorescence").value;
+
+    let query = db.collection("Diamonds").where("carat",">=",caratMin).where("carat","<=",caratMax);
+    if(dateVal) query=query.where("date",">=",new Date(dateVal));
+    if(color) query=query.where("color","==",color);
+    if(clarity) query=query.where("clarity","==",clarity);
+    if(cut) query=query.where("cut","==",cut);
+    if(shape) query=query.where("shape","==",shape);
+    if(fluorescence) query=query.where("fluorescence","==",fluorescence);
+
+    const snapshot = await query.get();
+    const resultDiv = document.getElementById("result");
+    const summaryDiv = document.getElementById("summary");
+    resultDiv.innerHTML = "";
+    summaryDiv.innerHTML = "";
+
+    if(snapshot.empty){
+      resultDiv.innerHTML="<p>該当データはありません</p>";
+      return;
+    }
+
+    // 平均単価計算
+    let total = 0;
+    snapshot.forEach(doc=>total+=doc.data().pricePerCarat);
+    const avg = Math.round(total/snapshot.size);
+    summaryDiv.innerHTML = `平均単価: ￥${avg} | 参考価格（Ct×掛率）`;
+
+    // テーブル作成
+    let table = document.createElement("table");
+    let header = table.insertRow();
+    ["開催日","石目(ct)","ガイ単価(円)","カラー","クラリティ","カット","形状","蛍光性","備考","詳細"].forEach(h=>{
+      let th = document.createElement("th"); th.textContent=h; header.appendChild(th);
+    });
+
+    snapshot.forEach(doc=>{
+      const d = doc.data();
+      const row = table.insertRow();
+      const dateStr = d.date ? d.date.toDate().toLocaleDateString("ja-JP") : "";
+      row.insertCell().textContent = dateStr;
+      row.insertCell().textContent = d.carat;
+      row.insertCell().textContent = d.pricePerCarat;
+      row.insertCell().textContent = d.color;
+      row.insertCell().textContent = d.clarity;
+      row.insertCell().textContent = d.cut;
+      row.insertCell().textContent = d.shape;
+      row.insertCell().textContent = d.fluorescence;
+      row.insertCell().textContent = d.notes || "";
+
+      // 詳細ボタン
+      const detailCell = row.insertCell();
+      const btn = document.createElement("button");
+      btn.textContent="詳細";
+      btn.className="detail-toggle";
+      btn.onclick=()=>alert("詳細表示はここで処理");
+      detailCell.appendChild(btn);
+    });
+
+    resultDiv.appendChild(table);
   });
-
-  const avg=count?(totalPrice/count).toFixed(0):0;
-  document.getElementById("avgPrice").innerText=`検索結果平均単価: ￥${avg}`;
-  document.getElementById("calcArea").style.display="inline-block";
-
-  const table=`<table>
-    <thead>
-      <tr>
-        <th>開催日</th><th>カラット</th><th>ガイ単価</th><th>カラー</th>
-        <th>クラリティ</th><th>カット</th><th>蛍光性</th><th>形状</th><th>備考</th>
-      </tr>
-    </thead>
-    <tbody>${rows}</tbody>
-  </table>`;
-  resultsDiv.innerHTML=table;
-
-  // 折りたたみ切り替え
-  document.querySelectorAll('tbody tr:nth-child(odd)').forEach(tr=>{
-    const toggle=document.createElement('span');
-    toggle.className='detail-toggle';
-    toggle.textContent='詳細表示';
-    toggle.onclick=()=>{tr.nextElementSibling.style.display=tr.nextElementSibling.style.display==='none'?'table-row':'none';};
-    tr.lastElementChild.appendChild(toggle);
-  });
-
-  updateCalc(avg);
-}
-
-// 🔹 掛率計算
-function updateCalc(avg){
-  const ct=parseFloat(document.getElementById("ctInput").value)||0;
-  const kakeSel=document.getElementById("kakeSelect");
-  kakeSel.onchange=()=>updateCalc(avg);
-  const kake=parseFloat(kakeSel.value)/10;
-  const price=(avg*ct*kake).toFixed(0);
-  document.getElementById("calcResult").innerText=`金額: ￥${price}`;
-}
 </script>
 </body>
 </html>
