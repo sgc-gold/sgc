@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGC ダイヤ検索　1.11</title>
+<title>SGC ダイヤ検索　1.12</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
@@ -28,6 +28,23 @@ button { cursor:pointer; transition:all 0.2s ease;}
 #caratRange { display:flex; align-items:center; gap:0.5rem;}
 #caratRange input { width:80px; text-align:center;}
 #caratRange span { font-weight:600; }
+#caratSetRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+#caratRange {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#caratRange input {
+  width: 80px;
+  text-align: center;
+}
 
 /* =======================
    テーブルスタイル
