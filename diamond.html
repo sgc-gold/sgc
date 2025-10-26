@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ検索フォーム 1.00</title>
+<title>ダイヤ検索フォーム 1.01</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
@@ -114,6 +114,25 @@ body {
   background: #ccc;
 }
 
+/* 検索結果カード */
+.result-card {
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-top: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.result-card h4 {
+  margin: 0 0 0.5rem 0;
+  color: #004d40;
+}
+
+.result-card p {
+  margin: 0.25rem 0;
+  font-size: 0.95rem;
+}
+
 @media (max-width: 600px) {
   .field-row label {
     min-width: 4.5rem;
@@ -137,9 +156,9 @@ body {
     <button id="setCaratBtn">セット</button>
   </div>
 
-  <!-- Ct範囲表示 -->
+  <!-- Ct範囲表示（編集可能） -->
   <div class="field-row range-display">
-    <input type="text" id="caratMinMax" placeholder="0.000～0.999" readonly>
+    <input type="text" id="caratMinMax" placeholder="0.000～0.999">
   </div>
 
   <!-- 検索項目 -->
@@ -184,10 +203,15 @@ body {
     <button id="searchButton">検索</button>
     <button id="clearButton">クリア</button>
   </div>
+
+  <!-- 検索結果 -->
+  <div id="searchResults"></div>
 </div>
 
 <script>
-// Firebase
+// =====================
+// Firebase 初期化
+// =====================
 const firebaseConfig = {
   apiKey: "AIzaSyAh46ZVl6ICR9ynh6G8VZn6RlApcqpSq48",
   authDomain: "sgc-diamond-db.firebaseapp.com",
@@ -200,7 +224,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// 小数第一位で範囲計算
+// =====================
+// カラットセット処理（小数第一位）
 document.getElementById('setCaratBtn').addEventListener('click', () => {
   let carat = parseFloat(document.getElementById('caratInput').value);
   if(isNaN(carat) || carat <= 0) return;
@@ -211,7 +236,9 @@ document.getElementById('setCaratBtn').addEventListener('click', () => {
   document.getElementById('caratMinMax').value = `${minStr}～${maxStr}`;
 });
 
-// 自動リスト化関数
+// =====================
+// 選択肢の自動生成
+// =====================
 async function populateSelects() {
   const diamondsSnap = await db.collection("Diamonds").get();
   const dates = new Set();
@@ -249,6 +276,104 @@ async function populateSelects() {
 
 // ページロード時に選択肢を埋める
 window.addEventListener('DOMContentLoaded', populateSelects);
+
+// =====================
+// 検索処理
+// =====================
+document.getElementById('searchButton').addEventListener('click', async () => {
+  const resultsDiv = document.getElementById('searchResults');
+  resultsDiv.innerHTML = '';
+
+  let caratRange = document.getElementById('caratMinMax').value.split('～').map(v => parseFloat(v));
+  const dateVal = document.getElementById('dateSelect').value;
+  const colorVal = document.getElementById('colorSelect').value;
+  const clarityVal = document.getElementById('claritySelect').value;
+  const cutVal = document.getElementById('cutSelect').value;
+  const shapeVal = document.getElementById('shapeSelect').value;
+  const freeWord = document.getElementById('freeWord').value.trim().toUpperCase().split(/\s+/);
+
+  const snapshot = await db.collection("Diamonds").get();
+  let filtered = [];
+
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    let pass = true;
+
+    // カラット範囲チェック
+    if(caratRange.length === 2) {
+      if(data.carat < caratRange[0] || data.carat > caratRange[1]) pass = false;
+    }
+
+    if(dateVal && data.date.toDate().toISOString().slice(0,10) !== dateVal) pass = false;
+    if(colorVal && data.color !== colorVal) pass = false;
+    if(clarityVal && data.clarity !== clarityVal) pass = false;
+    if(cutVal && data.cut !== cutVal) pass = false;
+    if(shapeVal && data.shape !== shapeVal) pass = false;
+
+    // フリーワード検索
+    if(freeWord.length > 0 && !freeWord.every(w => {
+      return (data.color && data.color.toUpperCase().includes(w)) ||
+             (data.clarity && data.clarity.toUpperCase().includes(w)) ||
+             (data.cut && data.cut.toUpperCase().includes(w)) ||
+             (data.shape && data.shape.toUpperCase().includes(w));
+    })) pass = false;
+
+    if(pass) filtered.push(data);
+  });
+
+  if(filtered.length === 0){
+    resultsDiv.innerHTML = '<p>該当するデータはありません。</p>';
+    return;
+  }
+
+  // 平均単価・掛率計算
+  let totalPrice = 0;
+  let totalCarat = 0;
+  filtered.forEach(d => { totalPrice += d.price; totalCarat += d.carat; });
+  let avgPrice = (totalPrice / filtered.length).toFixed(2);
+  let avgPricePerCt = (totalPrice / totalCarat).toFixed(2);
+
+  // 結果表示
+  const resultCard = document.createElement('div');
+  resultCard.classList.add('result-card');
+  resultCard.innerHTML = `
+    <h4>検索結果：${filtered.length}件</h4>
+    <p>平均単価（総額/件数）：${avgPrice}円</p>
+    <p>平均単価/ct：${avgPricePerCt}円/ct</p>
+  `;
+  resultsDiv.appendChild(resultCard);
+
+  // 各件表示
+  filtered.forEach(d => {
+    const card = document.createElement('div');
+    card.classList.add('result-card');
+    card.innerHTML = `
+      <p>カラット: ${d.carat}ct</p>
+      <p>カラー: ${d.color}</p>
+      <p>クラリティ: ${d.clarity}</p>
+      <p>カット: ${d.cut}</p>
+      <p>形状: ${d.shape}</p>
+      <p>価格: ${d.price}円</p>
+    `;
+    resultsDiv.appendChild(card);
+  });
+});
+
+// =====================
+// クリアボタン
+// =====================
+document.getElementById('clearButton').addEventListener('click', () => {
+  document.getElementById('caratInput').value = '';
+  document.getElementById('caratMinMax').value = '';
+  document.getElementById('dateSelect').value = '';
+  document.getElementById('colorSelect').value = '';
+  document.getElementById('claritySelect').value = '';
+  document.getElementById('cutSelect').value = '';
+  document.getElementById('fluorescenceSelect').value = '';
+  document.getElementById('shapeSelect').value = '';
+  document.getElementById('freeWord').value = '';
+  document.getElementById('searchResults').innerHTML = '';
+});
 </script>
 
 </body>
