@@ -51,18 +51,18 @@ button { cursor:pointer; transition:all 0.2s ease;}
 
   <!-- カラットセット + 最小～最大 -->
   <div class="flex-row">
-    <label for="mainCarat">カラット（ct）</label>
-    <div>
-      <input type="text" id="mainCarat" placeholder="例：0.345">
-      <button type="button" id="setCarat">セット</button>
-   
-      <!-- 最小～最大カラット -->
-      <div id="caratRange">
-        <input type="text" id="minCarat" placeholder="最小ct">
-        <span>～</span>
-        <input type="text" id="maxCarat" placeholder="最大ct">
-      </div>
+  <label for="mainCarat">カラット（ct）</label>
+  <div id="caratSetRow">
+    <input type="text" id="mainCarat" placeholder="例：0.345">
+    <button type="button" id="setCarat">セット</button>
+
+    <!-- 最小～最大カラット -->
+    <div id="caratRange">
+      <input type="text" id="minCarat" placeholder="最小ct">
+      <span>～</span>
+      <input type="text" id="maxCarat" placeholder="最大ct">
     </div>
+  </div>
   </div>
 
   <!-- 検索フォーム -->
