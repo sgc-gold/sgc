@@ -9,10 +9,16 @@
 <body>
   <h1>ダイヤ相場検索</h1>
 
+  <!-- Ct入力欄 -->
+  <label>基準 Ct:</label>
+  <input type="number" id="baseCt" step="0.001" value="0.700">
+  <button onclick="setCaratRange()">Ct設定</button><br><br>
+
+  <!-- 検索フォーム -->
   <label>最小カラット:</label>
-  <input type="number" id="caratMin" step="0.01" value="0.3">
+  <input type="number" id="caratMin" step="0.01" value="0.7">
   <label>最大カラット:</label>
-  <input type="number" id="caratMax" step="0.01" value="2.0"><br><br>
+  <input type="number" id="caratMax" step="0.01" value="0.799"><br><br>
 
   <label>カラー:</label>
   <input type="text" id="color" placeholder="例: FANCY GREEN"><br><br>
@@ -23,8 +29,25 @@
   <label>形状:</label>
   <input type="text" id="shape" placeholder="例: RD"><br><br>
 
-  <button onclick="search()">検索</button>
+  <button onclick="search()">検索</button><br><br>
 
+  <!-- 平均単価 & 金額計算 -->
+  <div>
+    <strong>平均単価:</strong> <span id="avgPrice">-</span> 円
+    &nbsp;&nbsp;
+    <label>掛率:</label>
+    <select id="rate" onchange="updateAmount()">
+      <option value="0.5">5掛け</option>
+      <option value="0.6">6掛け</option>
+      <option value="0.7" selected>7掛け</option>
+      <option value="0.8">8掛け</option>
+      <option value="0.9">9掛け</option>
+    </select>
+    &nbsp;&nbsp;
+    <strong>参考金額:</strong> <span id="amount">-</span> 円
+  </div>
+
+  <!-- 検索結果 -->
   <div id="result" style="margin-top:20px;"></div>
 
   <script>
@@ -41,6 +64,20 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    let lastAvgPrice = 0;
+    let lastBaseCt = 0;
+
+    // 🔹 Ctから検索フォームの最小・最大カラットを設定
+    function setCaratRange() {
+      const baseCt = parseFloat(document.getElementById("baseCt").value);
+      const min = Math.floor(baseCt * 10) / 10;           // 小数第1位切り捨て
+      const max = min + 0.099;                             // 最大値は +0.099
+      document.getElementById("caratMin").value = min.toFixed(3);
+      document.getElementById("caratMax").value = max.toFixed(3);
+      lastBaseCt = baseCt;
+      updateAmount();
+    }
+
     // 🔹 検索関数
     async function search() {
       const caratMin = parseFloat(document.getElementById("caratMin").value);
@@ -49,7 +86,7 @@
       const clarity = document.getElementById("clarity").value.trim();
       const shape = document.getElementById("shape").value.trim();
 
-      let query = db.collection("Diamonds")
+      let query = db.collection("diamonds")
         .where("carat", ">=", caratMin)
         .where("carat", "<=", caratMax);
 
@@ -62,12 +99,19 @@
       resultsDiv.innerHTML = "";
 
       if(snapshot.empty) {
+        document.getElementById("avgPrice").innerText = "-";
+        document.getElementById("amount").innerText = "-";
         resultsDiv.innerHTML = "<p>該当データはありません</p>";
         return;
       }
 
+      // 🔹 平均単価計算
+      let sumPrice = 0;
+      let count = 0;
       snapshot.forEach(doc => {
         const data = doc.data();
+        sumPrice += data.pricePerCarat;
+        count++;
         resultsDiv.innerHTML += `
           <div style="border-bottom:1px solid #ccc; margin:5px 0;">
             <strong>NO:</strong> ${data.NO} |
@@ -79,7 +123,28 @@
           </div>
         `;
       });
+
+      const avg = sumPrice / count;
+      lastAvgPrice = avg;
+      document.getElementById("avgPrice").innerText = Math.round(avg);
+      updateAmount();
     }
+
+    // 🔹 金額計算
+    function updateAmount() {
+      const rate = parseFloat(document.getElementById("rate").value);
+      const amountEl = document.getElementById("amount");
+      if(lastAvgPrice && lastBaseCt) {
+        const val = lastAvgPrice * lastBaseCt * rate;
+        amountEl.innerText = Math.round(val);
+      } else {
+        amountEl.innerText = "-";
+      }
+    }
+
+    // 🔹 ページロード時に初期 Ct 設定
+    window.onload = setCaratRange;
+
   </script>
 </body>
 </html>
