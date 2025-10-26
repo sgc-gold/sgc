@@ -86,7 +86,7 @@
       const clarity = document.getElementById("clarity").value.trim();
       const shape = document.getElementById("shape").value.trim();
 
-      let query = db.collection("diamonds")
+      let query = db.collection("Diamonds")
         .where("carat", ">=", caratMin)
         .where("carat", "<=", caratMax);
 
