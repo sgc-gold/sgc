@@ -3,171 +3,196 @@
 <head>
 <meta charset="UTF-8">
 <title>ダイヤ相場検索（複合条件）</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
-body { font-family: "Noto Sans JP", sans-serif; margin:20px; background:#f4f4f4; }
-h1 { text-align:center; color:#333; }
-table { border-collapse: collapse; width: 100%; background:#fff; }
-th, td { border: 1px solid #ccc; padding: 8px; text-align:center; }
-th { background: #666; color: #fff; }
-tr:nth-child(even) { background:#f9f9f9; }
-button.detail-btn { padding:3px 6px; font-size:0.9em; cursor:pointer; }
-.detail-row { background:#eee; display:none; }
-.result-summary { margin:15px 0; font-weight:bold; }
-input, select { padding:5px; margin:2px 5px 10px 0; }
-.flex-row { display:flex; flex-wrap:wrap; align-items:center; }
-.flex-row label { margin-right:5px; }
-@media (max-width:768px){
-  table, th, td { font-size:12px; }
-}
+  body { font-family: "Noto Sans JP", sans-serif; margin: 20px; }
+  label { margin-right: 10px; }
+  select, input[type=number], input[type=text] { margin-right: 15px; margin-bottom:10px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+  th, td { border: 1px solid #ccc; padding: 6px; text-align: center; font-size: 14px; }
+  th { background-color: #f0f0f0; }
+  .details { display: none; font-size: 12px; background-color: #fafafa; }
+  .toggle-btn { cursor: pointer; color: #0066cc; font-size: 12px; }
+  @media(max-width:768px){ table, th, td { font-size: 12px; } }
+  .avg-price { margin-top: 10px; font-weight: bold; }
+  .calc-row { margin-top: 10px; }
+  .calc-row input, .calc-row select { width: 80px; }
 </style>
 </head>
 <body>
-
 <h1>ダイヤ相場検索</h1>
 
-<div class="flex-row">
-  <label>参照Ct:</label>
-  <input type="number" id="ctInput" step="0.001" value="0.725">
-</div>
+<!-- 🔹 検索フォーム -->
+<label>開催日:</label>
+<select id="dateSelect"><option value="">全て</option></select><br>
 
-<div class="flex-row">
-  <label>最小カラット:</label>
-  <input type="number" id="caratMin" step="0.001" value="0.700">
-  <label>最大カラット:</label>
-  <input type="number" id="caratMax" step="0.001" value="0.799">
-  <label>カラー:</label>
-  <input type="text" id="color" placeholder="例: FANCY GREEN">
-  <label>クラリティ:</label>
-  <input type="text" id="clarity" placeholder="例: SI1">
-  <label>形状:</label>
-  <input type="text" id="shape" placeholder="例: RD">
-  <label>カット:</label>
-  <input type="text" id="cut" placeholder="例: 総合/P/S">
-  <label>蛍光性:</label>
-  <input type="text" id="fluorescence" placeholder="例: None">
-  <button onclick="updateCaratRange()">自動設定</button>
-</div>
+<label>Ct:</label>
+<input type="number" id="ctInput" step="0.001" value="0.725"><br>
+
+<label>最小カラット:</label>
+<input type="number" id="caratMin" step="0.01" value="0.700">
+<label>最大カラット:</label>
+<input type="number" id="caratMax" step="0.01" value="0.799"><br>
+
+<label>カラー:</label>
+<select id="colorSelect"><option value="">全て</option></select>
+<label>クラリティ:</label>
+<select id="claritySelect"><option value="">全て</option></select><br>
+
+<label>カット:</label>
+<select id="cutSelect"><option value="">全て</option></select>
+<label>形状:</label>
+<select id="shapeSelect"><option value="">全て</option></select>
+<label>蛍光性:</label>
+<select id="fluorescenceSelect"><option value="">全て</option></select><br>
 
 <button onclick="search()">検索</button>
 
-<div class="result-summary" id="summary"></div>
-
-<div style="overflow-x:auto;">
-  <table>
-    <thead>
-      <tr>
-        <th>開催日</th>
-        <th>石目（ct）</th>
-        <th>ガイ単価（円）</th>
-        <th>カラー</th>
-        <th>クラリティ</th>
-        <th>カット</th>
-        <th>蛍光性</th>
-        <th>形状</th>
-        <th>備考</th>
-        <th>詳細</th>
-      </tr>
-    </thead>
-    <tbody id="resultBody"></tbody>
-  </table>
+<!-- 🔹 平均単価・金額計算 -->
+<div class="avg-price" id="avgPriceDiv"></div>
+<div class="calc-row">
+  掛率：
+  <select id="kakeritsu">
+    <option value="5">5掛け</option>
+    <option value="6">6掛け</option>
+    <option value="7">7掛け</option>
+    <option value="8">8掛け</option>
+    <option value="9">9掛け</option>
+  </select>
+  金額: <span id="calcPrice">0</span> 円
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- 🔹 結果表示 -->
+<table id="resultTable">
+  <thead>
+    <tr>
+      <th>開催日</th><th>石目(ct)</th><th>ガイ単価(円)</th><th>カラー</th><th>クラリティ</th>
+      <th>カット</th><th>蛍光性</th><th>形状</th><th>備考</th>
+      <th>詳細</th>
+    </tr>
+  </thead>
+  <tbody id="resultBody"></tbody>
+</table>
+
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyAh46ZVl6ICR9ynh6G8VZn6RlApcqpSq48",
   authDomain: "sgc-diamond-db.firebaseapp.com",
   projectId: "sgc-diamond-db",
+  storageBucket: "sgc-diamond-db.firebasestorage.app",
+  messagingSenderId: "552067864642",
+  appId: "1:552067864642:web:c4cb10821bdd7b1a85f5db",
+  measurementId: "G-DNMP8JJNB7"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-function updateCaratRange(){
-  const ct = parseFloat(document.getElementById("ctInput").value);
-  document.getElementById("caratMin").value = (Math.floor(ct*100)/100).toFixed(3);
-  document.getElementById("caratMax").value = (Math.floor(ct*100)/100 + 0.099).toFixed(3);
+// 🔹 プルダウン初期化
+async function loadFilters() {
+  const snapshot = await db.collection("Diamonds").get();
+  const dates = new Set(), colors = new Set(), clarities = new Set(), cuts = new Set(), shapes = new Set(), fluorescences = new Set();
+  snapshot.forEach(doc=>{
+    const d = doc.data();
+    if(d.date) dates.add(d.date);
+    if(d.color) colors.add(d.color);
+    if(d.clarity) clarities.add(d.clarity);
+    if(d.cut) cuts.add(d.cut);
+    if(d.shape) shapes.add(d.shape);
+    if(d.fluorescence) fluorescences.add(d.fluorescence);
+  });
+  Array.from(dates).sort().forEach(v=>document.getElementById("dateSelect").appendChild(new Option(v,v)));
+  Array.from(colors).sort().forEach(v=>document.getElementById("colorSelect").appendChild(new Option(v,v)));
+  Array.from(clarities).sort().forEach(v=>document.getElementById("claritySelect").appendChild(new Option(v,v)));
+  Array.from(cuts).sort().forEach(v=>document.getElementById("cutSelect").appendChild(new Option(v,v)));
+  Array.from(shapes).sort().forEach(v=>document.getElementById("shapeSelect").appendChild(new Option(v,v)));
+  Array.from(fluorescences).sort().forEach(v=>document.getElementById("fluorescenceSelect").appendChild(new Option(v,v)));
 }
+loadFilters();
 
+// 🔹 Ct入力で自動設定
+document.getElementById("ctInput").addEventListener("input", ()=>{
+  const ct = parseFloat(document.getElementById("ctInput").value);
+  if(!isNaN(ct)){
+    document.getElementById("caratMin").value = (Math.floor(ct*10)/10).toFixed(3);
+    document.getElementById("caratMax").value = (Math.floor(ct*10)/10 + 0.099).toFixed(3);
+  }
+});
+
+// 🔹 検索関数
 async function search(){
+  let query = db.collection("Diamonds");
+  const date = document.getElementById("dateSelect").value;
+  if(date) query = query.where("date", ">=", date);
   const caratMin = parseFloat(document.getElementById("caratMin").value);
   const caratMax = parseFloat(document.getElementById("caratMax").value);
-  const color = document.getElementById("color").value.trim();
-  const clarity = document.getElementById("clarity").value.trim();
-  const shape = document.getElementById("shape").value.trim();
-  const cut = document.getElementById("cut").value.trim();
-  const fluorescence = document.getElementById("fluorescence").value.trim();
-
-  let query = db.collection("Diamonds").where("carat", ">=", caratMin).where("carat", "<=", caratMax);
+  query = query.where("carat", ">=", caratMin).where("carat","<=",caratMax);
+  
+  const color = document.getElementById("colorSelect").value;
   if(color) query = query.where("color","==",color);
+  const clarity = document.getElementById("claritySelect").value;
   if(clarity) query = query.where("clarity","==",clarity);
-  if(shape) query = query.where("shape","==",shape);
+  const cut = document.getElementById("cutSelect").value;
   if(cut) query = query.where("cut","==",cut);
+  const shape = document.getElementById("shapeSelect").value;
+  if(shape) query = query.where("shape","==",shape);
+  const fluorescence = document.getElementById("fluorescenceSelect").value;
   if(fluorescence) query = query.where("fluorescence","==",fluorescence);
 
   const snapshot = await query.get();
   const tbody = document.getElementById("resultBody");
   tbody.innerHTML = "";
+  let totalPricePerCarat = 0;
+  let count = 0;
 
-  if(snapshot.empty){
-    document.getElementById("summary").innerHTML = "該当データはありません";
-    return;
-  }
-
-  let totalPrice=0;
-  let totalCount=0;
-  const ctRef = parseFloat(document.getElementById("ctInput").value);
-
-  snapshot.forEach((doc,index)=>{
+  snapshot.forEach(doc=>{
     const d = doc.data();
-    totalPrice += parseFloat(d.pricePerCarat || 0);
-    totalCount++;
-
-    // 基本行
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${d.date}</td>
-      <td>${d.carat}</td>
-      <td>${d.pricePerCarat}</td>
-      <td>${d.color}</td>
-      <td>${d.clarity}</td>
-      <td>${d.cut}</td>
-      <td>${d.fluorescence}</td>
-      <td>${d.shape}</td>
-      <td>${d.notes||""}</td>
-      <td><button class="detail-btn" onclick="toggleDetail('detail${index}')">詳細</button></td>
+    totalPricePerCarat += d.pricePerCarat || 0;
+    count++;
+    const detailHtml = `
+      <tr class="details">
+        <td colspan="10">
+          直径最小(mm): ${d.diameterMin || ""}, 直径最大(mm): ${d.diameterMax || ""}, 不正円率: ${d.unevenRate || ""} <br>
+          高さ(mm): ${d.height || ""}, 全高比(%): ${d.heightRatio || ""}
+        </td>
+      </tr>
     `;
-    tbody.appendChild(tr);
-
-    // 詳細行
-    const trDetail = document.createElement("tr");
-    trDetail.id = `detail${index}`;
-    trDetail.className = "detail-row";
-    trDetail.innerHTML = `
-      <td colspan="10">
-        直径（最小）: ${d.diameterMin} mm |
-        直径（最大）: ${d.diameterMax} mm |
-        不正円率: ${d.unevenRate} % |
-        高さ: ${d.height} mm |
-        全高比: ${d.heightRatio} %
-      </td>
+    tbody.innerHTML += `
+      <tr>
+        <td>${d.date || ""}</td>
+        <td>${d.carat || ""}</td>
+        <td>${d.pricePerCarat || ""}</td>
+        <td>${d.color || ""}</td>
+        <td>${d.clarity || ""}</td>
+        <td>${d.cut || ""}</td>
+        <td>${d.fluorescence || ""}</td>
+        <td>${d.shape || ""}</td>
+        <td>${d.notes || ""}</td>
+        <td><span class="toggle-btn" onclick="this.parentElement.parentElement.nextElementSibling.style.display=(this.parentElement.parentElement.nextElementSibling.style.display==='none'?'table-row':'none')">詳細</span></td>
+      </tr>
+      ${detailHtml}
     `;
-    tbody.appendChild(trDetail);
   });
 
-  const avgPrice = totalPrice/totalCount;
-  let html = `平均単価: ￥${avgPrice.toFixed(0)} `;
-  [5,6,7,8,9].forEach(rate=>{
-    html += ` | ${rate}掛け: ￥${(avgPrice*ctRef*rate).toFixed(0)}`;
-  });
-  document.getElementById("summary").innerHTML = html;
+  // 平均単価表示
+  const avgPriceDiv = document.getElementById("avgPriceDiv");
+  const avgPrice = count? (totalPricePerCarat/count).toFixed(0) : 0;
+  avgPriceDiv.innerText = `平均単価：￥${avgPrice}`;
+
+  // 掛率計算
+  const ctValue = parseFloat(document.getElementById("ctInput").value);
+  const kake = parseInt(document.getElementById("kakeritsu").value);
+  document.getElementById("calcPrice").innerText = (avgPrice*ctValue*kake).toLocaleString();
 }
 
-function toggleDetail(id){
-  const tr = document.getElementById(id);
-  tr.style.display = tr.style.display==="none"?"":"none";
-}
+// 掛率変更時に再計算
+document.getElementById("kakeritsu").addEventListener("change", ()=>{
+  const avgPriceText = document.getElementById("avgPriceDiv").innerText.replace(/\D/g,'');
+  const avgPrice = parseInt(avgPriceText) || 0;
+  const ctValue = parseFloat(document.getElementById("ctInput").value);
+  const kake = parseInt(document.getElementById("kakeritsu").value);
+  document.getElementById("calcPrice").innerText = (avgPrice*ctValue*kake).toLocaleString();
+});
 </script>
-
 </body>
 </html>
