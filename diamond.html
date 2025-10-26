@@ -98,7 +98,7 @@ async function search(){
   const cut = document.getElementById("cut").value.trim();
   const fluorescence = document.getElementById("fluorescence").value.trim();
 
-  let query = db.collection("diamonds").where("carat", ">=", caratMin).where("carat", "<=", caratMax);
+  let query = db.collection("Diamonds").where("carat", ">=", caratMin).where("carat", "<=", caratMax);
   if(color) query = query.where("color","==",color);
   if(clarity) query = query.where("clarity","==",clarity);
   if(shape) query = query.where("shape","==",shape);
