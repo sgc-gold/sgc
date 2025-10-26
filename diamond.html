@@ -230,10 +230,15 @@
     // 最小～最大カラット計算
     function setCtRange() {
       const ct = parseFloat(document.getElementById("ctInput").value);
-      if(isNaN(ct)) return;
-      const min = Math.floor(ct*1000)/1000;
-      const max = Math.ceil(ct*1000)/1000 - 0.001;
-      document.getElementById("caratRange").textContent = `${min.toFixed(3)} ～ ${max.toFixed(3)}`;
+      if (isNaN(ct)) return;
+    
+      // 小数第一位で切り捨て
+      const min = Math.floor(ct * 10) / 10;
+      const max = min + 0.099;
+    
+      // 編集可能な input にセット
+      document.getElementById("caratMin").value = min.toFixed(3);
+      document.getElementById("caratMax").value = max.toFixed(3);
     }
 
     // フォームクリア
