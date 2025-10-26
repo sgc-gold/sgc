@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGC ダイヤ検索　1.15</title>
+<title>SGC ダイヤ検索　1.16</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
@@ -174,7 +174,11 @@ async function populateFilters(){
   const dates=new Set(), colors=new Set(), clarities=new Set(), cuts=new Set(), fluo=new Set(), shapes=new Set();
   snapshot.forEach(doc=>{
     const d = doc.data();
-    dates.add(d.date?.toDate().toLocaleDateString("ja-JP"));
+    dates.add(
+      d.date instanceof firebase.firestore.Timestamp
+        ? d.date.toDate().toLocaleDateString("ja-JP")
+        : (typeof d.date === "string" ? d.date.split(" ")[0] : "")
+    );
     if(d.color) colors.add(d.color);
     if(d.clarity) clarities.add(d.clarity);
     if(d.cut) cuts.add(d.cut);
@@ -227,18 +231,25 @@ document.getElementById("searchButton").addEventListener("click", async ()=>{
       if(!kws.every(k=>fields.includes(k))) return;
     }
 
-    const row=document.createElement("tr");
-    row.innerHTML=`
-      <td>${d.date?.toDate().toLocaleDateString("ja-JP")||""}</td>
-      <td>${d.color||""}</td>
-      <td>${d.clarity||""}</td>
-      <td>${d.cut||""}</td>
-      <td>${d.fluorescence||""}</td>
-      <td>${d.shape||""}</td>
-      <td>${d.carat?.toFixed(3)||""}</td>
-      <td>${d.pricePerCarat?.toLocaleString()||""}</td>
-      <td>${(d.pricePerCarat*d.carat)?.toLocaleString()||""}</td>
-      <td>${d.notes||""}</td>
+    const row = document.createElement("tr");
+   
+    // 🔹 Firestore Timestamp or string対応の日付処理
+    const displayDate =
+      d.date instanceof firebase.firestore.Timestamp
+        ? d.date.toDate().toLocaleDateString("ja-JP")
+        : (typeof d.date === "string" ? d.date.split(" ")[0] : "");
+   
+    row.innerHTML = `
+      <td>${displayDate || ""}</td>
+      <td>${d.color || ""}</td>
+      <td>${d.clarity || ""}</td>
+      <td>${d.cut || ""}</td>
+      <td>${d.fluorescence || ""}</td>
+      <td>${d.shape || ""}</td>
+      <td>${d.carat?.toFixed(3) || ""}</td>
+      <td>${d.pricePerCarat?.toLocaleString() || ""}</td>
+      <td>${(d.pricePerCarat * d.carat)?.toLocaleString() || ""}</td>
+      <td>${d.notes || ""}</td>
       <td><span class="detailToggle">詳細</span></td>
     `;
     tbody.appendChild(row);
