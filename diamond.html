@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGC ダイヤ検索　1.25</title>
+<title>SGC ダイヤ検索　1.26</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
@@ -25,6 +25,12 @@ button { cursor:pointer; transition:all 0.2s ease;}
 .flex-row { display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; margin-bottom:0.8rem;}
 .flex-row label { width:150px; font-weight:600; text-align:center;}
 .flex-row input[type="text"], .flex-row select { flex:1; /*min-width:120px;*/}
+
+/* カラット入力フォーム */
+#mainCarat {
+  width: 60px;  /* 幅を狭くして X.XXX が収まるサイズに */
+  text-align: center;
+}
    
 /* カラットセット + 最小～最大カットの配置 */
 #caratSetRow {
