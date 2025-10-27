@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGC ダイヤ検索　1.17</title>
+<title>SGC ダイヤ検索　1.18</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
@@ -239,6 +239,8 @@ document.getElementById("searchButton").addEventListener("click", async ()=>{
     const tbody=document.getElementById("resultBody");
     tbody.innerHTML="";
 
+    // 🔹 一旦すべての一致データを配列に格納
+    const filteredData = [];
     snapshot.forEach(doc=>{
       const d=doc.data();
       const c=d.carat;
@@ -255,58 +257,92 @@ document.getElementById("searchButton").addEventListener("click", async ()=>{
         const kws=keyword.split(" ");
         if(!kws.every(k=>fields.includes(k))) return;
       }
-
-      // 🔹 ここから下は既存処理
-      const row = document.createElement("tr");
-      const displayDate =
-        d.date instanceof firebase.firestore.Timestamp
-          ? d.date.toDate().toLocaleDateString("ja-JP")
-          : (typeof d.date === "string" ? d.date.split(" ")[0] : "");
-      row.innerHTML = `
-        <td>${displayDate || ""}</td>
-        <td>${d.color || ""}</td>
-        <td>${d.clarity || ""}</td>
-        <td>${d.cut || ""}</td>
-        <td>${d.fluorescence || ""}</td>
-        <td>${d.shape || ""}</td>
-        <td>${d.carat?.toFixed(3) || ""}</td>
-        <td>${d.pricePerCarat?.toLocaleString() || ""}</td>
-        <td>${(d.pricePerCarat * d.carat)?.toLocaleString() || ""}</td>
-        <td>${d.notes || ""}</td>
-        <td><span class="detailToggle">詳細</span></td>
-      `;
-      tbody.appendChild(row);
-
-      const detailRow = document.createElement("tr");
-      detailRow.classList.add("detailsRow");
-
-      let unevenRate = "";
-      let heightRatio = "";
-
-      if (d.diameterMin && d.diameterMax) {
-        const min = parseFloat(d.diameterMin);
-        const max = parseFloat(d.diameterMax);
-        const avg = (min + max) / 2;
-
-        unevenRate = ((max - min) / avg * 100).toFixed(2) + "%";
-        if (d.height) {
-          const h = parseFloat(d.height);
-          heightRatio = ((h / avg) * 100).toFixed(2) + "%";
-        }
-      }
-
-      detailRow.innerHTML = `
-        <td colspan="11">
-          直径（最小）: ${d.diameterMin || ""}mm ー（最大）: ${d.diameterMax || ""}mm ※ 高さ: ${d.height || ""}mm<br>
-          不正円率: ${unevenRate}　　全高比: ${heightRatio}
-        </td>
-      `;
-      tbody.appendChild(detailRow);
-
-      row.querySelector(".detailToggle").addEventListener("click", ()=>{
-        detailRow.style.display = detailRow.style.display==="table-row"?"none":"table-row";
-      });
+      filteredData.push(d);
     });
+
+    // ✅ ページネーション＋件数表示
+    const pageSize = 100;
+    let currentPage = 1;
+    const totalResults = filteredData.length;
+    const totalPages = Math.ceil(totalResults / pageSize);
+
+    const resultInfo = document.getElementById("resultInfo") || document.createElement("div");
+    resultInfo.id = "resultInfo";
+    resultInfo.style.marginTop = "10px";
+
+    function renderPage(page){
+      tbody.innerHTML = "";
+      const start = (page - 1) * pageSize;
+      const end = start + pageSize;
+      const pageData = filteredData.slice(start, end);
+
+      pageData.forEach(d=>{
+        const row = document.createElement("tr");
+        const displayDate =
+          d.date instanceof firebase.firestore.Timestamp
+            ? d.date.toDate().toLocaleDateString("ja-JP")
+            : (typeof d.date === "string" ? d.date.split(" ")[0] : "");
+        row.innerHTML = `
+          <td>${displayDate || ""}</td>
+          <td>${d.color || ""}</td>
+          <td>${d.clarity || ""}</td>
+          <td>${d.cut || ""}</td>
+          <td>${d.fluorescence || ""}</td>
+          <td>${d.shape || ""}</td>
+          <td>${d.carat?.toFixed(3) || ""}</td>
+          <td>${d.pricePerCarat?.toLocaleString() || ""}</td>
+          <td>${(d.pricePerCarat * d.carat)?.toLocaleString() || ""}</td>
+          <td>${d.notes || ""}</td>
+          <td><span class="detailToggle">詳細</span></td>
+        `;
+        tbody.appendChild(row);
+
+        const detailRow = document.createElement("tr");
+        detailRow.classList.add("detailsRow");
+
+        let unevenRate = "";
+        let heightRatio = "";
+
+        if (d.diameterMin && d.diameterMax) {
+          const min = parseFloat(d.diameterMin);
+          const max = parseFloat(d.diameterMax);
+          const avg = (min + max) / 2;
+          unevenRate = ((max - min) / avg * 100).toFixed(2) + "%";
+          if (d.height) {
+            const h = parseFloat(d.height);
+            heightRatio = ((h / avg) * 100).toFixed(2) + "%";
+          }
+        }
+
+        detailRow.innerHTML = `
+          <td colspan="11">
+            直径（最小）: ${d.diameterMin || ""}mm ー（最大）: ${d.diameterMax || ""}mm ※ 高さ: ${d.height || ""}mm<br>
+            不正円率: ${unevenRate}　　全高比: ${heightRatio}
+          </td>
+        `;
+        tbody.appendChild(detailRow);
+
+        row.querySelector(".detailToggle").addEventListener("click", ()=>{
+          detailRow.style.display = detailRow.style.display==="table-row"?"none":"table-row";
+        });
+      });
+
+      // ✅ 件数とページボタンを表示
+      resultInfo.innerHTML = `
+        <p>検索結果：${totalResults}件（${page}/${totalPages}ページ）</p>
+        <div style="margin-top:5px;">
+          <button id="prevPage" ${page<=1?"disabled":""}>＜ 前</button>
+          <button id="nextPage" ${page>=totalPages?"disabled":""}>次 ＞</button>
+        </div>
+      `;
+      tbody.parentElement.after(resultInfo);
+
+      document.getElementById("prevPage")?.addEventListener("click", ()=>renderPage(page-1));
+      document.getElementById("nextPage")?.addEventListener("click", ()=>renderPage(page+1));
+    }
+
+    renderPage(1); // 🔸最初のページ表示
+
   } finally {
     spinner.style.display = "none"; // 🔸検索完了後に非表示
   }
