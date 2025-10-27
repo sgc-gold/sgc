@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGC ダイヤ検索　1.28</title>
+<title>SGC ダイヤ検索　1.29</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
@@ -355,9 +355,9 @@ document.getElementById("searchButton").addEventListener("click", async ()=>{
         const selectedDate = new Date(parts[0], parts[1]-1, parts[2]); // 月は0始まり
         const docDate = d.date instanceof firebase.firestore.Timestamp
           ? d.date.toDate()
-          : (typeof d.date === "string" ? new Date(d.date) : null);
+          : (typeof d.date === "string" ? new Date(d.date.split(" ")[0]) : null);
       
-        if(!docDate || docDate < selectedDate) return; // 選択日より前なら除外
+        if(!docDate || docDate.setHours(0,0,0,0) < selectedDate.setHours(0,0,0,0)) return; // 選択日より前なら除外
       }
       if (colorVal && d.color != colorVal) return;
       if (clarityVal && d.clarity != clarityVal) return;
