@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGC ダイヤ検索　1.22</title>
+<title>SGC ダイヤ検索　1.23</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
@@ -25,25 +25,39 @@ button { cursor:pointer; transition:all 0.2s ease;}
 .flex-row { display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; margin-bottom:0.8rem;}
 .flex-row label { width:150px; font-weight:600; text-align:center;}
 .flex-row input[type="text"], .flex-row select { flex:1; /*min-width:120px;*/}
-#caratRange { display:flex; align-items:center; gap:0.5rem;}
-#caratRange input { width:80px; text-align:center;}
-#caratRange span { font-weight:600; }
+   
+/* カラットセット + 最小～最大カットの配置 */
 #caratSetRow {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 1rem; /* 🔸 セットボタンと最小ctの間隔を広げる */
   flex-wrap: wrap;
 }
 
+/* 最小～最大カラット入力のスタイル */
 #caratRange {
-  display: flex;
+  display: inline-flex; /* 🔸 flex方向はそのまま */
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem; /* 🔸 最小ctと最大ctの間隔 */
 }
 
 #caratRange input {
-  width: 80px;
+  width: 90px;
   text-align: center;
+  border-radius: 0;      /* 🔸 四角い枠に */
+  border: 1px solid #ccc;
+  padding: 0.45rem 0.6rem;
+  transition: all 0.2s ease;
+}
+
+#caratRange input:focus {
+  border-color: #bfa14a;
+  box-shadow: 0 0 0 2px rgba(191,161,74,0.15);
+  outline: none;
+}
+
+#caratRange span {
+  font-weight: 600;
 }
 
 /* =======================
