@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGC ダイヤ検索　1.18</title>
+<title>SGC ダイヤ検索　1.19</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
@@ -70,6 +70,42 @@ button { cursor:pointer; transition:all 0.2s ease;}
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+   
+/* =======================
+   ページネーション
+======================= */
+.stylish-count {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 10px 0;
+  padding: 6px 12px;
+  background: linear-gradient(90deg, #f5f7fa, #c3cfe2);
+  border-radius: 8px;
+  display: inline-block;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stylish-pagination {
+  margin: 15px 0;
+  text-align: center;
+}
+
+.stylish-pagination button {
+  background: #0078d7;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  margin: 0 5px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.stylish-pagination button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
    
 @media(max-width:480px){
@@ -218,70 +254,86 @@ async function populateFilters(){
 populateFilters();
 
 // ---------------------
-// 検索処理
+// 検索処理（件数表示＋ページネーション付き）
 // ---------------------
 document.getElementById("searchButton").addEventListener("click", async ()=>{
   const spinner = document.getElementById("loadingSpinner");
   spinner.style.display = "flex"; // 🔸スピナー表示
-  
+
   try {
-    const minC=parseFloat(document.getElementById("minCarat").value)||0;
-    const maxC=parseFloat(document.getElementById("maxCarat").value)||999;
-    const dateVal=document.getElementById("dateSelect").value;
-    const colorVal=document.getElementById("colorSelect").value;
-    const clarityVal=document.getElementById("claritySelect").value;
-    const cutVal=document.getElementById("cutSelect").value;
-    const fluVal=document.getElementById("fluorescenceSelect").value;
-    const shapeVal=document.getElementById("shapeSelect").value;
-    const keyword=document.getElementById("keyword").value.trim().toLowerCase();
+    // 入力値取得
+    const minC = parseFloat(document.getElementById("minCarat").value) || 0;
+    const maxC = parseFloat(document.getElementById("maxCarat").value) || 999;
+    const dateVal = document.getElementById("dateSelect").value;
+    const colorVal = document.getElementById("colorSelect").value;
+    const clarityVal = document.getElementById("claritySelect").value;
+    const cutVal = document.getElementById("cutSelect").value;
+    const fluVal = document.getElementById("fluorescenceSelect").value;
+    const shapeVal = document.getElementById("shapeSelect").value;
+    const keyword = document.getElementById("keyword").value.trim().toLowerCase();
 
+    // Firestoreから取得
     const snapshot = await db.collection("diamonds").get();
-    const tbody=document.getElementById("resultBody");
-    tbody.innerHTML="";
+    const tbody = document.getElementById("resultBody");
+    tbody.innerHTML = "";
 
-    // 🔹 一旦すべての一致データを配列に格納
-    const filteredData = [];
+    // 件数表示エリア準備（上・下ともに）
+    let countTop = document.getElementById("resultCountTop");
+    let countBottom = document.getElementById("resultCountBottom");
+    if (!countTop) {
+      countTop = document.createElement("div");
+      countTop.id = "resultCountTop";
+      countTop.className = "result-count stylish-count";
+      tbody.parentElement.insertAdjacentElement("beforebegin", countTop);
+    }
+    if (!countBottom) {
+      countBottom = document.createElement("div");
+      countBottom.id = "resultCountBottom";
+      countBottom.className = "result-count stylish-count";
+      tbody.parentElement.insertAdjacentElement("afterend", countBottom);
+    }
+
+    // 結果格納
+    const results = [];
     snapshot.forEach(doc=>{
-      const d=doc.data();
-      const c=d.carat;
-      if(c<minC || c>maxC) return;
-      if(dateVal && d.date?.toDate().toLocaleDateString("ja-JP")!=dateVal) return;
-      if(colorVal && d.color!=colorVal) return;
-      if(clarityVal && d.clarity!=clarityVal) return;
-      if(cutVal && d.cut!=cutVal) return;
-      if(fluVal && d.fluorescence!=fluVal) return;
-      if(shapeVal && d.shape!=shapeVal) return;
+      const d = doc.data();
+      const c = d.carat;
+      if (c < minC || c > maxC) return;
+      if (dateVal && d.date?.toDate().toLocaleDateString("ja-JP") != dateVal) return;
+      if (colorVal && d.color != colorVal) return;
+      if (clarityVal && d.clarity != clarityVal) return;
+      if (cutVal && d.cut != cutVal) return;
+      if (fluVal && d.fluorescence != fluVal) return;
+      if (shapeVal && d.shape != shapeVal) return;
 
-      if(keyword){
-        const fields=[d.color,d.clarity,d.cut,d.shape,d.notes].join(" ").toLowerCase();
-        const kws=keyword.split(" ");
-        if(!kws.every(k=>fields.includes(k))) return;
+      if (keyword) {
+        const fields = [d.color, d.clarity, d.cut, d.shape, d.notes].join(" ").toLowerCase();
+        const kws = keyword.split(" ");
+        if (!kws.every(k => fields.includes(k))) return;
       }
-      filteredData.push(d);
+
+      results.push(d);
     });
 
-    // ✅ ページネーション＋件数表示
-    const pageSize = 100;
+    // ページネーション設定
+    const perPage = 100;
     let currentPage = 1;
-    const totalResults = filteredData.length;
-    const totalPages = Math.ceil(totalResults / pageSize);
+    const totalPages = Math.ceil(results.length / perPage);
 
-    const resultInfo = document.getElementById("resultInfo") || document.createElement("div");
-    resultInfo.id = "resultInfo";
-    resultInfo.style.marginTop = "10px";
-
-    function renderPage(page){
+    // 🔹ページ描画関数
+    function renderPage(page) {
       tbody.innerHTML = "";
-      const start = (page - 1) * pageSize;
-      const end = start + pageSize;
-      const pageData = filteredData.slice(start, end);
+      const start = (page - 1) * perPage;
+      const end = start + perPage;
+      const pageResults = results.slice(start, end);
 
-      pageData.forEach(d=>{
+      pageResults.forEach(d=>{
         const row = document.createElement("tr");
         const displayDate =
           d.date instanceof firebase.firestore.Timestamp
             ? d.date.toDate().toLocaleDateString("ja-JP")
             : (typeof d.date === "string" ? d.date.split(" ")[0] : "");
+
         row.innerHTML = `
           <td>${displayDate || ""}</td>
           <td>${d.color || ""}</td>
@@ -297,6 +349,7 @@ document.getElementById("searchButton").addEventListener("click", async ()=>{
         `;
         tbody.appendChild(row);
 
+        // 詳細行
         const detailRow = document.createElement("tr");
         detailRow.classList.add("detailsRow");
 
@@ -307,7 +360,7 @@ document.getElementById("searchButton").addEventListener("click", async ()=>{
           const min = parseFloat(d.diameterMin);
           const max = parseFloat(d.diameterMax);
           const avg = (min + max) / 2;
-          unevenRate = ((max - min) / avg * 100).toFixed(2) + "%";
+          unevenRate = (((max - min) / avg) * 100).toFixed(2) + "%";
           if (d.height) {
             const h = parseFloat(d.height);
             heightRatio = ((h / avg) * 100).toFixed(2) + "%";
@@ -322,26 +375,50 @@ document.getElementById("searchButton").addEventListener("click", async ()=>{
         `;
         tbody.appendChild(detailRow);
 
+        // 詳細トグル
         row.querySelector(".detailToggle").addEventListener("click", ()=>{
-          detailRow.style.display = detailRow.style.display==="table-row"?"none":"table-row";
+          detailRow.style.display = detailRow.style.display === "table-row" ? "none" : "table-row";
         });
       });
 
-      // ✅ 件数とページボタンを表示
-      resultInfo.innerHTML = `
-        <p>検索結果：${totalResults}件（${page}/${totalPages}ページ）</p>
-        <div style="margin-top:5px;">
-          <button id="prevPage" ${page<=1?"disabled":""}>＜ 前</button>
-          <button id="nextPage" ${page>=totalPages?"disabled":""}>次 ＞</button>
-        </div>
-      `;
-      tbody.parentElement.after(resultInfo);
+      // 件数とページ表示
+      const msg = results.length
+        ? `🔹検索結果：<strong>${results.length.toLocaleString()}</strong> 件（${page}/${totalPages}ページ）`
+        : `⚠ 該当するデータはありません。`;
 
-      document.getElementById("prevPage")?.addEventListener("click", ()=>renderPage(page-1));
-      document.getElementById("nextPage")?.addEventListener("click", ()=>renderPage(page+1));
+      countTop.innerHTML = msg;
+      countBottom.innerHTML = msg;
     }
 
-    renderPage(1); // 🔸最初のページ表示
+    // ページ送りボタン設置
+    const pagination = document.getElementById("paginationArea") || document.createElement("div");
+    pagination.id = "paginationArea";
+    pagination.className = "pagination stylish-pagination";
+    countBottom.insertAdjacentElement("afterend", pagination);
+
+    function updatePagination() {
+      pagination.innerHTML = "";
+      if (totalPages <= 1) return;
+
+      const prev = document.createElement("button");
+      prev.textContent = "← 前へ";
+      prev.disabled = currentPage === 1;
+      prev.onclick = ()=>{ currentPage--; renderPage(currentPage); updatePagination(); };
+
+      const next = document.createElement("button");
+      next.textContent = "次へ →";
+      next.disabled = currentPage === totalPages;
+      next.onclick = ()=>{ currentPage++; renderPage(currentPage); updatePagination(); };
+
+      const info = document.createElement("span");
+      info.innerHTML = `ページ ${currentPage} / ${totalPages}`;
+
+      pagination.append(prev, info, next);
+    }
+
+    // 初期ページ描画
+    renderPage(1);
+    updatePagination();
 
   } finally {
     spinner.style.display = "none"; // 🔸検索完了後に非表示
