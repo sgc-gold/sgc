@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGC ダイヤ検索　1.32</title>
+<title>SGC ダイヤ検索　1.33</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
@@ -351,24 +351,17 @@ document.getElementById("searchButton").addEventListener("click", async ()=>{
       const c = d.carat;
       if (c < minC || c > maxC) return;
       if(dateVal){
-        // 選択日を YYYYMMDD 数値に変換
-        const parts = dateVal.split("/"); // "yyyy/mm/dd"
-        const selectedNum = Number(parts[0] + ("0"+parts[1]).slice(-2) + ("0"+parts[2]).slice(-2));
-      
-        // ドキュメント日付
+        const selectedNum = Number(dateVal.split("/").map(v=>v.padStart(2,"0")).join("")); // 選択日を 20251027 に変換
         let docStr = "";
+      
         if(d.date instanceof firebase.firestore.Timestamp){
           const dt = d.date.toDate();
           docStr = dt.getFullYear() + "/" + (dt.getMonth()+1) + "/" + dt.getDate();
         } else if(typeof d.date === "string"){
-          docStr = d.date.split(" ")[0]; // 空白以降（時刻）を除く
+          docStr = d.date.split(" ")[0]; // 時刻を除去
         }
       
-        // 文字列を YYYYMMDD 数値に変換
-        const docParts = docStr.split(/[-\/]/); // "-" でも "/" でも対応
-        if(docParts.length < 3) return; // 無効な日付は除外
-        const docNum = Number(docParts[0] + ("0"+docParts[1]).slice(-2) + ("0"+docParts[2]).slice(-2));
-      
+        const docNum = Number(docStr.split(/[-\/]/).map(v=>v.padStart(2,"0")).join(""));
         if(docNum < selectedNum) return; // 選択日より前は除外
       }
       if (colorVal && d.color != colorVal) return;
