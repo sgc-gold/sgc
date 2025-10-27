@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGC ダイヤ検索　1.29</title>
+<title>SGC ダイヤ検索　1.30</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
@@ -351,13 +351,22 @@ document.getElementById("searchButton").addEventListener("click", async ()=>{
       const c = d.carat;
       if (c < minC || c > maxC) return;
       if(dateVal){
-        const parts = dateVal.split("/"); // "yyyy/mm/dd" を分割
-        const selectedDate = new Date(parts[0], parts[1]-1, parts[2]); // 月は0始まり
-        const docDate = d.date instanceof firebase.firestore.Timestamp
-          ? d.date.toDate()
-          : (typeof d.date === "string" ? new Date(d.date.split(" ")[0]) : null);
+        const parts = dateVal.split("/"); // "yyyy/mm/dd"
+        const selectedDate = new Date(parts[0], parts[1]-1, parts[2]);
+        
+        let docDate;
+        if(d.date instanceof firebase.firestore.Timestamp){
+          docDate = d.date.toDate();
+        } else if(typeof d.date === "string"){
+          const ds = d.date.split(" ")[0].replace(/-/g,"/"); // yyyy-mm-dd -> yyyy/mm/dd
+          docDate = new Date(ds);
+        }
       
-        if(!docDate || docDate.setHours(0,0,0,0) < selectedDate.setHours(0,0,0,0)) return; // 選択日より前なら除外
+        // 日付だけで比較（時間は無視）
+        if(!docDate) return;
+        const docYMD = new Date(docDate.getFullYear(), docDate.getMonth(), docDate.getDate());
+        const selYMD = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+        if(docYMD < selYMD) return;
       }
       if (colorVal && d.color != colorVal) return;
       if (clarityVal && d.clarity != clarityVal) return;
