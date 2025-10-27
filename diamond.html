@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGC ダイヤ検索　1.16</title>
+<title>SGC ダイヤ検索　1.17</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
@@ -55,6 +55,23 @@ button { cursor:pointer; transition:all 0.2s ease;}
 .detailsRow { display:none; background:#fafafa; }
 .detailsRow td { text-align:left; font-size:0.9rem; }
 .detailToggle { color:#00796B; cursor:pointer; font-weight:600; }
+
+/* =======================
+   ローディングスピナー
+======================= */
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 4px solid #ccc;
+  border-top: 4px solid #bfa14a;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+   
 @media(max-width:480px){
   .flex-row { flex-direction:column; align-items:flex-start;}
   .flex-row label { width:100%; text-align:center; margin-bottom:0.2rem;}
@@ -118,6 +135,10 @@ button { cursor:pointer; transition:all 0.2s ease;}
     <button id="searchButton">検索</button>
     <button id="clearButton">クリア</button>
   </div>
+
+ <div id="loadingSpinner" style="display:none; justify-content:center; margin-top:1rem;">
+   <div class="spinner"></div>
+ </div>
 
   <!-- 結果テーブル -->
   <table id="resultTable">
@@ -200,96 +221,95 @@ populateFilters();
 // 検索処理
 // ---------------------
 document.getElementById("searchButton").addEventListener("click", async ()=>{
-  const minC=parseFloat(document.getElementById("minCarat").value)||0;
-  const maxC=parseFloat(document.getElementById("maxCarat").value)||999;
-  const dateVal=document.getElementById("dateSelect").value;
-  const colorVal=document.getElementById("colorSelect").value;
-  const clarityVal=document.getElementById("claritySelect").value;
-  const cutVal=document.getElementById("cutSelect").value;
-  const fluVal=document.getElementById("fluorescenceSelect").value;
-  const shapeVal=document.getElementById("shapeSelect").value;
-  const keyword=document.getElementById("keyword").value.trim().toLowerCase();
+  const spinner = document.getElementById("loadingSpinner");
+  spinner.style.display = "flex"; // 🔸スピナー表示
+  
+  try {
+    const minC=parseFloat(document.getElementById("minCarat").value)||0;
+    const maxC=parseFloat(document.getElementById("maxCarat").value)||999;
+    const dateVal=document.getElementById("dateSelect").value;
+    const colorVal=document.getElementById("colorSelect").value;
+    const clarityVal=document.getElementById("claritySelect").value;
+    const cutVal=document.getElementById("cutSelect").value;
+    const fluVal=document.getElementById("fluorescenceSelect").value;
+    const shapeVal=document.getElementById("shapeSelect").value;
+    const keyword=document.getElementById("keyword").value.trim().toLowerCase();
 
-  const snapshot = await db.collection("diamonds").get();
-  const tbody=document.getElementById("resultBody");
-  tbody.innerHTML="";
+    const snapshot = await db.collection("diamonds").get();
+    const tbody=document.getElementById("resultBody");
+    tbody.innerHTML="";
 
-  snapshot.forEach(doc=>{
-    const d=doc.data();
-    const c=d.carat;
-    if(c<minC || c>maxC) return;
-    if(dateVal && d.date?.toDate().toLocaleDateString("ja-JP")!=dateVal) return;
-    if(colorVal && d.color!=colorVal) return;
-    if(clarityVal && d.clarity!=clarityVal) return;
-    if(cutVal && d.cut!=cutVal) return;
-    if(fluVal && d.fluorescence!=fluVal) return;
-    if(shapeVal && d.shape!=shapeVal) return;
-    // キーワード検索
-    if(keyword){
-      const fields=[d.color,d.clarity,d.cut,d.shape,d.notes].join(" ").toLowerCase();
-      const kws=keyword.split(" ");
-      if(!kws.every(k=>fields.includes(k))) return;
-    }
+    snapshot.forEach(doc=>{
+      const d=doc.data();
+      const c=d.carat;
+      if(c<minC || c>maxC) return;
+      if(dateVal && d.date?.toDate().toLocaleDateString("ja-JP")!=dateVal) return;
+      if(colorVal && d.color!=colorVal) return;
+      if(clarityVal && d.clarity!=clarityVal) return;
+      if(cutVal && d.cut!=cutVal) return;
+      if(fluVal && d.fluorescence!=fluVal) return;
+      if(shapeVal && d.shape!=shapeVal) return;
 
-    const row = document.createElement("tr");
-   
-    // 🔹 Firestore Timestamp or string対応の日付処理
-    const displayDate =
-      d.date instanceof firebase.firestore.Timestamp
-        ? d.date.toDate().toLocaleDateString("ja-JP")
-        : (typeof d.date === "string" ? d.date.split(" ")[0] : "");
-   
-    row.innerHTML = `
-      <td>${displayDate || ""}</td>
-      <td>${d.color || ""}</td>
-      <td>${d.clarity || ""}</td>
-      <td>${d.cut || ""}</td>
-      <td>${d.fluorescence || ""}</td>
-      <td>${d.shape || ""}</td>
-      <td>${d.carat?.toFixed(3) || ""}</td>
-      <td>${d.pricePerCarat?.toLocaleString() || ""}</td>
-      <td>${(d.pricePerCarat * d.carat)?.toLocaleString() || ""}</td>
-      <td>${d.notes || ""}</td>
-      <td><span class="detailToggle">詳細</span></td>
-    `;
-    tbody.appendChild(row);
-
-    // 詳細行
-    // 詳細行
-    const detailRow = document.createElement("tr");
-    detailRow.classList.add("detailsRow");
-   
-    // 🔸 不正円率・全高比を計算
-    let unevenRate = "";
-    let heightRatio = "";
-   
-    if (d.diameterMin && d.diameterMax) {
-      const min = parseFloat(d.diameterMin);
-      const max = parseFloat(d.diameterMax);
-      const avg = (min + max) / 2;
-   
-      // 不正円率 = (最大 - 最小) / 平均 × 100
-      unevenRate = ((max - min) / avg * 100).toFixed(2) + "%";
-   
-      // 全高比 = 高さ / 平均 × 100
-      if (d.height) {
-        const h = parseFloat(d.height);
-        heightRatio = ((h / avg) * 100).toFixed(2) + "%";
+      if(keyword){
+        const fields=[d.color,d.clarity,d.cut,d.shape,d.notes].join(" ").toLowerCase();
+        const kws=keyword.split(" ");
+        if(!kws.every(k=>fields.includes(k))) return;
       }
-    }
-   
-    detailRow.innerHTML = `
-      <td colspan="11">
-        直径（最小）: ${d.diameterMin || ""}mm ー（最大）: ${d.diameterMax || ""}mm ※ 高さ: ${d.height || ""}mm<br>
-        不正円率: ${unevenRate}　　全高比: ${heightRatio}
-      </td>
-   ` ;
-    tbody.appendChild(detailRow);  
 
-    row.querySelector(".detailToggle").addEventListener("click", ()=>{
-      detailRow.style.display = detailRow.style.display==="table-row"?"none":"table-row";
+      // 🔹 ここから下は既存処理
+      const row = document.createElement("tr");
+      const displayDate =
+        d.date instanceof firebase.firestore.Timestamp
+          ? d.date.toDate().toLocaleDateString("ja-JP")
+          : (typeof d.date === "string" ? d.date.split(" ")[0] : "");
+      row.innerHTML = `
+        <td>${displayDate || ""}</td>
+        <td>${d.color || ""}</td>
+        <td>${d.clarity || ""}</td>
+        <td>${d.cut || ""}</td>
+        <td>${d.fluorescence || ""}</td>
+        <td>${d.shape || ""}</td>
+        <td>${d.carat?.toFixed(3) || ""}</td>
+        <td>${d.pricePerCarat?.toLocaleString() || ""}</td>
+        <td>${(d.pricePerCarat * d.carat)?.toLocaleString() || ""}</td>
+        <td>${d.notes || ""}</td>
+        <td><span class="detailToggle">詳細</span></td>
+      `;
+      tbody.appendChild(row);
+
+      const detailRow = document.createElement("tr");
+      detailRow.classList.add("detailsRow");
+
+      let unevenRate = "";
+      let heightRatio = "";
+
+      if (d.diameterMin && d.diameterMax) {
+        const min = parseFloat(d.diameterMin);
+        const max = parseFloat(d.diameterMax);
+        const avg = (min + max) / 2;
+
+        unevenRate = ((max - min) / avg * 100).toFixed(2) + "%";
+        if (d.height) {
+          const h = parseFloat(d.height);
+          heightRatio = ((h / avg) * 100).toFixed(2) + "%";
+        }
+      }
+
+      detailRow.innerHTML = `
+        <td colspan="11">
+          直径（最小）: ${d.diameterMin || ""}mm ー（最大）: ${d.diameterMax || ""}mm ※ 高さ: ${d.height || ""}mm<br>
+          不正円率: ${unevenRate}　　全高比: ${heightRatio}
+        </td>
+      `;
+      tbody.appendChild(detailRow);
+
+      row.querySelector(".detailToggle").addEventListener("click", ()=>{
+        detailRow.style.display = detailRow.style.display==="table-row"?"none":"table-row";
+      });
     });
-  });
+  } finally {
+    spinner.style.display = "none"; // 🔸検索完了後に非表示
+  }
 });
 
 // ---------------------
