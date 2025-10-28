@@ -344,6 +344,59 @@ document.getElementById("searchButton").addEventListener("click", ()=> {
       return true;
     });
 
+
+    function getCutScore(cutStr) {
+      const rankMap = { "3EX": 100, "EX": 90, "VG": 70, "GD": 50, "FR": 30, "FA": 30, "PR": 10, "PO": 10 };
+      let score = 0;
+   
+      // 特殊記号（H&C, HEART, H&A刻印）
+      if (cutStr.includes("H&C") || cutStr.includes("HC")) score += 5;
+      if (cutStr.includes("HEART") || cutStr.includes("H&A")) score += 3;
+      if (cutStr.includes("刻印")) score += 2;
+   
+      // スラッシュ分割（総合/ポリッシュ/シンメトリー）
+      const parts = cutStr.split("/");
+      const main = parts[0].replace(/[^A-Z]/g, "");
+      score += rankMap[main] || 0;
+   
+      if (parts.length === 3) {
+        score += rankMap[parts[2]] ? rankMap[parts[2]] * 0.1 : 0;
+        score += rankMap[parts[1]] ? rankMap[parts[1]] * 0.05 : 0;
+      } else if (parts.length === 2) {
+        score += rankMap[parts[1]] ? rankMap[parts[1]] * 0.05 : 0;
+      }
+   
+      return score;
+    }
+     
+    // --------------------------
+    // 🔹 並び順マッピング & ソート
+    // --------------------------
+    const COLOR_ORDER = ["D","E","F","G","H","I","J","K"];
+    const CLARITY_ORDER = ["FL","IF","VVS1","VVS2","VS1","VS2","SI1","SI2","I1","I2","I3"];
+    const FLUO_ORDER = ["NONE","F","M","S","VS"];
+
+    results.sort((a,b)=>{
+      // 日付（降順）
+      const dateDiff = new Date(b.date) - new Date(a.date);
+      if(dateDiff !== 0) return dateDiff;
+
+      // カラー
+      const colorDiff = COLOR_ORDER.indexOf(a.color) - COLOR_ORDER.indexOf(b.color);
+      if(colorDiff !== 0) return colorDiff;
+
+      // クラリティ
+      const clarityDiff = CLARITY_ORDER.indexOf(a.clarity) - CLARITY_ORDER.indexOf(b.clarity);
+      if(clarityDiff !== 0) return clarityDiff;
+
+      // カット（スコアベース）
+      const cutScoreDiff = getCutScore(b.cut) - getCutScore(a.cut);
+      if (cutScoreDiff !== 0) return cutScoreDiff;
+
+      // 蛍光性
+      return FLUO_ORDER.indexOf(a.fluorescence) - FLUO_ORDER.indexOf(b.fluorescence);
+    });
+
     // ページネーション
     const perPage = 100;
     let currentPage = 1;
