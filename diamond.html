@@ -281,6 +281,7 @@ async function populateFilters(){
   Array.from(dates)
     .sort((a, b) => new Date(b) - new Date(a)) // 🔸新しい順にソート
     .forEach(d => addOption(document.getElementById("dateSelect"), d));
+    document.getElementById("dateSelect").selectedIndex = 1;
   Array.from(colors).sort().forEach(c=>addOption(document.getElementById("colorSelect"),c));
   Array.from(clarities).sort().forEach(c=>addOption(document.getElementById("claritySelect"),c));
   Array.from(cuts).sort().forEach(c=>addOption(document.getElementById("cutSelect"),c));
