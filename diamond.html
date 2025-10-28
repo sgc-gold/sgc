@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索</title>
+<title>ダイヤ相場検索 1.00</title>
 <style>
 /* =======================
    基本スタイル
@@ -344,7 +344,68 @@ document.getElementById("searchButton").addEventListener("click", ()=> {
       return true;
     });
 
-
+      function getColorScore(color) {
+        const baseMap = {
+          "D": 100, "E": 95, "F": 90, "G": 85, "H": 80,
+          "I": 75, "J": 70, "K": 65, "L": 60, "M": 55,
+          "N": 50, "O": 45, "P": 40, "Q": 35, "R": 30,
+          "S": 25, "T": 20, "U": 15, "V": 10, "W": 5,
+          "X": 3, "Y": 2, "Z": 1
+        };
+      
+        const fancyColorMap = {
+          "RED": 30, "BLUE": 25, "PINK": 20, "GREEN": 18,
+          "ORANGE": 15, "PURPLE": 12, "VIOLET": 10, "YELLOW": 8,
+          "BROWN": 5, "GRAY": 3, "BLACK": 2, "WHITE": 1
+        };
+      
+        const fancyGradeMap = {
+          "FANCY VIVID": 20, "FANCY INTENSE": 18, "FANCY DEEP": 16,
+          "FANCY DARK": 14, "FANCY": 12, "FANCY LIGHT": 10,
+          "LIGHT": 8, "VERY LIGHT": 6, "FAINT": 4
+        };
+      
+        const ishMap = {
+          "PINKISH": 1, "PURPLISH": 1, "BLUISH": 0, "GREENISH": 0,
+          "BROWNISH": -2, "GRAYISH": -3, "YELLOWISH": -1,
+          "ORANGY": -1, "VIOLETISH": 0, "BLACKISH": -3
+        };
+      
+        let score = 0;
+        const upperColor = color.toUpperCase();
+      
+        // 通常カラー（D〜Z）
+        if (baseMap[upperColor]) {
+          score = baseMap[upperColor];
+        } else {
+          // ファンシーカラー
+          for (const grade in fancyGradeMap) {
+            if (upperColor.includes(grade)) {
+              score += fancyGradeMap[grade];
+              break;
+            }
+          }
+          for (const tone in fancyColorMap) {
+            if (upperColor.includes(tone)) {
+              score += fancyColorMap[tone];
+              break;
+            }
+          }
+          for (const ish in ishMap) {
+            if (upperColor.includes(ish)) {
+              score += ishMap[ish];
+            }
+          }
+        }
+      
+        // TREATEDなら微減点（同色内で最下位にする）
+        if (upperColor.includes("TREATED")) {
+          score -= 0.1;
+        }
+      
+        return score;
+      }
+     
     function getCutScore(cutStr) {
       const rankMap = { "3EX": 100, "EX": 90, "VG": 70, "GD": 50, "FR": 30, "FA": 30, "PR": 10, "PO": 10 };
       let score = 0;
@@ -381,9 +442,9 @@ document.getElementById("searchButton").addEventListener("click", ()=> {
       const dateDiff = new Date(b.date) - new Date(a.date);
       if(dateDiff !== 0) return dateDiff;
 
-      // カラー
-      const colorDiff = COLOR_ORDER.indexOf(a.color) - COLOR_ORDER.indexOf(b.color);
-      if(colorDiff !== 0) return colorDiff;
+      // カラー（スコア順）
+      const colorScoreDiff = getColorScore(b.color) - getColorScore(a.color);
+      if (colorScoreDiff !== 0) return colorScoreDiff;
 
       // クラリティ
       const clarityDiff = CLARITY_ORDER.indexOf(a.clarity) - CLARITY_ORDER.indexOf(b.clarity);
