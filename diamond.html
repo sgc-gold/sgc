@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.11</title>
+<title>ダイヤ相場検索 1.12</title>
 <style>
 /* =======================
    基本スタイル
@@ -192,6 +192,25 @@ button { cursor:pointer; transition:all 0.2s ease;}
     <label for="colorSelect">カラー</label>
     <select id="colorSelect"><option value="">すべて</option></select>
   </div>
+
+   <!-- アルファベットカラー範囲 -->
+   <div class="flex-row">
+     <label>アルファベットカラー</label>
+     <select id="fromColor"><option value="">From</option></select>
+     <span>〜</span>
+     <select id="toColor"><option value="">To</option></select>
+   </div>
+   
+   <!-- FANCY系カラー -->
+   <div class="flex-row">
+     <label>FANCYグレード</label>
+     <select id="fancyGradeSelect"><option value="">すべて</option></select>
+   </div>
+   <div class="flex-row">
+     <label>FANCY色味</label>
+     <select id="fancyToneSelect"><option value="">すべて</option></select>
+   </div>
+   
   <div class="flex-row">
     <label for="claritySelect">クラリティ</label>
     <select id="claritySelect"><option value="">すべて</option></select>
@@ -344,6 +363,28 @@ document.getElementById("searchButton").addEventListener("click", ()=> {
       return true;
     });
 
+
+const alphabetColors = ["D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
+const fancyGrades = ["FANCY VIVID", "FANCY INTENSE", "FANCY DEEP", "FANCY DARK", "FANCY", "FANCY LIGHT", "LIGHT", "VERY LIGHT", "FAINT"];
+const fancyTones = ["RED", "BLUE", "PINK", "GREEN", "ORANGE", "PURPLE", "VIOLET", "YELLOW", "BROWN", "GRAY", "BLACK", "WHITE"];
+
+function populateSelect(id, options) {
+  const select = document.getElementById(id);
+  options.forEach(opt => {
+    const option = document.createElement("option");
+    option.value = opt;
+    option.textContent = opt;
+    select.appendChild(option);
+  });
+}
+
+populateSelect("fromColor", alphabetColors);
+populateSelect("toColor", alphabetColors);
+populateSelect("fancyGradeSelect", fancyGrades);
+populateSelect("fancyToneSelect", fancyTones);
+
+
+     
 function getColorScore(color) {
   const baseMap = {
     "D": 100, "E": 95, "F": 90, "G": 85, "H": 80,
