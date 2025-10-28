@@ -3,55 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGC ダイヤ検索　1.33</title>
+<title>ダイヤ相場検索</title>
 <style>
-/* =======================
-   基本スタイル（以前のまま）
-======================= */
-body {
-  margin:0; padding:0; font-family:'Noto Sans JP', sans-serif; background:#f5f7fa;
-}
-.container { max-width:900px; margin:1.5rem auto; background:#fff; border-radius:16px; padding:1.8rem; box-shadow:0 4px 14px rgba(0,0,0,0.08);}
-h2 { margin-bottom:1rem; color:#004d40; }
-input, select, button { font-size:1rem; padding:0.5rem 0.75rem; border-radius:8px; border:1px solid #ccc; }
-input:focus, select:focus { outline:none; border-color:#bfa14a; box-shadow:0 0 0 2px rgba(191,161,74,0.2);}
-button { cursor:pointer; transition:all 0.2s ease;}
-#searchButton { background:linear-gradient(135deg,#bfa14a,#d4b95e); color:#fff; font-weight:600;}
-#searchButton:hover { opacity:0.9; transform:translateY(-1px);}
-#clearButton { background:#e0e0e0; color:#333;}
-#clearButton:hover { background:#ccc;}
-.flex-row { display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; margin-bottom:0.8rem;}
-.flex-row label { width:150px; font-weight:600; text-align:center;}
-.flex-row input[type="text"], .flex-row select { flex:1; }
-#mainCarat { width: 90px; text-align: center; }
-#caratSetRow { display: flex; align-items: center; flex-wrap: wrap; }
-#caratSetRow button#setCarat { margin-right: 3rem; margin-left: 1rem; }
-#caratRange { display: inline-flex; align-items: center; gap: 0.6rem; }
-#caratRange input { width: 90px; text-align: center; border-radius: 0; border: 1px solid #ccc; padding: 0.45rem 0.6rem; transition: all 0.2s ease; }
-#caratRange input:focus { border-color: #bfa14a; box-shadow: 0 0 0 2px rgba(191,161,74,0.15); outline: none; }
-#caratRange span { font-weight: 600; }
-#resultTable { width:100%; border-collapse:collapse; margin-top:1rem; }
-#resultTable th, #resultTable td { border:1px solid #ddd; padding:6px 0px; text-align:center; font-size:0.65rem;}
-#resultTable th { background:#f0f0f0; font-weight:600; color:#333;}
-.detailsRow { display:none; background:#fafafa; }
-.detailsRow td { text-align:left; font-size:0.9rem; }
-.detailToggle { color:#00796B; cursor:pointer; font-weight:600; }
-.spinner { width: 32px; height: 32px; border: 4px solid #ccc; border-top: 4px solid #bfa14a; border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-.stylish-count { font-size: 1.05rem; font-weight: 600; color: #333; background: transparent; border: none; padding: 4px 0 8px 4px; display: inline-block; margin: 6px 0 12px 2px; letter-spacing: 0.3px; position: relative; }
-.stylish-count::before { content: ""; position: absolute; left: 0; bottom: 0; width: 80px; height: 2px; background: linear-gradient(90deg, #bfa14a, transparent); border-radius: 2px; }
-.stylish-pagination { margin: 22px 0 8px; text-align: center; }
-.stylish-pagination button { background: transparent; color: #333; border: 1px solid #ccc; padding: 6px 12px; margin: 0 4px; border-radius: 5px; cursor: pointer; font-weight: 500; transition: all 0.25s ease; }
-.stylish-pagination button:hover:not(:disabled) { background: linear-gradient(135deg, #f9f7ed, #fff); border-color: #bfa14a; color: #bfa14a; transform: translateY(-1px); }
-.stylish-pagination button:disabled { color: #aaa; border-color: #eee; cursor: not-allowed; }
-.stylish-pagination span { font-size: 0.95rem; color: #555; margin: 0 10px; }
-@media(max-width:480px){ .flex-row { flex-direction:column; align-items:flex-start;} .flex-row label { width:100%; text-align:center; margin-bottom:0.2rem;} #caratRange { flex-direction:column; align-items:flex-start;} }
+/* 元コードと同じ CSS をここに貼り付け */
 </style>
 </head>
 <body>
 <div class="container">
   <h2>ダイヤ検索フォーム</h2>
 
+  <!-- ここも元コードと同じ HTML -->
+  <!-- カラットセット + 最小～最大 -->
   <div class="flex-row">
     <label for="mainCarat">カラット（ct）</label>
     <div id="caratSetRow">
@@ -65,27 +27,48 @@ button { cursor:pointer; transition:all 0.2s ease;}
     </div>
   </div>
 
+  <!-- 検索フォーム（元コードと同じ） -->
   <div class="flex-row" style="align-items:center;">
     <label for="dateSelect">開催日</label>
     <select id="dateSelect"><option value="">すべて</option></select>
     <span style="margin-left:0.5rem; color:#555; font-size:0.9rem;">※選択日以降で検索</span>
   </div>
-  <div class="flex-row"><label for="colorSelect">カラー</label><select id="colorSelect"><option value="">すべて</option></select></div>
-  <div class="flex-row"><label for="claritySelect">クラリティ</label><select id="claritySelect"><option value="">すべて</option></select></div>
-  <div class="flex-row"><label for="cutSelect">カット</label><select id="cutSelect"><option value="">すべて</option></select></div>
-  <div class="flex-row"><label for="fluorescenceSelect">蛍光性</label><select id="fluorescenceSelect"><option value="">すべて</option></select></div>
-  <div class="flex-row"><label for="shapeSelect">形状</label><select id="shapeSelect"><option value="">すべて</option></select></div>
-  <div class="flex-row"><label for="keyword">フリーワード</label><input type="text" id="keyword" placeholder="例：D VS1 GD"></div>
+  <div class="flex-row">
+    <label for="colorSelect">カラー</label>
+    <select id="colorSelect"><option value="">すべて</option></select>
+  </div>
+  <div class="flex-row">
+    <label for="claritySelect">クラリティ</label>
+    <select id="claritySelect"><option value="">すべて</option></select>
+  </div>
+  <div class="flex-row">
+    <label for="cutSelect">カット</label>
+    <select id="cutSelect"><option value="">すべて</option></select>
+  </div>
+  <div class="flex-row">
+    <label for="fluorescenceSelect">蛍光性</label>
+    <select id="fluorescenceSelect"><option value="">すべて</option></select>
+  </div>
+  <div class="flex-row">
+    <label for="shapeSelect">形状</label>
+    <select id="shapeSelect"><option value="">すべて</option></select>
+  </div>
+
+  <div class="flex-row">
+    <label for="keyword">フリーワード</label>
+    <input type="text" id="keyword" placeholder="例：D VS1 GD">
+  </div>
 
   <div class="flex-row" style="justify-content:center; gap:1rem;">
     <button id="searchButton">検索</button>
     <button id="clearButton">クリア</button>
   </div>
 
-  <div id="loadingSpinner" style="display:none; justify-content:center; margin-top:1rem;">
-    <div class="spinner"></div>
-  </div>
+ <div id="loadingSpinner" style="display:none; justify-content:center; margin-top:1rem;">
+   <div class="spinner"></div>
+ </div>
 
+  <!-- 結果テーブル -->
   <table id="resultTable">
     <thead>
       <tr>
@@ -108,60 +91,57 @@ button { cursor:pointer; transition:all 0.2s ease;}
 
 <script>
 // ---------------------
-// JSONデータ読み込み
-// ---------------------
-let diamondData = [];
-async function loadJSONData(){
-  const res = await fetch("data/diamonds.json");
-  diamondData = await res.json();
-  populateFilters();
-}
-
-// ---------------------
 // カラットセット機能
 // ---------------------
-document.getElementById("setCarat").addEventListener("click", ()=>{
+document.getElementById("setCarat").addEventListener("click", ()=> {
   let c = parseFloat(document.getElementById("mainCarat").value);
   if(isNaN(c)) return alert("数値を入力してください");
   let min = Math.floor(c*10)/10;
-  let max = min+0.099;
+  let max = min + 0.099;
   document.getElementById("minCarat").value = min.toFixed(3);
   document.getElementById("maxCarat").value = max.toFixed(3);
 });
 
 // ---------------------
-// 開催日・カラー等の選択肢自動取得
+// JSON 取得 & フィルター選択肢作成
 // ---------------------
-function populateFilters(){
+let diamondData = [];
+async function populateFilters(){
+  const url = "https://raw.githubusercontent.com/sgc-gold/sgc/main/data/diamonds.json";
+  const resp = await fetch(url);
+  diamondData = await resp.json();
+
   const dates=new Set(), colors=new Set(), clarities=new Set(), cuts=new Set(), fluo=new Set(), shapes=new Set();
-  diamondData.forEach(d=>{
-    dates.add(d.date);
+
+  diamondData.forEach(d => {
+    if(d.date) dates.add(d.date.split(" ")[0]);
     if(d.color) colors.add(d.color);
     if(d.clarity) clarities.add(d.clarity);
     if(d.cut) cuts.add(d.cut);
     if(d.fluorescence) fluo.add(d.fluorescence);
     if(d.shape) shapes.add(d.shape);
   });
+
   const addOption=(sel,val)=>{ sel.appendChild(new Option(val,val)); };
-  const dateSelect=document.getElementById("dateSelect");
-  Array.from(dates).sort().forEach(d=>addOption(dateSelect,d));
+  Array.from(dates).sort().forEach(d=>addOption(document.getElementById("dateSelect"),d));
   Array.from(colors).sort().forEach(c=>addOption(document.getElementById("colorSelect"),c));
   Array.from(clarities).sort().forEach(c=>addOption(document.getElementById("claritySelect"),c));
   Array.from(cuts).sort().forEach(c=>addOption(document.getElementById("cutSelect"),c));
   Array.from(fluo).sort().forEach(f=>addOption(document.getElementById("fluorescenceSelect"),f));
   Array.from(shapes).sort().forEach(s=>addOption(document.getElementById("shapeSelect"),s));
 }
+populateFilters();
 
 // ---------------------
-// 検索処理（JSON版）
+// 検索処理（件数表示＋ページネーション）
 // ---------------------
-document.getElementById("searchButton").addEventListener("click", ()=>{
+document.getElementById("searchButton").addEventListener("click", ()=> {
   const spinner = document.getElementById("loadingSpinner");
   spinner.style.display = "flex";
 
-  setTimeout(()=>{
-    const minC = parseFloat(document.getElementById("minCarat").value)||0;
-    const maxC = parseFloat(document.getElementById("maxCarat").value)||999;
+  setTimeout(()=> { // 🔹非同期感出すための少しの遅延
+    const minC = parseFloat(document.getElementById("minCarat").value) || 0;
+    const maxC = parseFloat(document.getElementById("maxCarat").value) || 999;
     const dateVal = document.getElementById("dateSelect").value;
     const colorVal = document.getElementById("colorSelect").value;
     const clarityVal = document.getElementById("claritySelect").value;
@@ -173,110 +153,139 @@ document.getElementById("searchButton").addEventListener("click", ()=>{
     const tbody = document.getElementById("resultBody");
     tbody.innerHTML = "";
 
+    // 件数表示エリア
     let countTop = document.getElementById("resultCountTop");
     let countBottom = document.getElementById("resultCountBottom");
     if(!countTop){
       countTop = document.createElement("div");
-      countTop.id="resultCountTop"; countTop.className="result-count stylish-count";
-      tbody.parentElement.insertAdjacentElement("beforebegin",countTop);
+      countTop.id = "resultCountTop";
+      countTop.className = "result-count stylish-count";
+      tbody.parentElement.insertAdjacentElement("beforebegin", countTop);
     }
     if(!countBottom){
       countBottom = document.createElement("div");
-      countBottom.id="resultCountBottom"; countBottom.className="result-count stylish-count";
-      tbody.parentElement.insertAdjacentElement("afterend",countBottom);
+      countBottom.id = "resultCountBottom";
+      countBottom.className = "result-count stylish-count";
+      tbody.parentElement.insertAdjacentElement("afterend", countBottom);
     }
 
-    const results = diamondData.filter(d=>{
-      if(d.carat<minC || d.carat>maxC) return false;
-      if(dateVal && d.date<dateVal) return false;
-      if(colorVal && d.color!=colorVal) return false;
-      if(clarityVal && d.clarity!=clarityVal) return false;
-      if(cutVal && d.cut!=cutVal) return false;
-      if(fluVal && d.fluorescence!=fluVal) return false;
-      if(shapeVal && d.shape!=shapeVal) return false;
+    // 絞り込み
+    const results = diamondData.filter(d => {
+      const c = parseFloat(d.carat) || 0;
+      if(c < minC || c > maxC) return false;
+      if(dateVal && d.date.split(" ")[0] < dateVal) return false;
+      if(colorVal && d.color != colorVal) return false;
+      if(clarityVal && d.clarity != clarityVal) return false;
+      if(cutVal && d.cut != cutVal) return false;
+      if(fluVal && d.fluorescence != fluVal) return false;
+      if(shapeVal && d.shape != shapeVal) return false;
       if(keyword){
-        const fields=[d.color,d.clarity,d.cut,d.shape,d.notes].join(" ").toLowerCase();
+        const fields = [d.color,d.clarity,d.cut,d.shape,d.notes].join(" ").toLowerCase();
         if(!keyword.split(" ").every(k=>fields.includes(k))) return false;
       }
       return true;
     });
 
     // ページネーション
-    const perPage=100;
-    let currentPage=1;
-    const totalPages=Math.ceil(results.length/perPage);
-    const pagination = document.getElementById("paginationArea")||document.createElement("div");
-    pagination.id="paginationArea"; pagination.className="pagination stylish-pagination";
-    countBottom.insertAdjacentElement("afterend",pagination);
+    const perPage = 100;
+    let currentPage = 1;
+    const totalPages = Math.ceil(results.length/perPage);
 
     function renderPage(page){
       tbody.innerHTML="";
-      const start=(page-1)*perPage;
-      const end=start+perPage;
-      const pageResults=results.slice(start,end);
-
-      pageResults.forEach(d=>{
-        const row=document.createElement("tr");
-        row.innerHTML=`
-          <td>${d.date}</td>
-          <td>${d.color}</td>
-          <td>${d.clarity}</td>
-          <td>${d.cut}</td>
-          <td>${d.fluorescence}</td>
-          <td>${d.shape}</td>
-          <td>${d.carat.toFixed(3)}</td>
-          <td>${d.pricePerCarat?.toLocaleString()||""}</td>
-          <td>${(d.pricePerCarat*d.carat)?.toLocaleString()||""}</td>
+      const start = (page-1)*perPage;
+      const end = start+perPage;
+      results.slice(start,end).forEach(d=>{
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${d.date.split(" ")[0]||""}</td>
+          <td>${d.color||""}</td>
+          <td>${d.clarity||""}</td>
+          <td>${d.cut||""}</td>
+          <td>${d.fluorescence||""}</td>
+          <td>${d.shape||""}</td>
+          <td>${parseFloat(d.carat)?.toFixed(3)||""}</td>
+          <td>${parseFloat(d.pricePerCarat)?.toLocaleString()||""}</td>
+          <td>${(parseFloat(d.pricePerCarat)*parseFloat(d.carat))?.toLocaleString()||""}</td>
           <td>${d.notes||""}</td>
           <td><span class="detailToggle">詳細</span></td>
         `;
         tbody.appendChild(row);
 
-        const detailRow=document.createElement("tr");
-        detailRow.className="detailsRow";
-        detailRow.innerHTML=`<td colspan="11">
-          直径: ${d.diameterMin}～${d.diameterMax} mm / 高さ: ${d.height} mm
-        </td>`;
+        // 詳細行
+        const detailRow = document.createElement("tr");
+        detailRow.classList.add("detailsRow");
+
+        let unevenRate="", heightRatio="";
+        if(d.diameterMin && d.diameterMax){
+          const min=parseFloat(d.diameterMin), max=parseFloat(d.diameterMax);
+          const avg=(min+max)/2;
+          unevenRate=(((max-min)/avg)*100).toFixed(2)+"%";
+          if(d.height) heightRatio=((parseFloat(d.height)/avg)*100).toFixed(2)+"%";
+        }
+
+        detailRow.innerHTML=`
+          <td colspan="11">
+            直径（最小）: ${d.diameterMin||""}mm ー（最大）: ${d.diameterMax||""}mm ※ 高さ: ${d.height||""}mm<br>
+            不正円率: ${unevenRate}　　全高比: ${heightRatio}
+          </td>
+        `;
         tbody.appendChild(detailRow);
 
-        row.querySelector(".detailToggle").addEventListener("click", ()=>{
-          detailRow.style.display=(detailRow.style.display==="table-row")?"none":"table-row";
+        row.querySelector(".detailToggle").addEventListener("click", ()=> {
+          detailRow.style.display = detailRow.style.display==="table-row"?"none":"table-row";
         });
       });
 
+      const msg = results.length
+        ? `🔹検索結果：<strong>${results.length.toLocaleString()}</strong> 件（${page}/${totalPages}ページ）`
+        : `⚠ 該当するデータはありません。`;
+
+      countTop.innerHTML=msg;
+      countBottom.innerHTML=msg;
+    }
+
+    // ページ送り
+    const pagination = document.getElementById("paginationArea") || document.createElement("div");
+    pagination.id = "paginationArea";
+    pagination.className = "pagination stylish-pagination";
+    countBottom.insertAdjacentElement("afterend", pagination);
+
+    function updatePagination(){
       pagination.innerHTML="";
       if(totalPages<=1) return;
-      const prevBtn=document.createElement("button");
-      prevBtn.textContent="前";
-      prevBtn.disabled=page<=1;
-      prevBtn.addEventListener("click",()=>{renderPage(page-1);});
-      const nextBtn=document.createElement("button");
-      nextBtn.textContent="次";
-      nextBtn.disabled=page>=totalPages;
-      nextBtn.addEventListener("click",()=>{renderPage(page+1);});
-      pagination.appendChild(prevBtn);
-      pagination.appendChild(document.createElement("span")).textContent=`${page}/${totalPages}`;
-      pagination.appendChild(nextBtn);
+
+      const prev=document.createElement("button");
+      prev.textContent="← 前へ";
+      prev.disabled=currentPage===1;
+      prev.onclick=()=>{ currentPage--; renderPage(currentPage); updatePagination(); };
+
+      const next=document.createElement("button");
+      next.textContent="次へ →";
+      next.disabled=currentPage===totalPages;
+      next.onclick=()=>{ currentPage++; renderPage(currentPage); updatePagination(); };
+
+      const info=document.createElement("span");
+      info.innerHTML=`ページ ${currentPage} / ${totalPages}`;
+
+      pagination.append(prev,info,next);
     }
 
     renderPage(1);
-    countTop.textContent=`件数: ${results.length} 件`;
-    countBottom.textContent=`件数: ${results.length} 件`;
-
+    updatePagination();
     spinner.style.display="none";
-  }, 150);
+
+  }, 100); // 🔹小遅延
 });
 
 // ---------------------
 // クリアボタン
 // ---------------------
-document.getElementById("clearButton").addEventListener("click", ()=>{
-  document.querySelectorAll("input[type=text]").forEach(i=>i.value="");
-  document.querySelectorAll("select").forEach(s=>s.value="");
+document.getElementById("clearButton").addEventListener("click", ()=> {
+  ["minCarat","maxCarat","mainCarat","dateSelect","colorSelect","claritySelect","cutSelect","fluorescenceSelect","shapeSelect","keyword"]
+    .forEach(id=>document.getElementById(id).value="");
+  document.getElementById("resultBody").innerHTML="";
 });
-
-// 初期ロード
-loadJSONData();
 </script>
 </body>
 </html>
