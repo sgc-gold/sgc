@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.09</title>
+<title>ダイヤ相場検索 1.10</title>
 <style>
 /* =======================
    基本スタイル
@@ -382,7 +382,7 @@ function getColorScore(color) {
     score = (start + end) / 2;
   }
 
-  // 通常アルファベットカラー or UNDER系
+  // 通常アルファベット or UNDER系
   else {
     for (const key in baseMap) {
       if (upperColor.startsWith(key) || upperColor.includes("UNDER " + key)) {
@@ -392,6 +392,11 @@ function getColorScore(color) {
     }
   }
 
+  // 補助スコアで順序制御
+  if (upperColor.includes("UNDER N")) score += 100;      // 通常の後
+  else if (upperColor.includes("UNDER S")) score += 200;  // UNDER Nの後
+  else if (/^[D-Z]/.test(upperColor)) score += 0;         // 通常アルファベット
+
   // TREATEDなら微減点
   if (upperColor.includes("TREATED")) score -= 0.1;
 
@@ -399,7 +404,7 @@ function getColorScore(color) {
   if (upperColor.includes("FAINT") || upperColor.includes("LIGHT BROWN")) score -= 1;
 
   // ファンシーカラー（FANCYが含まれる or 色名が含まれる）
-  if (!score) {
+  if (score === 0 || score < 1) {
     for (const grade in fancyGradeMap) {
       if (upperColor.includes(grade)) {
         score += fancyGradeMap[grade];
@@ -417,6 +422,7 @@ function getColorScore(color) {
         score += ishMap[ish];
       }
     }
+    score += 1000; // FANCY補助スコア（最後に並ぶ）
   }
 
   return score;
