@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.05</title>
+<title>ダイヤ相場検索 1.06</title>
 <style>
 /* =======================
    基本スタイル
@@ -382,18 +382,24 @@ function getColorScore(color) {
     score = (start + end) / 2;
   }
 
-  // 通常アルファベットカラー
+  // 通常アルファベットカラー or UNDER系
   else {
     for (const key in baseMap) {
-      if (upperColor.startsWith(key)) {
+      if (upperColor.startsWith(key) || upperColor.includes("UNDER " + key)) {
         score = baseMap[key];
         break;
       }
     }
   }
 
-  // UNDER N/S 系 → FANCYカラーと同じ評価
-  if (upperColor.includes("UNDER")) {
+  // TREATEDなら微減点
+  if (upperColor.includes("TREATED")) score -= 0.1;
+
+  // FAINT/LIGHT BROWNなどの補足がある場合は微減点
+  if (upperColor.includes("FAINT") || upperColor.includes("LIGHT BROWN")) score -= 1;
+
+  // ファンシーカラー（FANCYが含まれる or 色名が含まれる）
+  if (!score) {
     for (const grade in fancyGradeMap) {
       if (upperColor.includes(grade)) {
         score += fancyGradeMap[grade];
@@ -412,12 +418,6 @@ function getColorScore(color) {
       }
     }
   }
-
-  // TREATEDなら微減点
-  if (upperColor.includes("TREATED")) score -= 0.1;
-
-  // FAINT/LIGHT BROWNなどの補足がある場合は微減点
-  if (upperColor.includes("FAINT") || upperColor.includes("LIGHT BROWN")) score -= 1;
 
   return score;
 }
