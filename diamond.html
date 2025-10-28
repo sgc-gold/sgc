@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.14</title>
+<title>ダイヤ相場検索 1.20</title>
 <style>
 /* =======================
    基本スタイル
@@ -317,6 +317,35 @@ button { cursor:pointer; transition:all 0.2s ease;}
     Array.from(fluo).sort().forEach(f => addOption(document.getElementById("fluorescenceSelect"), f));
     Array.from(shapes).sort().forEach(s => addOption(document.getElementById("shapeSelect"), s));
   }
+
+    // 🔹【追加①】アルファベットカラー選択肢の生成
+    const alphabetColors = [
+      "D","E","F","G","H","I","J","K","L","M","N","O","P",
+      "Q","R","S","T","U","V","W","X","Y","Z"
+    ];
+    const fromColorSel = document.getElementById("fromColor");
+    const toColorSel = document.getElementById("toColor");
+    alphabetColors.forEach(c => {
+      addOption(fromColorSel, c);
+      addOption(toColorSel, c);
+    });
+
+    // 🔹【追加②】FANCYグレード・トーンの選択肢生成
+    const fancyGrades = [
+      "FAINT", "VERY LIGHT", "LIGHT", "FANCY LIGHT", "FANCY",
+      "FANCY INTENSE", "FANCY VIVID", "FANCY DEEP", "FANCY DARK"
+    ];
+    const fancyTones = [
+      "YELLOW", "PINK", "BLUE", "GREEN", "BROWN", "ORANGE",
+      "PURPLE", "RED", "GRAY", "BLACK"
+    ];
+
+    const fancyGradeSel = document.getElementById("fancyGradeSelect");
+    const fancyToneSel = document.getElementById("fancyToneSelect");
+    fancyGrades.forEach(g => addOption(fancyGradeSel, g));
+    fancyTones.forEach(t => addOption(fancyToneSel, t));
+  }
+
   populateFilters();
 
   // ---------------------
