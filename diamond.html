@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.13</title>
+<title>ダイヤ相場検索 1.14</title>
 <style>
 /* =======================
    基本スタイル
@@ -384,22 +384,22 @@ button { cursor:pointer; transition:all 0.2s ease;}
           const fields = [d.color, d.clarity, d.cut, d.shape, d.notes].join(" ").toLowerCase();
           if (!keyword.split(" ").every(k => fields.includes(k))) return false;
         }
-      
-        // 🔹 アルファベットカラー範囲検索
-        if (fromColor && toColor) {
+
+        // アルファベットカラー範囲検索
+        if (!isFancyColor(d.color) && fromColor && toColor) {
           const colorUpper = d.color.toUpperCase();
           const colorIndex = alphabetColors.findIndex(c => colorUpper.startsWith(c));
           if (colorIndex < fromIndex || colorIndex > toIndex) return false;
         }
       
-        // 🔹 FANCYカラー検索
-        if (fancyGrade || fancyTone) {
+        // FANCYカラー検索
+        if (isFancyColor(d.color) && (fancyGrade || fancyTone)) {
           const upper = d.color.toUpperCase();
           const matchGrade = fancyGrade ? upper.includes(fancyGrade.toUpperCase()) : true;
           const matchTone = fancyTone ? upper.includes(fancyTone.toUpperCase()) : true;
           if (!(matchGrade && matchTone)) return false;
         }
-         
+                
         return true;
       });
 
