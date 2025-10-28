@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.03</title>
+<title>ダイヤ相場検索 1.04</title>
 <style>
 /* =======================
    基本スタイル
@@ -491,19 +491,18 @@ function isAlphabetColor(color) {
 
 // カラット分類インデックスを取得（FANCYは常に最後）
 function getCaratGroupIndex(carat, color) {
-  const maxGroup = caratThresholds.length - 1;
-  if (!isAlphabetColor(color)) return maxGroup + 1; // FANCYはアルファベット分類の最後の次
+  if (!isAlphabetColor(color)) return caratThresholds.length; // FANCYは最後の次
   for (let i = 0; i < caratThresholds.length; i++) {
     if (carat < caratThresholds[i]) return i;
   }
-  return maxGroup;
+  return caratThresholds.length - 1; // 最後の分類に含める
 }
           
  // --------------------------
  // 🔹 並び順マッピング & ソート
  // --------------------------
  const CLARITY_ORDER = ["FL","IF","VVS1","VVS2","VS1","VS2","SI1","SI2","I1","I2","I3"];
- const caratThresholds = [0.1, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 3.0, 5.0];    
+ const caratThresholds = [0.0, 0.1, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 3.0, 5.0]; 
 
 // ソート関数
 results.sort((a, b) => {
