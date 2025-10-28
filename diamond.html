@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.17</title>
+<title>ダイヤ相場検索 1.15</title>
 <style>
 /* =======================
    基本スタイル
@@ -306,11 +306,8 @@ button { cursor:pointer; transition:all 0.2s ease;}
 
     const addOption = (sel, val) => sel.appendChild(new Option(val, val));
 
-    Array.from(dates)
-      .sort((a, b) => new Date(b) - new Date(a))
-      .forEach(d => addOption(document.getElementById("dateSelect"), d));
+    Array.from(dates).sort((a,b)=>new Date(b)-new Date(a)).forEach(d => addOption(document.getElementById("dateSelect"), d));
     document.getElementById("dateSelect").selectedIndex = 1;
-
     Array.from(colors).sort().forEach(c => addOption(document.getElementById("colorSelect"), c));
     Array.from(clarities).sort().forEach(c => addOption(document.getElementById("claritySelect"), c));
     Array.from(cuts).sort().forEach(c => addOption(document.getElementById("cutSelect"), c));
