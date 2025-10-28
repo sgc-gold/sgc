@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.01</title>
+<title>ダイヤ相場検索 1.02</title>
 <style>
 /* =======================
    基本スタイル
@@ -491,11 +491,12 @@ function isAlphabetColor(color) {
 
 // カラット分類インデックスを取得（FANCYは常に最後）
 function getCaratGroupIndex(carat, color) {
-  if (!isAlphabetColor(color)) return caratThresholds.length + 1; // FANCYなどは最後
+  const maxGroup = caratThresholds.length - 1;
+  if (!isAlphabetColor(color)) return maxGroup + 1; // FANCYはアルファベット分類の最後の次
   for (let i = 0; i < caratThresholds.length; i++) {
     if (carat < caratThresholds[i]) return i;
   }
-  return caratThresholds.length;
+  return maxGroup;
 }
           
  // --------------------------
