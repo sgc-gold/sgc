@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.06</title>
+<title>ダイヤ相場検索 1.07</title>
 <style>
 /* =======================
    基本スタイル
@@ -489,13 +489,26 @@ function isAlphabetColor(color) {
   return /^[D-Z]/.test(upper) || upper.includes("UNDER");
 }
 
+function isFancyColor(color) {
+  const upper = color.toUpperCase();
+  if (upper.includes("UNDER")) return false; // UNDER系はアルファベット扱い
+
+  const fancyGrades = ["FANCY", "LIGHT", "VERY LIGHT", "FAINT"];
+  const fancyTones = ["PINK", "PURPLE", "BLUE", "GREEN", "ORANGE", "YELLOW", "BROWN", "GRAY", "RED", "VIOLET", "BLACK", "WHITE"];
+  const ishTerms = ["ISH", "ORANGY", "PINKISH", "PURPLISH", "GRAYISH", "YELLOWISH", "BROWNISH", "GREENISH", "BLUISH"];
+
+  return fancyGrades.some(g => upper.includes(g)) ||
+         fancyTones.some(t => upper.includes(t)) ||
+         ishTerms.some(i => upper.includes(i));
+}
+     
 // カラット分類インデックスを取得（FANCYは常に最後）
-function getCaratGroupIndex(carat, color) {
-  if (!isAlphabetColor(color)) return Infinity; // FANCYは分類外として最後に並ぶ
+function getCaratGroupKey(carat, color) {
+  if (isFancyColor(color)) return "FANCY"; // ファンシーカラーは完全に分離
   for (let i = 0; i < caratThresholds.length; i++) {
-    if (carat < caratThresholds[i]) return i;
+    if (carat < caratThresholds[i]) return `GROUP_${caratThresholds[i]}`;
   }
-  return caratThresholds.length - 1; // 最後の分類に含める
+  return `GROUP_${caratThresholds[caratThresholds.length - 1]}`;
 }
           
  // --------------------------
@@ -506,12 +519,12 @@ function getCaratGroupIndex(carat, color) {
 
 // ソート関数
 results.sort((a, b) => {
-  // ① カラット分類（FANCYは Infinity で最後に並ぶ）
-  const groupA = getCaratGroupIndex(a.carat, a.color);
-  const groupB = getCaratGroupIndex(b.carat, b.color);
-  if (groupA !== groupB) return groupA - groupB;
+  // ① カラット分類キー（FANCYは "FANCY" で最後に並ぶ）
+  const groupA = getCaratGroupKey(a.carat, a.color);
+  const groupB = getCaratGroupKey(b.carat, b.color);
+  if (groupA !== groupB) return groupA.localeCompare(groupB);
 
-  // ② 同じ分類内ではカラット昇順（FANCY内も整列）
+  // ② 同じ分類内ではカラット昇順
   const caratDiff = a.carat - b.carat;
   if (caratDiff !== 0) return caratDiff;
 
@@ -528,8 +541,7 @@ results.sort((a, b) => {
   if (cutScoreDiff !== 0) return cutScoreDiff;
 
   // ⑥ 蛍光性（スコア順）
-  const fluoScoreDiff = getFluorescenceScore(b.fluorescence) - getFluorescenceScore(a.fluorescence);
-  return fluoScoreDiff;
+  return getFluorescenceScore(b.fluorescence) - getFluorescenceScore(a.fluorescence);
 });
 
     // ページネーション
