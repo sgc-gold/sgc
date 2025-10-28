@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.08</title>
+<title>ダイヤ相場検索 1.09</title>
 <style>
 /* =======================
    基本スタイル
@@ -505,7 +505,7 @@ function isFancyColor(color) {
 // カラット分類インデックスを取得（FANCYは常に最後）
 function getCaratGroupIndex(carat, color) {
   const maxIndex = caratThresholds.length;
-  if (isFancyColor(color)) return maxIndex; // FANCYは最後のグループ
+  if (isFancyColor(color)) return maxIndex; // FANCYは最後
   for (let i = 0; i < caratThresholds.length; i++) {
     if (carat < caratThresholds[i]) return i;
   }
@@ -520,22 +520,24 @@ function getCaratGroupIndex(carat, color) {
 
 // ソート関数
 results.sort((a, b) => {
+  // ① カラット分類（FANCYは最後）
   const groupA = getCaratGroupIndex(a.carat, a.color);
   const groupB = getCaratGroupIndex(b.carat, b.color);
   if (groupA !== groupB) return groupA - groupB;
 
-  const caratDiff = a.carat - b.carat;
-  if (caratDiff !== 0) return caratDiff;
-
+  // ② カラー（スコア順）
   const colorScoreDiff = getColorScore(b.color) - getColorScore(a.color);
   if (colorScoreDiff !== 0) return colorScoreDiff;
 
+  // ③ クラリティ（昇順）
   const clarityDiff = CLARITY_ORDER.indexOf(a.clarity) - CLARITY_ORDER.indexOf(b.clarity);
   if (clarityDiff !== 0) return clarityDiff;
 
+  // ④ カット（スコア順）
   const cutScoreDiff = getCutScore(b.cut) - getCutScore(a.cut);
   if (cutScoreDiff !== 0) return cutScoreDiff;
 
+  // ⑤ 蛍光性（スコア順）
   return getFluorescenceScore(b.fluorescence) - getFluorescenceScore(a.fluorescence);
 });
      
