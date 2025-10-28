@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.00</title>
+<title>ダイヤ相場検索 1.01</title>
 <style>
 /* =======================
    基本スタイル
@@ -344,119 +344,189 @@ document.getElementById("searchButton").addEventListener("click", ()=> {
       return true;
     });
 
-      function getColorScore(color) {
-        const baseMap = {
-          "D": 100, "E": 95, "F": 90, "G": 85, "H": 80,
-          "I": 75, "J": 70, "K": 65, "L": 60, "M": 55,
-          "N": 50, "O": 45, "P": 40, "Q": 35, "R": 30,
-          "S": 25, "T": 20, "U": 15, "V": 10, "W": 5,
-          "X": 3, "Y": 2, "Z": 1
-        };
-      
-        const fancyColorMap = {
-          "RED": 30, "BLUE": 25, "PINK": 20, "GREEN": 18,
-          "ORANGE": 15, "PURPLE": 12, "VIOLET": 10, "YELLOW": 8,
-          "BROWN": 5, "GRAY": 3, "BLACK": 2, "WHITE": 1
-        };
-      
-        const fancyGradeMap = {
-          "FANCY VIVID": 20, "FANCY INTENSE": 18, "FANCY DEEP": 16,
-          "FANCY DARK": 14, "FANCY": 12, "FANCY LIGHT": 10,
-          "LIGHT": 8, "VERY LIGHT": 6, "FAINT": 4
-        };
-      
-        const ishMap = {
-          "PINKISH": 1, "PURPLISH": 1, "BLUISH": 0, "GREENISH": 0,
-          "BROWNISH": -2, "GRAYISH": -3, "YELLOWISH": -1,
-          "ORANGY": -1, "VIOLETISH": 0, "BLACKISH": -3
-        };
-      
-        let score = 0;
-        const upperColor = color.toUpperCase();
-      
-        // 通常カラー（D〜Z）
-        if (baseMap[upperColor]) {
-          score = baseMap[upperColor];
-        } else {
-          // ファンシーカラー
-          for (const grade in fancyGradeMap) {
-            if (upperColor.includes(grade)) {
-              score += fancyGradeMap[grade];
-              break;
-            }
-          }
-          for (const tone in fancyColorMap) {
-            if (upperColor.includes(tone)) {
-              score += fancyColorMap[tone];
-              break;
-            }
-          }
-          for (const ish in ishMap) {
-            if (upperColor.includes(ish)) {
-              score += ishMap[ish];
-            }
-          }
-        }
-      
-        // TREATEDなら微減点（同色内で最下位にする）
-        if (upperColor.includes("TREATED")) {
-          score -= 0.1;
-        }
-      
-        return score;
+function getColorScore(color) {
+  const baseMap = {
+    "D": 100, "E": 95, "F": 90, "G": 85, "H": 80,
+    "I": 75, "J": 70, "K": 65, "L": 60, "M": 55,
+    "N": 50, "O": 45, "P": 40, "Q": 35, "R": 30,
+    "S": 25, "T": 20, "U": 15, "V": 10, "W": 5,
+    "X": 3, "Y": 2, "Z": 1
+  };
+
+  const fancyColorMap = {
+    "RED": 30, "BLUE": 25, "PINK": 20, "GREEN": 18,
+    "ORANGE": 15, "PURPLE": 12, "VIOLET": 10, "YELLOW": 8,
+    "BROWN": 5, "GRAY": 3, "BLACK": 2, "WHITE": 1
+  };
+
+  const fancyGradeMap = {
+    "FANCY VIVID": 20, "FANCY INTENSE": 18, "FANCY DEEP": 16,
+    "FANCY DARK": 14, "FANCY": 12, "FANCY LIGHT": 10,
+    "LIGHT": 8, "VERY LIGHT": 6, "FAINT": 4
+  };
+
+  const ishMap = {
+    "PINKISH": 1, "PURPLISH": 1, "BLUISH": 0, "GREENISH": 0,
+    "BROWNISH": -2, "GRAYISH": -3, "YELLOWISH": -1,
+    "ORANGY": -1, "VIOLETISH": 0, "BLACKISH": -3
+  };
+
+  const upperColor = color.toUpperCase().trim();
+  let score = 0;
+
+  // 範囲表記（例：G-H, H to I）
+  const rangeMatch = upperColor.match(/([A-Z])\s*[-TO]+\s*([A-Z])/);
+  if (rangeMatch) {
+    const start = baseMap[rangeMatch[1]] || 0;
+    const end = baseMap[rangeMatch[2]] || 0;
+    score = (start + end) / 2;
+  }
+
+  // 通常アルファベットカラー
+  else {
+    for (const key in baseMap) {
+      if (upperColor.startsWith(key)) {
+        score = baseMap[key];
+        break;
       }
-     
-    function getCutScore(cutStr) {
-      const rankMap = { "3EX": 100, "EX": 90, "VG": 70, "GD": 50, "FR": 30, "FA": 30, "PR": 10, "PO": 10 };
-      let score = 0;
-   
-      // 特殊記号（H&C, HEART, H&A刻印）
-      if (cutStr.includes("H&C") || cutStr.includes("HC")) score += 5;
-      if (cutStr.includes("HEART") || cutStr.includes("H&A")) score += 3;
-      if (cutStr.includes("刻印")) score += 2;
-   
-      // スラッシュ分割（総合/ポリッシュ/シンメトリー）
-      const parts = cutStr.split("/");
-      const main = parts[0].replace(/[^A-Z]/g, "");
-      score += rankMap[main] || 0;
-   
-      if (parts.length === 3) {
-        score += rankMap[parts[2]] ? rankMap[parts[2]] * 0.1 : 0;
-        score += rankMap[parts[1]] ? rankMap[parts[1]] * 0.05 : 0;
-      } else if (parts.length === 2) {
-        score += rankMap[parts[1]] ? rankMap[parts[1]] * 0.05 : 0;
-      }
-   
-      return score;
     }
-     
-    // --------------------------
-    // 🔹 並び順マッピング & ソート
-    // --------------------------
-    const COLOR_ORDER = ["D","E","F","G","H","I","J","K"];
-    const CLARITY_ORDER = ["FL","IF","VVS1","VVS2","VS1","VS2","SI1","SI2","I1","I2","I3"];
-    const FLUO_ORDER = ["NONE","F","M","S","VS"];
+  }
 
-    results.sort((a,b)=>{
-      // 日付（降順）
-      const dateDiff = new Date(b.date) - new Date(a.date);
-      if(dateDiff !== 0) return dateDiff;
+  // UNDER N/S 系 → FANCYカラーと同じ評価
+  if (upperColor.includes("UNDER")) {
+    for (const grade in fancyGradeMap) {
+      if (upperColor.includes(grade)) {
+        score += fancyGradeMap[grade];
+        break;
+      }
+    }
+    for (const tone in fancyColorMap) {
+      if (upperColor.includes(tone)) {
+        score += fancyColorMap[tone];
+        break;
+      }
+    }
+    for (const ish in ishMap) {
+      if (upperColor.includes(ish)) {
+        score += ishMap[ish];
+      }
+    }
+  }
 
-      // カラー（スコア順）
-      const colorScoreDiff = getColorScore(b.color) - getColorScore(a.color);
-      if (colorScoreDiff !== 0) return colorScoreDiff;
+  // TREATEDなら微減点
+  if (upperColor.includes("TREATED")) score -= 0.1;
 
-      // クラリティ
-      const clarityDiff = CLARITY_ORDER.indexOf(a.clarity) - CLARITY_ORDER.indexOf(b.clarity);
-      if(clarityDiff !== 0) return clarityDiff;
+  // FAINT/LIGHT BROWNなどの補足がある場合は微減点
+  if (upperColor.includes("FAINT") || upperColor.includes("LIGHT BROWN")) score -= 1;
 
-      // カット（スコアベース）
-      const cutScoreDiff = getCutScore(b.cut) - getCutScore(a.cut);
-      if (cutScoreDiff !== 0) return cutScoreDiff;
+  return score;
+}
+          
+ function getCutScore(cutStr) {
+   const rankMap = { "3EX": 100, "EX": 90, "VG": 70, "GD": 50, "FR": 30, "FA": 29, "PR": 10, "PO": 9 };
+   let score = 0;
 
-      // 蛍光性
-      return FLUO_ORDER.indexOf(a.fluorescence) - FLUO_ORDER.indexOf(b.fluorescence);
-    });
+   // 特殊記号（H&C, HEART, H&A）
+   if (cutStr.includes("H&C") || cutStr.includes("HC")) score += 5;
+   if (cutStr.includes("HEART") || cutStr.includes("H&A")) score += 3;
+
+   // スラッシュ分割（総合/ポリッシュ/シンメトリー）
+   const parts = cutStr.split("/");
+   const main = parts[0].replace(/[^A-Z]/g, "");
+   score += rankMap[main] || 0;
+
+   if (parts.length === 3) {
+     score += rankMap[parts[2]] ? rankMap[parts[2]] * 0.1 : 0;
+     score += rankMap[parts[1]] ? rankMap[parts[1]] * 0.05 : 0;
+   } else if (parts.length === 2) {
+     score += rankMap[parts[1]] ? rankMap[parts[1]] * 0.05 : 0;
+   }
+
+   return score;
+ }
+
+function getFluorescenceScore(fluo) {
+  const intensityMap = {
+    "N": 0, "NONE": 0,
+    "F": 1, "FAINT": 1,
+    "M": 2, "MEDIUM": 2,
+    "S": 3, "STRONG": 3,
+    "VS": 4, "VERY STRONG": 4
+  };
+
+  const colorBonusMap = {
+    "BLUE": 0.5, "BL": 0.5, "FB": 0.5, "MB": 0.5, "VSB": 0.5,
+    "YELLOW": -0.5, "FtY": -0.5, "MY": -0.5, "SY": -0.5, "VSY": -0.5,
+    "GREEN": 0, "FtYGn": 0, "MYGn": 0, "SYGn": 0, "VSYGn": 0,
+    "WHITE": 0, "WB": 0, "MBW": 0, "VSBW": 0,
+    "GRAY": -1, "SWG": -1, "WYG": -1,
+    "INERT": 0
+  };
+
+  const upper = fluo.toUpperCase();
+  let score = 0;
+
+  for (const key in intensityMap) {
+    if (upper.includes(key)) {
+      score += intensityMap[key];
+      break;
+    }
+  }
+
+  for (const key in colorBonusMap) {
+    if (upper.includes(key)) {
+      score += colorBonusMap[key];
+      break;
+    }
+  }
+
+  return score;
+}
+
+// アルファベットカラーかどうかを判定（FANCYなどは除外）
+function isAlphabetColor(color) {
+  const upper = color.toUpperCase();
+  return /^[D-Z]/.test(upper) || upper.includes("UNDER");
+}
+
+// カラット分類インデックスを取得（FANCYは常に最後）
+function getCaratGroupIndex(carat, color) {
+  if (!isAlphabetColor(color)) return caratThresholds.length + 1; // FANCYなどは最後
+  for (let i = 0; i < caratThresholds.length; i++) {
+    if (carat < caratThresholds[i]) return i;
+  }
+  return caratThresholds.length;
+}
+          
+ // --------------------------
+ // 🔹 並び順マッピング & ソート
+ // --------------------------
+ const CLARITY_ORDER = ["FL","IF","VVS1","VVS2","VS1","VS2","SI1","SI2","I1","I2","I3"];
+ const caratThresholds = [0.0, 0.1, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 3.0, 5.0];    
+
+// ソート関数
+results.sort((a, b) => {
+  // ① カラット分類（FANCYは最後）
+  const groupA = getCaratGroupIndex(a.carat, a.color);
+  const groupB = getCaratGroupIndex(b.carat, b.color);
+  if (groupA !== groupB) return groupA - groupB;
+
+  // ② カラー（スコア順）
+  const colorScoreDiff = getColorScore(b.color) - getColorScore(a.color);
+  if (colorScoreDiff !== 0) return colorScoreDiff;
+
+  // ③ クラリティ（昇順）
+  const clarityDiff = CLARITY_ORDER.indexOf(a.clarity) - CLARITY_ORDER.indexOf(b.clarity);
+  if (clarityDiff !== 0) return clarityDiff;
+
+  // ④ カット（スコア順）
+  const cutScoreDiff = getCutScore(b.cut) - getCutScore(a.cut);
+  if (cutScoreDiff !== 0) return cutScoreDiff;
+
+  // ⑤ 蛍光性（スコア順）
+  const fluoScoreDiff = getFluorescenceScore(b.fluorescence) - getFluorescenceScore(a.fluorescence);
+  return fluoScoreDiff;
+});
 
     // ページネーション
     const perPage = 100;
