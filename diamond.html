@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.16</title>
+<title>ダイヤ相場検索 1.17</title>
 <style>
 /* =======================
    基本スタイル
@@ -306,8 +306,9 @@ button { cursor:pointer; transition:all 0.2s ease;}
 
     const addOption = (sel, val) => sel.appendChild(new Option(val, val));
 
-    // 日付・カラー・クラリティ・カット・蛍光性・形状
-    Array.from(dates).sort((a, b) => new Date(b) - new Date(a)).forEach(d => addOption(document.getElementById("dateSelect"), d));
+    Array.from(dates)
+      .sort((a, b) => new Date(b) - new Date(a))
+      .forEach(d => addOption(document.getElementById("dateSelect"), d));
     document.getElementById("dateSelect").selectedIndex = 1;
 
     Array.from(colors).sort().forEach(c => addOption(document.getElementById("colorSelect"), c));
@@ -315,31 +316,7 @@ button { cursor:pointer; transition:all 0.2s ease;}
     Array.from(cuts).sort().forEach(c => addOption(document.getElementById("cutSelect"), c));
     Array.from(fluo).sort().forEach(f => addOption(document.getElementById("fluorescenceSelect"), f));
     Array.from(shapes).sort().forEach(s => addOption(document.getElementById("shapeSelect"), s));
-
-    // ---------------------
-    // アルファベットカラー
-    // ---------------------
-    const alphabetColors = "D E F G H I J K L M N O P Q R S T U V W X Y Z".split(" ");
-    const fromSelect = document.getElementById("fromColor");
-    const toSelect = document.getElementById("toColor");
-    alphabetColors.forEach(c => {
-      fromSelect.appendChild(new Option(c, c));
-      toSelect.appendChild(new Option(c, c));
-    });
-
-    // ---------------------
-    // FANCYグレード
-    // ---------------------
-    const fancyGrades = ["FANCY VIVID","FANCY INTENSE","FANCY DEEP","FANCY DARK","FANCY","FANCY LIGHT","LIGHT","VERY LIGHT","FAINT"];
-    const fancyTones = ["PINK","RED","ORANGE","YELLOW","GREEN","BLUE","PURPLE","VIOLET","BROWN","GRAY","WHITE","BLACK"];
-
-    const gradeSelect = document.getElementById("fancyGradeSelect");
-    const toneSelect = document.getElementById("fancyToneSelect");
-
-    fancyGrades.forEach(g => gradeSelect.appendChild(new Option(g, g)));
-    fancyTones.forEach(t => toneSelect.appendChild(new Option(t, t)));
   }
-
   populateFilters();
 
   // ---------------------
