@@ -416,23 +416,24 @@ button { cursor:pointer; transition:all 0.2s ease;}
         const colorUpper = (d.color || "").toUpperCase();
         const isFancy = isFancyColor(d.color);
       
-        // --- アルファベットカラー範囲（D〜Z）FANCY以外対象
+        // --- アルファベットカラー範囲（D〜Z）非FANCY対象
         let matchAlphabet = true;
         if (!isFancy && fromColor && toColor) {
           const colorIndex = alphabetColors.findIndex(c => colorUpper.startsWith(c));
-          matchAlphabet = colorIndex >= fromIndex && colorIndex <= toIndex;
+          matchAlphabet = (colorIndex >= fromIndex && colorIndex <= toIndex);
         }
       
         // --- FANCYグレード＋トーン検索（AND）
         let matchFancy = true;
         if (isFancy) {
-          const matchGrade = fancyGrade ? colorUpper.includes(fancyGrade.toUpperCase()) : true;
-          const matchTone  = fancyTone  ? colorUpper.includes(fancyTone.toUpperCase()) : true;
-          matchFancy = matchGrade && matchTone;
+          // どちらも未選択なら通す
+          const gradeCheck = fancyGrade ? colorUpper.includes(fancyGrade.toUpperCase()) : true;
+          const toneCheck  = fancyTone  ? colorUpper.includes(fancyTone.toUpperCase()) : true;
+          matchFancy = gradeCheck && toneCheck;
         }
-       
+      
         // --- ①と②をOR検索で統合
-        let colorMatch = matchAlphabet || matchFancy;
+        let colorMatch = (matchAlphabet || matchFancy);
       
         // 条件不一致なら除外
         if (!colorMatch) return false;
