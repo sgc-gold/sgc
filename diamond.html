@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.43</title>
+<title>ダイヤ相場検索 1.44</title>
 <style>
 /* =======================
    基本スタイル
@@ -258,96 +258,136 @@ button { cursor:pointer; transition:all 0.2s ease;}
 
 <script>
   // ---------------------
+  // 共通定義
+  // ---------------------
+  const alphabetColors = "D E F G H I J K L M N O P Q R S T U V W X Y Z".split(" ");
+  const fancyGrades = ["FAINT","VERY LIGHT","LIGHT","FANCY LIGHT","FANCY","FANCY INTENSE","FANCY VIVID","FANCY DEEP","FANCY DARK"];
+  const fancyTones = ["YELLOW","PINK","BLUE","GREEN","BROWN","ORANGE","PURPLE","RED","GRAY","BLACK"];
+  const CLARITY_ORDER = ["FL","IF","VVS1","VVS2","VS1","VS2","SI1","SI2","I1","I2","I3"];
+  const caratThresholds = [0,0.1,0.2,0.25,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.5,2,3,5];
+
+  // ---------------------
   // カラットセット機能
   // ---------------------
   document.getElementById("setCarat").addEventListener("click", () => {
-    let c = parseFloat(document.getElementById("mainCarat").value);
+    const c = parseFloat(document.getElementById("mainCarat").value);
     if (isNaN(c)) return alert("数値を入力してください");
-
-    let min = Math.floor(c * 10) / 10;
-    let max = min + 0.099;
-
+    const min = Math.floor(c*10)/10;
+    const max = min+0.099;
     document.getElementById("minCarat").value = min.toFixed(3);
     document.getElementById("maxCarat").value = max.toFixed(3);
   });
 
   // ---------------------
-  // JSON 取得 & フィルター選択肢作成
+  // JSON取得＆フィルター作成
   // ---------------------
   let diamondData = [];
-
   async function populateFilters() {
-    const url = "https://raw.githubusercontent.com/sgc-gold/sgc/main/data/diamonds.json";
-    const resp = await fetch(url);
+    const resp = await fetch("https://raw.githubusercontent.com/sgc-gold/sgc/main/data/diamonds.json");
     diamondData = await resp.json();
 
-    const dates = new Set(),
-          colors = new Set(),
-          clarities = new Set(),
-          cuts = new Set(),
-          fluo = new Set(),
-          shapes = new Set();
-
+    const sets = { dates:new Set(), clarities:new Set(), cuts:new Set(), fluos:new Set(), shapes:new Set() };
     diamondData.forEach(d => {
-      if (d.date) dates.add(d.date.split(" ")[0]);
-      if (d.color) colors.add(d.color);
-      if (d.clarity) clarities.add(d.clarity);
-      if (d.cut) cuts.add(d.cut);
-      if (d.fluorescence) fluo.add(d.fluorescence);
-      if (d.shape) shapes.add(d.shape);
+      if(d.date) sets.dates.add(d.date.split(" ")[0]);
+      if(d.clarity) sets.clarities.add(d.clarity);
+      if(d.cut) sets.cuts.add(d.cut);
+      if(d.fluorescence) sets.fluos.add(d.fluorescence);
+      if(d.shape) sets.shapes.add(d.shape);
     });
 
-    const addOption = (sel, val) => sel.appendChild(new Option(val, val));
+    const addOption = (sel,val)=>sel.appendChild(new Option(val,val));
 
-    Array.from(dates)
-      .sort((a, b) => new Date(b) - new Date(a))
-      .forEach(d => addOption(document.getElementById("dateSelect"), d));
+    Array.from(sets.dates).sort((a,b)=>new Date(b)-new Date(a)).forEach(d=>addOption(document.getElementById("dateSelect"),d));
     document.getElementById("dateSelect").selectedIndex = 1;
+    Array.from(sets.clarities).sort().forEach(c=>addOption(document.getElementById("claritySelect"),c));
+    Array.from(sets.cuts).sort().forEach(c=>addOption(document.getElementById("cutSelect"),c));
+    Array.from(sets.fluos).sort().forEach(f=>addOption(document.getElementById("fluorescenceSelect"),f));
+    Array.from(sets.shapes).sort().forEach(s=>addOption(document.getElementById("shapeSelect"),s));
 
-    Array.from(clarities).sort().forEach(c => addOption(document.getElementById("claritySelect"), c));
-    Array.from(cuts).sort().forEach(c => addOption(document.getElementById("cutSelect"), c));
-    Array.from(fluo).sort().forEach(f => addOption(document.getElementById("fluorescenceSelect"), f));
-    Array.from(shapes).sort().forEach(s => addOption(document.getElementById("shapeSelect"), s));
-
-    // 🔹【追加①】アルファベットカラー選択肢の生成
-    const alphabetColors = [
-      "D","E","F","G","H","I","J","K","L","M","N","O","P",
-      "Q","R","S","T","U","V","W","X","Y","Z"
-    ];
     const fromColorSel = document.getElementById("fromColor");
     const toColorSel = document.getElementById("toColor");
-    alphabetColors.forEach(c => {
-      addOption(fromColorSel, c);
-      addOption(toColorSel, c);
-    });
-
-    // 🔹【追加②】FANCYグレード・トーンの選択肢生成
-    const fancyGrades = [
-      "FAINT", "VERY LIGHT", "LIGHT", "FANCY LIGHT", "FANCY",
-      "FANCY INTENSE", "FANCY VIVID", "FANCY DEEP", "FANCY DARK"
-    ];
-    const fancyTones = [
-      "YELLOW", "PINK", "BLUE", "GREEN", "BROWN", "ORANGE",
-      "PURPLE", "RED", "GRAY", "BLACK"
-    ];
+    alphabetColors.forEach(c => { addOption(fromColorSel,c); addOption(toColorSel,c); });
 
     const fancyGradeSel = document.getElementById("fancyGradeSelect");
     const fancyToneSel = document.getElementById("fancyToneSelect");
-    fancyGrades.forEach(g => addOption(fancyGradeSel, g));
-    fancyTones.forEach(t => addOption(fancyToneSel, t));
+    fancyGrades.forEach(g=>addOption(fancyGradeSel,g));
+    fancyTones.forEach(t=>addOption(fancyToneSel,t));
   }
-
   populateFilters();
 
   // ---------------------
-  // 検索処理（件数表示＋ページネーション）
+  // FANCYカラー判定
+  // ---------------------
+  function isFancyColor(color){
+    if(!color) return false;
+    const upper=color.toUpperCase().trim();
+    if(upper.includes("UNDER")) return false;
+    if(upper.includes("FANCY")) return true;
+    const fancyTones=["PINK","PURPLE","BLUE","GREEN","ORANGE","YELLOW","BROWN","GRAY","RED","VIOLET","BLACK","WHITE"];
+    const ishTerms=["ISH","ORANGY","PINKISH","PURPLISH","GRAYISH","YELLOWISH","BROWNISH","GREENISH","BLUISH"];
+    return fancyTones.some(t=>upper.includes(t))||ishTerms.some(i=>upper.includes(i));
+  }
+
+  // ---------------------
+  // スコアリング関数
+  // ---------------------
+  function getColorScore(color){
+    const baseMap={D:100,E:95,F:90,G:85,H:80,I:75,J:70,K:65,L:60,M:55,N:50,O:45,P:40,Q:35,R:30,S:25,T:20,U:15,V:10,W:5,X:3,Y:2,Z:1};
+    const fancyGradeMap={"FANCY VIVID":20,"FANCY INTENSE":18,"FANCY DEEP":16,"FANCY DARK":14,"FANCY":12,"FANCY LIGHT":10,"LIGHT":8,"VERY LIGHT":6,"FAINT":4};
+    const fancyColorMap={RED:30,BLUE:25,PINK:20,GREEN:18,ORANGE:15,PURPLE:12,VIOLET:10,YELLOW:8,BROWN:5,GRAY:3,BLACK:2,WHITE:1};
+    const ishMap={PINKISH:1,PURPLISH:1,BLUISH:0,GREENISH:0,BROWNISH:-2,GRAYISH:-3,YELLOWISH:-1,ORANGY:-1,VIOLETISH:0,BLACKISH:-3};
+    if(!color) return 0;
+    const upper=color.toUpperCase();
+    let score=0;
+    for(const key in baseMap) if(upper.startsWith(key)||upper.includes("UNDER "+key)){score=baseMap[key];break;}
+    for(const grade in fancyGradeMap) if(upper.includes(grade)) score+=fancyGradeMap[grade];
+    for(const tone in fancyColorMap) if(upper.includes(tone)) score+=fancyColorMap[tone];
+    for(const ish in ishMap) if(upper.includes(ish)) score+=ishMap[ish];
+    if(score<1) score+=1000;
+    return score;
+  }
+
+  function getCutScore(cutStr){
+    if(!cutStr) return 0;
+    const rankMap={ "3EX":100, EX:90, VG:70, GD:50, FR:30, FA:29, PR:10, PO:9 };
+    let score=0;
+    if(cutStr.includes("H&C")||cutStr.includes("HC")) score+=5;
+    if(cutStr.includes("HEART")||cutStr.includes("H&A")) score+=3;
+    const parts=cutStr.split("/");
+    const main=parts[0].replace(/[^A-Z]/g,"");
+    score+=rankMap[main]||0;
+    if(parts.length===3){ score+=(rankMap[parts[2]]||0)*0.1; score+=(rankMap[parts[1]]||0)*0.05; }
+    else if(parts.length===2){ score+=(rankMap[parts[1]]||0)*0.05; }
+    return score;
+  }
+
+  function getFluorescenceScore(fluo){
+    if(!fluo) return 0;
+    const intensityMap={N:0,NONE:0,F:1,FAINT:1,M:2,MEDIUM:2,S:3,STRONG:3,VS:4,"VERY STRONG":4};
+    const colorBonusMap={BLUE:0.5,BL:0.5,FB:0.5,MB:0.5,VSB:0.5,YELLOW:-0.5,FtY:-0.5,MY:-0.5,SY:-0.5,VSY:-0.5,GREEN:0,FtYGn:0,MYGn:0,SYGn:0,VSYGn:0,WHITE:0,WB:0,MBW:0,VSBW:0,GRAY:-1,SWG:-1,WYG:-1,INERT:0};
+    const upper=fluo.toUpperCase();
+    let score=0;
+    for(const key in intensityMap) if(upper.includes(key)){score+=intensityMap[key];break;}
+    for(const key in colorBonusMap) if(upper.includes(key)){score+=colorBonusMap[key];break;}
+    return score;
+  }
+
+  function getCaratGroupIndex(carat,color){
+    const maxIndex=caratThresholds.length;
+    if(isFancyColor(color)) return maxIndex;
+    for(let i=0;i<caratThresholds.length;i++){ if(carat<caratThresholds[i]) return i; }
+    return maxIndex-1;
+  }
+
+  // ---------------------
+  // 検索処理
   // ---------------------
   document.getElementById("searchButton").addEventListener("click", () => {
     const spinner = document.getElementById("loadingSpinner");
     spinner.style.display = "flex";
 
     setTimeout(() => {
-      // 🔹 フィルター値取得
+      // フィルター取得
       const minC = parseFloat(document.getElementById("minCarat").value) || 0;
       const maxC = parseFloat(document.getElementById("maxCarat").value) || 999;
       const dateVal = document.getElementById("dateSelect").value;
@@ -357,355 +397,194 @@ button { cursor:pointer; transition:all 0.2s ease;}
       const shapeVal = document.getElementById("shapeSelect").value;
       const keyword = document.getElementById("keyword").value.trim().toLowerCase();
 
-      // 🔹 カラー検索用の追加項目
       const fromColor = document.getElementById("fromColor").value;
       const toColor = document.getElementById("toColor").value;
       const fancyGrade = document.getElementById("fancyGradeSelect").value;
       const fancyTone = document.getElementById("fancyToneSelect").value;
-       
+
       const tbody = document.getElementById("resultBody");
       tbody.innerHTML = "";
 
-      // 件数表示エリア
+      // 件数表示
       let countTop = document.getElementById("resultCountTop");
       let countBottom = document.getElementById("resultCountBottom");
-
-      if (!countTop) {
+      if(!countTop){
         countTop = document.createElement("div");
         countTop.id = "resultCountTop";
         countTop.className = "result-count stylish-count";
-        tbody.parentElement.insertAdjacentElement("beforebegin", countTop);
+        tbody.parentElement.insertAdjacentElement("beforebegin",countTop);
       }
-      if (!countBottom) {
+      if(!countBottom){
         countBottom = document.createElement("div");
         countBottom.id = "resultCountBottom";
         countBottom.className = "result-count stylish-count";
-        tbody.parentElement.insertAdjacentElement("afterend", countBottom);
+        tbody.parentElement.insertAdjacentElement("afterend",countBottom);
       }
 
-      // 🔹 アルファベットカラー範囲
-      const alphabetColors = ["D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
       const fromIndex = alphabetColors.indexOf(fromColor);
       const toIndex = alphabetColors.indexOf(toColor);
-       
+
       // 絞り込み
       const results = diamondData.filter(d => {
         const c = parseFloat(d.carat) || 0;
-        if (c < minC || c > maxC) return false;
-        if (dateVal && d.date.split(" ")[0] < dateVal) return false;
-        if (clarityVal && d.clarity != clarityVal) return false;
-        if (cutVal && d.cut != cutVal) return false;
-        if (fluVal && d.fluorescence != fluVal) return false;
-        if (shapeVal && d.shape != shapeVal) return false;
-      
-        // 🔹 フリーワード
-        if (keyword) {
-          const fields = [d.color, d.clarity, d.cut, d.shape, d.notes].join(" ").toLowerCase();
-          if (!keyword.split(" ").every(k => fields.includes(k))) return false;
+        if(c<minC||c>maxC) return false;
+        if(dateVal && d.date.split(" ")[0] < dateVal) return false;
+        if(clarityVal && d.clarity!=clarityVal) return false;
+        if(cutVal && d.cut!=cutVal) return false;
+        if(fluVal && d.fluorescence!=fluVal) return false;
+        if(shapeVal && d.shape!=shapeVal) return false;
+
+        if(keyword){
+          const fields=[d.color,d.clarity,d.cut,d.shape,d.notes].join(" ").toLowerCase();
+          if(!keyword.split(" ").every(k=>fields.includes(k))) return false;
         }
-      
-        // 🔹 カラー検索条件
-        const colorUpper = (d.color || "").toUpperCase();
+
+        const colorUpper=(d.color||"").toUpperCase();
         const isFancy = isFancyColor(d.color);
-        
-        // --- 通常アルファベットカラー（D〜Z） ---
-        let matchAlphabet = true;
-        if (!isFancy) {
-          if (fromColor && toColor) {
-            const colorIndex = alphabetColors.findIndex(c => colorUpper.startsWith(c));
-            matchAlphabet = (colorIndex >= fromIndex && colorIndex <= toIndex);
-          }
+
+        // 通常カラー判定
+        let matchAlphabet=true;
+        if(!isFancy && fromColor && toColor){
+          const colorIndex = alphabetColors.findIndex(c=>colorUpper.startsWith(c));
+          matchAlphabet=(colorIndex>=fromIndex && colorIndex<=toIndex);
+        } else if(!isFancy){
+          matchAlphabet=true;
         } else {
-          matchAlphabet = false; // FANCY系はここでは除外
+          matchAlphabet=false;
         }
-        
-        // --- FANCYグレード＋トーン検索 ---
-        let matchFancy = true;
-        if (isFancy) {
-          const hasGrade = fancyGrade !== "";
-          const hasTone = fancyTone !== "";
-        
-          if (hasGrade && hasTone) {
-            matchFancy =
-              colorUpper.includes(fancyGrade.toUpperCase()) &&
-              colorUpper.includes(fancyTone.toUpperCase());
-          } else if (hasGrade) {
-            matchFancy = colorUpper.includes(fancyGrade.toUpperCase());
-          } else if (hasTone) {
-            matchFancy = colorUpper.includes(fancyTone.toUpperCase());
+
+        // FANCYカラー判定
+        let matchFancy=true;
+        if(isFancy){
+          if(fancyGrade && fancyTone){
+            matchFancy=colorUpper.includes(fancyGrade.toUpperCase()) && colorUpper.includes(fancyTone.toUpperCase());
+          } else if(fancyGrade){
+            matchFancy=colorUpper.includes(fancyGrade.toUpperCase());
+          } else if(fancyTone){
+            matchFancy=colorUpper.includes(fancyTone.toUpperCase());
           } else {
-            matchFancy = true; // FANCY指定なしでも、FANCY全体を通過
+            matchFancy=true;
           }
         } else {
-          matchFancy = false; // 通常カラーはFANCY対象外
+          matchFancy=false;
         }
-        
-        // --- 🔹 条件統合 ---
-        let colorMatch = true;
-        
-        // 1️⃣ アルファベット指定あり → 通常カラーのみ通過
-        if (fromColor && toColor && !fancyGrade && !fancyTone) {
-          colorMatch = matchAlphabet;
-        }
-        
-        // 2️⃣ FANCY指定あり → FANCYのみ通過
-        else if ((fancyGrade || fancyTone) && !fromColor && !toColor) {
-          colorMatch = matchFancy;
-        }
-        
-        // 3️⃣ 両方指定なし → すべて通過
-        else if (!fromColor && !toColor && !fancyGrade && !fancyTone) {
-          colorMatch = true;
-        }
-        
-        // 4️⃣ 両方指定あり → 両方にマッチするもの
-        else {
-          colorMatch = matchAlphabet || matchFancy;
-        }
-        
-        if (!colorMatch) return false;
- 
-        return true;
-      });
 
-      // ---------------------
-      // カラー・カット・蛍光性のスコアリング関数
-      // ---------------------
-      function getColorScore(color) {
-        const baseMap = {
-          D: 100, E: 95, F: 90, G: 85, H: 80, I: 75, J: 70, K: 65, L: 60, M: 55,
-          N: 50, O: 45, P: 40, Q: 35, R: 30, S: 25, T: 20, U: 15, V: 10, W: 5, X: 3, Y: 2, Z: 1
-        };
-        const fancyGradeMap = {
-          "FANCY VIVID": 20, "FANCY INTENSE": 18, "FANCY DEEP": 16,
-          "FANCY DARK": 14, "FANCY": 12, "FANCY LIGHT": 10, "LIGHT": 8, "VERY LIGHT": 6, "FAINT": 4
-        };
-        const fancyColorMap = {
-          RED: 30, BLUE: 25, PINK: 20, GREEN: 18, ORANGE: 15, PURPLE: 12, VIOLET: 10,
-          YELLOW: 8, BROWN: 5, GRAY: 3, BLACK: 2, WHITE: 1
-        };
-        const ishMap = {
-          PINKISH: 1, PURPLISH: 1, BLUISH: 0, GREENISH: 0,
-          BROWNISH: -2, GRAYISH: -3, YELLOWISH: -1,
-          ORANGY: -1, VIOLETISH: 0, BLACKISH: -3
-        };
-
-        const upperColor = color.toUpperCase().trim();
-        let score = 0;
-
-        const rangeMatch = upperColor.match(/([A-Z])\s*[-TO]+\s*([A-Z])/);
-        if (rangeMatch) {
-          const start = baseMap[rangeMatch[1]] || 0;
-          const end = baseMap[rangeMatch[2]] || 0;
-          score = (start + end) / 2;
+        // OR判定
+        let colorMatch=true;
+        if((fromColor && toColor) && !(fancyGrade || fancyTone)){
+          colorMatch=matchAlphabet;
+        } else if((fancyGrade||fancyTone) && !(fromColor && toColor)){
+          colorMatch=matchFancy;
+        } else if(!(fromColor && toColor) && !(fancyGrade||fancyTone)){
+          colorMatch=true;
         } else {
-          for (const key in baseMap) {
-            if (upperColor.startsWith(key) || upperColor.includes("UNDER " + key)) {
-              score = baseMap[key];
-              break;
-            }
-          }
+          colorMatch=matchAlphabet || matchFancy;
         }
 
-        if (upperColor.includes("UNDER N")) score += 2000;
-        else if (upperColor.includes("UNDER S")) score += 1000;
-        else if (/^[D-Z]/.test(upperColor)) score += 3000;
-
-        if (upperColor.includes("TREATED")) score -= 0.1;
-        if (upperColor.includes("FAINT") || upperColor.includes("LIGHT BROWN")) score -= 1;
-
-        if (score < 1) {
-          for (const grade in fancyGradeMap) if (upperColor.includes(grade)) score += fancyGradeMap[grade];
-          for (const tone in fancyColorMap) if (upperColor.includes(tone)) score += fancyColorMap[tone];
-          for (const ish in ishMap) if (upperColor.includes(ish)) score += ishMap[ish];
-          score += 1000; // FANCY補助スコア
-        }
-
-        return score;
-      }
-
-      function getCutScore(cutStr) {
-        const rankMap = { "3EX": 100, EX: 90, VG: 70, GD: 50, FR: 30, FA: 29, PR: 10, PO: 9 };
-        let score = 0;
-
-        if (cutStr.includes("H&C") || cutStr.includes("HC")) score += 5;
-        if (cutStr.includes("HEART") || cutStr.includes("H&A")) score += 3;
-
-        const parts = cutStr.split("/");
-        const main = parts[0].replace(/[^A-Z]/g, "");
-        score += rankMap[main] || 0;
-
-        if (parts.length === 3) {
-          score += (rankMap[parts[2]] || 0) * 0.1;
-          score += (rankMap[parts[1]] || 0) * 0.05;
-        } else if (parts.length === 2) {
-          score += (rankMap[parts[1]] || 0) * 0.05;
-        }
-
-        return score;
-      }
-
-      function getFluorescenceScore(fluo) {
-        const intensityMap = { N: 0, NONE: 0, F: 1, FAINT: 1, M: 2, MEDIUM: 2, S: 3, STRONG: 3, VS: 4, "VERY STRONG": 4 };
-        const colorBonusMap = {
-          BLUE: 0.5, BL: 0.5, FB: 0.5, MB: 0.5, VSB: 0.5,
-          YELLOW: -0.5, FtY: -0.5, MY: -0.5, SY: -0.5, VSY: -0.5,
-          GREEN: 0, FtYGn: 0, MYGn: 0, SYGn: 0, VSYGn: 0,
-          WHITE: 0, WB: 0, MBW: 0, VSBW: 0,
-          GRAY: -1, SWG: -1, WYG: -1,
-          INERT: 0
-        };
-
-        const upper = fluo.toUpperCase();
-        let score = 0;
-
-        for (const key in intensityMap) if (upper.includes(key)) { score += intensityMap[key]; break; }
-        for (const key in colorBonusMap) if (upper.includes(key)) { score += colorBonusMap[key]; break; }
-
-        return score;
-      }
-
-      // ---------------------
-      // 並び順ソート
-      // ---------------------
-      const CLARITY_ORDER = ["FL", "IF", "VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2", "I1", "I2", "I3"];
-      const caratThresholds = [0, 0.1, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2, 3, 5];
-
-      function isFancyColor(color) {
-        if (!color) return false;
-        const upper = color.toUpperCase();
-      
-        // 「UNDER」など誤判定を防ぐ
-        if (upper.includes("UNDER")) return false;
-      
-        // FANCY の単語が含まれていればFANCY系とみなす
-        if (upper.includes("FANCY")) return true;
-      
-        // 色名だけでFANCYとわかるケース（例：PINK, BLUE など）
-        const fancyTones = ["PINK", "PURPLE", "BLUE", "GREEN", "ORANGE", "YELLOW", "BROWN", "GRAY", "RED", "VIOLET", "BLACK", "WHITE"];
-        const ishTerms = ["ISH", "ORANGY", "PINKISH", "PURPLISH", "GRAYISH", "YELLOWISH", "BROWNISH", "GREENISH", "BLUISH"];
-      
-        return fancyTones.some(t => upper.includes(t)) || ishTerms.some(i => upper.includes(i));
-      }
-
-      function getCaratGroupIndex(carat, color) {
-        const maxIndex = caratThresholds.length;
-        if (isFancyColor(color)) return maxIndex;
-        for (let i = 0; i < caratThresholds.length; i++) {
-          if (carat < caratThresholds[i]) return i;
-        }
-        return maxIndex - 1;
-      }
-
-      results.sort((a, b) => {
-        const groupA = getCaratGroupIndex(a.carat, a.color);
-        const groupB = getCaratGroupIndex(b.carat, b.color);
-        if (groupA !== groupB) return groupA - groupB;
-        const colorScoreDiff = getColorScore(b.color) - getColorScore(a.color);
-        if (colorScoreDiff !== 0) return colorScoreDiff;
-        const clarityDiff = CLARITY_ORDER.indexOf(a.clarity) - CLARITY_ORDER.indexOf(b.clarity);
-        if (clarityDiff !== 0) return clarityDiff;
-        const cutScoreDiff = getCutScore(b.cut) - getCutScore(a.cut);
-        if (cutScoreDiff !== 0) return cutScoreDiff;
-        return getFluorescenceScore(b.fluorescence) - getFluorescenceScore(a.fluorescence);
+        return colorMatch;
       });
 
-      // ページネーション・表示処理
-      const perPage = 100;
-      let currentPage = 1;
-      const totalPages = Math.ceil(results.length / perPage);
+      // 並び替え
+      results.sort((a,b)=>{
+        const groupA=getCaratGroupIndex(parseFloat(a.carat),a.color);
+        const groupB=getCaratGroupIndex(parseFloat(b.carat),b.color);
+        if(groupA!==groupB) return groupA-groupB;
+        const colorDiff=getColorScore(b.color)-getColorScore(a.color);
+        if(colorDiff!==0) return colorDiff;
+        const clarityDiff=CLARITY_ORDER.indexOf(a.clarity)-CLARITY_ORDER.indexOf(b.clarity);
+        if(clarityDiff!==0) return clarityDiff;
+        const cutDiff=getCutScore(b.cut)-getCutScore(a.cut);
+        if(cutDiff!==0) return cutDiff;
+        return getFluorescenceScore(b.fluorescence)-getFluorescenceScore(a.fluorescence);
+      });
 
-      function renderPage(page) {
-        tbody.innerHTML = "";
-        const start = (page - 1) * perPage;
-        const end = start + perPage;
-        results.slice(start, end).forEach(d => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${d.date.split(" ")[0] || ""}</td>
-            <td>${d.color || ""}</td>
-            <td>${d.clarity || ""}</td>
-            <td>${d.cut || ""}</td>
-            <td>${d.fluorescence || ""}</td>
-            <td>${d.shape || ""}</td>
-            <td>${parseFloat(d.carat)?.toFixed(3) || ""}</td>
-            <td>${parseFloat(d.pricePerCarat)?.toLocaleString() || ""}</td>
-            <td>${(parseFloat(d.pricePerCarat) * parseFloat(d.carat))?.toLocaleString() || ""}</td>
-            <td>${d.notes || ""}</td>
+      // ページネーション
+      const perPage=100;
+      let currentPage=1;
+      const totalPages=Math.ceil(results.length/perPage);
+      const pagination=document.getElementById("paginationArea")||document.createElement("div");
+      pagination.id="paginationArea";
+      pagination.className="pagination stylish-pagination";
+      countBottom.insertAdjacentElement("afterend",pagination);
+
+      function renderPage(page){
+        tbody.innerHTML="";
+        const start=(page-1)*perPage;
+        const end=start+perPage;
+        results.slice(start,end).forEach(d=>{
+          const row=document.createElement("tr");
+          row.innerHTML=`
+            <td>${d.date.split(" ")[0]||""}</td>
+            <td>${d.color||""}</td>
+            <td>${d.clarity||""}</td>
+            <td>${d.cut||""}</td>
+            <td>${d.fluorescence||""}</td>
+            <td>${d.shape||""}</td>
+            <td>${parseFloat(d.carat)?.toFixed(3)||""}</td>
+            <td>${parseFloat(d.pricePerCarat)?.toLocaleString()||""}</td>
+            <td>${(parseFloat(d.pricePerCarat)*parseFloat(d.carat))?.toLocaleString()||""}</td>
+            <td>${d.notes||""}</td>
             <td><span class="detailToggle">詳細</span></td>
           `;
           tbody.appendChild(row);
 
-          const detailRow = document.createElement("tr");
+          const detailRow=document.createElement("tr");
           detailRow.classList.add("detailsRow");
-
-          let unevenRate = "", heightRatio = "";
-          if (d.diameterMin && d.diameterMax) {
-            const min = parseFloat(d.diameterMin), max = parseFloat(d.diameterMax);
-            const avg = (min + max) / 2;
-            unevenRate = (((max - min) / avg) * 100).toFixed(2) + "%";
-            if (d.height) heightRatio = ((parseFloat(d.height) / avg) * 100).toFixed(2) + "%";
+          let unevenRate="", heightRatio="";
+          if(d.diameterMin && d.diameterMax){
+            const min=parseFloat(d.diameterMin), max=parseFloat(d.diameterMax);
+            const avg=(min+max)/2;
+            unevenRate=(((max-min)/avg)*100).toFixed(2)+"%";
+            if(d.height) heightRatio=((parseFloat(d.height)/avg)*100).toFixed(2)+"%";
           }
-
-          detailRow.innerHTML = `
+          detailRow.innerHTML=`
             <td colspan="11">
-              直径：${d.diameterMin || ""}-${d.diameterMax || ""}mm（不正円率：${unevenRate}）　高さ：${d.height || ""}mm（全高比：${heightRatio}）
+              直径：${d.diameterMin||""}-${d.diameterMax||""}mm（不正円率：${unevenRate}）　高さ：${d.height||""}mm（全高比：${heightRatio}）
             </td>
           `;
           tbody.appendChild(detailRow);
 
-          row.querySelector(".detailToggle").addEventListener("click", () => {
-            detailRow.style.display = detailRow.style.display === "table-row" ? "none" : "table-row";
+          row.querySelector(".detailToggle").addEventListener("click",()=>{
+            detailRow.style.display=detailRow.style.display==="table-row"?"none":"table-row";
           });
         });
 
-        const msg = results.length
+        const msg=results.length
           ? `🔹検索結果：<strong>${results.length.toLocaleString()}</strong> 件（${page}/${totalPages}ページ）`
           : `⚠ 該当するデータはありません。`;
-
-        countTop.innerHTML = msg;
-        countBottom.innerHTML = msg;
+        countTop.innerHTML=msg;
+        countBottom.innerHTML=msg;
       }
 
-      const pagination = document.getElementById("paginationArea") || document.createElement("div");
-      pagination.id = "paginationArea";
-      pagination.className = "pagination stylish-pagination";
-      countBottom.insertAdjacentElement("afterend", pagination);
-
-      function updatePagination() {
-        pagination.innerHTML = "";
-        if (totalPages <= 1) return;
-
-        const prev = document.createElement("button");
-        prev.textContent = "← 前へ";
-        prev.disabled = currentPage === 1;
-        prev.onclick = () => { currentPage--; renderPage(currentPage); updatePagination(); };
-
-        const next = document.createElement("button");
-        next.textContent = "次へ →";
-        next.disabled = currentPage === totalPages;
-        next.onclick = () => { currentPage++; renderPage(currentPage); updatePagination(); };
-
-        const info = document.createElement("span");
-        info.innerHTML = `ページ ${currentPage} / ${totalPages}`;
-
-        pagination.append(prev, info, next);
+      function updatePagination(){
+        pagination.innerHTML="";
+        if(totalPages<=1) return;
+        const prev=document.createElement("button");
+        prev.textContent="← 前へ";
+        prev.disabled=currentPage===1;
+        prev.onclick=()=>{currentPage--; renderPage(currentPage); updatePagination();};
+        const next=document.createElement("button");
+        next.textContent="次へ →";
+        next.disabled=currentPage===totalPages;
+        next.onclick=()=>{currentPage++; renderPage(currentPage); updatePagination();};
+        const info=document.createElement("span");
+        info.innerHTML=`ページ ${currentPage} / ${totalPages}`;
+        pagination.append(prev,info,next);
       }
 
       renderPage(1);
       updatePagination();
-      spinner.style.display = "none";
-
-    }, 100);
+      spinner.style.display="none";
+    },100);
   });
 
   // ---------------------
   // クリアボタン
   // ---------------------
-  document.getElementById("clearButton").addEventListener("click", () => {
-    ["minCarat", "maxCarat", "mainCarat", "fromColor", "toColor", "fancyGradeSelect", "fancyToneSelect", "claritySelect", "cutSelect", "fluorescenceSelect", "shapeSelect", "keyword"]
-      .forEach(id => document.getElementById(id).value = "");
-    document.getElementById("resultBody").innerHTML = "";
+  document.getElementById("clearButton").addEventListener("click",()=>{
+    ["minCarat","maxCarat","mainCarat","fromColor","toColor","fancyGradeSelect","fancyToneSelect","claritySelect","cutSelect","fluorescenceSelect","shapeSelect","keyword"]
+      .forEach(id=>document.getElementById(id).value="");
+    document.getElementById("resultBody").innerHTML="";
   });
 </script>
 </body>
