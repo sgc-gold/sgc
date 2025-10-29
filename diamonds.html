@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.21</title>
+<title>ダイヤ相場検索 1.30</title>
 <style>
 /* =======================
    基本スタイル
@@ -188,10 +188,6 @@ button { cursor:pointer; transition:all 0.2s ease;}
     <select id="dateSelect"><option value="">すべて</option></select>
     <span style="margin-left:0.5rem; color:#555; font-size:0.9rem;">※選択日以降で検索</span>
   </div>
-  <div class="flex-row">
-    <label for="colorSelect">カラー</label>
-    <select id="colorSelect"><option value="">すべて</option></select>
-  </div>
 
    <!-- アルファベットカラー範囲 -->
    <div class="flex-row">
@@ -311,14 +307,49 @@ button { cursor:pointer; transition:all 0.2s ease;}
       .forEach(d => addOption(document.getElementById("dateSelect"), d));
     document.getElementById("dateSelect").selectedIndex = 1;
 
-    Array.from(colors).sort().forEach(c => addOption(document.getElementById("colorSelect"), c));
     Array.from(clarities).sort().forEach(c => addOption(document.getElementById("claritySelect"), c));
     Array.from(cuts).sort().forEach(c => addOption(document.getElementById("cutSelect"), c));
     Array.from(fluo).sort().forEach(f => addOption(document.getElementById("fluorescenceSelect"), f));
     Array.from(shapes).sort().forEach(s => addOption(document.getElementById("shapeSelect"), s));
+
+    // 🔹【追加①】アルファベットカラー選択肢の生成
+    const alphabetColors = [
+      "D","E","F","G","H","I","J","K","L","M","N","O","P",
+      "Q","R","S","T","U","V","W","X","Y","Z"
+    ];
+    const fromColorSel = document.getElementById("fromColor");
+    const toColorSel = document.getElementById("toColor");
+    alphabetColors.forEach(c => {
+      addOption(fromColorSel, c);
+      addOption(toColorSel, c);
+    });
+
+    // 🔹【追加②】FANCYグレード・トーンの選択肢生成
+    const fancyGrades = [
+      "FAINT", "VERY LIGHT", "LIGHT", "FANCY LIGHT", "FANCY",
+      "FANCY INTENSE", "FANCY VIVID", "FANCY DEEP", "FANCY DARK"
+    ];
+    const fancyTones = [
+      "YELLOW", "PINK", "BLUE", "GREEN", "BROWN", "ORANGE",
+      "PURPLE", "RED", "GRAY", "BLACK"
+    ];
+
+    const fancyGradeSel = document.getElementById("fancyGradeSelect");
+    const fancyToneSel = document.getElementById("fancyToneSelect");
+    fancyGrades.forEach(g => addOption(fancyGradeSel, g));
+    fancyTones.forEach(t => addOption(fancyToneSel, t));
   }
 
   populateFilters();
+
+  // ---------------------
+  // FANCYカラー判定関数
+  // ---------------------
+  function isFancyColor(color) {
+    if (!color) return false;
+    const upper = color.toUpperCase();
+    return /(FANCY|FAINT|LIGHT|INTENSE|VIVID|DEEP|DARK)/.test(upper);
+  }
 
   // ---------------------
   // 検索処理（件数表示＋ページネーション）
@@ -332,7 +363,6 @@ button { cursor:pointer; transition:all 0.2s ease;}
       const minC = parseFloat(document.getElementById("minCarat").value) || 0;
       const maxC = parseFloat(document.getElementById("maxCarat").value) || 999;
       const dateVal = document.getElementById("dateSelect").value;
-      const colorVal = document.getElementById("colorSelect").value;
       const clarityVal = document.getElementById("claritySelect").value;
       const cutVal = document.getElementById("cutSelect").value;
       const fluVal = document.getElementById("fluorescenceSelect").value;
@@ -375,7 +405,6 @@ button { cursor:pointer; transition:all 0.2s ease;}
         const c = parseFloat(d.carat) || 0;
         if (c < minC || c > maxC) return false;
         if (dateVal && d.date.split(" ")[0] < dateVal) return false;
-        if (colorVal && d.color != colorVal) return false;
         if (clarityVal && d.clarity != clarityVal) return false;
         if (cutVal && d.cut != cutVal) return false;
         if (fluVal && d.fluorescence != fluVal) return false;
@@ -386,20 +415,33 @@ button { cursor:pointer; transition:all 0.2s ease;}
           if (!keyword.split(" ").every(k => fields.includes(k))) return false;
         }
 
-        // アルファベットカラー範囲検索
-        if (!isFancyColor(d.color) && fromColor && toColor) {
-          const colorUpper = d.color.toUpperCase();
+        // 🔹 カラー検索条件
+        const colorUpper = (d.color || "").toUpperCase();
+      
+        // --- ① アルファベットカラー範囲（D〜Z）
+        let matchAlphabet = true;
+        if (fromColor && toColor) {
           const colorIndex = alphabetColors.findIndex(c => colorUpper.startsWith(c));
-          if (colorIndex < fromIndex || colorIndex > toIndex) return false;
+          if (colorIndex === -1) matchAlphabet = false;
+          else matchAlphabet = (colorIndex >= fromIndex && colorIndex <= toIndex);
         }
       
-        // FANCYカラー検索
-        if (isFancyColor(d.color) && (fancyGrade || fancyTone)) {
-          const upper = d.color.toUpperCase();
-          const matchGrade = fancyGrade ? upper.includes(fancyGrade.toUpperCase()) : true;
-          const matchTone = fancyTone ? upper.includes(fancyTone.toUpperCase()) : true;
-          if (!(matchGrade && matchTone)) return false;
+        // --- ② FANCYグレード＋トーン検索（AND検索）
+        let matchFancy = true;
+        if (fancyGrade || fancyTone) {
+          const matchGrade = fancyGrade ? colorUpper.includes(fancyGrade.toUpperCase()) : true;
+          const matchTone  = fancyTone  ? colorUpper.includes(fancyTone.toUpperCase()) : true;
+          matchFancy = (matchGrade && matchTone);
         }
+      
+        // --- ①と②をOR検索で統合
+        let colorMatch = true;
+        if ((fromColor && toColor) || (fancyGrade || fancyTone)) {
+          colorMatch = (matchAlphabet || matchFancy);
+        }
+      
+        // --- 条件不一致なら除外
+        if (!colorMatch) return false;
                 
         return true;
       });
@@ -631,7 +673,7 @@ button { cursor:pointer; transition:all 0.2s ease;}
   // クリアボタン
   // ---------------------
   document.getElementById("clearButton").addEventListener("click", () => {
-    ["minCarat", "maxCarat", "mainCarat", "dateSelect", "colorSelect", "claritySelect", "cutSelect", "fluorescenceSelect", "shapeSelect", "keyword"]
+    ["minCarat", "maxCarat", "mainCarat", "dateSelect", "fromColor", "toColor", "fancyGradeSelect", "fancyToneSelect", "claritySelect", "cutSelect", "fluorescenceSelect", "shapeSelect", "keyword"]
       .forEach(id => document.getElementById(id).value = "");
     document.getElementById("resultBody").innerHTML = "";
   });
