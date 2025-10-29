@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.39</title>
+<title>ダイヤ相場検索 1.40</title>
 <style>
 /* =======================
    基本スタイル
@@ -569,12 +569,20 @@ button { cursor:pointer; transition:all 0.2s ease;}
       const caratThresholds = [0, 0.1, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2, 3, 5];
 
       function isFancyColor(color) {
+        if (!color) return false;
         const upper = color.toUpperCase();
+      
+        // 「UNDER」など誤判定を防ぐ
         if (upper.includes("UNDER")) return false;
-        const fancyGrades = ["FANCY", "LIGHT", "VERY LIGHT", "FAINT"];
+      
+        // FANCY の単語が含まれていればFANCY系とみなす
+        if (upper.includes("FANCY")) return true;
+      
+        // 色名だけでFANCYとわかるケース（例：PINK, BLUE など）
         const fancyTones = ["PINK", "PURPLE", "BLUE", "GREEN", "ORANGE", "YELLOW", "BROWN", "GRAY", "RED", "VIOLET", "BLACK", "WHITE"];
         const ishTerms = ["ISH", "ORANGY", "PINKISH", "PURPLISH", "GRAYISH", "YELLOWISH", "BROWNISH", "GREENISH", "BLUISH"];
-        return fancyGrades.some(g => upper.includes(g)) || fancyTones.some(t => upper.includes(t)) || ishTerms.some(i => upper.includes(i));
+      
+        return fancyTones.some(t => upper.includes(t)) || ishTerms.some(i => upper.includes(i));
       }
 
       function getCaratGroupIndex(carat, color) {
