@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.32</title>
+<title>ダイヤ相場検索 1.33</title>
 <style>
 /* =======================
    基本スタイル
@@ -189,25 +189,20 @@ button { cursor:pointer; transition:all 0.2s ease;}
     <span style="margin-left:0.5rem; color:#555; font-size:0.9rem;">※選択日以降で検索</span>
   </div>
 
-   <!-- アルファベットカラー範囲 -->
-   <div class="flex-row">
-     <label>アルファベットカラー</label>
-     <select id="fromColor"><option value="">From</option></select>
-     <span>〜</span>
-     <select id="toColor"><option value="">To</option></select>
-   </div>
+  <!-- アルファベットカラー範囲 -->
+  <div class="flex-row">
+    <label>アルファベットカラー</label>
+    <select id="fromColor"><option value="">From</option></select>
+    <span>〜</span>
+    <select id="toColor"><option value="">To</option></select>
+  </div>
    
-   <!-- FANCY系カラー -->
-   <div class="flex-row" style="gap: 1rem; align-items: center;">
-     <div>
-       <label>FANCYグレード</label>
-       <select id="fancyGradeSelect"><option value="">すべて</option></select>
-     </div>
-     <div>
-       <label>FANCY色味</label>
-       <select id="fancyToneSelect"><option value="">すべて</option></select>
-     </div>
-   </div>   
+  <!-- FANCY系カラー -->
+  <div class="flex-row">
+    <label>FANCYカラー</label>
+    <select id="fancyGradeSelect" style="flex: 1;"><option value="">すべて</option></select>
+    <select id="fancyToneSelect" style="flex: 1;"><option value="">すべて</option></select>
+  </div>
    
   <div class="flex-row">
     <label for="claritySelect">クラリティ</label>
