@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.47</title>
+<title>ダイヤ相場検索 1.48</title>
 <style>
 /* =======================
    基本スタイル
@@ -71,7 +71,7 @@ button { cursor:pointer; transition:all 0.2s ease;}
 /* =======================
    テーブルスタイル
 ======================= */
-#resultTable { width:100%; border-collapse:collapse; margin-top:1rem; }
+#resultTable { width:100%; border-collapse:collapse; margin-top:1rem; display: none; }
 #resultTable th, #resultTable td { border:1px solid #ddd; padding:6px 0px; text-align:center; font-size:0.65rem;}
 #resultTable th { background:#f0f0f0; font-weight:600; color:#333;}
 .detailsRow { display:none; background:#fafafa; }
@@ -410,6 +410,8 @@ button { cursor:pointer; transition:all 0.2s ease;}
 
       const tbody = document.getElementById("resultBody");
       tbody.innerHTML = "";
+
+      document.getElementById("resultTable").style.display = "table"; 
 
       // 件数表示
       let countTop = document.getElementById("resultCountTop");
