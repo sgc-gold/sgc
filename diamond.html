@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.25</title>
+<title>ダイヤ相場検索 1.26</title>
 <style>
 /* =======================
    基本スタイル
@@ -348,9 +348,9 @@ button { cursor:pointer; transition:all 0.2s ease;}
   function isFancyColor(color) {
     if (!color) return false;
     const upper = color.toUpperCase();
-    return upper.includes("FANCY") || upper.includes("FAINT") || upper.includes("LIGHT") || upper.includes("VIVID") || upper.includes("DEEP") || upper.includes("DARK");
+    return /(FANCY|FAINT|LIGHT|INTENSE|VIVID|DEEP|DARK)/.test(upper);
   }
-   
+
   // ---------------------
   // 検索処理（件数表示＋ページネーション）
   // ---------------------
