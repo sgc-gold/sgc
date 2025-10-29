@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.28</title>
+<title>ダイヤ相場検索 1.29</title>
 <style>
 /* =======================
    基本スタイル
@@ -433,7 +433,7 @@ button { cursor:pointer; transition:all 0.2s ease;}
           const matchTone  = fancyTone  ? colorUpper.includes(fancyTone.toUpperCase()) : false;
       
           // ✅ 検索条件：AND検索かOR検索かを設定
-          const fancyMode = "OR"; // ← ここを "AND" にすると両方一致のみ
+          const fancyMode = "AND"; //
           matchFancy = (fancyMode === "AND") ? (matchGrade && matchTone) : (matchGrade || matchTone);
         }
       
