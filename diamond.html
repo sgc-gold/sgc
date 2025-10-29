@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.27</title>
+<title>ダイヤ相場検索 1.28</title>
 <style>
 /* =======================
    基本スタイル
@@ -415,20 +415,32 @@ button { cursor:pointer; transition:all 0.2s ease;}
           if (!keyword.split(" ").every(k => fields.includes(k))) return false;
         }
 
-        // アルファベットカラー範囲検索
-        if (!isFancyColor(d.color) && fromColor && toColor) {
-          const colorUpper = d.color.toUpperCase();
+        // 🔹 カラー検索条件
+        const colorUpper = (d.color || "").toUpperCase();
+      
+        // --- ① アルファベットカラー範囲（D〜Z）
+        let matchAlphabet = true;
+        if (fromColor && toColor) {
           const colorIndex = alphabetColors.findIndex(c => colorUpper.startsWith(c));
-          if (colorIndex < fromIndex || colorIndex > toIndex) return false;
+          if (colorIndex === -1) matchAlphabet = false;
+          else matchAlphabet = (colorIndex >= fromIndex && colorIndex <= toIndex);
         }
       
-        // FANCYカラー検索
-        if (isFancyColor(d.color) && (fancyGrade || fancyTone)) {
-          const upper = d.color.toUpperCase();
-          const matchGrade = fancyGrade ? upper.includes(fancyGrade.toUpperCase()) : true;
-          const matchTone = fancyTone ? upper.includes(fancyTone.toUpperCase()) : true;
-          if (!(matchGrade && matchTone)) return false;
+        // --- ② FANCYグレード・トーン検索（AND検索・OR検索対応）
+        let matchFancy = true;
+        if (fancyGrade || fancyTone) {
+          const matchGrade = fancyGrade ? colorUpper.includes(fancyGrade.toUpperCase()) : false;
+          const matchTone  = fancyTone  ? colorUpper.includes(fancyTone.toUpperCase()) : false;
+      
+          // ✅ 検索条件：AND検索かOR検索かを設定
+          const fancyMode = "OR"; // ← ここを "AND" にすると両方一致のみ
+          matchFancy = (fancyMode === "AND") ? (matchGrade && matchTone) : (matchGrade || matchTone);
         }
+      
+        // --- 条件まとめ
+        // ①と②どちらかが指定されていればその条件でフィルタ
+        if (fromColor && toColor && !(matchAlphabet)) return false;
+        if ((fancyGrade || fancyTone) && !(matchFancy)) return false;
                 
         return true;
       });
