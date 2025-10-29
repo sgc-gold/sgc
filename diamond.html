@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.22</title>
+<title>ダイヤ相場検索 1.23</title>
 <style>
 /* =======================
    基本スタイル
@@ -658,7 +658,7 @@ button { cursor:pointer; transition:all 0.2s ease;}
   // クリアボタン
   // ---------------------
   document.getElementById("clearButton").addEventListener("click", () => {
-    ["minCarat", "maxCarat", "mainCarat", "dateSelect", "colorSelect", "claritySelect", "cutSelect", "fluorescenceSelect", "shapeSelect", "keyword"]
+    ["minCarat", "maxCarat", "mainCarat", "dateSelect", "fromColor", "toColor", "fancyGradeSelect", "fancyToneSelect", "claritySelect", "cutSelect", "fluorescenceSelect", "shapeSelect", "keyword"]
       .forEach(id => document.getElementById(id).value = "");
     document.getElementById("resultBody").innerHTML = "";
   });
