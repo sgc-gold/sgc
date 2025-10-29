@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.46</title>
+<title>ダイヤ相場検索 1.47</title>
 <style>
 /* =======================
    基本スタイル
@@ -528,7 +528,7 @@ button { cursor:pointer; transition:all 0.2s ease;}
             <td>${d.shape||""}</td>
             <td>${parseFloat(d.carat)?.toFixed(3)||""}</td>
             <td class="priceCell">${parseFloat(d.pricePerCarat)?.toLocaleString()||""}</td>
-            <td class="priceCell">${(parseFloat(d.pricePerCarat)*parseFloat(d.carat))?.toLocaleString()||""}</td>
+            <td class="priceCell">${Math.floor(parseFloat(d.pricePerCarat)*parseFloat(d.carat))?.toLocaleString()||""}</td>
             <td>${d.notes||""}</td>
             <td><span class="detailToggle">詳細</span></td>
           `;
