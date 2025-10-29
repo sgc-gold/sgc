@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.29</title>
+<title>ダイヤ相場検索 1.30</title>
 <style>
 /* =======================
    基本スタイル
@@ -426,21 +426,22 @@ button { cursor:pointer; transition:all 0.2s ease;}
           else matchAlphabet = (colorIndex >= fromIndex && colorIndex <= toIndex);
         }
       
-        // --- ② FANCYグレード・トーン検索（AND検索・OR検索対応）
+        // --- ② FANCYグレード＋トーン検索（AND検索）
         let matchFancy = true;
         if (fancyGrade || fancyTone) {
-          const matchGrade = fancyGrade ? colorUpper.includes(fancyGrade.toUpperCase()) : false;
-          const matchTone  = fancyTone  ? colorUpper.includes(fancyTone.toUpperCase()) : false;
-      
-          // ✅ 検索条件：AND検索かOR検索かを設定
-          const fancyMode = "AND"; //
-          matchFancy = (fancyMode === "AND") ? (matchGrade && matchTone) : (matchGrade || matchTone);
+          const matchGrade = fancyGrade ? colorUpper.includes(fancyGrade.toUpperCase()) : true;
+          const matchTone  = fancyTone  ? colorUpper.includes(fancyTone.toUpperCase()) : true;
+          matchFancy = (matchGrade && matchTone);
         }
       
-        // --- 条件まとめ
-        // ①と②どちらかが指定されていればその条件でフィルタ
-        if (fromColor && toColor && !(matchAlphabet)) return false;
-        if ((fancyGrade || fancyTone) && !(matchFancy)) return false;
+        // --- ①と②をOR検索で統合
+        let colorMatch = true;
+        if ((fromColor && toColor) || (fancyGrade || fancyTone)) {
+          colorMatch = (matchAlphabet || matchFancy);
+        }
+      
+        // --- 条件不一致なら除外
+        if (!colorMatch) return false;
                 
         return true;
       });
