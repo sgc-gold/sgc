@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.54</title>
+<title>ダイヤ相場検索 1.55</title>
 <style>
 /* =======================
    基本スタイル
@@ -607,8 +607,13 @@ button { cursor:pointer; transition:all 0.2s ease;}
   // ---------------------
   document.getElementById("clearButton").addEventListener("click", () => {
     // 各入力フォームをリセット
-    ["minCarat","maxCarat","mainCarat","fromColor","toColor","fancyGradeSelect","fancyToneSelect","claritySelect","cutSelect","hcCheck","fluorescenceSelect","shapeSelect","keyword"]
-      .forEach(id => document.getElementById(id).value = "");
+    ["minCarat","maxCarat","mainCarat","fromColor","toColor","fancyGradeSelect","fancyToneSelect",
+    "claritySelect","cutSelect","fluorescenceSelect","shapeSelect","keyword"].forEach(id => {
+      document.getElementById(id).value = "";
+    });
+
+    // H&C チェックボックスをリセット
+    document.getElementById("hcCheck").checked = false;
 
     // 結果テーブル本体を非表示かつクリア
     document.getElementById("resultBody").innerHTML = "";
