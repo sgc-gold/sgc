@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.37</title>
+<title>ダイヤ相場検索 1.38</title>
 <style>
 /* =======================
    基本スタイル
@@ -425,34 +425,34 @@ button { cursor:pointer; transition:all 0.2s ease;}
         }
       
         // --- FANCYグレード＋トーン検索（自動判定）
+        // --- FANCYグレード＋トーン検索（自動判定）
         let matchFancy = true;
         if (isFancy) {
           const hasGrade = fancyGrade !== "";
           const hasTone = fancyTone !== "";
       
-          // 両方選択 → AND検索
+          const upperColor = colorUpper.replace(/\s+/g, " "); // スペースを正規化
+      
           if (hasGrade && hasTone) {
+            // 両方選択 → AND検索
             matchFancy =
-              colorUpper.includes(fancyGrade.toUpperCase()) &&
-              colorUpper.includes(fancyTone.toUpperCase());
-          }
-          // どちらかのみ選択 → OR検索
-          else if (hasGrade || hasTone) {
-            const gradeCheck = hasGrade ? colorUpper.includes(fancyGrade.toUpperCase()) : false;
-            const toneCheck = hasTone ? colorUpper.includes(fancyTone.toUpperCase()) : false;
-            matchFancy = gradeCheck || toneCheck;
-          }
-          // 両方未選択 → 全通過
-          else {
+              upperColor.includes(fancyGrade.toUpperCase()) &&
+              upperColor.includes(fancyTone.toUpperCase());
+          } else if (hasGrade) {
+            // グレードのみ → グレード＋その配下の全トーンを含む（中分類）
+            matchFancy =
+              upperColor.includes(fancyGrade.toUpperCase()) ||
+              upperColor.match(new RegExp(`FANCY\\s+${fancyGrade.toUpperCase()}\\s+[A-Z]+`));
+          } else if (hasTone) {
+            // トーンのみ → 全グレードの中から同トーン検索（小分類）
+            matchFancy =
+              upperColor.includes(fancyTone.toUpperCase()) ||
+              upperColor.match(new RegExp(`FANCY\\s+[A-Z]+\\s+${fancyTone.toUpperCase()}`));
+          } else {
+            // 両方未選択 → 全通過
             matchFancy = true;
           }
         }
-      
-        // --- ①と②をOR検索で統合
-        let colorMatch = (matchAlphabet || matchFancy);
-      
-        // 条件不一致なら除外
-        if (!colorMatch) return false;
       
         return true;
       });
