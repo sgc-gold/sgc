@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.35</title>
+<title>ダイヤ相場検索 1.37</title>
 <style>
 /* =======================
    基本スタイル
@@ -406,30 +406,46 @@ button { cursor:pointer; transition:all 0.2s ease;}
         if (cutVal && d.cut != cutVal) return false;
         if (fluVal && d.fluorescence != fluVal) return false;
         if (shapeVal && d.shape != shapeVal) return false;
+      
         // 🔹 フリーワード
         if (keyword) {
           const fields = [d.color, d.clarity, d.cut, d.shape, d.notes].join(" ").toLowerCase();
           if (!keyword.split(" ").every(k => fields.includes(k))) return false;
         }
-
+      
         // 🔹 カラー検索条件
         const colorUpper = (d.color || "").toUpperCase();
         const isFancy = isFancyColor(d.color);
       
-        // --- アルファベットカラー範囲（D〜Z）非FANCY対象
+        // --- アルファベットカラー範囲（D〜Z）
         let matchAlphabet = true;
         if (!isFancy && fromColor && toColor) {
           const colorIndex = alphabetColors.findIndex(c => colorUpper.startsWith(c));
           matchAlphabet = (colorIndex >= fromIndex && colorIndex <= toIndex);
         }
       
-        // --- FANCYグレード＋トーン検索（AND）
+        // --- FANCYグレード＋トーン検索（自動判定）
         let matchFancy = true;
         if (isFancy) {
-          // どちらも未選択なら通す
-          const gradeCheck = fancyGrade ? colorUpper.includes(fancyGrade.toUpperCase()) : true;
-          const toneCheck  = fancyTone  ? colorUpper.includes(fancyTone.toUpperCase()) : true;
-          matchFancy = gradeCheck && toneCheck;
+          const hasGrade = fancyGrade !== "";
+          const hasTone = fancyTone !== "";
+      
+          // 両方選択 → AND検索
+          if (hasGrade && hasTone) {
+            matchFancy =
+              colorUpper.includes(fancyGrade.toUpperCase()) &&
+              colorUpper.includes(fancyTone.toUpperCase());
+          }
+          // どちらかのみ選択 → OR検索
+          else if (hasGrade || hasTone) {
+            const gradeCheck = hasGrade ? colorUpper.includes(fancyGrade.toUpperCase()) : false;
+            const toneCheck = hasTone ? colorUpper.includes(fancyTone.toUpperCase()) : false;
+            matchFancy = gradeCheck || toneCheck;
+          }
+          // 両方未選択 → 全通過
+          else {
+            matchFancy = true;
+          }
         }
       
         // --- ①と②をOR検索で統合
@@ -437,7 +453,7 @@ button { cursor:pointer; transition:all 0.2s ease;}
       
         // 条件不一致なら除外
         if (!colorMatch) return false;
-                
+      
         return true;
       });
 
