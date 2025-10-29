@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.33</title>
+<title>ダイヤ相場検索 1.34</title>
 <style>
 /* =======================
    基本スタイル
@@ -414,26 +414,27 @@ button { cursor:pointer; transition:all 0.2s ease;}
 
         // 🔹 カラー検索条件
         const colorUpper = (d.color || "").toUpperCase();
+        const isFancy = isFancyColor(d.color);
       
-        // --- ① アルファベットカラー範囲（D〜Z）
-        let matchAlphabet = false;
-        if (fromColor && toColor) {
+        // --- アルファベットカラー範囲（D〜Z）FANCY以外対象
+        let matchAlphabet = true;
+        if (!isFancy && fromColor && toColor) {
           const colorIndex = alphabetColors.findIndex(c => colorUpper.startsWith(c));
-          if (colorIndex !== -1) matchAlphabet = (colorIndex >= fromIndex && colorIndex <= toIndex);
+          matchAlphabet = colorIndex >= fromIndex && colorIndex <= toIndex;
         }
       
-        // --- ② FANCYグレード＋トーン検索（AND検索）
-        let matchFancy = false;
-        if (fancyGrade || fancyTone) {
+        // --- FANCYグレード＋トーン検索（AND）
+        let matchFancy = true;
+        if (isFancy) {
           const matchGrade = fancyGrade ? colorUpper.includes(fancyGrade.toUpperCase()) : true;
           const matchTone  = fancyTone  ? colorUpper.includes(fancyTone.toUpperCase()) : true;
           matchFancy = matchGrade && matchTone;
         }
-      
+       
         // --- ①と②をOR検索で統合
         let colorMatch = matchAlphabet || matchFancy;
       
-        // --- 条件不一致なら除外
+        // 条件不一致なら除外
         if (!colorMatch) return false;
                 
         return true;
