@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.51</title>
+<title>ダイヤ相場検索 1.52</title>
 <style>
 /* =======================
    基本スタイル
@@ -316,7 +316,10 @@ button { cursor:pointer; transition:all 0.2s ease;}
     Array.from(sets.dates).sort((a,b)=>new Date(b)-new Date(a)).forEach(d=>addOption(document.getElementById("dateSelect"),d));
     document.getElementById("dateSelect").selectedIndex = 1;
     Array.from(sets.clarities).sort().forEach(c=>addOption(document.getElementById("claritySelect"),c));
-    Array.from(sets.cuts).sort().forEach(c=>addOption(document.getElementById("cutSelect"),c));
+     
+    const fixedCuts = ["EX", "VG", "GD", "FR", "PR"];
+    fixedCuts.forEach(cut => addOption(document.getElementById("cutSelect"), cut)); 
+     
     Array.from(sets.fluos).sort().forEach(f=>addOption(document.getElementById("fluorescenceSelect"),f));
     Array.from(sets.shapes).sort().forEach(s=>addOption(document.getElementById("shapeSelect"),s));
 
