@@ -666,7 +666,7 @@ button { cursor:pointer; transition:all 0.2s ease;}
   // クリアボタン
   // ---------------------
   document.getElementById("clearButton").addEventListener("click", () => {
-    ["minCarat", "maxCarat", "mainCarat", "dateSelect", "fromColor", "toColor", "fancyGradeSelect", "fancyToneSelect", "claritySelect", "cutSelect", "fluorescenceSelect", "shapeSelect", "keyword"]
+    ["minCarat", "maxCarat", "mainCarat", "fromColor", "toColor", "fancyGradeSelect", "fancyToneSelect", "claritySelect", "cutSelect", "fluorescenceSelect", "shapeSelect", "keyword"]
       .forEach(id => document.getElementById(id).value = "");
     document.getElementById("resultBody").innerHTML = "";
   });
