@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.49</title>
+<title>ダイヤ相場検索 1.50</title>
 <style>
 /* =======================
    基本スタイル
@@ -590,15 +590,23 @@ button { cursor:pointer; transition:all 0.2s ease;}
   // クリアボタン
   // ---------------------
   document.getElementById("clearButton").addEventListener("click", () => {
+    // 各入力フォームをリセット
     ["minCarat","maxCarat","mainCarat","fromColor","toColor","fancyGradeSelect","fancyToneSelect","claritySelect","cutSelect","fluorescenceSelect","shapeSelect","keyword"]
-      .forEach(id => document.getElementById(id).value="");
+      .forEach(id => document.getElementById(id).value = "");
 
-    document.getElementById("resultBody").innerHTML="";
-    document.getElementById("resultTable").style.display="none"; // テーブル非表示
+    // 結果テーブル本体を非表示かつクリア
+    document.getElementById("resultBody").innerHTML = "";
+    document.getElementById("resultTable").style.display = "none";
+
+    // 件数表示も削除
     const countTop = document.getElementById("resultCountTop");
     const countBottom = document.getElementById("resultCountBottom");
-    if(countTop) countTop.style.display="none";
-    if(countBottom) countBottom.style.display="none";
+    if(countTop) countTop.remove();
+    if(countBottom) countBottom.remove();
+
+    // ページネーションも削除
+    const pagination = document.getElementById("paginationArea");
+    if(pagination) pagination.remove();
   });
 
 </script>
