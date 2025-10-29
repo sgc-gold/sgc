@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.44</title>
+<title>ダイヤ相場検索 1.45</title>
 <style>
 /* =======================
    基本スタイル
@@ -77,6 +77,12 @@ button { cursor:pointer; transition:all 0.2s ease;}
 .detailsRow { display:none; background:#fafafa; }
 .detailsRow td { text-align:left; font-size:0.9rem; }
 .detailToggle { color:#00796B; cursor:pointer; font-weight:600; }
+   
+/* ガイ単価・金額右寄せ用 */
+td.priceCell {
+  text-align: right;
+  padding-right: 1rem; /* 右端から少し余白 */
+}   
 
 /* =======================
    ローディングスピナー
@@ -521,8 +527,8 @@ button { cursor:pointer; transition:all 0.2s ease;}
             <td>${d.fluorescence||""}</td>
             <td>${d.shape||""}</td>
             <td>${parseFloat(d.carat)?.toFixed(3)||""}</td>
-            <td>${parseFloat(d.pricePerCarat)?.toLocaleString()||""}</td>
-            <td>${(parseFloat(d.pricePerCarat)*parseFloat(d.carat))?.toLocaleString()||""}</td>
+            <td class="priceCell">${parseFloat(d.pricePerCarat)?.toLocaleString()||""}</td>
+            <td class="priceCell">${(parseFloat(d.pricePerCarat)*parseFloat(d.carat))?.toLocaleString()||""}</td>
             <td>${d.notes||""}</td>
             <td><span class="detailToggle">詳細</span></td>
           `;
