@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.50</title>
+<title>ダイヤ相場検索 1.51</title>
 <style>
 /* =======================
    基本スタイル
@@ -216,7 +216,17 @@ button { cursor:pointer; transition:all 0.2s ease;}
   </div>
   <div class="flex-row">
     <label for="cutSelect">カット</label>
-    <select id="cutSelect"><option value="">すべて</option></select>
+    <select id="cutSelect">
+      <option value="">すべて</option>
+      <option value="EX">EX</option>
+      <option value="VG">VG</option>
+      <option value="GD">GD</option>
+      <option value="FR">FR</option>
+      <option value="PR">PR</option>
+    </select>
+    <label style="margin-left:10px; font-weight:normal;">
+      <input type="checkbox" id="hcCheck"> H&C
+    </label>
   </div>
   <div class="flex-row">
     <label for="fluorescenceSelect">蛍光性</label>
@@ -388,17 +398,21 @@ button { cursor:pointer; transition:all 0.2s ease;}
   // ---------------------
   // 検索処理
   // ---------------------
+  // 検索ボタン
   document.getElementById("searchButton").addEventListener("click", () => {
     const spinner = document.getElementById("loadingSpinner");
     spinner.style.display = "flex";
 
     setTimeout(() => {
-      // フィルター取得
+      // カットとH&C取得
+      const cutVal = document.getElementById("cutSelect").value;
+      const hcChecked = document.getElementById("hcCheck").checked;
+
+      // 他のフィルター取得（以前のコードと同じ）
       const minC = parseFloat(document.getElementById("minCarat").value) || 0;
       const maxC = parseFloat(document.getElementById("maxCarat").value) || 999;
       const dateVal = document.getElementById("dateSelect").value;
       const clarityVal = document.getElementById("claritySelect").value;
-      const cutVal = document.getElementById("cutSelect").value;
       const fluVal = document.getElementById("fluorescenceSelect").value;
       const shapeVal = document.getElementById("shapeSelect").value;
       const keyword = document.getElementById("keyword").value.trim().toLowerCase();
@@ -410,7 +424,6 @@ button { cursor:pointer; transition:all 0.2s ease;}
 
       const tbody = document.getElementById("resultBody");
       tbody.innerHTML = "";
-
       document.getElementById("resultTable").style.display = "table"; 
 
       // 件数表示
@@ -438,30 +451,24 @@ button { cursor:pointer; transition:all 0.2s ease;}
         if(c<minC||c>maxC) return false;
         if(dateVal && d.date.split(" ")[0] < dateVal) return false;
         if(clarityVal && d.clarity!=clarityVal) return false;
-        if(cutVal && d.cut!=cutVal) return false;
         if(fluVal && d.fluorescence!=fluVal) return false;
         if(shapeVal && d.shape!=shapeVal) return false;
 
+        // キーワード
         if(keyword){
           const fields=[d.color,d.clarity,d.cut,d.shape,d.notes].join(" ").toLowerCase();
           if(!keyword.split(" ").every(k=>fields.includes(k))) return false;
         }
 
+        // カラー判定（以前のコードそのまま）
         const colorUpper=(d.color||"").toUpperCase();
         const isFancy = isFancyColor(d.color);
-
-        // 通常カラー判定
         let matchAlphabet=true;
         if(!isFancy && fromColor && toColor){
           const colorIndex = alphabetColors.findIndex(c=>colorUpper.startsWith(c));
           matchAlphabet=(colorIndex>=fromIndex && colorIndex<=toIndex);
-        } else if(!isFancy){
-          matchAlphabet=true;
-        } else {
-          matchAlphabet=false;
-        }
+        } else if(!isFancy){ matchAlphabet=true; } else { matchAlphabet=false; }
 
-        // FANCYカラー判定
         let matchFancy=true;
         if(isFancy){
           if(fancyGrade && fancyTone){
@@ -470,26 +477,32 @@ button { cursor:pointer; transition:all 0.2s ease;}
             matchFancy=colorUpper.includes(fancyGrade.toUpperCase());
           } else if(fancyTone){
             matchFancy=colorUpper.includes(fancyTone.toUpperCase());
-          } else {
-            matchFancy=true;
-          }
-        } else {
-          matchFancy=false;
-        }
+          } else { matchFancy=true; }
+        } else { matchFancy=false; }
 
-        // OR判定
         let colorMatch=true;
-        if((fromColor && toColor) && !(fancyGrade || fancyTone)){
-          colorMatch=matchAlphabet;
-        } else if((fancyGrade||fancyTone) && !(fromColor && toColor)){
-          colorMatch=matchFancy;
-        } else if(!(fromColor && toColor) && !(fancyGrade||fancyTone)){
-          colorMatch=true;
-        } else {
-          colorMatch=matchAlphabet || matchFancy;
+        if((fromColor && toColor) && !(fancyGrade || fancyTone)) colorMatch=matchAlphabet;
+        else if((fancyGrade||fancyTone) && !(fromColor && toColor)) colorMatch=matchFancy;
+        else if(!(fromColor && toColor) && !(fancyGrade||fancyTone)) colorMatch=true;
+        else colorMatch=matchAlphabet || matchFancy;
+
+        // カット判定
+        let cutMatch = true;
+        if(cutVal){
+          const cutUpper = (d.cut||"").toUpperCase();
+          if(cutVal==="FR") cutMatch = cutUpper.includes("FR") || cutUpper.includes("FA");
+          else if(cutVal==="PR") cutMatch = cutUpper.includes("PR") || cutUpper.includes("PO");
+          else cutMatch = cutUpper.includes(cutVal);
         }
 
-        return colorMatch;
+        // H&C判定
+        let hcMatch = true;
+        if(hcChecked){
+          const cutUpper = (d.cut||"").toUpperCase();
+          hcMatch = cutUpper.includes("H&C") || cutUpper.includes("HC");
+        }
+
+        return colorMatch && cutMatch && hcMatch;
       });
 
       // 並び替え
