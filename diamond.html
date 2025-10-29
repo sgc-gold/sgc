@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.41</title>
+<title>ダイヤ相場検索 1.42</title>
 <style>
 /* =======================
    基本スタイル
@@ -457,13 +457,27 @@ button { cursor:pointer; transition:all 0.2s ease;}
       }
       
       // --- 🔹 FANCYと通常を明確に分岐 ---
-      let colorMatch = false;
-      if (isFancy) {
-        colorMatch = matchFancy;
-      } else {
-        colorMatch = matchAlphabet;
-      }
+      let colorMatch = true;
       
+      if (selectedColor || selectedTone) {
+        const isFancy = isFancyColor(item.color); // FANCY系かどうかを判定
+        const upperColor = item.color.toUpperCase();
+      
+        // FANCY系のみ選択された場合
+        if (!selectedColor && selectedTone) {
+          colorMatch = isFancy && upperColor.includes(selectedTone.toUpperCase());
+        }
+        // 通常カラーのみ選択された場合
+        else if (selectedColor && !selectedTone) {
+          colorMatch = !isFancy && upperColor.includes(selectedColor.toUpperCase());
+        }
+        // 両方選択された場合（中分類＋小分類のような動作）
+        else if (selectedColor && selectedTone) {
+          colorMatch = upperColor.includes(selectedColor.toUpperCase()) &&
+                       upperColor.includes(selectedTone.toUpperCase());
+        }
+      }
+  
       // --- 条件不一致なら除外
       if (!colorMatch) return false;
       
