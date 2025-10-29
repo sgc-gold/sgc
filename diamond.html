@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.38</title>
+<title>ダイヤ相場検索 1.39</title>
 <style>
 /* =======================
    基本スタイル
@@ -413,46 +413,54 @@ button { cursor:pointer; transition:all 0.2s ease;}
           if (!keyword.split(" ").every(k => fields.includes(k))) return false;
         }
       
-        // 🔹 カラー検索条件
-        const colorUpper = (d.color || "").toUpperCase();
-        const isFancy = isFancyColor(d.color);
+      // 🔹 カラー検索条件
+      const colorUpper = (d.color || "").toUpperCase();
+      const isFancy = isFancyColor(d.color);
       
-        // --- アルファベットカラー範囲（D〜Z）
-        let matchAlphabet = true;
-        if (!isFancy && fromColor && toColor) {
-          const colorIndex = alphabetColors.findIndex(c => colorUpper.startsWith(c));
-          matchAlphabet = (colorIndex >= fromIndex && colorIndex <= toIndex);
+      // --- FANCY判定 ---
+      let matchFancy = true;
+      if (isFancy) {
+        const hasGrade = fancyGrade !== "";
+        const hasTone = fancyTone !== "";
+        const upperColor = colorUpper.replace(/\s+/g, " ");
+      
+        if (hasGrade && hasTone) {
+          // 両方選択 → AND検索
+          matchFancy =
+            upperColor.includes(fancyGrade.toUpperCase()) &&
+            upperColor.includes(fancyTone.toUpperCase());
+        } else if (hasGrade) {
+          // グレードのみ → 中分類検索
+          matchFancy =
+            upperColor.includes(fancyGrade.toUpperCase()) ||
+            upperColor.match(new RegExp(`FANCY\\s+${fancyGrade.toUpperCase()}\\s+[A-Z]+`));
+        } else if (hasTone) {
+          // トーンのみ → 小分類検索
+          matchFancy =
+            upperColor.includes(fancyTone.toUpperCase()) ||
+            upperColor.match(new RegExp(`FANCY\\s+[A-Z]+\\s+${fancyTone.toUpperCase()}`));
+        } else {
+          matchFancy = true; // 両方未選択なら全通過
         }
+      }
       
-        // --- FANCYグレード＋トーン検索（自動判定）
-        // --- FANCYグレード＋トーン検索（自動判定）
-        let matchFancy = true;
-        if (isFancy) {
-          const hasGrade = fancyGrade !== "";
-          const hasTone = fancyTone !== "";
+      // --- 通常カラー（D〜Z） ---
+      let matchAlphabet = true;
+      if (!isFancy && fromColor && toColor) {
+        const colorIndex = alphabetColors.findIndex(c => colorUpper.startsWith(c));
+        matchAlphabet = (colorIndex >= fromIndex && colorIndex <= toIndex);
+      }
       
-          const upperColor = colorUpper.replace(/\s+/g, " "); // スペースを正規化
+      // --- 🔹 FANCYと通常を明確に分岐 ---
+      let colorMatch = false;
+      if (isFancy) {
+        colorMatch = matchFancy;
+      } else {
+        colorMatch = matchAlphabet;
+      }
       
-          if (hasGrade && hasTone) {
-            // 両方選択 → AND検索
-            matchFancy =
-              upperColor.includes(fancyGrade.toUpperCase()) &&
-              upperColor.includes(fancyTone.toUpperCase());
-          } else if (hasGrade) {
-            // グレードのみ → グレード＋その配下の全トーンを含む（中分類）
-            matchFancy =
-              upperColor.includes(fancyGrade.toUpperCase()) ||
-              upperColor.match(new RegExp(`FANCY\\s+${fancyGrade.toUpperCase()}\\s+[A-Z]+`));
-          } else if (hasTone) {
-            // トーンのみ → 全グレードの中から同トーン検索（小分類）
-            matchFancy =
-              upperColor.includes(fancyTone.toUpperCase()) ||
-              upperColor.match(new RegExp(`FANCY\\s+[A-Z]+\\s+${fancyTone.toUpperCase()}`));
-          } else {
-            // 両方未選択 → 全通過
-            matchFancy = true;
-          }
-        }
+      // 条件不一致なら除外
+      if (!colorMatch) return false;
       
         return true;
       });
