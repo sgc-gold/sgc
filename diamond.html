@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.23</title>
+<title>ダイヤ相場検索 1.24</title>
 <style>
 /* =======================
    基本スタイル
@@ -188,10 +188,6 @@ button { cursor:pointer; transition:all 0.2s ease;}
     <select id="dateSelect"><option value="">すべて</option></select>
     <span style="margin-left:0.5rem; color:#555; font-size:0.9rem;">※選択日以降で検索</span>
   </div>
-  <div class="flex-row">
-    <label for="colorSelect">カラー</label>
-    <select id="colorSelect"><option value="">すべて</option></select>
-  </div>
 
    <!-- アルファベットカラー範囲 -->
    <div class="flex-row">
@@ -311,7 +307,6 @@ button { cursor:pointer; transition:all 0.2s ease;}
       .forEach(d => addOption(document.getElementById("dateSelect"), d));
     document.getElementById("dateSelect").selectedIndex = 1;
 
-    Array.from(colors).sort().forEach(c => addOption(document.getElementById("colorSelect"), c));
     Array.from(clarities).sort().forEach(c => addOption(document.getElementById("claritySelect"), c));
     Array.from(cuts).sort().forEach(c => addOption(document.getElementById("cutSelect"), c));
     Array.from(fluo).sort().forEach(f => addOption(document.getElementById("fluorescenceSelect"), f));
@@ -359,7 +354,6 @@ button { cursor:pointer; transition:all 0.2s ease;}
       const minC = parseFloat(document.getElementById("minCarat").value) || 0;
       const maxC = parseFloat(document.getElementById("maxCarat").value) || 999;
       const dateVal = document.getElementById("dateSelect").value;
-      const colorVal = document.getElementById("colorSelect").value;
       const clarityVal = document.getElementById("claritySelect").value;
       const cutVal = document.getElementById("cutSelect").value;
       const fluVal = document.getElementById("fluorescenceSelect").value;
@@ -402,7 +396,6 @@ button { cursor:pointer; transition:all 0.2s ease;}
         const c = parseFloat(d.carat) || 0;
         if (c < minC || c > maxC) return false;
         if (dateVal && d.date.split(" ")[0] < dateVal) return false;
-        if (colorVal && d.color != colorVal) return false;
         if (clarityVal && d.clarity != clarityVal) return false;
         if (cutVal && d.cut != cutVal) return false;
         if (fluVal && d.fluorescence != fluVal) return false;
