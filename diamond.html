@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.65</title>
+<title>ダイヤ相場検索 1.66</title>
 <style>
 /* =======================
    基本スタイル
@@ -16,9 +16,9 @@ h2 { margin-bottom:1rem; color:#004d40; }
 input, select, button { font-size:1.1rem; padding:1.00rem 0.75rem; border-radius:8px; border:1px solid #ccc; }
 input:focus, select:focus { outline:none; border-color:#bfa14a; box-shadow:0 0 0 2px rgba(191,161,74,0.2);}
 button { cursor:pointer; transition:all 0.2s ease;}
-#searchButton { background:linear-gradient(135deg,#bfa14a,#d4b95e); color:#fff; font-weight:600; padding: 0.75rem 1.5rem;}
+#searchButton { background:linear-gradient(135deg,#bfa14a,#d4b95e); color:#fff; font-weight:600; width: 140px;}
 #searchButton:hover { opacity:0.9; transform:translateY(-1px);}
-#clearButton { background:#e0e0e0; color:#333; padding: 0.75rem 1.5rem;}
+#clearButton { background:#e0e0e0; color:#333; width: 140px;}
 #clearButton:hover { background:#ccc;}
 .flex-row { display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; margin-bottom:0.8rem;}
 .flex-row label { width:150px; font-weight:600; text-align:center;}
@@ -165,7 +165,6 @@ button { cursor:pointer; transition:all 0.2s ease;}
   color: #555;
   margin: 0 10px;
 }
-   
 @media(max-width:480px){
   .flex-row { 
     flex-direction: row;       /* ← column → row に変更 */
@@ -180,7 +179,7 @@ button { cursor:pointer; transition:all 0.2s ease;}
   #caratRange { 
     flex-direction: row; 
     align-items: center;
-  }
+  }   
 }
 </style>
 </head>
