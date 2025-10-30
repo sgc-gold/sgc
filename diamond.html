@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.59</title>
+<title>ダイヤ相場検索 1.60</title>
 <style>
 /* =======================
    基本スタイル
@@ -11,7 +11,7 @@
 body {
   margin:0; padding:0; font-family:'Noto Sans JP', sans-serif; background:#f5f7fa;
 }
-.container { max-width:900px; margin:1.5rem auto; background:#fff; border-radius:16px; padding:1.8rem; box-shadow:0 4px 14px rgba(0,0,0,0.08);}
+.container { max-width:900px; background:#fff; padding:1.0rem;}
 h2 { margin-bottom:1rem; color:#004d40; }
 input, select, button { font-size:1rem; padding:1.00rem 0.75rem; border-radius:8px; border:1px solid #ccc; }
 input:focus, select:focus { outline:none; border-color:#bfa14a; box-shadow:0 0 0 2px rgba(191,161,74,0.2);}
@@ -22,8 +22,12 @@ button { cursor:pointer; transition:all 0.2s ease;}
 #clearButton:hover { background:#ccc;}
 .flex-row { display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; margin-bottom:0.8rem;}
 .flex-row label { width:150px; font-weight:600; text-align:center;}
-.flex-row input[type="text"], .flex-row select { flex:1; min-width:60px;}
-
+.flex-row input[type="text"],
+.flex-row select {
+    flex: 1 1 60px; /* flex-grow:1, flex-shrink:1, flex-basis:60px */
+    min-width: 60px; 
+}
+   
 /* カラット入力フォーム */
 #mainCarat {
   width: 90px;  /* 幅を狭くして X.XXX が収まるサイズに */
