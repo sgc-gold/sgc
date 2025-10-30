@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.57</title>
+<title>ダイヤ相場検索 1.58</title>
 <style>
 /* =======================
    基本スタイル
@@ -163,9 +163,20 @@ button { cursor:pointer; transition:all 0.2s ease;}
 }
    
 @media(max-width:480px){
-  .flex-row { flex-direction:column; align-items:flex-start;}
-  .flex-row label { width:100%; text-align:center; margin-bottom:0.2rem;}
-  #caratRange { flex-direction:column; align-items:flex-start;}
+  .flex-row { 
+    flex-direction: row;       /* ← column → row に変更 */
+    align-items: center;
+    flex-wrap: wrap;           /* ← はみ出し防止のため追加 */
+  }
+  .flex-row label { 
+    width: 120px;              /* ← スマホでもラベル幅固定 */
+    text-align: left;          /* ← 左寄せにして読みやすく */
+    margin-bottom: 0;          /* ← 下余白を削除 */
+  }
+  #caratRange { 
+    flex-direction: row; 
+    align-items: center;
+  }
 }
 </style>
 </head>
