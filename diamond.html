@@ -186,16 +186,32 @@ button { cursor:pointer; transition:all 0.2s ease;}
 <body>
 <div class="container">
   <!-- カラットセット + 最小～最大 -->
-  <div class="flex-row">
-    <label for="mainCarat">カラット（ct）</label>
-    <div id="caratSetRow">
-      <input type="text" id="mainCarat" placeholder="例：0.345" inputmode="decimal" pattern="[0-9]*\.?[0-9]*" placeholder="0.000">     
-      <button type="button" id="setCarat">セット</button>
-      <div id="caratRange">
-        <input type="text" id="minCarat" placeholder="最小ct">
-        <span>～</span>
-        <input type="text" id="maxCarat" placeholder="最大ct">
-      </div>
+  <div id="caratSetRow" class="flex-row">
+    <label for="mainCarat">メインカラット</label>
+    <input id="mainCarat" 
+          type="text" 
+          inputmode="decimal" 
+          pattern="[0-9]*\.?[0-9]*" 
+          placeholder="0.000">
+
+    <button id="setCarat">セット</button>
+
+    <div id="caratRange">
+      <label for="minCarat">最小</label>
+      <input id="minCarat" 
+            type="text" 
+            inputmode="decimal" 
+            pattern="[0-9]*\.?[0-9]*" 
+            placeholder="0.000">
+
+      <span>～</span>
+
+      <label for="maxCarat">最大</label>
+      <input id="maxCarat" 
+            type="text" 
+            inputmode="decimal" 
+            pattern="[0-9]*\.?[0-9]*" 
+            placeholder="0.000">
     </div>
   </div>
 
