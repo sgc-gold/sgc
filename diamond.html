@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.55</title>
+<title>ダイヤ相場検索 1.56</title>
 <style>
 /* =======================
    基本スタイル
@@ -230,11 +230,18 @@ button { cursor:pointer; transition:all 0.2s ease;}
   </div>
   <div class="flex-row">
     <label for="fluorescenceSelect">蛍光性</label>
-    <select id="fluorescenceSelect"><option value="">すべて</option></select>
+    <select id="fluorescenceSelect">
+      <option value="">すべて</option>
+      <option value="N">N</option>
+      <option value="F">F</option>
+      <option value="MB">MB</option>
+      <option value="SB">SB</option>
+      <option value="VSB">VSB</option>
+    </select>
   </div>
   <div class="flex-row">
     <label for="shapeSelect">形状</label>
-    <select id="shapeSelect"><option value="">RD</option></select>
+    <select id="shapeSelect"><option value="">すべて</option></select>
   </div>
 
   <div class="flex-row">
@@ -319,8 +326,14 @@ button { cursor:pointer; transition:all 0.2s ease;}
      
     /*const fixedCuts = ["EX", "VG", "GD", "FR", "PR"];
     fixedCuts.forEach(cut => addOption(document.getElementById("cutSelect"), cut)); */
+
+    // 蛍光性（fluorescence）は固定の選択肢を設定
+    const fluorescenceSel = document.getElementById("fluorescenceSelect");
+    ["", "N", "F", "MB", "SB", "VSB"].forEach(f => {
+      const label = f === "" ? "（選択なし）" : f;
+      fluorescenceSel.appendChild(new Option(label, f));
+    });
      
-    Array.from(sets.fluos).sort().forEach(f=>addOption(document.getElementById("fluorescenceSelect"),f));
     Array.from(sets.shapes).sort().forEach(s=>addOption(document.getElementById("shapeSelect"),s));
 
     const fromColorSel = document.getElementById("fromColor");
