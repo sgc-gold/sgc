@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.66</title>
+<title>ダイヤ相場検索 1.67</title>
 <style>
 /* =======================
    基本スタイル
@@ -186,32 +186,17 @@ button { cursor:pointer; transition:all 0.2s ease;}
 <body>
 <div class="container">
   <!-- カラットセット + 最小～最大 -->
-  <div id="caratSetRow" class="flex-row">
-    <label for="mainCarat">メインカラット</label>
-    <input id="mainCarat" 
-          type="text" 
-          inputmode="decimal" 
-          pattern="[0-9]*\.?[0-9]*" 
-          placeholder="0.000">
-
-    <button id="setCarat">セット</button>
-
-    <div id="caratRange">
-      <label for="minCarat">最小</label>
-      <input id="minCarat" 
-            type="text" 
-            inputmode="decimal" 
-            pattern="[0-9]*\.?[0-9]*" 
-            placeholder="0.000">
-
-      <span>～</span>
-
-      <label for="maxCarat">最大</label>
-      <input id="maxCarat" 
-            type="text" 
-            inputmode="decimal" 
-            pattern="[0-9]*\.?[0-9]*" 
-            placeholder="0.000">
+  <div class="flex-row">
+    <label for="mainCarat">カラット（ct）</label>
+    <div id="caratSetRow">
+      <input type="text" id="mainCarat" placeholder="例：0.345">
+      <input type="text" id="mainCarat" placeholder="例：0.345" inputmode="decimal" pattern="[0-9]*\.?[0-9]*" placeholder="0.000">     
+      <button type="button" id="setCarat">セット</button>
+      <div id="caratRange">
+        <input type="text" id="minCarat" placeholder="最小ct" inputmode="decimal" pattern="[0-9]*\.?[0-9]*" placeholder="0.000">
+        <span>～</span>
+        <input type="text" id="maxCarat" placeholder="最大ct" inputmode="decimal" pattern="[0-9]*\.?[0-9]*" placeholder="0.000">
+      </div>
     </div>
   </div>
 
@@ -322,10 +307,25 @@ button { cursor:pointer; transition:all 0.2s ease;}
   document.getElementById("setCarat").addEventListener("click", () => {
     const c = parseFloat(document.getElementById("mainCarat").value);
     if (isNaN(c)) return alert("数値を入力してください");
-    const min = Math.floor(c*10)/10;
-    const max = min+0.099;
+
+    // 入力値がどの範囲に入るかを判定
+    let min = 0, max = 0;
+    for (let i = 0; i < caratThresholds.length - 1; i++) {
+      if (c >= caratThresholds[i] && c < caratThresholds[i + 1]) {
+        min = caratThresholds[i];
+        max = caratThresholds[i + 1];
+        break;
+      }
+    }
+
+    // 最後の範囲（最大値以上）の場合
+    if (c >= caratThresholds[caratThresholds.length - 1]) {
+      min = caratThresholds[caratThresholds.length - 1];
+      max = min + 0.999; // 例: 5.000～5.999 のように設定
+    }
+
     document.getElementById("minCarat").value = min.toFixed(3);
-    document.getElementById("maxCarat").value = max.toFixed(3);
+    document.getElementById("maxCarat").value = (max - 0.001).toFixed(3); // 上限を少し下げて「～未満」に
   });
 
   // ---------------------
