@@ -3,183 +3,420 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.67</title>
+<title>ダイヤ相場検索</title>
 <style>
 /* =======================
    基本スタイル
 ======================= */
 body {
-  margin:0; padding:0; font-family:'Noto Sans JP', sans-serif; background: #FFFFFF;
+  margin:0; padding:0;
+  font-family:'Noto Sans JP', sans-serif;
+  background: linear-gradient(180deg, #fdfdfd 0%, #f7f6f3 100%);
+  color: #1b2b2b;
 }
-.container { max-width:900px; background:#fff; padding:1.0rem;}
-h2 { margin-bottom:1rem; color:#004d40; }
-input, select, button { font-size:1.1rem; padding:1.00rem 0.75rem; border-radius:8px; border:1px solid #ccc; }
-input:focus, select:focus { outline:none; border-color:#bfa14a; box-shadow:0 0 0 2px rgba(191,161,74,0.2);}
-button { cursor:pointer; transition:all 0.2s ease;}
-#searchButton { background:linear-gradient(135deg,#bfa14a,#d4b95e); color:#fff; font-weight:600; width: 140px;}
-#searchButton:hover { opacity:0.9; transform:translateY(-1px);}
-#clearButton { background:#e0e0e0; color:#333; width: 140px;}
-#clearButton:hover { background:#ccc;}
-.flex-row { display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; margin-bottom:0.8rem;}
-.flex-row label { width:150px; font-weight:600; text-align:center;}
-.flex-row input[type="text"],
+
+.container {
+  max-width:700px;
+  background:#fff;
+  padding:1.2rem 1.4rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+  border: 1px solid #eae7dc;
+}
+
+/* 見出し */
+h2 {
+  margin-bottom:1rem;
+  color:#1b2b2b;
+  font-weight:700;
+  border-bottom: 2px solid #bfa14a;
+  display:inline-block;
+  padding-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+
+/* 入力・ボタン共通 */
+input, select, button {
+  font-size:1.05rem;
+  padding:0.8rem 0.75rem;
+  border-radius:8px;
+  border:1px solid #d3d3d3;
+  background:#fff;
+  transition:all 0.25s ease;
+}
+
+input:focus, select:focus {
+  outline:none;
+  border-color:#bfa14a;
+  box-shadow:0 0 0 3px rgba(191,161,74,0.25);
+}
+
+/* ボタン */
+button {
+  cursor:pointer;
+  font-weight:600;
+  letter-spacing:0.3px;
+}
+
+#searchButton {
+  background:linear-gradient(135deg,#bfa14a,#d6c36b);
+  color:#fff;
+  width:140px;
+  border:none;
+  box-shadow:0 2px 6px rgba(191,161,74,0.35);
+}
+#searchButton:hover {
+  opacity:0.95;
+  transform:translateY(-1px);
+  box-shadow:0 4px 10px rgba(191,161,74,0.4);
+}
+
+#clearButton {
+  background:linear-gradient(135deg,#f2f2f2,#e0e0e0);
+  color:#333;
+  width:140px;
+  border:1px solid #ccc;
+}
+#clearButton:hover {
+  background:linear-gradient(135deg,#fafafa,#e8e8e8);
+}
+
+/* 行レイアウト */
+.flex-row {
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.5rem;
+  align-items:center;
+  margin-bottom:0.8rem;
+}
+.flex-row label {
+  width:150px;
+  font-weight:600;
+  text-align:center;
+  color:#333;
+}
 .flex-row select {
     flex: 1 1 60px; /* flex-grow:1, flex-shrink:1, flex-basis:60px */
     min-width: 60px; 
-}
-   
-/* カラット入力フォーム */
+}   
+
+/* カラット入力 */
 #mainCarat {
-  width: 90px;  /* 幅を狭くして X.XXX が収まるサイズに */
-  text-align: center;
+  width:90px;
+  text-align:center;
 }
-   
-/* カラットセット + 最小～最大カットの配置 */
+
+/* カラットセット行 */
 #caratSetRow {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
 }
 
 #caratSetRow button#setCarat {
-  margin-right: 2rem;
-  margin-left: 1rem;  
+  margin-right:2rem;
+  margin-left:1rem;
+  background:linear-gradient(135deg,#bfa14a,#d4b95e);
+  color:#fff;
+  border:none;
+  box-shadow:0 2px 6px rgba(191,161,74,0.35);
 }
-   
-/* 最小～最大カラット入力のスタイル */
+#caratSetRow button#setCarat:hover {
+  opacity:0.95;
+  transform:translateY(-1px);
+}
+
+/* 最小～最大カラット */
 #caratRange {
-  display: inline-flex; /* 🔸 flex方向はそのまま */
-  align-items: center;
+  display:inline-flex;
+  align-items:center;
 }
 
 #caratRange input {
-  width: 50px;
-  text-align: center;
-  border-radius: 0;      /* 🔸 四角い枠に */
-  border: 1px solid #ccc;
-  padding: 0.45rem 0.6rem;
-  transition: all 0.2s ease;
-  margin: 0.5rem;  
+  width:50px;
+  text-align:center;
+  border-radius:6px;
+  border:1px solid #ccc;
+  padding:0.45rem 0.6rem;
+  margin:0.4rem;
+  background:#fdfdfd;
 }
-
 #caratRange input:focus {
-  border-color: #bfa14a;
-  box-shadow: 0 0 0 2px rgba(191,161,74,0.15);
-  outline: none;
+  border-color:#bfa14a;
+  box-shadow:0 0 0 3px rgba(191,161,74,0.2);
+}
+#caratRange span {
+  font-weight:600;
+  color:#444;
 }
 
-#caratRange span {
-  font-weight: 600;
+/* カラー切替用 */
+.colorSelector {
+  display:flex;
+  flex-direction:column;
+  flex:1;
+}
+
+.colorButtons {
+  display:flex;
+  gap:0.5rem;
+  margin-bottom:0.4rem;
+}
+
+.colorButtons button {
+  padding:0.5rem 0.8rem;
+  border-radius:6px;
+  border:1px solid #ccc;
+  background:#fdfdfd;
+  cursor:pointer;
+  font-weight:600;
+  transition:all 0.2s ease;
+}
+
+.colorButtons button.active {
+  background:linear-gradient(135deg,#bfa14a,#d4b95e);
+  color:#fff;
+  border:none;
+}
+
+.colorButtons button:hover:not(.active) {
+  background:#f7f7f7;
+}
+
+/* フォーム部分 */
+.colorForms select {
+  margin-right:0.4rem;
+  margin-bottom:0.3rem;
+}
+
+input[type="checkbox"] {
+  vertical-align: middle; /* 中央揃え */
+  margin: 0; /* iOSの余白調整 */
+}
+
+label {
+  vertical-align: middle; /* チェックボックスと同じラインに揃える */
 }
 
 /* =======================
-   テーブルスタイル
+   テーブル
 ======================= */
-#resultTable { width:100%; border-collapse:collapse; margin-top:1rem; display: none; }
-#resultTable th, #resultTable td { border:1px solid #ddd; padding:6px 0px; text-align:center; font-size:0.65rem;}
-#resultTable th { background:#f0f0f0; font-weight:600; color:#333;}
-.detailsRow { display:none; background:#fafafa; }
-.detailsRow td { text-align:left; font-size:0.9rem; }
-.detailToggle { color:#00796B; cursor:pointer; font-weight:600; }
-   
-/* ガイ単価・金額右寄せ用 */
+.table-wrapper {
+  width: 100%;
+}
+
+#resultTable {
+  width:100%;
+  border-collapse:collapse;
+  margin-top:1rem;
+  display:none;
+  border:1px solid #e5e5e5;
+  border-radius:8px;
+  overflow:hidden;
+  box-shadow:0 2px 6px rgba(0,0,0,0.03);
+}
+
+#resultTable th, #resultTable td {
+  border:1px solid #e8e8e8;
+  padding:8px 4px;
+  text-align:center;
+  font-size:0.75rem;
+}
+
+#resultTable th {
+  background:linear-gradient(180deg,#faf9f5,#f1efe8);
+  font-weight:700;
+  color:#2c2c2c;
+  border-bottom:2px solid #d1c089;
+}
+
+.detailsRow {
+  display:none;
+  background:#fbfbfa;
+}
+
+.detailsRow td {
+  text-align:left;
+  font-size:0.9rem;
+}
+
+.detailToggle {
+  color:#bfa14a;
+  cursor:pointer;
+  font-weight:600;
+  transition:color 0.2s ease;
+}
+.detailToggle:hover {
+  color:#8e7a38;
+}
+
 #resultTable td.priceCell {
-  text-align: right;
-  padding-right: 1rem;
+  text-align:right;
+  padding-right:1rem;
+}
+
+#summaryBox p {
+  margin: 4px 0;
+  font-size: 0.9rem;
+}
+#summaryBox strong {
+  color: #333;
+}
+#rateSelect {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
 }
 
 /* =======================
    ローディングスピナー
 ======================= */
 .spinner {
-  width: 32px;
-  height: 32px;
-  border: 4px solid #ccc;
-  border-top: 4px solid #bfa14a;
-  border-radius: 50%;
+  width:32px;
+  height:32px;
+  border:3px solid #ddd;
+  border-top:3px solid #bfa14a;
+  border-radius:50%;
   animation: spin 1s linear infinite;
+  margin:auto;
 }
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% { transform:rotate(0deg); }
+  100% { transform:rotate(360deg); }
 }
-   
-/* 件数表示（上・下） */
+
+/* =======================
+   件数表示・ページネーション
+======================= */
 .stylish-count {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: #333;
-  background: transparent;
-  border: none;
-  padding: 4px 0 8px 4px;
-  display: inline-block;
-  margin: 6px 0 12px 2px;
-  letter-spacing: 0.3px;
-  position: relative;
+  font-size:1.05rem;
+  font-weight:600;
+  color:#333;
+  padding:6px 0 10px 4px;
+  display:inline-block;
+  margin:6px 0 12px 2px;
+  letter-spacing:0.3px;
+  position:relative;
 }
-
 .stylish-count::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 80px;
-  height: 2px;
-  background: linear-gradient(90deg, #bfa14a, transparent);
-  border-radius: 2px;
+  content:"";
+  position:absolute;
+  left:0;
+  bottom:0;
+  width:80px;
+  height:2px;
+  background:linear-gradient(90deg,#bfa14a,transparent);
+  border-radius:2px;
 }
 
-/* ページネーション */
 .stylish-pagination {
-  margin: 22px 0 8px;
-  text-align: center;
+  margin:22px 0 8px;
+  text-align:center;
 }
-
 .stylish-pagination button {
-  background: transparent;
-  color: #333;
-  border: 1px solid #ccc;
-  padding: 6px 12px;
-  margin: 0 4px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.25s ease;
+  background:linear-gradient(135deg,#ffffff,#f6f6f4);
+  color:#333;
+  border:1px solid #ccc;
+  padding:6px 12px;
+  margin:0 4px;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:500;
+  transition:all 0.25s ease;
 }
-
 .stylish-pagination button:hover:not(:disabled) {
-  background: linear-gradient(135deg, #f9f7ed, #fff);
-  border-color: #bfa14a;
-  color: #bfa14a;
-  transform: translateY(-1px);
+  background:linear-gradient(135deg,#f9f7ed,#fff);
+  border-color:#bfa14a;
+  color:#bfa14a;
+  transform:translateY(-1px);
+  box-shadow:0 2px 6px rgba(191,161,74,0.2);
 }
-
 .stylish-pagination button:disabled {
-  color: #aaa;
-  border-color: #eee;
-  cursor: not-allowed;
+  color:#aaa;
+  border-color:#eee;
+  cursor:not-allowed;
+}
+.stylish-pagination span {
+  font-size:0.95rem;
+  color:#555;
+  margin:0 10px;
 }
 
-.stylish-pagination span {
-  font-size: 0.95rem;
-  color: #555;
-  margin: 0 10px;
-}
+/* =======================
+   モバイル
+======================= */
 @media(max-width:480px){
-  .flex-row { 
-    flex-direction: row;       /* ← column → row に変更 */
+  /* 全体の行レイアウト */
+  .flex-row {
+    flex-direction: row;
     align-items: center;
-    flex-wrap: wrap;           /* ← はみ出し防止のため追加 */
+    flex-wrap: nowrap; /* ← 折り返さない */
   }
-  .flex-row label { 
-    width: 120px;              /* ← スマホでもラベル幅固定 */
-    text-align: left;          /* ← 左寄せにして読みやすく */
-    margin-bottom: 0;          /* ← 下余白を削除 */
+
+  /* ラベル */
+  .flex-row label {
+    width: 105px;         /* ← 横幅少し縮める */
+    text-align: left;
+    margin-bottom: 0;
+    flex-shrink: 0;       /* ← ラベルが縮まらないように */
   }
-  #caratRange { 
-    flex-direction: row; 
+
+  /* 入力欄やセレクトの共通設定 */
+  .flex-row input,
+  .flex-row select {
+    flex: 1;               /* ← 入力欄は残り幅を使う */
+    min-width: 0;          /* ← 折り返し防止 */
+  }
+
+  /* カラットセット行 */
+  #caratSetRow {
+    flex-wrap: wrap; /* ← カラットセット行は折り返しOK */
+  }
+
+  /* カラット範囲（最小～最大）を横並び維持 */
+  #caratRange {
+    flex-direction: row;
     align-items: center;
-  }   
+    flex-wrap: nowrap;
+  }
+
+  #caratRange input {
+    width: 55px; /* ← モバイルで少し狭く */
+  }
+
+  /* カラー切替フォームの横並び調整 */
+  .colorForms {
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.4rem;
+  }
+  .colorForms .alphaForm,
+  .colorForms .fancyForm {
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.3rem;
+    flex:1 1 100%; /* 横幅が狭ければ改行される */
+  }
+  .colorForms select {
+    flex:1 1 60px; /* 幅を柔軟に */
+    min-width:50px;
+  }  
+
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* iPhoneでのスムーズスクロール */
+  }
+
+  #resultTable {
+    min-width: 800px; /* スマホで潰れないように最低幅を確保 */
+    font-size: 0.85rem; /* 少し小さめにして見やすく */
+  }
+
+  #resultTable th, #resultTable td {
+    white-space: nowrap; /* 折り返さず横に並べる */
+    padding: 0.4rem 0.6rem;
+  }
 }
 </style>
 </head>
@@ -189,12 +426,12 @@ button { cursor:pointer; transition:all 0.2s ease;}
   <div class="flex-row">
     <label for="mainCarat">カラット（ct）</label>
     <div id="caratSetRow">
-      <input type="text" id="mainCarat" placeholder="例：0.345" inputmode="decimal" pattern="[0-9]*\.?[0-9]*" placeholder="0.000">     
+      <input type="text" id="mainCarat" placeholder="例：0.345" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">     
       <button type="button" id="setCarat">セット</button>
       <div id="caratRange">
-        <input type="text" id="minCarat" placeholder="最小ct" inputmode="decimal" pattern="[0-9]*\.?[0-9]*" placeholder="0.000">
+        <input type="text" id="minCarat" placeholder="最小ct" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
         <span>～</span>
-        <input type="text" id="maxCarat" placeholder="最大ct" inputmode="decimal" pattern="[0-9]*\.?[0-9]*" placeholder="0.000">
+        <input type="text" id="maxCarat" placeholder="最大ct" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
       </div>
     </div>
   </div>
@@ -206,24 +443,46 @@ button { cursor:pointer; transition:all 0.2s ease;}
     <span style="margin-left:0.5rem; color:#555; font-size:0.5rem;">※選択日以降で検索</span>
   </div>
 
-  <!-- アルファベットカラー範囲 -->
+  <!-- カラー選択 -->
   <div class="flex-row">
     <label>カラー</label>
-    <select id="fromColor"><option value="">From</option></select>
-    <span>〜</span>
-    <select id="toColor"><option value="">To</option></select>
-  </div>
-   
-  <!-- FANCY系カラー -->
-  <div class="flex-row">
-    <label>（FANCY系）</label>
-    <select id="fancyGradeSelect" style="flex: 1;"><option value="">すべて</option></select>
-    <select id="fancyToneSelect" style="flex: 1;"><option value="">すべて</option></select>
+    <div class="colorSelector">
+      <div class="colorButtons">
+        <button type="button" class="colorTypeBtn active" data-type="alpha">A to Z</button>
+        <button type="button" class="colorTypeBtn" data-type="fancy">FANCY</button>
+      </div>
+      <div class="colorForms">
+        <!-- アルファベットカラーフォーム -->
+        <div class="alphaForm">
+          <select id="fromColor"><option value="">From</option></select>
+          <span>〜</span>
+          <select id="toColor"><option value="">To</option></select>
+        </div>
+        <!-- FANCY系フォーム -->
+        <div class="fancyForm" style="display:none;">
+          <select id="fancyGradeSelect"><option value="">すべて</option></select>
+          <select id="fancyToneSelect"><option value="">すべて</option></select>
+        </div>
+      </div>
+    </div>
   </div>
    
   <div class="flex-row">
     <label for="claritySelect">クラリティ</label>
-    <select id="claritySelect"><option value="">すべて</option></select>
+    <select id="claritySelect">
+      <option value="">すべて</option>
+      <option value="FL">FL</option>
+      <option value="IF">IF</option>
+      <option value="VVS1">VVS1</option>
+      <option value="VVS2">VVS2</option>
+      <option value="VS1">VS1</option>    
+      <option value="VS2">VS2</option>       
+      <option value="SI1">SI1</option>       
+      <option value="SI2">SI2</option>  
+      <option value="I1">I1</option>        
+      <option value="I2">I2</option> 
+      <option value="I3">I3</option>                     
+    </select>
   </div>
   <div class="flex-row">
     <label for="cutSelect">カット</label>
@@ -265,29 +524,49 @@ button { cursor:pointer; transition:all 0.2s ease;}
     <button id="clearButton">クリア</button>
   </div>
 
- <div id="loadingSpinner" style="display:none; justify-content:center; margin-top:1rem;">
-   <div class="spinner"></div>
- </div>
+  <div id="loadingSpinner" style="display:none; justify-content:center; margin-top:1rem;">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- 買取参考価格サマリー -->
+  <div id="summaryBox" style="margin:1rem 0; padding:1rem; border:1px solid #e0d8b0; border-radius:8px; background:#faf7e8;">
+    <p>検索件数　　　： <strong id="summaryCount">0</strong> 件</p>
+    <p>平均ガイ単価　： <strong id="summaryAvgPrice">0</strong> 円</p>
+    <p>掛け率　　　　：
+      <select id="rateSelect">
+        <option value="0.5">5掛け</option>
+        <option value="0.6">6掛け</option>
+        <option value="0.7" selected>7掛け</option>
+        <option value="0.8">8掛け</option>
+        <option value="0.9">9掛け</option>
+      </select>
+    </p>
+    <p>買取単価　　　： <strong id="summaryUnitPrice">0</strong> 円</p>
+    <p>カラット　　　： <strong id="summaryCarat">0.000</strong> ct</p>
+    <p>買取価格　　　： <strong id="summaryTotalPrice">0</strong> 円</p>
+  </div>
 
   <!-- 結果テーブル -->
-  <table id="resultTable">
-    <thead>
-      <tr>
-        <th>日付</th>
-        <th>カラー</th>
-        <th>クラリティ</th>
-        <th>カット</th>
-        <th>蛍光性</th>
-        <th>形状</th>
-        <th>カラット</th>
-        <th>ガイ単価</th>
-        <th>金額</th>
-        <th>備考</th>
-        <th>詳細</th>
-      </tr>
-    </thead>
-    <tbody id="resultBody"></tbody>
-  </table>
+  <div class="table-wrapper">
+    <table id="resultTable">
+      <thead>
+        <tr>
+          <th>日付</th>
+          <th>カラー</th>
+          <th>クラリティ</th>
+          <th>カット</th>
+          <th>蛍光性</th>
+          <th>形状</th>
+          <th>カラット</th>
+          <th>ガイ単価</th>
+          <th>金額</th>
+          <th>備考</th>
+          <th>詳細</th>
+        </tr>
+      </thead>
+      <tbody id="resultBody"></tbody>
+    </table>
+  </div>
 </div>
 
 <script>
@@ -303,28 +582,62 @@ button { cursor:pointer; transition:all 0.2s ease;}
   // ---------------------
   // カラットセット機能
   // ---------------------
-  document.getElementById("setCarat").addEventListener("click", () => {
-    const c = parseFloat(document.getElementById("mainCarat").value);
-    if (isNaN(c)) return alert("数値を入力してください");
+document.getElementById("setCarat").addEventListener("click", () => {
+  const c = parseFloat(document.getElementById("mainCarat").value);
+  if (isNaN(c)) return alert("数値を入力してください");
 
-    // 入力値がどの範囲に入るかを判定
-    let min = 0, max = 0;
-    for (let i = 0; i < caratThresholds.length - 1; i++) {
-      if (c >= caratThresholds[i] && c < caratThresholds[i + 1]) {
-        min = caratThresholds[i];
-        max = caratThresholds[i + 1];
-        break;
-      }
+  let min = 0, max = null;
+
+  // 入力値がcaratThresholdsの範囲に入るか判定
+  for (let i = 0; i < caratThresholds.length - 1; i++) {
+    if (c >= caratThresholds[i] && c < caratThresholds[i + 1]) {
+      min = caratThresholds[i];
+      max = caratThresholds[i + 1] - 0.001;
+      break;
     }
+  }
 
-    // 最後の範囲（最大値以上）の場合
-    if (c >= caratThresholds[caratThresholds.length - 1]) {
-      min = caratThresholds[caratThresholds.length - 1];
-      max = min + 0.999; // 例: 5.000～5.999 のように設定
-    }
+  // 最後の範囲（5.000以上）の場合は上限なし
+  if (c >= caratThresholds[caratThresholds.length - 1]) {
+    min = caratThresholds[caratThresholds.length - 1];
+    max = null; // 上限なし
+  }
 
-    document.getElementById("minCarat").value = min.toFixed(3);
-    document.getElementById("maxCarat").value = (max - 0.001).toFixed(3); // 上限を少し下げて「～未満」に
+  document.getElementById("minCarat").value = min.toFixed(3);
+  document.getElementById("maxCarat").value = max !== null ? max.toFixed(3) : "";
+});
+
+  // ---------------------
+  // カラー切り替え
+  // ---------------------
+  const colorBtns = document.querySelectorAll('.colorTypeBtn');
+  colorBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // ボタンのアクティブ切替
+      colorBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // フォーム切替
+      const type = btn.dataset.type;
+      document.querySelector('.alphaForm').style.display = type === 'alpha' ? 'flex' : 'none';
+      document.querySelector('.fancyForm').style.display = type === 'fancy' ? 'flex' : 'none';
+    });
+  });
+
+  // ---------------------
+  // AtoZ入力規則
+  // ---------------------  
+  const fromColor = document.getElementById('fromColor');
+  const toColor = document.getElementById('toColor');
+
+  // Fromを変更したらToにコピー
+  fromColor.addEventListener('change', () => {
+    toColor.value = fromColor.value;
+  });
+
+  // Toを変更してもFromは変えない
+  toColor.addEventListener('change', () => {
+    // 特に処理は不要、Fromに影響させない
   });
 
   // ---------------------
@@ -348,11 +661,6 @@ button { cursor:pointer; transition:all 0.2s ease;}
 
     Array.from(sets.dates).sort((a,b)=>new Date(b)-new Date(a)).forEach(d=>addOption(document.getElementById("dateSelect"),d));
     document.getElementById("dateSelect").selectedIndex = 1;
-    Array.from(sets.clarities).sort().forEach(c=>addOption(document.getElementById("claritySelect"),c));
-     
-    /*const fixedCuts = ["EX", "VG", "GD", "FR", "PR"];
-    fixedCuts.forEach(cut => addOption(document.getElementById("cutSelect"), cut)); */
-
     Array.from(sets.shapes).sort().forEach(s=>addOption(document.getElementById("shapeSelect"),s));
 
     const fromColorSel = document.getElementById("fromColor");
@@ -433,7 +741,6 @@ button { cursor:pointer; transition:all 0.2s ease;}
   // ---------------------
   // 検索処理
   // ---------------------
-  // 検索ボタン
   document.getElementById("searchButton").addEventListener("click", () => {
     const spinner = document.getElementById("loadingSpinner");
     spinner.style.display = "flex";
@@ -630,6 +937,8 @@ button { cursor:pointer; transition:all 0.2s ease;}
 
       renderPage(1);
       updatePagination();
+      window.lastSearchResults = results; // 後で掛け率変更時に再利用
+      updateSummary(results);             // 買取参考価格を更新
       spinner.style.display="none";
     },100);
   });
@@ -662,6 +971,37 @@ button { cursor:pointer; transition:all 0.2s ease;}
     if(pagination) pagination.remove();
   });
 
-</script>
+  // ---------------------
+  // 買取価格計算
+  // ---------------------  
+  function updateSummary(results) {
+    const carat = parseFloat(document.getElementById("mainCarat").value) || 0;
+    const rate = parseFloat(document.getElementById("rateSelect").value) || 1;
+
+    const count = results.length;
+
+    // 平均価格の計算（pricePerCarat を使用）
+    const avgPrice = count > 0 
+      ? Math.round(results.reduce((sum, d) => sum + (parseFloat(d.pricePerCarat) || 0), 0) / count)
+      : 0;
+
+    const unitPrice = Math.round(avgPrice * rate);
+    const totalPrice = Math.round(unitPrice * carat);
+
+    document.getElementById("summaryCount").textContent = count;
+    document.getElementById("summaryAvgPrice").textContent = avgPrice.toLocaleString();
+    document.getElementById("summaryUnitPrice").textContent = unitPrice.toLocaleString();
+    document.getElementById("summaryCarat").textContent = carat.toFixed(3);
+    document.getElementById("summaryTotalPrice").textContent = totalPrice.toLocaleString();
+  }
+
+  // 掛け率変更時にも更新
+  document.getElementById("rateSelect").addEventListener("change", () => {
+    // 検索済み結果があれば再計算
+    const results = window.lastSearchResults || [];
+    updateSummary(results);
+  });
+
+  </script>
 </body>
 </html>
