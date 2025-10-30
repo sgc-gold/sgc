@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダイヤ相場検索 1.56</title>
+<title>ダイヤ相場検索 1.57</title>
 <style>
 /* =======================
    基本スタイル
@@ -327,13 +327,6 @@ button { cursor:pointer; transition:all 0.2s ease;}
     /*const fixedCuts = ["EX", "VG", "GD", "FR", "PR"];
     fixedCuts.forEach(cut => addOption(document.getElementById("cutSelect"), cut)); */
 
-    // 蛍光性（fluorescence）は固定の選択肢を設定
-    const fluorescenceSel = document.getElementById("fluorescenceSelect");
-    ["", "N", "F", "MB", "SB", "VSB"].forEach(f => {
-      const label = f === "" ? "（選択なし）" : f;
-      fluorescenceSel.appendChild(new Option(label, f));
-    });
-     
     Array.from(sets.shapes).sort().forEach(s=>addOption(document.getElementById("shapeSelect"),s));
 
     const fromColorSel = document.getElementById("fromColor");
