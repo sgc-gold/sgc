@@ -478,12 +478,6 @@ label {
     white-space: nowrap; /* 折り返さず横に並べる */
     padding: 0.4rem 0.6rem;
   }
-  
-  .summary-box { width: 90%; padding: 0.9rem; }
-  .summary-table .label { width: 40%; font-size: 0.95rem; }
-  .value-inline { font-size: 0.95rem; }
-}
-  
 }
 </style>
 </head>
@@ -1060,7 +1054,20 @@ document.getElementById("setCarat").addEventListener("click", () => {
     // ページネーションも削除
     const pagination = document.getElementById("paginationArea");
     if(pagination) pagination.remove();
-  });
+
+    // ✅ サマリーリセット処理
+    document.getElementById("summaryCount").textContent = "0";
+    document.getElementById("summaryAvgPrice").textContent = "0";
+    document.getElementById("summaryUnitPrice").textContent = "0";
+    document.getElementById("summaryCarat").textContent = "0.000";
+    document.getElementById("summaryTotalPrice").textContent = "0";
+
+    // 掛け率も初期値（7掛け）に戻す
+    document.getElementById("rateSelect").value = "0.7";
+
+    // 検索結果キャッシュをリセット
+    window.lastSearchResults = [];
+  });  
 
   // ---------------------
   // 買取価格計算
@@ -1093,6 +1100,17 @@ document.getElementById("setCarat").addEventListener("click", () => {
     updateSummary(results);
   });
 
+  // ===== サマリーリセット関数 =====
+  function clearSummary() {
+    document.getElementById("summaryCount").textContent = "0";
+    document.getElementById("summaryAvgPrice").textContent = "0";
+    document.getElementById("summaryUnitPrice").textContent = "0";
+    document.getElementById("summaryCarat").textContent = "0.000";
+    document.getElementById("summaryTotalPrice").textContent = "0";
+
+    // 掛け率も初期値に戻す（任意）
+    document.getElementById("rateSelect").value = "0.7";
+  }
   </script>
 </body>
 </html>
