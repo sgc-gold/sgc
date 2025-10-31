@@ -255,49 +255,79 @@ label {
   padding-right:1rem;
 }
 
+/* サマリーボックス全体を中央寄せ（他レイアウトに影響が出る場合は .container 内に調整してください） */
 .summary-box {
-  margin: 1rem 0;
-  padding: 1.2rem 1.5rem;
+  margin: 2.5rem auto;           /* 横中央に配置 */
+  padding: 1rem 1.25rem;
   border: 1px solid #e0d8b0;
   border-radius: 12px;
-  background: linear-gradient(135deg, #fdf9f0, #f7f2de);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  background: linear-gradient(135deg,#fdf9f0,#f7f2de);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  width: 380px;                  /* 必要に応じて調整 */
+  max-width: 96%;
+}
+
+/* テーブルを使って左右2列を安定配置 */
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
   font-family: "Noto Sans JP", sans-serif;
-  max-width: 360px;
 }
 
-.summary-box h3 {
-  margin: 0 0 0.8rem 0;
-  font-size: 1.1rem;
+.summary-table td {
+  padding: 8px 6px;
+  vertical-align: middle;
+}
+
+/* 左列（ラベル）: 中央揃え */
+.summary-table .label {
+  width: 36%;                    /* 左幅を固定的に確保 */
+  text-align: center;
   font-weight: 600;
-  color: #8b6e3c;
-  border-bottom: 1px solid #e0d8b0;
-  padding-bottom: 0.3rem;
+  color: #5a4a2d;
+  white-space: nowrap;           /* ラベルで改行させない */
+  padding-right: 12px;
 }
 
-.summary-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.35rem 0;
-  font-size: 0.95rem;
+/* 右列（値）: 左揃え、数値と単位を改行させない */
+.summary-table .value {
+  width: 64%;
+  text-align: right;
+  color: #2f2f2f;
 }
 
-.summary-row span {
-  color: #5c4b2d;
+/* 数値＋単位を同じ行にする */
+.value-inline {
+  display: inline-block;
+  white-space: nowrap;           /* ← ここが重要：数値と単位を改行させない */
+  font-size: 0.98rem;
 }
 
-.summary-row strong {
-  font-weight: 700;
-  color: #3e2e15;
-}
-
-#rateSelect {
-  border: 1px solid #d0b880;
-  border-radius: 6px;
-  padding: 2px 6px;
-  background: #faf7e8;
-  color: #3e2e15;
+/* 単位の見た目 */
+.unit {
+  color: #555;
   font-weight: 500;
+  margin-left: 0.1rem;
+}
+
+/* select の見た目を揃える */
+#rateSelect {
+  padding: 0.5rem 2rem;
+  border-radius: 6px;
+  border: 1px solid #d0b880;
+  background: #fff;
+  font-weight: 600;
+}
+
+/* 買取価格行（強調）*/
+.total-label {
+  font-size: 1rem;
+}
+.total-value .value-inline strong,
+.total-value .value-inline .unit {
+  font-size: 1.05rem;
+  color: #8b6e3c;
+  font-weight: 700;
 }
 
 /* =======================
@@ -561,21 +591,44 @@ label {
 
   <!-- 買取参考価格サマリー -->
   <div id="summaryBox" class="summary-box">
-    <div class="summary-row"><span>検索件数</span><strong id="summaryCount">0</strong> 件</div>
-    <div class="summary-row"><span>平均ガイ単価</span><strong id="summaryAvgPrice">0</strong> 円</div>
-    <div class="summary-row">
-      <span>掛け率</span>
-      <select id="rateSelect">
-        <option value="0.5">5掛け</option>
-        <option value="0.6">6掛け</option>
-        <option value="0.7" selected>7掛け</option>
-        <option value="0.8">8掛け</option>
-        <option value="0.9">9掛け</option>
-      </select>
-    </div>
-    <div class="summary-row"><span>ガイ単価</span><strong id="summaryUnitPrice">0</strong> 円</div>
-    <div class="summary-row"><span>カラット</span><strong id="summaryCarat">0.000</strong> ct</div>
-    <div class="summary-row"><span>買取価格</span><strong id="summaryTotalPrice">0</strong> 円</div>
+    <table class="summary-table" role="table" aria-label="買取参考価格サマリー">
+      <tbody>
+        <tr>
+          <td class="label">検索件数</td>
+          <td class="value"><span class="value-inline"><strong id="summaryCount">0</strong>&nbsp;<span class="unit">件</span></span></td>
+        </tr>
+        <tr>
+          <td class="label">平均ガイ単価</td>
+          <td class="value"><span class="value-inline"><strong id="summaryAvgPrice">0</strong>&nbsp;<span class="unit">円</span></span></td>
+        </tr>
+        <tr>
+          <td class="label">掛け率</td>
+          <td class="value">
+            <span class="value-inline">
+              <select id="rateSelect" aria-label="掛け率">
+                <option value="0.5">5掛け</option>
+                <option value="0.6">6掛け</option>
+                <option value="0.7" selected>7掛け</option>
+                <option value="0.8">8掛け</option>
+                <option value="0.9">9掛け</option>
+              </select>
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <td class="label">ガイ単価</td>
+          <td class="value"><span class="value-inline"><strong id="summaryUnitPrice">0</strong>&nbsp;<span class="unit">円</span></span></td>
+        </tr>
+        <tr>
+          <td class="label">カラット</td>
+          <td class="value"><span class="value-inline"><strong id="summaryCarat">0.000</strong>&nbsp;<span class="unit">ct</span></span></td>
+        </tr>
+        <tr>
+          <td class="label total-label">買取価格</td>
+          <td class="value total-value"><span class="value-inline"><strong id="summaryTotalPrice">0</strong>&nbsp;<span class="unit">円</span></span></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <!-- 結果テーブル -->
