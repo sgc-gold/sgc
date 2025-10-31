@@ -1,4 +1,4 @@
-// fetch_exchange.js
+// scripts/fetch_exchange.js
 const fs = require('fs');
 const fetch = require('node-fetch');
 
@@ -6,13 +6,24 @@ async function updateExchange() {
   try {
     const res = await fetch('https://api.exchangerate.host/latest?base=USD&symbols=JPY');
     const data = await res.json();
-    const rate = data.rates.JPY;
+    const rate = data.rates?.JPY;
 
-    // JSONに保存
-    fs.writeFileSync('exchange_rate.json', JSON.stringify({ rate, date: new Date().toISOString() }, null, 2));
-    console.log('Exchange rate updated:', rate);
+    if (!rate) throw new Error("JPY rate not found in API response");
+
+    // ✅ dataフォルダに出力
+    const outputPath = 'data/exchange_rate.json';
+    const jsonData = {
+      base: "USD",
+      target: "JPY",
+      rate,
+      date: new Date().toISOString()
+    };
+
+    fs.writeFileSync(outputPath, JSON.stringify(jsonData, null, 2), 'utf8');
+    console.log('✅ Exchange rate updated:', jsonData);
+
   } catch (err) {
-    console.error(err);
+    console.error('❌ Failed to update exchange rate:', err);
   }
 }
 
