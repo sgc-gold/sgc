@@ -20,12 +20,12 @@ jobs:
         run: npm install node-fetch@3
 
       - name: Update exchange rate
-        run: node fetch_exchange.js
+        run: node scripts/fetch_exchange.js  # ← ← この1行だけ修正！
 
       - name: Commit & push updated JSON
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add exchange_rate.json
-          git commit -m "Update USD/JPY exchange rate"
+          git commit -m "Update USD/JPY exchange rate" || echo "No changes to commit"
           git push
