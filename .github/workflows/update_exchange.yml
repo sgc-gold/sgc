@@ -2,8 +2,8 @@ name: Update USD/JPY Exchange
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # 毎日 0:00 UTC（日本時間 +9h → 午前9時）に実行
-  workflow_dispatch:     # 手動実行も可能
+    - cron: '0 0 * * *'  # 毎日 0:00 UTC（日本時間 9:00）に実行
+  workflow_dispatch:
 
 jobs:
   update-exchange:
@@ -16,6 +16,10 @@ jobs:
         with:
           node-version: 22
 
+      # ✅ ここを追加！ node-fetch をインストール
+      - name: Install dependencies
+        run: npm install node-fetch@2
+
       - name: Update exchange rate
         run: node scripts/fetch_exchange.js
 
@@ -24,5 +28,5 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add data/exchange_rate.json
-          git commit -m "Update USD/JPY exchange rate"
+          git commit -m "Update USD/JPY exchange rate" || echo "No changes to commit"
           git push
