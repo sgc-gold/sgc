@@ -15,11 +15,63 @@ body {
   color: #1b2b2b;
 }
 
+.notice {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background: linear-gradient(90deg, #fff8e1, #fff3cd);
+  border-left: 5px solid #d4af37;
+  color: #4a3b00;
+  padding: 14px 20px;
+  /*border-radius: 12px;*/
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  /*margin: 20px auto;*/
+  max-width: 900px;
+  animation: fadeIn 0.6s ease-out;
+  font-family: "Noto Sans JP", sans-serif;
+}
+
+.notice-icon {
+  font-size: 1.6rem;
+  margin-right: 15px;
+  color: #c29e30;
+  animation: ring 1.5s infinite;
+}
+
+.notice-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.notice-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #8b6b00;
+  letter-spacing: 1px;
+}
+
+.notice-text {
+  font-size: 0.75rem;
+  color: #5a4a00;
+}
+
+/* アニメーション */
+@keyframes ring {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(10deg); }
+  75% { transform: rotate(-10deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .container {
-  max-width:700px;
+  max-width:900px;
   background:#fff;
   padding:2.0rem 1.4rem;
-  border-radius: 16px;
+  /*border-radius: 16px;*/
   box-shadow: 0 4px 18px rgba(0,0,0,0.06);
   border: 1px solid #eae7dc;
 }
@@ -482,6 +534,14 @@ label {
 </style>
 </head>
 <body>
+<!-- お知らせ -->
+<div class="notice">
+  <span class="notice-icon">📢</span>
+  <div class="notice-content">
+    <div class="notice-title">更新情報</div>
+    <div class="notice-text">2025年10月31日　NJ10月後半大会分 追加</div>
+  </div>
+</div>
 <div class="container">
   <!-- カラットセット + 最小～最大 -->
   <div class="flex-row">
@@ -822,6 +882,65 @@ document.getElementById("setCarat").addEventListener("click", () => {
     for(let i=0;i<caratThresholds.length;i++){ if(carat<caratThresholds[i]) return i; }
     return maxIndex-1;
   }
+
+  // ---------------------
+  // 形状セレクトの生成
+  // ---------------------
+
+  // 形状コードと日本語名の対応表
+  const shapeMap = {
+    RD: "ラウンドブリリアント",
+    PS: "ペアシェイプ",
+    HS: "ハートシェイプ",
+    OV: "オーバル",
+    EM: "エメラルド",
+    MQ: "マーキス",
+    SQ: "スクエア",
+    FS: "ファンシー",
+    PRI: "プリンセス",
+    BG: "バゲット",
+    CUS: "クッション",
+    PO: "ポルトギーズ",
+    BUT: "バタフライ",
+    TRI: "トリリアント",
+    FA: "ファンシーカット"
+  };
+
+  // 形状セレクトを生成する関数
+  function populateShapeSelect(shapeCodes) {
+    const shapeSelect = document.getElementById("shapeSelect");
+    shapeSelect.innerHTML = ""; // 一度リセット
+
+    // デフォルト「RD」
+    const defaultShape = "RD";
+
+    // 「すべて」追加
+    const allOpt = document.createElement("option");
+    allOpt.value = "";
+    allOpt.textContent = "すべて";
+    shapeSelect.appendChild(allOpt);
+
+    // デフォルト「RD」追加
+    const rdOpt = document.createElement("option");
+    rdOpt.value = defaultShape;
+    rdOpt.textContent = shapeMap[defaultShape] || defaultShape;
+    shapeSelect.appendChild(rdOpt);
+
+    // その他の形状を追加（重複除去）
+    const uniqueShapes = [...new Set(shapeCodes.filter(s => s && s !== defaultShape))];
+    uniqueShapes.forEach(code => {
+      const opt = document.createElement("option");
+      opt.value = code;
+      opt.textContent = shapeMap[code] || code; // 未登録なら英字そのまま
+      shapeSelect.appendChild(opt);
+    });
+
+    // デフォルト選択を「RD」に
+    shapeSelect.value = defaultShape;
+  }
+
+  // 例：データ取得後に呼び出す
+  // populateShapeSelect(["RD","PS","OV","EM","BG"]);
 
   // ---------------------
   // 検索処理
