@@ -589,8 +589,8 @@ label {
   </div>
    
   <div class="flex-row">
-    <label for="claritySelect">クラリティ</label>
-    <select id="claritySelect">
+    <label>クラリティ</label>
+    <select id="minClaritySelect" onchange="syncToValue('minClaritySelect','maxClaritySelect')">
       <option value="">すべて</option>
       <option value="FL">FL</option>
       <option value="IF">IF</option>
@@ -602,18 +602,43 @@ label {
       <option value="SI2">SI2</option>  
       <option value="I1">I1</option>        
       <option value="I2">I2</option> 
-      <option value="I3">I3</option>                     
+      <option value="I3">I3</option>  
+    </select>
+    <span>～</span>
+    <select id="maxClaritySelect">
+      <option value="">すべて</option>
+      <option value="FL">FL</option>
+      <option value="IF">IF</option>
+      <option value="VVS1">VVS1</option>
+      <option value="VVS2">VVS2</option>
+      <option value="VS1">VS1</option>    
+      <option value="VS2">VS2</option>       
+      <option value="SI1">SI1</option>       
+      <option value="SI2">SI2</option>  
+      <option value="I1">I1</option>        
+      <option value="I2">I2</option> 
+      <option value="I3">I3</option>  
     </select>
   </div>
+
   <div class="flex-row">
-    <label for="cutSelect">カット</label>
-    <select id="cutSelect">
+    <label>カット</label>
+    <select id="minCutSelect" onchange="syncToValue('minCutSelect','maxCutSelect')">
       <option value="">すべて</option>
-      <option value="EX">EX</option>
-      <option value="VG">VG</option>
-      <option value="GD">GD</option>
-      <option value="FR">FR</option>
       <option value="PR">PR</option>
+      <option value="FR">FR</option>
+      <option value="GD">GD</option>
+      <option value="VG">VG</option>
+      <option value="EX">EX</option>
+    </select>
+    <span>～</span>
+    <select id="maxCutSelect">
+      <option value="">すべて</option>
+      <option value="PR">PR</option>
+      <option value="FR">FR</option>
+      <option value="GD">GD</option>
+      <option value="VG">VG</option>
+      <option value="EX">EX</option>
     </select>
     <label style="margin-left:10px; font-weight:normal;">
       <input type="checkbox" id="hcCheck"> H&C
@@ -719,10 +744,22 @@ label {
   // 共通定義
   // ---------------------
   const alphabetColors = "D E F G H I J K L M N O P Q R S T U V W X Y Z".split(" ");
+  const CUT_ORDER = ["PR","FR","GD","VG","EX"];
   const fancyGrades = ["FAINT","VERY LIGHT","LIGHT","FANCY LIGHT","FANCY","FANCY INTENSE","FANCY VIVID","FANCY DEEP","FANCY DARK"];
   const fancyTones = ["YELLOW","PINK","BLUE","GREEN","BROWN","ORANGE","PURPLE","RED","GRAY","BLACK"];
   const CLARITY_ORDER = ["FL","IF","VVS1","VVS2","VS1","VS2","SI1","SI2","I1","I2","I3"];
   const caratThresholds = [0,0.1,0.2,0.25,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.5,2,3,5];
+
+  function syncToValue(fromId, toId) {
+    const from = document.getElementById(fromId).value;
+    const to = document.getElementById(toId);
+
+    if (from !== "") {
+      to.value = from;
+    } else {
+      to.value = ""; // すべてへ戻す
+    }
+  }
 
   // ---------------------
   // カラットセット機能
