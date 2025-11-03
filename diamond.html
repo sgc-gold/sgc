@@ -868,6 +868,12 @@ document.getElementById("setCarat").addEventListener("click", () => {
     const fancyToneSel = document.getElementById("fancyToneSelect");
     fancyGrades.forEach(g=>addOption(fancyGradeSel,g));
     fancyTones.forEach(t=>addOption(fancyToneSel,t));
+
+    // ---------------------
+    // 形状セレクトの生成を追加
+    // ---------------------
+    const shapeCodesFromData = Array.from(sets.shapes);
+    populateShapeSelect(shapeCodesFromData);    
   }
   populateFilters();
 
@@ -991,10 +997,10 @@ document.getElementById("setCarat").addEventListener("click", () => {
     PRI: "プリンセス",
     BG: "バゲット",
     CUS: "クッション",
-    PO: "ポルトギーズ",
     BUT: "バタフライ",
     TRI: "トリリアント",
     FA: "ファンシーカット"
+    RCT:"レクタンギュラー"
   };
 
   // 形状セレクトを生成する関数
