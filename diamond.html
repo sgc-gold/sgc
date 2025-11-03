@@ -539,6 +539,7 @@ label {
   <span class="notice-icon">📢</span>
   <div class="notice-content">
     <div class="notice-title">更新情報</div>
+    <div class="notice-text">2025年11月04日　カットとクラリティを範囲検索に変更</div>    
     <div class="notice-text">2025年10月31日　NJ10月後半大会分 追加</div>
   </div>
 </div>
@@ -587,7 +588,7 @@ label {
       </div>
     </div>
   </div>
-   
+
   <div class="flex-row">
     <label>クラリティ</label>
     <select id="minClaritySelect" onchange="syncToValue('minClaritySelect','maxClaritySelect')">
@@ -625,20 +626,20 @@ label {
     <label>カット</label>
     <select id="minCutSelect" onchange="syncToValue('minCutSelect','maxCutSelect')">
       <option value="">すべて</option>
-      <option value="PR">PR</option>
-      <option value="FR">FR</option>
-      <option value="GD">GD</option>
-      <option value="VG">VG</option>
-      <option value="EX">EX</option>
+      <option value="EX">EXCELLENT</option>
+      <option value="VG">VERY GOOD</option>
+      <option value="GD">GOOD</option>
+      <option value="FR">FAIR</option>
+      <option value="PR">POOR</option>
     </select>
     <span>～</span>
     <select id="maxCutSelect">
       <option value="">すべて</option>
-      <option value="PR">PR</option>
-      <option value="FR">FR</option>
-      <option value="GD">GD</option>
-      <option value="VG">VG</option>
-      <option value="EX">EX</option>
+      <option value="EX">EXCELLENT</option>
+      <option value="VG">VERY GOOD</option>
+      <option value="GD">GOOD</option>
+      <option value="FR">FAIR</option>
+      <option value="PR">POOR</option>
     </select>
     <label style="margin-left:10px; font-weight:normal;">
       <input type="checkbox" id="hcCheck"> H&C
@@ -823,6 +824,20 @@ document.getElementById("setCarat").addEventListener("click", () => {
   });
 
   // ---------------------
+  // クラリティ From → To 自動反映
+  // ---------------------
+  document.getElementById("minClaritySelect")?.addEventListener("change", () => {
+    syncToValue("minClaritySelect", "maxClaritySelect");
+  });
+
+  // ---------------------
+  // カット From → To 自動反映
+  // ---------------------
+  document.getElementById("minCutSelect")?.addEventListener("change", () => {
+    syncToValue("minCutSelect", "maxCutSelect");
+  });
+
+  // ---------------------
   // JSON取得＆フィルター作成
   // ---------------------
   let diamondData = [];
@@ -887,6 +902,45 @@ document.getElementById("setCarat").addEventListener("click", () => {
     if(score<1) score+=1000;
     return score;
   }
+
+  // ---------------------
+  // カット評価抽出関数（新規追加）
+  // ---------------------
+  function getCutGrade(value) {
+    if (!value) return null;
+    const str = value.toUpperCase();
+
+    // H&C判定
+    const hasHC = /H&C|HEART/.test(str);
+
+    // カット基本ランクを抽出
+    let parts;
+    if (str.includes("/")) {
+      parts = str.split("/");
+    } else {
+      parts = str.split(" ");
+    }
+
+    const grade = parts.find(p =>
+      p.includes("EX") || p.includes("VG") ||
+      p.includes("GD") || p === "G" ||
+      p.includes("FR") || p === "FA" ||
+      p === "PO" || p.includes("PR")
+    );
+
+    let base;
+    if (grade.includes("EX")) base = "EX";
+    else if (grade.includes("VG")) base = "VG";
+    else if (grade.includes("GD") || grade === "G") base = "GD";
+    else if (grade.includes("FR") || grade === "FA") base = "FR";
+    else if (grade.includes("PR") || grade === "PO") base = "PR";
+    else base = null;
+
+    return { base, hasHC };
+  }
+
+  // カットの順位比較用
+  const cutRank = { EX:1, VG:2, GD:3, FR:4, PR:5 };
 
   function getCutScore(cutStr){
     if(!cutStr) return 0;
@@ -987,15 +1041,11 @@ document.getElementById("setCarat").addEventListener("click", () => {
     spinner.style.display = "flex";
 
     setTimeout(() => {
-      // カットとH&C取得
-      const cutVal = document.getElementById("cutSelect").value;
       const hcChecked = document.getElementById("hcCheck").checked;
 
-      // 他のフィルター取得（以前のコードと同じ）
       const minC = parseFloat(document.getElementById("minCarat").value) || 0;
       const maxC = parseFloat(document.getElementById("maxCarat").value) || 999;
       const dateVal = document.getElementById("dateSelect").value;
-      const clarityVal = document.getElementById("claritySelect").value;
       const fluVal = document.getElementById("fluorescenceSelect").value;
       const shapeVal = document.getElementById("shapeSelect").value;
       const keyword = document.getElementById("keyword").value.trim().toLowerCase();
@@ -1005,11 +1055,16 @@ document.getElementById("setCarat").addEventListener("click", () => {
       const fancyGrade = document.getElementById("fancyGradeSelect").value;
       const fancyTone = document.getElementById("fancyToneSelect").value;
 
+      // ★クラリティ・カットの範囲取得
+      const minClarity = document.getElementById("minClaritySelect").value;
+      const maxClarity = document.getElementById("maxClaritySelect").value;
+      const minCut = document.getElementById("minCutSelect").value;
+      const maxCut = document.getElementById("maxCutSelect").value;
+
       const tbody = document.getElementById("resultBody");
       tbody.innerHTML = "";
       document.getElementById("resultTable").style.display = "table"; 
 
-      // 件数表示
       let countTop = document.getElementById("resultCountTop");
       let countBottom = document.getElementById("resultCountBottom");
       if(!countTop){
@@ -1028,14 +1083,35 @@ document.getElementById("setCarat").addEventListener("click", () => {
       const fromIndex = alphabetColors.indexOf(fromColor);
       const toIndex = alphabetColors.indexOf(toColor);
 
-      // 絞り込み
+      // ======================
+      // 絞り込みロジック
+      // ======================
       const results = diamondData.filter(d => {
         const c = parseFloat(d.carat) || 0;
-        if(c<minC||c>maxC) return false;
+        if(c < minC || c > maxC) return false;
         if(dateVal && d.date.split(" ")[0] < dateVal) return false;
-        if(clarityVal && d.clarity!=clarityVal) return false;
-        if(fluVal && d.fluorescence!=fluVal) return false;
-        if(shapeVal && d.shape!=shapeVal) return false;
+        if(fluVal && d.fluorescence != fluVal) return false;
+        if(shapeVal && d.shape != shapeVal) return false;
+
+        // ★クラリティ範囲判定
+        if(minClarity || maxClarity){
+          const clarityIndex = CLARITY_ORDER.indexOf(d.clarity);
+          const minIndex = minClarity ? CLARITY_ORDER.indexOf(minClarity) : -1;
+          const maxIndex = maxClarity ? CLARITY_ORDER.indexOf(maxClarity) : CLARITY_ORDER.length;
+          if(minIndex !== -1 && clarityIndex < minIndex) return false;
+          if(maxIndex !== CLARITY_ORDER.length && clarityIndex > maxIndex) return false;
+        }
+
+        // カット判定
+        if (minCut || maxCut) {
+          const { base, hasHC } = getCutGrade(d.cut);
+
+          // カット該当なし → 除外
+          if (!base) return false;
+
+          if (minCut && cutRank[base] < cutRank[minCut]) return false;
+          if (maxCut && cutRank[base] > cutRank[maxCut]) return false;
+        }
 
         // キーワード
         if(keyword){
@@ -1043,7 +1119,7 @@ document.getElementById("setCarat").addEventListener("click", () => {
           if(!keyword.split(" ").every(k=>fields.includes(k))) return false;
         }
 
-        // カラー判定（以前のコードそのまま）
+        // カラー判定（元コードのまま）
         const colorUpper=(d.color||"").toUpperCase();
         const isFancy = isFancyColor(d.color);
         let matchAlphabet=true;
@@ -1060,7 +1136,7 @@ document.getElementById("setCarat").addEventListener("click", () => {
             matchFancy=colorUpper.includes(fancyGrade.toUpperCase());
           } else if(fancyTone){
             matchFancy=colorUpper.includes(fancyTone.toUpperCase());
-          } else { matchFancy=true; }
+          }
         } else { matchFancy=false; }
 
         let colorMatch=true;
@@ -1069,23 +1145,13 @@ document.getElementById("setCarat").addEventListener("click", () => {
         else if(!(fromColor && toColor) && !(fancyGrade||fancyTone)) colorMatch=true;
         else colorMatch=matchAlphabet || matchFancy;
 
-        // カット判定
-        let cutMatch = true;
-        if(cutVal){
-          const cutUpper = (d.cut||"").toUpperCase();
-          if(cutVal==="FR") cutMatch = cutUpper.includes("FR") || cutUpper.includes("FA");
-          else if(cutVal==="PR") cutMatch = cutUpper.includes("PR") || cutUpper.includes("PO");
-          else cutMatch = cutUpper.includes(cutVal);
-        }
-
-        // H&C判定
-        let hcMatch = true;
+        // ★H&C判定
         if(hcChecked){
           const cutUpper = (d.cut||"").toUpperCase();
-          hcMatch = cutUpper.includes("H&C") || cutUpper.includes("HC");
+          if(!(cutUpper.includes("H&C") || cutUpper.includes("HC"))) return false;
         }
 
-        return colorMatch && cutMatch && hcMatch;
+        return colorMatch;
       });
 
       // 並び替え
@@ -1190,9 +1256,10 @@ document.getElementById("setCarat").addEventListener("click", () => {
   document.getElementById("clearButton").addEventListener("click", () => {
     // 各入力フォームをリセット
     ["minCarat","maxCarat","mainCarat","fromColor","toColor","fancyGradeSelect","fancyToneSelect",
-    "claritySelect","cutSelect","fluorescenceSelect","shapeSelect","keyword"].forEach(id => {
+    "minCutSelect","maxCutSelect","minClaritySelect","maxClaritySelect","fluorescenceSelect","shapeSelect","keyword"].forEach(id => {
       document.getElementById(id).value = "";
     });
+
 
     // H&C チェックボックスをリセット
     document.getElementById("hcCheck").checked = false;
