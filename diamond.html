@@ -745,7 +745,7 @@ label {
   // 共通定義
   // ---------------------
   const alphabetColors = "D E F G H I J K L M N O P Q R S T U V W X Y Z".split(" ");
-  const CUT_ORDER = ["PR","FR","GD","VG","EX"];
+  const CUT_ORDER = ["EX","VG","GD","FR","PR"];
   const fancyGrades = ["FAINT","VERY LIGHT","LIGHT","FANCY LIGHT","FANCY","FANCY INTENSE","FANCY VIVID","FANCY DEEP","FANCY DARK"];
   const fancyTones = ["YELLOW","PINK","BLUE","GREEN","BROWN","ORANGE","PURPLE","RED","GRAY","BLACK"];
   const CLARITY_ORDER = ["FL","IF","VVS1","VVS2","VS1","VS2","SI1","SI2","I1","I2","I3"];
@@ -1251,9 +1251,16 @@ document.getElementById("setCarat").addEventListener("click", () => {
       renderPage(1);
       updatePagination();
 
+      // ---------------------
+      // テーブルソート機能（詳細行除外・数値対応）
+      // ---------------------
       function enableSort() {
         const headers = document.querySelectorAll("#resultTable thead th");
         headers.forEach((th, index) => {
+
+          // ⭐詳細列（最後の列）はソート対象外
+          if (index === 10) return;
+
           th.style.cursor = "pointer";
           th.addEventListener("click", () => sortColumn(index));
         });
@@ -1263,47 +1270,72 @@ document.getElementById("setCarat").addEventListener("click", () => {
 
       function sortColumn(colIndex) {
         if (!window.lastSearchResults) return;
-        
-        const direction =
-          sortState[colIndex] === "asc" ? "desc" : "asc";
+
+        const direction = sortState[colIndex] === "asc" ? "desc" : "asc";
         sortState = { [colIndex]: direction };
 
         window.lastSearchResults.sort((a, b) => {
           const keyA = getValueByColumn(a, colIndex);
           const keyB = getValueByColumn(b, colIndex);
 
-          if (typeof keyA === "number" && typeof keyB === "number") {
-            return direction === "asc" ? keyA - keyB : keyB - keyA;
+          if (keyA === null || keyA === undefined) return 1;
+          if (keyB === null || keyB === undefined) return -1;
+
+          const numA = parseFloat(keyA);
+          const numB = parseFloat(keyB);
+
+          // 数値列は数値比較
+          const bothNumeric = !isNaN(numA) && !isNaN(numB);
+          if (bothNumeric) {
+            return direction === "asc" ? numA - numB : numB - numA;
           }
+
+          // 文字列列はカスタム順序（クラリティ・カット）対応
           return direction === "asc"
-            ? String(keyA).localeCompare(String(keyB))
-            : String(keyB).localeCompare(String(keyA));
+            ? String(keyA).localeCompare(String(keyB), "ja")
+            : String(keyB).localeCompare(String(keyA), "ja");
         });
 
-        // ページ再描画
         renderPage(1);
         updatePagination();
-
         updateSortIcons(colIndex, direction);
       }
 
+      // ---------------------
+      // 列ごとの値を返す関数（クラリティ・カットのランク対応）
+      // ---------------------
       function getValueByColumn(row, colIndex) {
         switch (colIndex) {
-          case 0: return row.date; // 日付
-          case 1: return row.color;
-          case 2: return row.clarity;
-          case 3: return row.cut;
-          case 4: return row.fluorescence;
-          case 5: return row.shape;
-          case 6: return parseFloat(row.carat);
-          case 7: return parseFloat(row.pricePerCarat);
-          case 8: return parseFloat(row.pricePerCarat) * parseFloat(row.carat);
-          case 9: return row.notes;
-          default: return "";
+          case 0: // 日付
+            return row.date;
+          case 1: // カラー
+            return getColorScore(row.color); // 数値化して比較
+          case 2: // クラリティ
+            {
+              const idx = CLARITY_ORDER.indexOf(row.clarity);
+              return idx === -1 ? CLARITY_ORDER.length : idx;
+            }
+          case 3: // カット
+            {
+              const base = getCutGrade(row.cut)?.base;
+              return base ? (cutRank[base] ?? 999) : 999;
+            }
+          case 4: // 蛍光性
+            return getFluorescenceScore(row.fluorescence); // 数値化
+          case 5: // 形状
+            return row.shape || "";
+          case 6: // カラット
+            return parseFloat(row.carat) || 0;
+          case 7: // ガイ単価
+            return parseFloat(row.pricePerCarat) || 0;
+          case 8: // 金額
+            return (parseFloat(row.pricePerCarat) || 0) * (parseFloat(row.carat) || 0);
+          case 9: // 備考
+            return row.notes || "";
+          default:
+            return "";
         }
       }
-
-      enableSort();
 
       function updateSortIcons(colIndex, direction) {
         const headers = document.querySelectorAll("#resultTable thead th");
@@ -1314,6 +1346,8 @@ document.getElementById("setCarat").addEventListener("click", () => {
           }
         });
       }
+
+      enableSort();
 
       window.lastSearchResults = results; // 後で掛け率変更時に再利用
       updateSummary(results);             // 買取参考価格を更新
