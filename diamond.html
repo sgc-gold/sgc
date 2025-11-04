@@ -673,10 +673,15 @@ label {
       <option value="FR">FAIR</option>
       <option value="PR">POOR</option>
     </select>
-    <label style="margin-left:10px; font-weight:normal;">
-      <input type="checkbox" id="hcCheck"> H&C
-    </label>
+
+    <!-- H&Cだけを別のラッパーにする -->
+    <div class="hc-wrapper">
+      <label style="margin-left:10px; font-weight:normal;">
+        <input type="checkbox" id="hcCheck"> H&C
+      </label>
+    </div>
   </div>
+
   <div class="flex-row">
     <label for="fluorescenceSelect">蛍光性</label>
     <select id="fluorescenceSelect">
