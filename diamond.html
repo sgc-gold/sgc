@@ -242,7 +242,7 @@ button {
 }
 
 input[type="checkbox"] {
-  vertical-align: middle; /* 中央揃え */
+  /*vertical-align: middle;*/ /* 中央揃え */
   margin: 0; /* iOSの余白調整 */
 }
 
@@ -378,6 +378,13 @@ label {
   width: 64%;
   text-align: right;
   color: #2f2f2f;
+}
+
+.summary-table tr.rate-divider td {
+  border-top: 1px solid rgba(0,0,0,0.2); /* 線の色 */
+  height: 10px;        /* 線行全体の高さ */
+  padding: 0;          /* 線行に余白は不要 */
+  vertical-align: middle; /* 線を中央に */
 }
 
 /* 数値＋単位を同じ行にする */
@@ -571,8 +578,8 @@ label {
   <span class="notice-icon">📢</span>
   <div class="notice-content">
     <div class="notice-title">更新情報</div>
+    <div class="notice-text">2025年11月04日　結果ラベルのタップで並び替え可能に</div>  
     <div class="notice-text">2025年11月04日　カットとクラリティを範囲検索に変更</div>    
-    <div class="notice-text">2025年10月31日　NJ10月後半大会分 追加</div>
   </div>
 </div>
 <div class="container">
@@ -727,21 +734,22 @@ label {
         <tr>
           <td class="label">掛け率</td>
           <td class="value">
-            <span class="value-inline">
-              <select id="rateSelect" aria-label="掛け率">
-                <option value="0.5">5掛け</option>
-                <option value="0.6">6掛け</option>
-                <option value="0.7" selected>7掛け</option>
-                <option value="0.8">8掛け</option>
-                <option value="0.9">9掛け</option>
-              </select>
-            </span>
+            <select id="rateSelect">
+              <option value="0.5">5掛け</option>
+              <option value="0.6">6掛け</option>
+              <option value="0.7" selected>7掛け</option>
+              <option value="0.8">8掛け</option>
+              <option value="0.9">9掛け</option>
+            </select>
           </td>
+        </tr>
+        <tr class="rate-divider">
+          <td colspan="2"></td>
         </tr>
         <tr>
           <td class="label">ガイ単価</td>
-          <td class="value"><span class="value-inline"><strong id="summaryUnitPrice">0</strong>&nbsp;<span class="unit">円</span></span></td>
-        </tr>
+          <td class="value"><strong id="summaryUnitPrice">0</strong>&nbsp;<span class="unit">円</span></td>
+        </tr>      
         <tr>
           <td class="label">カラット</td>
           <td class="value"><span class="value-inline"><strong id="summaryCarat">0.000</strong>&nbsp;<span class="unit">ct</span></span></td>
