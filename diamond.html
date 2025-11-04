@@ -722,17 +722,17 @@ label {
     <table id="resultTable">
       <thead>
         <tr>
-          <th>日付</th>
-          <th>カラー</th>
-          <th>クラリティ</th>
-          <th>カット</th>
-          <th>蛍光性</th>
-          <th>形状</th>
-          <th>カラット</th>
-          <th>ガイ単価</th>
-          <th>金額</th>
-          <th>備考</th>
-          <th>詳細</th>
+          <th class="sortable">日付</th>
+          <th class="sortable">カラー</th>
+          <th class="sortable">クラリティ</th>
+          <th class="sortable">カット</th>
+          <th class="sortable">蛍光性</th>
+          <th class="sortable">形状</th>
+          <th class="sortable numeric">カラット</th>
+          <th class="sortable numeric">ガイ単価</th>
+          <th class="sortable numeric">金額</th>
+          <th class="sortable">備考</th>
+          <th>詳細</th> <!-- ← 詳細はソート対象外 -->
         </tr>
       </thead>
       <tbody id="resultBody"></tbody>
@@ -1250,6 +1250,71 @@ document.getElementById("setCarat").addEventListener("click", () => {
 
       renderPage(1);
       updatePagination();
+
+      function enableSort() {
+        const headers = document.querySelectorAll("#resultTable thead th");
+        headers.forEach((th, index) => {
+          th.style.cursor = "pointer";
+          th.addEventListener("click", () => sortColumn(index));
+        });
+      }
+
+      let sortState = {}; // { columnIndex: 'asc' | 'desc' }
+
+      function sortColumn(colIndex) {
+        if (!window.lastSearchResults) return;
+        
+        const direction =
+          sortState[colIndex] === "asc" ? "desc" : "asc";
+        sortState = { [colIndex]: direction };
+
+        window.lastSearchResults.sort((a, b) => {
+          const keyA = getValueByColumn(a, colIndex);
+          const keyB = getValueByColumn(b, colIndex);
+
+          if (typeof keyA === "number" && typeof keyB === "number") {
+            return direction === "asc" ? keyA - keyB : keyB - keyA;
+          }
+          return direction === "asc"
+            ? String(keyA).localeCompare(String(keyB))
+            : String(keyB).localeCompare(String(keyA));
+        });
+
+        // ページ再描画
+        renderPage(1);
+        updatePagination();
+
+        updateSortIcons(colIndex, direction);
+      }
+
+      function getValueByColumn(row, colIndex) {
+        switch (colIndex) {
+          case 0: return row.date; // 日付
+          case 1: return row.color;
+          case 2: return row.clarity;
+          case 3: return row.cut;
+          case 4: return row.fluorescence;
+          case 5: return row.shape;
+          case 6: return parseFloat(row.carat);
+          case 7: return parseFloat(row.pricePerCarat);
+          case 8: return parseFloat(row.pricePerCarat) * parseFloat(row.carat);
+          case 9: return row.notes;
+          default: return "";
+        }
+      }
+
+      enableSort();
+
+      function updateSortIcons(colIndex, direction) {
+        const headers = document.querySelectorAll("#resultTable thead th");
+        headers.forEach((th, idx) => {
+          th.innerHTML = th.innerHTML.replace(/ ▲| ▼/g, "");
+          if (idx === colIndex) {
+            th.innerHTML += direction === "asc" ? " ▲" : " ▼";
+          }
+        });
+      }
+
       window.lastSearchResults = results; // 後で掛け率変更時に再利用
       updateSummary(results);             // 買取参考価格を更新
       spinner.style.display="none";
