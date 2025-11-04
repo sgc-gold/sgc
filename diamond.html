@@ -257,29 +257,61 @@ label {
   width: 100%;
 }
 
+/* ---------------------
+   テーブル本体
+--------------------- */
 #resultTable {
-  width:100%;
-  border-collapse:collapse;
-  margin-top:1rem;
-  display:none;
-  border:1px solid #e5e5e5;
-  border-radius:8px;
-  overflow:hidden;
-  box-shadow:0 2px 6px rgba(0,0,0,0.03);
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  display: none;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
 }
 
-#resultTable th, #resultTable td {
-  border:1px solid #e8e8e8;
-  padding:8px 4px;
-  text-align:center;
-  font-size:0.75rem;
+#resultTable th,
+#resultTable td {
+  border: 1px solid #e8e8e8;
+  padding: 10px 6px; /* スマホ向けに広め */
+  text-align: center;
+  font-size: 0.75rem;
 }
 
 #resultTable th {
-  background:linear-gradient(180deg,#faf9f5,#f1efe8);
-  font-weight:700;
-  color:#2c2c2c;
-  border-bottom:2px solid #d1c089;
+  background: linear-gradient(180deg, #faf9f5, #f1efe8);
+  font-weight: 700;
+  color: #2c2c2c;
+  border-bottom: 2px solid #d1c089;
+  position: relative;      /* ソートアイコン表示用 */
+  cursor: pointer;         /* タップ可能 */
+}
+
+/* ソートアイコン */
+#resultTable th .sortIcon {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.65rem;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+#resultTable th.active .sortIcon {
+  opacity: 1;
+}
+
+/* 初回ユーザー向けヒント */
+.sortHint {
+  background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  text-align: center;
+  font-size: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .detailsRow {
@@ -1347,7 +1379,37 @@ document.getElementById("setCarat").addEventListener("click", () => {
         });
       }
 
+      function showSortHint() {
+        if (localStorage.getItem("sortHintShown")) return;
+
+        const hint = document.createElement("div");
+        hint.id = "sortHint";
+        hint.textContent = "🔹列をタップすると並び替えできます";
+        hint.style.cssText = `
+          text-align:center;
+          background:#fffae6;
+          color:#8a6d3b;
+          padding:6px 0;
+          font-size:0.75rem;
+          border-radius:6px;
+          margin-bottom:0.5rem;
+          box-shadow:0 1px 4px rgba(0,0,0,0.1);
+        `;
+        const table = document.getElementById("resultTable");
+        table.parentNode.insertBefore(hint, table);
+
+        // 3秒後に自動でフェードアウト
+        setTimeout(() => {
+          hint.style.transition = "opacity 0.5s";
+          hint.style.opacity = 0;
+          setTimeout(() => hint.remove(), 500);
+        }, 3000);
+
+        localStorage.setItem("sortHintShown", "true");
+      }      
+
       enableSort();
+      showSortHint();
 
       window.lastSearchResults = results; // 後で掛け率変更時に再利用
       updateSummary(results);             // 買取参考価格を更新
