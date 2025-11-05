@@ -901,7 +901,16 @@ document.getElementById("setCarat").addEventListener("click", () => {
 
     const addOption = (sel,val)=>sel.appendChild(new Option(val,val));
 
-    Array.from(sets.dates).sort((a,b)=>new Date(b)-new Date(a)).forEach(d=>addOption(document.getElementById("dateSelect"),d));
+    Array.from(sets.dates)
+      .sort((a, b) => {
+        // a, b は "YYYY/MM/DD" 形式
+        const [ay, am, ad] = a.split("/").map(Number);
+        const [by, bm, bd] = b.split("/").map(Number);
+        // Date の月は 0 始まりなので -1
+        return new Date(by, bm - 1, bd) - new Date(ay, am - 1, ad);
+      })
+      .forEach(d => addOption(document.getElementById("dateSelect"), d));
+      
     document.getElementById("dateSelect").selectedIndex = 1;
     Array.from(sets.shapes).sort().forEach(s=>addOption(document.getElementById("shapeSelect"),s));
 
