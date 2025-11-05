@@ -901,16 +901,8 @@ document.getElementById("setCarat").addEventListener("click", () => {
 
     const addOption = (sel,val)=>sel.appendChild(new Option(val,val));
 
-    Array.from(sets.dates)
-      .sort((a, b) => {
-        // a, b は "YYYY/MM/DD" 形式
-        const [ay, am, ad] = a.split("/").map(Number);
-        const [by, bm, bd] = b.split("/").map(Number);
-        // Date の月は 0 始まりなので -1
-        return new Date(by, bm - 1, bd) - new Date(ay, am - 1, ad);
-      })
-      .forEach(d => addOption(document.getElementById("dateSelect"), d));
-      
+    
+    Array.from(sets.dates).sort((a,b)=>new Date(b)-new Date(a)).forEach(d=>addOption(document.getElementById("dateSelect"),d));
     document.getElementById("dateSelect").selectedIndex = 1;
     Array.from(sets.shapes).sort().forEach(s=>addOption(document.getElementById("shapeSelect"),s));
 
@@ -1329,11 +1321,22 @@ document.getElementById("setCarat").addEventListener("click", () => {
         sortState = { [colIndex]: direction };
 
         window.lastSearchResults.sort((a, b) => {
-          const keyA = getValueByColumn(a, colIndex);
-          const keyB = getValueByColumn(b, colIndex);
+          let keyA = getValueByColumn(a, colIndex);
+          let keyB = getValueByColumn(b, colIndex);
 
           if (keyA === null || keyA === undefined) return 1;
           if (keyB === null || keyB === undefined) return -1;
+
+          // 日付列の比較
+          if (colIndex === 0) { 
+            // YYYY/MM/DD → Date オブジェクトに変換
+            const [ay, am, ad] = keyA.split("/").map(Number);
+            const [by, bm, bd] = keyB.split("/").map(Number);
+            const dateA = new Date(ay, am - 1, ad);
+            const dateB = new Date(by, bm - 1, bd);
+
+            return direction === "asc" ? dateA - dateB : dateB - dateA;
+          }
 
           const numA = parseFloat(keyA);
           const numB = parseFloat(keyB);
