@@ -2,6 +2,7 @@ name: Check and Update Tanaka Price
 
 on:
   workflow_dispatch:
+  repository_dispatch:
 
 jobs:
   check-and-update:
