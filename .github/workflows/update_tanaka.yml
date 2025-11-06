@@ -1,8 +1,9 @@
-name: Check and Update Tanaka Price
+name: Check and Update Tanaka 
 
 on:
   workflow_dispatch:
   repository_dispatch:
+    types: [CONTAINER_UPDATE]
 
 jobs:
   check-and-update:
