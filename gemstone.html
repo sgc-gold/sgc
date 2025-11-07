@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>宝石重量自動計算</title>
+<style>
+  body { font-family: sans-serif; padding:20px; }
+  label { display:block; margin-top:12px; font-weight:bold; }
+  input, select { font-size:1rem; padding:4px; width:140px; }
+  .row { margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<h2>宝石重量 計算ツール</h2>
+
+<div class="row">
+  <label>石の種類（比重）</label>
+  <select id="gemstone"></select>
+</div>
+
+<div class="row">
+  <label>カット</label>
+  <select id="cut"></select>
+</div>
+
+<div id="dimensions"></div>
+
+<div class="row">
+  <button id="calcBtn">重量計算</button>
+</div>
+
+<div class="row">
+  <label>結果</label>
+  <div>
+    <span id="resultG">0.000 g</span>  
+    ／  
+    <span id="resultCt">0.000 ct</span>
+  </div>
+</div>
+
+<script>
+let gemstones=[], cuts=[], models={};
+
+async function loadData() {
+  const g = await fetch('./data/gemstones.json').then(r=>r.json());
+  gemstones = g.gemstones;
+  const c = await fetch('./data/cuts.json').then(r=>r.json());
+  cuts = c.cuts;
+  const m = await fetch('./data/models.json').then(r=>r.json());
+  models = {};
+  m.models.forEach(md=>models[md.id]=md);
+
+  populateGemstones();
+  populateCuts();
+  updateDimensionFields();
+}
+
+function populateGemstones() {
+  const sel = document.getElementById("gemstone");
+  gemstones.forEach(st=>{
+    const opt = document.createElement("option");
+    opt.value = st.id;
+    opt.textContent = `${st.name_ja} (SG:${st.sg_std})`;
+    sel.appendChild(opt);
+  });
+}
+
+function populateCuts() {
+  const sel = document.getElementById("cut");
+  cuts.forEach(c=>{
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.name_ja;
+    sel.appendChild(opt);
+  });
+  sel.addEventListener("change", updateDimensionFields);
+}
+
+function updateDimensionFields() {
+  const cutId = document.getElementById("cut").value;
+  const cut = cuts.find(c=>c.id===cutId);
+  const fields = cut.measurement_fields;
+
+  const area = document.getElementById("dimensions");
+  area.innerHTML = "";
+  fields.forEach(f=>{
+    const label = {
+      d: "直径(mm)",
+      D: "厚み/全高(mm)",
+      L: "縦(mm)",
+      W: "横(mm)",
+      a: "辺長(mm)",
+      r: "最大半径(mm)",
+      h: "高さ(mm)",
+      h_half: "片側高さ(mm)",
+      A: "底面積(mm²)",
+      split_ratio: "上部割合(0.4〜0.7推奨)"
+    }[f] || f;
+
+    const row = document.createElement("div");
+    row.className="row";
+    row.innerHTML = `<label>${label}</label>
+      <input id="dim_${f}" type="number" step="0.01" value="${f==='split_ratio' ? 0.6:''}">`;
+    area.appendChild(row);
+  });
+}
+
+document.getElementById("calcBtn").addEventListener("click", ()=>{
+  const stoneId = gemstone.value;
+  const stone = gemstones.find(s=>s.id===stoneId);
+  const cutId = cut.value;
+  const cutObj = cuts.find(c=>c.id===cutId);
+  const model = models[cutObj.model];
+
+  const args = cutObj.measurement_fields.map(f=>{
+    const v = parseFloat(document.getElementById("dim_"+f).value);
+    return isNaN(v) ? 0 : v;
+  });
+
+  let V = eval(model.formula_js)(...args); // mm^3
+  V *= cutObj.correction_factor; // 補正
+
+  const density = stone.sg_std; 
+  const massG = density * V / 1000;
+  const massCt = massG / 0.2;
+
+  resultG.textContent = massG.toFixed(3)+" g";
+  resultCt.textContent = massCt.toFixed(3)+" ct";
+});
+
+loadData();
+</script>
+
+</body>
+</html>
