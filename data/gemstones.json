@@ -35,6 +35,7 @@
     {"id":"opal","name_ja":"オパール","sg_std":2.15},
     {"id":"jet","name_ja":"ジェット","sg_std":1.32},
     {"id":"plastic","name_ja":"プラスチック","sg_std":1.3},
-    {"id":"amber","name_ja":"琥珀","sg_std":1.08}
+    {"id":"amber","name_ja":"琥珀","sg_std":1.08},
+    {"id":"moonstone","name_ja":"ムーンストーン","sg_std":2.60}    
   ]
 }
