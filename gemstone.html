@@ -222,6 +222,17 @@ function populateGemstones() {
   });
 }
 
+function populateCuts() {
+  const sel = document.getElementById("cut");
+  cuts.forEach(c=>{
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.name_ja;
+    sel.appendChild(opt);
+  });
+  sel.addEventListener("change", updateDimensionFields);
+}
+
 // ----------------- 寸法入力欄（選択式） -----------------
 function updateDimensionFields() {
   const cutId = document.getElementById("cut").value;
