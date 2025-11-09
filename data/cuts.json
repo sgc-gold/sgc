@@ -16,7 +16,7 @@
     {"id":"emerald","name_ja":"エメラルド","model":"prism_box","measurement_fields":["L","W","D"],"correction_factor":0.95},
     {"id":"octagon","name_ja":"オクタゴン","model":"prism_box","measurement_fields":["L","W","D"],"correction_factor":0.98},
     {"id":"briolette","name_ja":"ブリオレット","model":"bicone","measurement_fields":["r","h_half"],"correction_factor":0.97},
-    {"id":"cabochon","name_ja":"カボション","model":"cabochon","measurement_fields":["d","h"],"correction_factor":1.02},
+    {"id":"cabochon","name_ja":"カボション（円）","model":"cabochon","measurement_fields":["d","h"],"correction_factor":1.02},
     {"id":"cabochon","name_ja":"カボション（楕円）","model": "cabochon_ellipsoid","measurement_fields": ["L","W","h"],"correction_factor": 1.02},
     {"id":"buff_top","name_ja":"バフトップ","model":"cabochon","measurement_fields":["d","h"],"correction_factor":1.02},
     {"id": "pearl_round","name_ja": "丸（球体）","model": "pearl_round","measurement_fields": ["d"],"correction_factor": 1.00},
