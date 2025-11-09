@@ -1,12 +1,21 @@
-// register.js  --- for sgc-gold/sgc
-
 const repoOwner = "sgc-gold";
 const repoName = "sgc";
 const filePath = "data/calibrations.json";
 
+const tokenInput = document.getElementById("token");
+
+// ページ読み込み時に保存済トークンを自動反映
+window.addEventListener("load", () => {
+  const savedToken = localStorage.getItem("github_token");
+  if (savedToken) tokenInput.value = savedToken;
+});
+
 document.getElementById("submit").addEventListener("click", async () => {
-  const token = document.getElementById("token").value.trim();
+  const token = tokenInput.value.trim();
   if (!token) return alert("Tokenを入力してください。");
+
+  // トークンを localStorage に保存
+  localStorage.setItem("github_token", token);
 
   const entry = {
     id: crypto.randomUUID(),
@@ -34,16 +43,13 @@ async function addCalibrationToGitHub(token, entry) {
     if (!res.ok) return "❌ ファイル取得エラー";
     const data = await res.json();
 
-    // base64 → JSONデコード
     const content = atob(data.content);
     const json = JSON.parse(content || '{"calibrations": []}');
     json.calibrations.push(entry);
 
-    // JSON → base64変換
     const updated = btoa(unescape(encodeURIComponent(JSON.stringify(json, null, 2))));
-
-    // PUTで更新コミット
     const commitMsg = `Add calibration ${entry.id}`;
+
     const putRes = await fetch(url, {
       method: "PUT",
       headers,
@@ -59,7 +65,6 @@ async function addCalibrationToGitHub(token, entry) {
     } else {
       return "❌ 登録エラー: PUT失敗";
     }
-
   } catch (e) {
     console.error(e);
     return "⚠️ 通信またはJSON処理エラー";
