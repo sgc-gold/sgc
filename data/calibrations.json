@@ -10,6 +10,17 @@
       "calculated_g": 3.962,
       "measured_g": 4.1,
       "correction_factor": 1.035
+    },
+    {
+      "stone": "moonstone",
+      "cut": "cabochon_ellipsoid",
+      "date": "2025-11-09T10:39:00.111Z",
+      "L": 20,
+      "W": 15,
+      "h": 10,
+      "calculated_g": 4.513,
+      "measured_g": 4.1,
+      "correction_factor": 0.909
     }
   ]
 }
