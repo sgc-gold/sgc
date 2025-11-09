@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>宝石キャリブレーション登録</title>
+  <script src="./scripts/register.js" defer></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input, select { padding: 4px; margin: 6px 0; width: 180px; }
+    label { display: block; font-weight: bold; margin-top: 10px; }
+    button { margin-top: 15px; padding: 6px 14px; }
+  </style>
+</head>
+<body>
+
+  <h2>宝石キャリブレーション登録</h2>
+
+  <label>GitHub Token（PAT）</label>
+  <input type="password" id="token" placeholder="PATを入力">
+
+  <label>石の種類</label>
+  <select id="stone">
+    <option value="cubic_zirconia_synth">合成CZ</option>
+    <option value="diamond">ダイヤモンド</option>
+    <option value="topaz">トパーズ</option>
+    <option value="sapphire">サファイア</option>
+  </select>
+
+  <label>カット</label>
+  <select id="cut">
+    <option value="round_brilliant">ラウンドブリリアント</option>
+    <option value="oval">オーバル</option>
+    <option value="princess">プリンセス</option>
+    <option value="pear">ペアシェイプ</option>
+  </select>
+
+  <label>直径(mm)</label>
