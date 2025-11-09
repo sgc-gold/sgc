@@ -2,17 +2,6 @@
   "calibrations": [
     {
       "stone": "moonstone",
-      "cut": "oval",
-      "date": "2025-11-09T08:22:39.615Z",
-      "L": 20,
-      "W": 15,
-      "D": 10,
-      "calculated_g": 3.962,
-      "measured_g": 4.1,
-      "correction_factor": 1.035
-    },
-    {
-      "stone": "moonstone",
       "cut": "cabochon_ellipsoid",
       "date": "2025-11-09T10:39:00.111Z",
       "L": 20,
