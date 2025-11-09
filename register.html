@@ -213,8 +213,26 @@ async function initData(){
 async function loadGemstones(){
   const res = await fetch('./data/gemstones.json').then(r=>r.json());
   gemstones = res.gemstones;
+
+  // カタカナ優先であいうえお順ソート
+  function isKatakana(str) {
+    return /^[\u30A0-\u30FF]+$/.test(str);
+  }
+
+  const sortedGemstones = [...gemstones].sort((a, b) => {
+    const aKatakana = isKatakana(a.name_ja);
+    const bKatakana = isKatakana(b.name_ja);
+
+    if (aKatakana && !bKatakana) return -1; // aがカタカナ、bが漢字 → a先
+    if (!aKatakana && bKatakana) return 1;  // aが漢字、bがカタカナ → b先
+
+    // 両方カタカナ or 両方漢字の場合はあいうえお順
+    return a.name_ja.localeCompare(b.name_ja, 'ja');
+  });
+
   const sel = document.getElementById("stone");
-  gemstones.forEach(s=>{
+  sel.innerHTML = ""; // 既存のoptionをクリア
+  sortedGemstones.forEach(s=>{
     const opt = document.createElement("option");
     opt.value = s.id;
     opt.textContent = s.name_ja;

@@ -196,24 +196,30 @@ async function loadCalibrations() {
 
 // ----------------- セレクトボックス -----------------
 function populateGemstones() {
+  // カタカナ優先であいうえお順ソート
+  function isKatakana(str) {
+    return /^[\u30A0-\u30FF]+$/.test(str);
+  }
+
+  const sortedGemstones = [...gemstones].sort((a, b) => {
+    const aKatakana = isKatakana(a.name_ja);
+    const bKatakana = isKatakana(b.name_ja);
+
+    if (aKatakana && !bKatakana) return -1; // aがカタカナ、bが漢字 → a先
+    if (!aKatakana && bKatakana) return 1;  // aが漢字、bがカタカナ → b先
+
+    // 両方カタカナ or 両方漢字の場合はあいうえお順
+    return a.name_ja.localeCompare(b.name_ja, 'ja');
+  });
+
   const sel = document.getElementById("gemstone");
-  gemstones.forEach(st=>{
+  sel.innerHTML = ""; // 既存のoptionをクリア
+  sortedGemstones.forEach(st => {
     const opt = document.createElement("option");
     opt.value = st.id;
     opt.textContent = `${st.name_ja} (比重:${st.sg_std})`;
     sel.appendChild(opt);
   });
-}
-
-function populateCuts() {
-  const sel = document.getElementById("cut");
-  cuts.forEach(c=>{
-    const opt = document.createElement("option");
-    opt.value = c.id;
-    opt.textContent = c.name_ja;
-    sel.appendChild(opt);
-  });
-  sel.addEventListener("change", updateDimensionFields);
 }
 
 // ----------------- 寸法入力欄（選択式） -----------------

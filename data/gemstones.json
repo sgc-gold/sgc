@@ -1,6 +1,6 @@
 {
   "gemstones": [
-    {"id":"cubic_zirconia_synth","name_ja":"合成キュービックジルコニア","sg_std":5.8},
+    {"id":"cubic_zirconia_synth","name_ja":"キュービックジルコニア","sg_std":5.8},
     {"id":"hematite","name_ja":"ヘマタイト","sg_std":5.2},
     {"id":"spessartite","name_ja":"スペサタイト","sg_std":4.15},
     {"id":"almandine","name_ja":"アルマンダイト","sg_std":4.05},
