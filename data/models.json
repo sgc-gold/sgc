@@ -36,6 +36,13 @@
       "formula_js": "(d, h) => { const a = d / 2; const r = (a * a + h * h) / (2 * h); return Math.PI * h * h * (r - h / 3.0); }"
     },
     {
+      "id": "cabochon_ellipsoid",
+      "name": "Cabochon (elliptical cap)",
+      "description": "底面楕円 L, W とドーム高さ h から母球半径 r を求め球冠体積で近似",
+      "formula_text": "a = sqrt(L*W)/2, r = (a^2 + h^2)/(2h), V = π * h^2 * (r - h/3)",
+      "formula_js": "(L, W, h) => { const a = Math.sqrt(L*W)/2; const r = (a*a + h*h)/(2*h); return Math.PI * h * h * (r - h / 3.0); }"
+    },
+    {
       "id": "bicone",
       "name": "Bicone / Briolette",
       "description": "中心で最も太い回転二錐（両端が尖る形）で近似。r:最大半径, h_half:中心→尖端までの高さ",
