@@ -186,11 +186,26 @@ async function loadData() {
 // ----------------- calibrations.json 読み込み -----------------
 async function loadCalibrations() {
   try {
-    const res = await fetch('./data/calibrations.json');
-    const data = await res.json();
-    calibrations = data.calibrations || [];
+    const ghToken = localStorage.getItem("ghToken") || "";
+    if(ghToken){
+      // GitHub API経由で最新取得
+      const res = await fetch(`https://api.github.com/repos/sgc-gold/sgc/contents/data/calibrations.json`, {
+        headers: { Authorization: `Bearer ${ghToken}` }
+      });
+      if(res.ok){
+        const data = await res.json();
+        const content = JSON.parse(atob(data.content));
+        calibrations = content.calibrations || [];
+        return;
+      }
+    }
+    // トークンがない場合はローカル
+    const resLocal = await fetch('./data/calibrations.json');
+    const dataLocal = await resLocal.json();
+    calibrations = dataLocal.calibrations || [];
   } catch (e) {
     calibrations = [];
+    console.warn("calibrations.json 読み込み失敗:", e);
   }
 }
 

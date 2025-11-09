@@ -401,7 +401,7 @@ async function saveToGitHub() {
   const resPut = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
     method: "PUT",
     headers: {
-      Authorization: "token " + ghToken,
+      Authorization: `Bearer ${ghToken}`,
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
