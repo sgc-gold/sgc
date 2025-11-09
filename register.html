@@ -358,7 +358,7 @@ async function saveToGitHub() {
   const owner = "sgc-gold";
   const repo = "sgc";
   const path = "data/calibrations.json";
-  const ghToken = localStorage.getItem("githubToken");
+  const ghToken = localStorage.getItem("ghToken"); // ←修正：キー名を一致
   if (!ghToken) throw new Error("GitHubトークンが設定されていません。");
 
   // --- 現在のcalibrations.jsonを取得 ---
@@ -383,18 +383,9 @@ async function saveToGitHub() {
     console.warn("既存データの取得に失敗しました:", e);
   }
 
-  // --- フロント側の補正データを更新して保存 ---
-  const newCalibration = {
-    stone: document.getElementById("stone").value,
-    cut: document.getElementById("cut").value,
-    correction_factor: parseFloat(document.getElementById("correction_factor").value) || 1
-  };
-
-  // 重複削除（同じstone & cutがある場合は上書き）
-  existingData.calibrations = existingData.calibrations.filter(c =>
-    !(c.stone === newCalibration.stone && c.cut === newCalibration.cut)
-  );
-  existingData.calibrations.push(newCalibration);
+  // --- フロント側の補正データを追加 ---
+  const latest = calibrations[calibrations.length - 1]; // 直近の登録データ
+  existingData.calibrations.push(latest);
 
   const content = btoa(unescape(encodeURIComponent(JSON.stringify(existingData, null, 2))));
 
@@ -406,9 +397,9 @@ async function saveToGitHub() {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      message: `Update calibrations.json (${newCalibration.stone}-${newCalibration.cut})`,
+      message: `Add calibration (${latest.stone}-${latest.cut})`,
       content,
-      sha: sha || undefined // 新規作成の場合はundefined
+      sha: sha || undefined
     })
   });
 
