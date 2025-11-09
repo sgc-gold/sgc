@@ -55,6 +55,20 @@
       "description": "上部を楕円体（L,W,topH）、下部を円錐で近似する合成モデル。分割比 split_ratio を用いる",
       "formula_text": "split_ratioによる分割: topH = D*split_ratio, topV = π L W topH / 6, botV = 1/3 π (W/2)^2 (D - topH), V = topV + botV",
       "formula_js": "(L, W, D, split_ratio = 0.6) => { const topH = D * split_ratio; const botH = D - topH; const topV = Math.PI * L * W * topH / 6.0; const botV = (1.0 / 3.0) * Math.PI * (W / 2.0) * (W / 2.0) * botH; return topV + botV; }"
+    },
+    { 
+      "id": "pearl_round",
+      "name": "Pearl Round (sphere)", 
+      "description": "球体近似: 直径 d のみで計算", 
+      "formula_text": "V = 4/3 * π * (d/2)^3", 
+      "formula_js": "(d) => (4.0/3.0) * Math.PI * Math.pow(d/2, 3)"
+    },
+    {
+      "id": "pearl_mabe", 
+      "name": "Mabe Pearl (hemisphere/ellipsoid cap)", 
+      "description": "半球近似: 縦 L、横 W、高さ h で計算", 
+      "formula_text": "V = 2/3 * π * (L/2) * (W/2) * h", 
+      "formula_js": "(L, W, h) => (2.0/3.0) * Math.PI * (L/2) * (W/2) * h"
     }
   ]
 }

@@ -1,17 +1,121 @@
-<!DOCTYPE html>
-<html lang="ja">
 <head>
 <meta charset="UTF-8">
 <title>宝石補正データ登録（補正係数自動計算対応）</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  body { font-family:sans-serif; padding:20px; }
-  label { display:block; margin-top:10px; font-weight:bold; }
-  input, select { font-size:1rem; padding:4px; width:160px; }
-  button { margin-top:10px; padding:6px 12px; }
-  .row { margin-bottom:6px; }
-  table { border-collapse: collapse; margin-top:20px; width:100%; }
-  th, td { border:1px solid #ccc; padding:6px; text-align:center; font-size:0.9rem; }
-  th { background:#f0f0f0; }
+  /* 全体 */
+  body {
+    font-family: 'Helvetica', Arial, sans-serif;
+    background: linear-gradient(to right, #f0f4f8, #d9e2ec);
+    padding: 20px;
+    margin: 0;
+  }
+
+  h2 {
+    text-align: center;
+    color: #1f2937;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    padding: 20px;
+    margin: 10px auto;
+    max-width: 600px;
+  }
+
+  label {
+    display: block;
+    margin-top: 12px;
+    font-weight: bold;
+    color: #334155;
+  }
+
+  select, input {
+    font-size: 1.1rem;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    margin-top: 6px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  #dimensions .row {
+    margin-bottom: 10px;
+  }
+
+  /* ----------------- ボタン配置 ----------------- */
+  .button-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  /* ----------------- ボタンスタイル ----------------- */
+  #saveTokenBtn, #addBtn {
+    background: linear-gradient(135deg,#bfa14a,#d6c36b);
+    color: #fff;
+    width: 140px;
+    border: none;
+    box-shadow: 0 2px 6px rgba(191,161,74,0.35);
+    padding: 10px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+    font-size: 1.2rem;
+    margin: 1rem 0rem;
+  }
+  #saveTokenBtn:hover, #addBtn:hover {
+    opacity: 0.95;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(191,161,74,0.4);
+  }
+
+  #clearBtn {
+    background: linear-gradient(135deg,#f2f2f2,#e0e0e0);
+    color: #333;
+    width: 140px;
+    border: 1px solid #ccc;
+    padding: 10px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+  #clearBtn:hover {
+    background: linear-gradient(135deg,#fafafa,#e8e8e8);
+  }
+
+  table {
+    border-collapse: collapse;
+    margin-top: 20px;
+    width: 100%;
+    font-size: 0.9rem;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 6px;
+    text-align: center;
+  }
+
+  th {
+    background: #f0f0f0;
+  }
+
+  @media (max-width: 480px) {
+    body { padding: 10px; }
+    h2 { font-size: 1.4rem; }
+    select, input { font-size: 1rem; padding: 6px 10px; }
+    .button-row { flex-direction: column; gap: 8px; }
+    #saveTokenBtn, #addBtn, #clearBtn { width: 100%; }
+  }
 </style>
 </head>
 <body>
