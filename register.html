@@ -72,28 +72,37 @@ let ghToken = localStorage.getItem("ghToken") || "";
 // ----------------- 認証 -----------------
 const authDiv = document.getElementById("authDiv");
 const formDiv = document.getElementById("formDiv");
-if(ghToken){
-  authDiv.style.display="none";
-  formDiv.style.display="block";
+
+function showForm() {
+  authDiv.style.display = "none";
+  formDiv.style.display = "block";
   initData();
 }
+
+if(ghToken){
+  showForm();
+}
+
 document.getElementById("saveTokenBtn").addEventListener("click", ()=>{
   const t = document.getElementById("ghToken").value.trim();
   if(!t){ alert("トークンを入力してください"); return; }
   ghToken = t;
   localStorage.setItem("ghToken", ghToken);
-  authDiv.style.display="none";
-  formDiv.style.display="block";
-  initData();
+  showForm();
 });
 
 // ----------------- データ初期化 -----------------
 async function initData(){
-  await loadGemstones();
-  await loadCuts();
-  await loadModels();
-  await loadCalibrations();
-  displayCalibrations();
+  try {
+    await loadGemstones();
+    await loadCuts();
+    await loadModels();
+    await loadCalibrations();
+    displayCalibrations();
+  } catch(e) {
+    console.error("initData error:", e);
+    alert("データ初期化に失敗しました。コンソールを確認してください。");
+  }
 }
 
 // ----------------- gemstone / cuts / models -----------------
@@ -108,6 +117,7 @@ async function loadGemstones(){
     sel.appendChild(opt);
   });
 }
+
 async function loadCuts(){
   const res = await fetch('./data/cuts.json').then(r=>r.json());
   cuts = res.cuts;
@@ -119,7 +129,9 @@ async function loadCuts(){
     sel.appendChild(opt);
   });
   sel.addEventListener("change", updateDimensionFields);
+  updateDimensionFields();
 }
+
 async function loadModels(){
   const res = await fetch('./data/models.json').then(r=>r.json());
   models = {};
@@ -134,6 +146,7 @@ async function loadCalibrations(){
     calibrations = data.calibrations || [];
   }catch(e){
     calibrations = [];
+    console.warn("calibrations.json 読み込み失敗:", e);
   }
 }
 
@@ -141,6 +154,7 @@ async function loadCalibrations(){
 function updateDimensionFields(){
   const cutId = document.getElementById("cut").value;
   const cutObj = cuts.find(c=>c.id===cutId);
+  if(!cutObj) return;
   const fields = cutObj.measurement_fields;
 
   const area = document.getElementById("dimensions");
@@ -170,41 +184,51 @@ function updateDimensionFields(){
 
 // ----------------- 登録処理 -----------------
 document.getElementById("addBtn").addEventListener("click", async ()=>{
-  const stoneId = document.getElementById("stone").value;
-  const cutId = document.getElementById("cut").value;
-  const cutObj = cuts.find(c=>c.id===cutId);
-  if(!stoneId || !cutId){ alert("石とカットを選択してください"); return; }
+  try{
+    const stoneId = document.getElementById("stone").value;
+    const cutId = document.getElementById("cut").value;
+    const cutObj = cuts.find(c=>c.id===cutId);
+    if(!stoneId || !cutId){ alert("石とカットを選択してください"); return; }
 
-  const entry = {stone: stoneId, cut: cutId, date: new Date().toISOString()};
+    const entry = {stone: stoneId, cut: cutId, date: new Date().toISOString()};
 
-  // 寸法フィールドを追加
-  const args=[];
-  cutObj.measurement_fields.forEach(f=>{
-    const val=parseFloat(document.getElementById("dim_"+f).value) || 0;
-    entry[f]=val;
-    args.push(val);
-  });
+    // 寸法フィールド
+    const args=[];
+    cutObj.measurement_fields.forEach(f=>{
+      const val=parseFloat(document.getElementById("dim_"+f).value) || 0;
+      entry[f]=val;
+      args.push(val);
+    });
 
-  // 計算重量
-  const stoneObj = gemstones.find(s=>s.id===stoneId);
-  const model = models[cutObj.model];
-  let V = eval(model.formula_js)(...args); // mm^3
-  V *= cutObj.correction_factor;
-  const calculated_g = stoneObj.sg_std * V / 1000;
-  entry.calculated_g = parseFloat(calculated_g.toFixed(3));
+    // 計算重量
+    const stoneObj = gemstones.find(s=>s.id===stoneId);
+    const model = models[cutObj.model];
+    if(!model){ alert("モデルが未定義です"); return; }
+    
+    // 修正版: evalを一旦関数化
+    const func = eval(model.formula_js);
+    let V = func(...args);
+    V *= cutObj.correction_factor;
+    const calculated_g = stoneObj.sg_std * V / 1000;
+    entry.calculated_g = parseFloat(calculated_g.toFixed(3));
+    console.log("計算重量:", calculated_g);
 
-  // 実測重量
-  const measured_g = parseFloat(document.getElementById("measured_g").value) || 0;
-  if(!measured_g){ alert("実測重量を入力してください"); return; }
-  entry.measured_g = measured_g;
+    // 実測重量
+    const measured_g = parseFloat(document.getElementById("measured_g").value) || 0;
+    if(!measured_g){ alert("実測重量を入力してください"); return; }
+    entry.measured_g = measured_g;
 
-  // 補正係数
-  entry.correction_factor = parseFloat((measured_g / calculated_g).toFixed(3));
+    // 補正係数
+    entry.correction_factor = parseFloat((measured_g / calculated_g).toFixed(3));
 
-  calibrations.push(entry);
-  displayCalibrations();
-  await saveToGitHub();
-  alert("登録しました！");
+    calibrations.push(entry);
+    displayCalibrations();
+    await saveToGitHub();
+    alert("登録しました！");
+  } catch(e){
+    console.error("登録処理エラー:", e);
+    alert("登録処理中にエラーが発生しました。コンソールを確認してください。");
+  }
 });
 
 // ----------------- GitHub 保存 -----------------
@@ -232,7 +256,7 @@ async function saveToGitHub(){
     console.error(e);
     alert("GitHub 保存に失敗しました");
   }
-});
+}
 
 // ----------------- 一覧表示 -----------------
 function displayCalibrations(){
