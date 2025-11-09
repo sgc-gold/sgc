@@ -40,22 +40,40 @@
 </div>
 
 <script>
-let gemstones=[], cuts=[], models={};
+let gemstones=[], cuts=[], models={}, calibrations=[];
 
+// ----------------- データ読み込み -----------------
 async function loadData() {
   const g = await fetch('./data/gemstones.json').then(r=>r.json());
   gemstones = g.gemstones;
+
   const c = await fetch('./data/cuts.json').then(r=>r.json());
   cuts = c.cuts;
+
   const m = await fetch('./data/models.json').then(r=>r.json());
   models = {};
   m.models.forEach(md=>models[md.id]=md);
+
+  await loadCalibrations();
 
   populateGemstones();
   populateCuts();
   updateDimensionFields();
 }
 
+async function loadCalibrations() {
+  try {
+    const res = await fetch('./data/calibrations.json');
+    const data = await res.json();
+    calibrations = data.calibrations || [];
+    console.log('calibrations loaded:', calibrations.length);
+  } catch (e) {
+    console.warn('calibrations.json の読み込みに失敗', e);
+    calibrations = [];
+  }
+}
+
+// ----------------- セレクトボックス -----------------
 function populateGemstones() {
   const sel = document.getElementById("gemstone");
   gemstones.forEach(st=>{
@@ -77,6 +95,7 @@ function populateCuts() {
   sel.addEventListener("change", updateDimensionFields);
 }
 
+// ----------------- 寸法入力欄 -----------------
 function updateDimensionFields() {
   const cutId = document.getElementById("cut").value;
   const cut = cuts.find(c=>c.id===cutId);
@@ -106,6 +125,39 @@ function updateDimensionFields() {
   });
 }
 
+// ----------------- 補正係数計算 -----------------
+function getCorrectionFactor(stoneId, cutId) {
+  const data = calibrations.filter(c => c.stone === stoneId && c.cut === cutId);
+  if (data.length === 0) return 1.0;
+
+  let sum = 0, count = 0;
+  data.forEach(c => {
+    const cutObj = cuts.find(cut => cut.id === c.cut);
+    const model = models[cutObj.model];
+    const args = cutObj.measurement_fields.map(f => {
+      if(f==='d') return c.diameter_mm || 0;
+      if(f==='D'||f==='h') return c.height_mm || 0;
+      if(f==='L') return c.L || 0;
+      if(f==='W') return c.W || 0;
+      if(f==='a') return c.a || 0;
+      if(f==='r') return c.r || 0;
+      if(f==='h_half') return c.h_half || 0;
+      if(f==='A') return c.A || 0;
+      if(f==='split_ratio') return c.split_ratio || 0.6;
+      return 0;
+    });
+
+    const V = eval(model.formula_js)(...args) * cutObj.correction_factor;
+    const density = gemstones.find(s => s.id === stoneId).sg_std;
+    const calcMass = density * V / 1000;
+    sum += c.measured_g / calcMass;
+    count++;
+  });
+
+  return sum / count;
+}
+
+// ----------------- 重量計算 -----------------
 document.getElementById("calcBtn").addEventListener("click", ()=>{
   const stoneId = gemstone.value;
   const stone = gemstones.find(s=>s.id===stoneId);
@@ -118,10 +170,13 @@ document.getElementById("calcBtn").addEventListener("click", ()=>{
     return isNaN(v) ? 0 : v;
   });
 
-  let V = eval(model.formula_js)(...args); // mm^3
-  V *= cutObj.correction_factor; // 補正
+  let V = eval(model.formula_js)(...args);
+  V *= cutObj.correction_factor;
 
-  const density = stone.sg_std; 
+  const calibFactor = getCorrectionFactor(stoneId, cutId);
+  V *= calibFactor;
+
+  const density = stone.sg_std;
   const massG = density * V / 1000;
   const massCt = massG / 0.2;
 
@@ -129,6 +184,7 @@ document.getElementById("calcBtn").addEventListener("click", ()=>{
   resultCt.textContent = massCt.toFixed(3)+" ct";
 });
 
+// ----------------- 初期化 -----------------
 loadData();
 </script>
 
