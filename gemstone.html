@@ -200,7 +200,7 @@ function populateGemstones() {
   gemstones.forEach(st=>{
     const opt = document.createElement("option");
     opt.value = st.id;
-    opt.textContent = `${st.name_ja} (SG:${st.sg_std})`;
+    opt.textContent = `${st.name_ja} (比重:${st.sg_std})`;
     sel.appendChild(opt);
   });
 }
