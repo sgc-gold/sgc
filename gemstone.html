@@ -3,89 +3,117 @@
 <head>
 <meta charset="UTF-8">
 <title>宝石重量自動計算</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
+  /* 全体スタイル */
   body {
-    font-family: 'Helvetica', Arial, sans-serif;
-    background: linear-gradient(to right, #f0f4f8, #d9e2ec);
+    font-family: Georgia, 'Times New Roman', serif;
+    background: #f5f5f5;
+    color: #333;
     padding: 20px;
-    margin: 0;
+    display: flex;
+    justify-content: center;
   }
+
+  /* カード風フォーム */
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    padding: 20px;
+    max-width: 400px;
+    width: 100%;
+  }
+
   h2 {
     text-align: center;
-    color: #1f2937;
-    margin-bottom: 20px;
+    font-weight: normal;
+    color: #222;
   }
-  .card {
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    padding: 20px;
-    margin: 10px auto;
-    max-width: 600px;
-  }
+
   label {
     display: block;
     margin-top: 12px;
     font-weight: bold;
-    color: #334155;
+    color: #555;
   }
-  select, button {
-    font-size: 1.1rem;
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid #cbd5e1;
-    background: #f8fafc;
-    margin-top: 6px;
+
+  select, input {
+    font-size: 1rem;
+    padding: 8px;
     width: 100%;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-top: 4px;
     box-sizing: border-box;
-  }
-  button {
-    cursor: pointer;
-    background: #3b82f6;
-    color: #fff;
-    border: none;
     transition: 0.3s;
   }
+
+  select:focus, input:focus {
+    border-color: #9c27b0;
+    box-shadow: 0 0 5px rgba(156,39,176,0.3);
+    outline: none;
+  }
+
+  .row {
+    margin-bottom: 12px;
+  }
+
+  button {
+    margin-top: 12px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #9c27b0, #6a1b9a);
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 100%;
+    transition: 0.3s;
+  }
+
   button:hover {
-    background: #2563eb;
+    background: linear-gradient(135deg, #7b1fa2, #4a148c);
   }
-  #dimensions .row {
-    margin-bottom: 10px;
-  }
-  #result {
+
+  /* 結果表示 */
+  .result {
     text-align: center;
-    font-size: 1.8rem;
+    margin-top: 16px;
+    font-size: 1.4rem;
     font-weight: bold;
-    color: #ef4444;
+    color: #222;
   }
+
+  .result span.unit {
+    font-size: 0.8rem;
+    color: #777;
+  }
+
+  /* 管理者用リンク（控えめ表示） */
   .admin-link {
     display: block;
     text-align: right;
-    font-size: 0.8rem;
-    margin-top: 15px;
-    color: #94a3b8;
-  }
-  .admin-link a {
-    color: #64748b;
+    margin-top: 20px;
+    font-size: 0.75rem;
+    color: #999;
     text-decoration: none;
   }
-  .admin-link a:hover {
-    text-decoration: underline;
+
+  .admin-link:hover {
+    color: #9c27b0;
   }
-  @media (max-width: 480px) {
-    body { padding: 10px; }
-    h2 { font-size: 1.4rem; }
-    select, button { font-size: 1rem; padding: 6px 10px; }
-    #result { font-size: 1.5rem; }
+
+  @media(max-width: 480px){
+    .card { padding: 16px; }
+    .result { font-size: 1.2rem; }
   }
 </style>
 </head>
 <body>
 
-<h2>宝石重量 計算ツール</h2>
-
 <div class="card">
+  <h2>宝石重量 計算ツール</h2>
+
   <div class="row">
     <label>石の種類（比重）</label>
     <select id="gemstone"></select>
@@ -100,16 +128,14 @@
 
   <div class="row">
     <button id="calcBtn">重量計算</button>
-    <button id="resetBtn" style="background:#f87171;margin-top:8px;">リセット</button>
   </div>
-</div>
 
-<div class="card" id="result">
-  <span id="resultG">0.000 g</span> ／ <span id="resultCt">0.000 ct</span>
-</div>
+  <div class="result">
+    <span id="resultG">0.000</span> <span class="unit">g</span> ／
+    <span id="resultCt">0.000</span> <span class="unit">ct</span>
+  </div>
 
-<div class="admin-link">
-  <span>管理者用: <a href="register.html" target="_blank">補正データ登録ページ</a></span>
+  <a href="register.html" class="admin-link">※ 管理者用データ登録</a>
 </div>
 
 <script>
@@ -134,7 +160,6 @@ async function loadData() {
   updateDimensionFields();
 }
 
-// ----------------- calibrations.json 読み込み -----------------
 async function loadCalibrations() {
   try {
     const res = await fetch('./data/calibrations.json');
@@ -167,26 +192,15 @@ function populateCuts() {
   sel.addEventListener("change", updateDimensionFields);
 }
 
-// ----------------- 寸法入力欄（選択式） -----------------
+// ----------------- 寸法入力欄 -----------------
 function updateDimensionFields() {
   const cutId = document.getElementById("cut").value;
   const cut = cuts.find(c=>c.id===cutId);
-  if(!cut) return;
   const fields = cut.measurement_fields;
 
   const area = document.getElementById("dimensions");
   area.innerHTML = "";
-
   fields.forEach(f=>{
-    const row = document.createElement("div");
-    row.className = "row";
-
-    // 1〜30mmまで0.5刻み
-    let options = '';
-    for(let i=1;i<=30;i+=0.5){
-      options += `<option value="${i}">${i} mm</option>`;
-    }
-
     const label = {
       d: "直径(mm)",
       D: "厚み/全高(mm)",
@@ -197,22 +211,13 @@ function updateDimensionFields() {
       h: "高さ(mm)",
       h_half: "片側高さ(mm)",
       A: "底面積(mm²)",
-      split_ratio: "上部割合(0.4〜0.7)"
+      split_ratio: "上部割合(0.4〜0.7推奨)"
     }[f] || f;
 
-    if(f==='split_ratio'){
-      row.innerHTML = `<label>${label}</label>
-        <select id="dim_${f}">
-          <option value="0.4">0.4</option>
-          <option value="0.5">0.5</option>
-          <option value="0.6" selected>0.6</option>
-          <option value="0.7">0.7</option>
-        </select>`;
-    } else {
-      row.innerHTML = `<label>${label}</label>
-        <select id="dim_${f}">${options}</select>`;
-    }
-
+    const row = document.createElement("div");
+    row.className="row";
+    row.innerHTML = `<label>${label}</label>
+      <input id="dim_${f}" type="number" step="0.01" value="${f==='split_ratio' ? 0.6:''}">`;
     area.appendChild(row);
   });
 }
@@ -234,6 +239,7 @@ document.getElementById("calcBtn").addEventListener("click", ()=>{
   V *= cutObj.correction_factor;
   let massG = stone.sg_std * V / 1000;
 
+  // calibrations.json 補正係数を適用
   const relevant = calibrations.filter(c=>c.stone===stoneId && c.cut===cutId);
   if(relevant.length>0){
     const avg_factor = relevant.reduce((sum,c)=>sum+c.correction_factor,0)/relevant.length;
@@ -241,17 +247,8 @@ document.getElementById("calcBtn").addEventListener("click", ()=>{
   }
 
   const massCt = massG / 0.2;
-  resultG.textContent = massG.toFixed(3)+" g";
-  resultCt.textContent = massCt.toFixed(3)+" ct";
-});
-
-// ----------------- リセットボタン -----------------
-document.getElementById("resetBtn").addEventListener("click", ()=>{
-  gemstone.selectedIndex = 0;
-  cut.selectedIndex = 0;
-  updateDimensionFields();
-  resultG.textContent = "0.000 g";
-  resultCt.textContent = "0.000 ct";
+  resultG.textContent = massG.toFixed(3);
+  resultCt.textContent = massCt.toFixed(3);
 });
 
 // ----------------- 初期化 -----------------
