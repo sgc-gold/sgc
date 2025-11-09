@@ -358,7 +358,7 @@ async function saveToGitHub() {
   const owner = "sgc-gold";
   const repo = "sgc";
   const path = "data/calibrations.json";
-  const ghToken = localStorage.getItem("ghToken"); // ←修正：キー名を一致
+  const ghToken = localStorage.getItem("ghToken");
   if (!ghToken) throw new Error("GitHubトークンが設定されていません。");
 
   // --- 現在のcalibrations.jsonを取得 ---
@@ -384,7 +384,15 @@ async function saveToGitHub() {
   }
 
   // --- フロント側の補正データを追加 ---
+  if (!calibrations.length) {
+    throw new Error("登録データが存在しません。");
+  }
   const latest = calibrations[calibrations.length - 1]; // 直近の登録データ
+
+  // 同一stone & cutがある場合は上書き（重複防止）
+  existingData.calibrations = existingData.calibrations.filter(c =>
+    !(c.stone === latest.stone && c.cut === latest.cut)
+  );
   existingData.calibrations.push(latest);
 
   const content = btoa(unescape(encodeURIComponent(JSON.stringify(existingData, null, 2))));
