@@ -354,30 +354,71 @@ document.getElementById("addBtn").addEventListener("click", async ()=>{
 });
 
 // ----------------- GitHub 保存 -----------------
-async function saveToGitHub(){
-  try{
+async function saveToGitHub() {
+  const owner = "sgc-gold";
+  const repo = "sgc";
+  const path = "data/calibrations.json";
+  const ghToken = localStorage.getItem("githubToken");
+  if (!ghToken) throw new Error("GitHubトークンが設定されていません。");
+
+  // --- 現在のcalibrations.jsonを取得 ---
+  let sha = null;
+  let existingData = { calibrations: [] };
+
+  try {
     const resGet = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-      headers: { Authorization: "token "+ghToken }
+      headers: { Authorization: "token " + ghToken }
     });
-    const data = await resGet.json();
-    const sha = data.sha;
 
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify({calibrations},null,2))));
-
-    const resPut = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-      method:"PUT",
-      headers:{ Authorization:"token "+ghToken },
-      body: JSON.stringify({
-        message: "Update calibrations.json",
-        content: content,
-        sha: sha
-      })
-    });
-    if(!resPut.ok) throw new Error("GitHub PUT error");
-  }catch(e){
-    console.error(e);
-    alert("GitHub 保存に失敗しました");
+    if (resGet.ok) {
+      const data = await resGet.json();
+      sha = data.sha;
+      existingData = JSON.parse(atob(data.content));
+    } else if (resGet.status === 404) {
+      console.log("calibrations.json は存在しません。新規作成します。");
+    } else {
+      throw new Error("GitHub GET 失敗: " + resGet.status);
+    }
+  } catch (e) {
+    console.warn("既存データの取得に失敗しました:", e);
   }
+
+  // --- フロント側の補正データを更新して保存 ---
+  const newCalibration = {
+    stone: document.getElementById("stone").value,
+    cut: document.getElementById("cut").value,
+    correction_factor: parseFloat(document.getElementById("correction_factor").value) || 1
+  };
+
+  // 重複削除（同じstone & cutがある場合は上書き）
+  existingData.calibrations = existingData.calibrations.filter(c =>
+    !(c.stone === newCalibration.stone && c.cut === newCalibration.cut)
+  );
+  existingData.calibrations.push(newCalibration);
+
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(existingData, null, 2))));
+
+  // --- PUTでGitHubに保存 ---
+  const resPut = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+    method: "PUT",
+    headers: {
+      Authorization: "token " + ghToken,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      message: `Update calibrations.json (${newCalibration.stone}-${newCalibration.cut})`,
+      content,
+      sha: sha || undefined // 新規作成の場合はundefined
+    })
+  });
+
+  if (!resPut.ok) {
+    const errText = await resPut.text();
+    console.error("PUT失敗:", errText);
+    throw new Error("GitHub保存に失敗しました。");
+  }
+
+  alert("calibrations.json に保存しました。");
 }
 
 // ----------------- 一覧表示 -----------------
