@@ -10,6 +10,17 @@
       "calculated_g": 4.513,
       "measured_g": 4.1,
       "correction_factor": 0.909
+    },
+    {
+      "stone": "jadeite",
+      "cut": "cabochon_ellipsoid",
+      "date": "2025-11-10T06:51:51.371Z",
+      "L": 13.9,
+      "W": 10.32,
+      "h": 4.76,
+      "calculated_g": 1.106,
+      "measured_g": 1.14,
+      "correction_factor": 1.031
     }
   ]
 }
