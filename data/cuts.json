@@ -1,6 +1,6 @@
 {
   "cuts": [
-    {"id": "round_brilliant", "name_ja": "ラウンドブリリアント", "model": "round", "measurement_fields": ["d", "D"], "correction_factor": 0.98},
+    {"id":"round_brilliant", "name_ja": "ラウンド", "model": "round", "measurement_fields": ["d", "D"], "correction_factor": 0.98},
     {"id":"oval","name_ja":"オーバル","model":"ellipsoid","measurement_fields":["L","W","D"],"correction_factor":0.97},
     {"id":"antique_cushion","name_ja":"アンティーククッション","model":"ellipsoid","measurement_fields":["L","W","D"],"correction_factor":0.96},
     {"id":"princess","name_ja":"プリンセス","model":"prism_box_square","measurement_fields":["a","D"],"correction_factor":0.99},
