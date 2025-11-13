@@ -26,8 +26,6 @@
     {"id":"turquoise","name_ja":"トルコ石","sg_min":2.60,"sg_max":2.90,"sg_std":2.75},
     {"id":"conch_pearl","name_ja":"コンクパール","sg_min":2.85,"sg_max":2.85,"sg_std":2.85},
     {"id":"pearl","name_ja":"真珠","sg_min":2.60,"sg_max":2.78,"sg_std":2.69},
-    {"id":"akoya_pearl","name_ja":"あこや真珠","sg_min":2.60,"sg_max":2.70,"sg_std":2.65},
-    {"id":"lake_pearl","name_ja":"湖水真珠","sg_min":2.60,"sg_max":2.70,"sg_std":2.65},
     {"id":"amber","name_ja":"琥珀","sg_min":1.03,"sg_max":1.10,"sg_std":1.06},
     {"id":"jet","name_ja":"ジェット","sg_min":1.32,"sg_max":1.32,"sg_std":1.32},
     {"id":"moonstone","name_ja":"ムーンストーン","sg_min":2.56,"sg_max":2.60,"sg_std":2.58},
