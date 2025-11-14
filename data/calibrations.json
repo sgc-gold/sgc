@@ -47,13 +47,13 @@
     {
       "stone": "ruby",
       "cut": "cushion",
-      "date": "2025-11-14T10:12:14.013Z",
-      "L": 6.08,
-      "W": 6.03,
-      "D": 4.23,
-      "calculated_g": 0.313,
-      "measured_g": 0.27,
-      "correction_factor": 0.861
+      "date": "2025-11-14T10:13:22.922Z",
+      "L": 5.49,
+      "W": 5.29,
+      "D": 3.7,
+      "calculated_g": 0.217,
+      "measured_g": 0.206,
+      "correction_factor": 0.949
     }
   ]
 }
