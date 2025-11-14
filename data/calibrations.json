@@ -23,28 +23,6 @@
       "correction_factor": 1.031
     },
     {
-      "stone": "emerald",
-      "cut": "octagon",
-      "date": "2025-11-14T05:42:27.283Z",
-      "L": 12.29,
-      "W": 9.66,
-      "D": 7.84,
-      "calculated_g": 2.341,
-      "measured_g": 1.226,
-      "correction_factor": 0.524
-    },
-    {
-      "stone": "ruby",
-      "cut": "antique_cushion",
-      "date": "2025-11-14T05:43:43.183Z",
-      "L": 6.08,
-      "W": 6.03,
-      "D": 4.23,
-      "calculated_g": 0.313,
-      "measured_g": 0.27,
-      "correction_factor": 0.863
-    },
-    {
       "stone": "sapphire",
       "cut": "oval",
       "date": "2025-11-14T05:44:58.357Z",
@@ -54,17 +32,6 @@
       "calculated_g": 0.325,
       "measured_g": 0.282,
       "correction_factor": 0.869
-    },
-    {
-      "stone": "tourmaline",
-      "cut": "octagon",
-      "date": "2025-11-14T05:46:04.196Z",
-      "L": 10.97,
-      "W": 10.79,
-      "D": 8.68,
-      "calculated_g": 2.953,
-      "measured_g": 1.826,
-      "correction_factor": 0.618
     }
   ]
 }
