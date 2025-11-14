@@ -21,6 +21,17 @@
       "calculated_g": 1.106,
       "measured_g": 1.14,
       "correction_factor": 1.031
+    },
+    {
+      "stone": "emerald",
+      "cut": "octagon",
+      "date": "2025-11-14T05:41:30.155Z",
+      "L": 14.67,
+      "W": 13.81,
+      "D": 6.57,
+      "calculated_g": 3.347,
+      "measured_g": 2.072,
+      "correction_factor": 0.619
     }
   ]
 }
