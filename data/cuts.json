@@ -2,7 +2,7 @@
   "cuts": [
     {"id":"round_brilliant", "name_ja": "ラウンド", "model": "round", "measurement_fields": ["d", "D"], "correction_factor": 0.985},
     {"id":"oval","name_ja":"オーバル","model":"ellipsoid","measurement_fields":["L","W","D"],"correction_factor":0.972},
-    {"id":"cushion","name_ja": "クッションカット","model": "ellipsoid","measurement_fields": ["L", "W", "D"],"correction_factor": 0.965},
+    {"id":"cushion","name_ja": "クッション","model": "ellipsoid","measurement_fields": ["L", "W", "D"],"correction_factor": 0.965},
     {"id":"antique_cushion","name_ja":"アンティーククッション","model":"ellipsoid","measurement_fields":["L","W","D"],"correction_factor":0.963},
     {"id":"princess","name_ja":"プリンセス","model":"prism_box_square","measurement_fields":["a","D"],"correction_factor":0.992},
     {"id":"heart","name_ja":"ハートシェイプ","model":"pear","measurement_fields":["L","W","D"],"correction_factor":0.952},
