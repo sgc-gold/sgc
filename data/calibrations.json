@@ -25,13 +25,13 @@
     {
       "stone": "emerald",
       "cut": "octagon",
-      "date": "2025-11-14T05:41:30.155Z",
-      "L": 14.67,
-      "W": 13.81,
-      "D": 6.57,
-      "calculated_g": 3.347,
-      "measured_g": 2.072,
-      "correction_factor": 0.619
+      "date": "2025-11-14T05:42:27.283Z",
+      "L": 12.29,
+      "W": 9.66,
+      "D": 7.84,
+      "calculated_g": 2.341,
+      "measured_g": 1.226,
+      "correction_factor": 0.524
     }
   ]
 }
