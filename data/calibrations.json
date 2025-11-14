@@ -43,6 +43,17 @@
       "calculated_g": 2.276,
       "measured_g": 0.826,
       "correction_factor": 0.363
+    },
+    {
+      "stone": "ruby",
+      "cut": "cushion",
+      "date": "2025-11-14T10:12:14.013Z",
+      "L": 6.08,
+      "W": 6.03,
+      "D": 4.23,
+      "calculated_g": 0.313,
+      "measured_g": 0.27,
+      "correction_factor": 0.861
     }
   ]
 }
