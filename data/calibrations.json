@@ -54,6 +54,17 @@
       "calculated_g": 0.217,
       "measured_g": 0.206,
       "correction_factor": 0.949
+    },
+    {
+      "stone": "tourmaline",
+      "cut": "octagon",
+      "date": "2025-11-14T10:14:41.438Z",
+      "L": 10.97,
+      "W": 10.79,
+      "D": 8.68,
+      "calculated_g": 2.953,
+      "measured_g": 1.826,
+      "correction_factor": 0.618
     }
   ]
 }
