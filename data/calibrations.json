@@ -65,6 +65,18 @@
       "calculated_g": 5.406,
       "measured_g": 5.6292,
       "correction_factor": 1.041
+    },
+    {
+      "stone": "quartz",
+      "cut": "pear",
+      "date": "2025-11-17T09:35:26.240Z",
+      "L": 25.55,
+      "W": 18.12,
+      "D": 12.3,
+      "split_ratio": 0.4,
+      "calculated_g": 4.652,
+      "measured_g": 5.9,
+      "correction_factor": 1.268
     }
   ]
 }
