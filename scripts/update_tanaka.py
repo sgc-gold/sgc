@@ -18,7 +18,7 @@ def fetch_tanaka_prices():
     soup = BeautifulSoup(res.text, "html.parser")
 
     prices = {}
-    for metal, cls in [("GOLD", "gold"), ("PLATINUM", "platinum"), ("SILVER", "silver")]:
+    for metal, cls in [("GOLD", "gold"), ("PLATINUM", "pt"), ("SILVER", "silver")]:
         retail = soup.select_one(f"tr.{cls} td.retail_tax").text.strip().replace(" 円", "")
         retail_diff = soup.select_one(f"tr.{cls} td.retail_ratio").text.strip().replace(" 円", "")
         buy = soup.select_one(f"tr.{cls} td.purchase_tax").text.strip().replace(" 円", "")
