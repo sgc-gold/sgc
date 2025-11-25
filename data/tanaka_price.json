@@ -6,24 +6,24 @@
       "retail_diff": "+291",
       "buy": "22,876",
       "buy_diff": "+290",
-      "retail_930diff": "",
-      "buy_930diff": ""
+      "retail_930diff": "+28",
+      "buy_930diff": "+27"
     },
     "PLATINUM": {
       "retail": "8,771",
       "retail_diff": "+141",
       "buy": "8,552",
       "buy_diff": "+141",
-      "retail_930diff": "",
-      "buy_930diff": ""
+      "retail_930diff": "+31",
+      "buy_930diff": "+31"
     },
     "SILVER": {
       "retail": "290.18",
       "retail_diff": "+3.52",
       "buy": "279.73",
       "buy_diff": "+3.52",
-      "retail_930diff": "",
-      "buy_930diff": ""
+      "retail_930diff": "+1.21",
+      "buy_930diff": "+1.21"
     }
   }
 }
