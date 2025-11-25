@@ -5,7 +5,7 @@ from datetime import datetime
 import os
 import sys
 
-URL = "https://gold.tanaka.co.jp/commodity/souba/english/index.php"
+URL = "https://gold.tanaka.co.jp/commodity/souba/index.php"
 PATH_MAIN = "data/tanaka_price.json"
 PATH_930 = "data/tanaka_price_930.json"
 
