@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import hashlib
 import os
 
-URL = "https://gold.tanaka.co.jp/commodity/souba/english/index.php"
+URL = "https://gold.tanaka.co.jp/commodity/souba/index.php"
 HASH_FILE = "tanaka_hash.txt"
 
 def get_h3_hash():
