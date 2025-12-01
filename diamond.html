@@ -1162,13 +1162,10 @@ document.getElementById("setCarat").addEventListener("click", () => {
         if (minCut || maxCut) {
           const cutInfo = getCutGrade(d.cut);
 
-          // ★ 追加（これが必須）
-          if (!cutInfo) return false;
+          // カット該当なし → 除外
+          if (!cutInfo || !cutInfo.base) return false;
 
           const { base, hasHC } = cutInfo;
-
-          // カット該当なし → 除外
-          if (!base) return false;
 
           if (minCut && cutRank[base] < cutRank[minCut]) return false;
           if (maxCut && cutRank[base] > cutRank[maxCut]) return false;
