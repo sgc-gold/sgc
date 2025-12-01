@@ -981,6 +981,9 @@ document.getElementById("setCarat").addEventListener("click", () => {
       p === "PO" || p.includes("PR")
     );
 
+    // ★ ここが重要（バグ修正）
+    if (!grade) return null;
+
     let base;
     if (grade.includes("EX")) base = "EX";
     else if (grade.includes("VG")) base = "VG";
@@ -1157,7 +1160,12 @@ document.getElementById("setCarat").addEventListener("click", () => {
 
         // カット判定
         if (minCut || maxCut) {
-          const { base, hasHC } = getCutGrade(d.cut);
+          const cutInfo = getCutGrade(d.cut);
+
+          // ★ 追加（これが必須）
+          if (!cutInfo) return false;
+
+          const { base, hasHC } = cutInfo;
 
           // カット該当なし → 除外
           if (!base) return false;
