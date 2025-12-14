@@ -80,6 +80,22 @@
     background: #005c44;
   }
 
+  #clearButton {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 0.25rem;
+    background: #ccc;
+    color: #333;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  #clearButton:hover {
+    background: #bbb;
+  }
+
   #resultCount {
     font-size: 1rem;
     font-weight: bold;
@@ -224,7 +240,25 @@
       </select>
     </div>
     <div class="search-row">
+      <label for="keywordInput">フリーワード：</label>
+      <input
+        type="text"
+        id="keywordInput"
+        placeholder="例：天皇、オリンピック、即位"
+        style="
+          flex:1;
+          padding:0.5rem;
+          font-size:1rem;
+          border-radius:0.3rem;
+          margin-right:5%;
+        "
+      >
+    </div>
+    <div class="search-row">
       <button id="searchButton">検索</button>
+    </div>
+    <div class="search-row">
+      <button id="clearButton" type="button">クリア</button>
     </div>
   </div>
 
@@ -288,25 +322,42 @@ function filterData(){
   const weight = document.getElementById('weightSelect').value;
   const year = document.getElementById('yearSelect').value;
   const dia = document.getElementById('diameterSelect').value;
+  const keyword = document.getElementById('keywordInput').value.trim();
 
-  const filtered = allData.filter(d=>{
-    return (!fv || d['額面']===fv) &&
-           (!weight || d['量目']===weight) &&
-           (!year || d['発行年']===year) &&
-           (!dia || d['直径']===dia);
+  const filtered = allData.filter(d => {
+    const theme = d['記念テーマ'] || '';
+
+    return (!fv || d['額面'] === fv) &&
+           (!weight || d['量目'] === weight) &&
+           (!year || d['発行年'] === year) &&
+           (!dia || d['直径'] === dia) &&
+           (!keyword || theme.includes(keyword));
   });
+
   displayCoins(filtered);
 }
 
 document.getElementById('searchButton').addEventListener('click', filterData);
 
-  function notifyHeight() {
-    const height = document.body.scrollHeight;
-    parent.postMessage({ type: 'resize-iframe', height }, '*');
-  }
-  
-  window.addEventListener('load', notifyHeight);
-  window.addEventListener('resize', notifyHeight);  
+function clearSearch(){
+  document.getElementById('faceValueSelect').value = '';
+  document.getElementById('weightSelect').value = '';
+  document.getElementById('yearSelect').value = '';
+  document.getElementById('diameterSelect').value = '';
+  document.getElementById('keywordInput').value = '';
+
+  displayCoins(allData); // 全件表示
+}
+
+document.getElementById('clearButton').addEventListener('click', clearSearch);
+
+function notifyHeight() {
+  const height = document.body.scrollHeight;
+  parent.postMessage({ type: 'resize-iframe', height }, '*');
+}
+
+window.addEventListener('load', notifyHeight);
+window.addEventListener('resize', notifyHeight);
 </script>
 </body>
 </html>
