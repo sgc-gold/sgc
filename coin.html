@@ -271,7 +271,7 @@
 let allData = [];
 
 // JSON データ読み込み
-fetch('coins.json') // coins.json は同じディレクトリに置く
+fetch('../data/coins.json')
   .then(res => res.json())
   .then(data => {
     allData = data;
