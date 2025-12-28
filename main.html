@@ -196,23 +196,35 @@ fetch("data/tanaka_price.json")
     document.getElementById("pt-price").textContent = "取得失敗";
   });
 
-// --- 開催の大黄金展 ---
+// --- 開催中／次回開催の大黄金展 ---
 fetch("data/exhibition.json")
   .then(res => res.json())
   .then(events => {
     const today = new Date();
     const todayStr = today.toISOString().split("T")[0];
+
     const todayBox = document.getElementById("today-exhibition");
     const upcomingBox = document.getElementById("upcoming-exhibition");
 
-    const todayEvents = events.filter(e => e.start <= todayStr && e.end >= todayStr);
-    const upcomingEvents = events.filter(e => e.start > todayStr).sort((a,b)=>a.start.localeCompare(b.start));
+    // ▼ 大黄金展のみ抽出
+    const goldEvents = events.filter(e => e.category === "大黄金展");
 
-    // 今日のイベント
-    if(todayEvents.length === 0){
+    // ▼ 開催中
+    const todayEvents = goldEvents.filter(
+      e => e.start <= todayStr && e.end >= todayStr
+    );
+
+    // ▼ 次回開催（今日より後）→ 日付昇順 → 最大4件
+    const upcomingEvents = goldEvents
+      .filter(e => e.start > todayStr)
+      .sort((a, b) => a.start.localeCompare(b.start))
+      .slice(0, 4);
+
+    // --- 開催中表示 ---
+    if (todayEvents.length === 0) {
       todayBox.textContent = "現在開催中の大黄金展はありません。";
     } else {
-      todayBox.innerHTML = todayEvents.map(e=>`
+      todayBox.innerHTML = todayEvents.map(e => `
         <div class="exhibition-card today">
           <div class="exhibition-title">${e.title}</div>
           <div class="exhibition-location">${e.location}</div>
@@ -221,21 +233,25 @@ fetch("data/exhibition.json")
       `).join("");
     }
 
-    // 次回開催
-    if(upcomingEvents.length > 0){
-      upcomingBox.innerHTML = "<strong>次回開催予定</strong>";
-      upcomingBox.innerHTML += upcomingEvents.map(e=>`
-        <div class="exhibition-card">
-          <div class="exhibition-title">${e.title}</div>
-          <div class="exhibition-location">${e.location}</div>
-          <div class="exhibition-date">${e.start} 〜 ${e.end}</div>
-        </div>
-      `).join("");
+    // --- 次回開催表示 ---
+    if (upcomingEvents.length > 0) {
+      upcomingBox.innerHTML = `
+        <h3>次回開催予定</h3>
+        ${upcomingEvents.map(e => `
+          <div class="exhibition-card">
+            <div class="exhibition-title">${e.title}</div>
+            <div class="exhibition-location">${e.location}</div>
+            <div class="exhibition-date">${e.start} 〜 ${e.end}</div>
+          </div>
+        `).join("")}
+      `;
+    } else {
+      upcomingBox.innerHTML = "<p>次回開催予定は未定です。</p>";
     }
 
     notifyHeight();
   })
-  .catch(err=>{
+  .catch(err => {
     console.error("大黄金展データ取得エラー:", err);
     document.getElementById("today-exhibition").textContent = "データ取得失敗";
   });
