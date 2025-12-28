@@ -290,6 +290,26 @@ function filterRows(type){
     else{tr.classList.add('hidden');}
   });
 }
+
+document.querySelectorAll('.map-link').forEach(link => {
+  link.addEventListener('click', function(e){
+    e.preventDefault();
+
+    const address = encodeURIComponent(this.dataset.address);
+    const isMobile = window.matchMedia('(max-width:900px)').matches;
+
+    if(isMobile){
+      // スマホ：マップアプリ起動
+      window.location.href = `geo:0,0?q=${address}`;
+    }else{
+      // PC：新しいウインドウでGoogleマップ
+      window.open(
+        `https://www.google.com/maps/search/?api=1&query=${address}`,
+        '_blank'
+      );
+    }
+  });
+});
 </script>
 </body>
 </html>
