@@ -49,6 +49,19 @@ tr:hover{background:#f0f8f6;}
 .tel a{display:block;color:#003D2E;text-decoration:none;font-weight:bold;}
 .tel small{font-size:0.75rem;color:#555;}
 .address a{color:#003D2E;text-decoration:none;line-height:1.4;}
+.address a.map-link {
+  color: #0066cc;
+  text-decoration: underline;
+  font-weight: 500;
+  cursor: pointer;
+}
+.address a.map-link:hover,
+.address a.map-link:active {
+  opacity: 0.7;
+}
+.map-icon {
+  margin-right: 4px;
+}
 .hidden{display:none;}
 @media(max-width:900px){
   table,thead,tbody,tr,th,td{display:block;}
@@ -92,7 +105,7 @@ tr:hover{background:#f0f8f6;}
     <td class="address" data-label="住所">
       <a href="https://www.google.com/maps/search/?api=1&query=〒104-0061 東京都中央区銀座5丁目8-1 GINZA PLACE"
          target="_blank" rel="noopener">
-        〒104-0061<br>東京都中央区銀座5丁目8-1<br>GINZA PLACE 10F
+        <span class="map-icon">📍</span>〒104-0061<br>東京都中央区銀座5丁目8-1<br>GINZA PLACE 10F
       </a>
     </td>
   </tr>
@@ -105,7 +118,7 @@ tr:hover{background:#f0f8f6;}
     <td class="address" data-label="住所">
       <a href="https://www.google.com/maps/search/?api=1&query=〒399-7413 長野県松本市金山46"
          target="_blank" rel="noopener">
-        〒399-7413<br>長野県松本市金山46
+        <span class="map-icon">📍</span>〒399-7413<br>長野県松本市金山46
       </a>
     </td>
   </tr>
@@ -117,7 +130,7 @@ tr:hover{background:#f0f8f6;}
     <td class="address" data-label="住所">
       <a href="https://www.google.com/maps/search/?api=1&query=〒567-0881 大阪府茨木市上中条2-1-24"
          target="_blank" rel="noopener">
-        〒567-0881<br>大阪府茨木市上中条2-1-24<br>山崎マンション13-304号室
+        <span class="map-icon">📍</span>〒567-0881<br>大阪府茨木市上中条2-1-24<br>山崎マンション13-304号室
       </a>
     </td>
   </tr>
@@ -140,7 +153,7 @@ tr:hover{background:#f0f8f6;}
     <td class="address" data-label="住所">
       <a href="https://www.google.com/maps/search/?api=1&query=〒104-0061 東京都中央区銀座5-7-10 EXITMELSA"
          target="_blank" rel="noopener">
-        〒104-0061<br>東京都中央区銀座5-7-10<br>EXITMELSA 4階
+        <span class="map-icon">📍</span>〒104-0061<br>東京都中央区銀座5-7-10<br>EXITMELSA 4階
       </a>
     </td>
   </tr>
@@ -152,7 +165,7 @@ tr:hover{background:#f0f8f6;}
     <td class="address" data-label="住所">
       <a href="https://www.google.com/maps/search/?api=1&query=〒103-8265 東京都中央区日本橋2-4-1 日本橋髙島屋"
          target="_blank" rel="noopener">
-        〒103-8265<br>東京都中央区日本橋2-4-1<br>日本橋髙島屋 6階
+        <span class="map-icon">📍</span>〒103-8265<br>東京都中央区日本橋2-4-1<br>日本橋髙島屋 6階
       </a>
     </td>
   </tr>
@@ -167,7 +180,7 @@ tr:hover{background:#f0f8f6;}
     <td class="address" data-label="住所">
       <a href="https://www.google.com/maps/search/?api=1&query=〒151-8580 東京都渋谷区千駄ヶ谷5-24-2 新宿高島屋"
          target="_blank" rel="noopener">
-        〒151-8580<br>東京都渋谷区千駄ヶ谷5-24-2<br>新宿高島屋 4階
+        <span class="map-icon">📍</span>〒151-8580<br>東京都渋谷区千駄ヶ谷5-24-2<br>新宿高島屋 4階
       </a>
     </td>
   </tr>
@@ -179,7 +192,7 @@ tr:hover{background:#f0f8f6;}
     <td class="address" data-label="住所">
       <a href="https://www.google.com/maps/search/?api=1&query=〒220-8601 神奈川県横浜市西区南幸1-6-31 横浜高島屋"
          target="_blank" rel="noopener">
-        〒220-8601<br>神奈川県横浜市西区南幸1-6-31<br>横浜高島屋 5階
+        <span class="map-icon">📍</span>〒220-8601<br>神奈川県横浜市西区南幸1-6-31<br>横浜高島屋 5階
       </a>
     </td>
   </tr>
@@ -191,7 +204,7 @@ tr:hover{background:#f0f8f6;}
     <td class="address" data-label="住所">
       <a href="https://www.google.com/maps/search/?api=1&query=〒542-8510 大阪市中央区難波5-1-5 大阪高島屋"
          target="_blank" rel="noopener">
-        〒542-8510<br>大阪市中央区難波5-1-5<br>大阪高島屋 7階
+        <span class="map-icon">📍</span>〒542-8510<br>大阪市中央区難波5-1-5<br>大阪高島屋 7階
       </a>
     </td>
   </tr>
@@ -203,7 +216,7 @@ tr:hover{background:#f0f8f6;}
     <td class="address" data-label="住所">
       <a href="https://www.google.com/maps/search/?api=1&query=〒600-8520 京都市下京区真町52 京都高島屋"
          target="_blank" rel="noopener">
-        〒600-8520<br>京都市下京区真町52<br>京都髙島屋 5階宝石サロン
+        <span class="map-icon">📍</span>〒600-8520<br>京都市下京区真町52<br>京都髙島屋 5階宝石サロン
       </a>
     </td>
   </tr>
@@ -215,7 +228,7 @@ tr:hover{background:#f0f8f6;}
     <td class="address" data-label="住所">
       <a href="https://www.google.com/maps/search/?api=1&query=〒060-0061 札幌市中央区南1条西3丁目8 札幌三越"
          target="_blank" rel="noopener">
-        〒060-0061<br>札幌市中央区南1条西3丁目8<br>札幌三越 本館9階
+        <span class="map-icon">📍</span>〒060-0061<br>札幌市中央区南1条西3丁目8<br>札幌三越 本館9階
       </a>
     </td>
   </tr>
@@ -230,7 +243,7 @@ tr:hover{background:#f0f8f6;}
     <td class="address" data-label="住所">
       <a href="https://www.google.com/maps/search/?api=1&query=〒103-8001 東京都中央区日本橋室町1-4-1 日本橋三越"
          target="_blank" rel="noopener">
-        〒103-8001<br>東京都中央区日本橋室町1-4-1<br>日本橋三越本店 本館6階
+        <span class="map-icon">📍</span>〒103-8001<br>東京都中央区日本橋室町1-4-1<br>日本橋三越本店 本館6階
       </a>
     </td>
   </tr>
@@ -242,7 +255,7 @@ tr:hover{background:#f0f8f6;}
     <td class="address" data-label="住所">
       <a href="https://www.google.com/maps/search/?api=1&query=〒160-0022 東京都新宿区新宿3-14-1 伊勢丹新宿店"
          target="_blank" rel="noopener">
-        〒160-0022<br>東京都新宿区新宿3-14-1<br>伊勢丹新宿店 本館4階
+        <span class="map-icon">📍</span>〒160-0022<br>東京都新宿区新宿3-14-1<br>伊勢丹新宿店 本館4階
       </a>
     </td>
   </tr>
@@ -254,7 +267,7 @@ tr:hover{background:#f0f8f6;}
     <td class="address" data-label="住所">
       <a href="https://www.google.com/maps/search/?api=1&query=〒460-8430 名古屋市中区栄3-16-1 松坂屋名古屋店"
          target="_blank" rel="noopener">
-        〒460-8430<br>愛知県名古屋市中区栄3-16-1<br>松坂屋名古屋店 本館7階
+        <span class="map-icon">📍</span>〒460-8430<br>愛知県名古屋市中区栄3-16-1<br>松坂屋名古屋店 本館7階
       </a>
     </td>
   </tr>
@@ -266,7 +279,7 @@ tr:hover{background:#f0f8f6;}
     <td class="address" data-label="住所">
       <a href="https://www.google.com/maps/search/?api=1&query=〒650-0037 神戸市中央区明石町40 大丸神戸店"
          target="_blank" rel="noopener">
-        〒650-0037<br>兵庫県神戸市中央区明石町40<br>大丸神戸店 8階
+        <span class="map-icon">📍</span>〒650-0037<br>兵庫県神戸市中央区明石町40<br>大丸神戸店 8階
       </a>
     </td>
   </tr>
@@ -278,7 +291,7 @@ tr:hover{background:#f0f8f6;}
     <td class="address" data-label="住所">
       <a href="https://www.google.com/maps/search/?api=1&query=〒810-8717 福岡市中央区天神1-4-1 大丸福岡天神店"
          target="_blank" rel="noopener">
-        〒810-8717<br>福岡県福岡市中央区天神1-4-1<br>東館エルガーラ4階
+        <span class="map-icon">📍</span>〒810-8717<br>福岡県福岡市中央区天神1-4-1<br>東館エルガーラ4階
       </a>
     </td>
   </tr>
@@ -290,7 +303,7 @@ tr:hover{background:#f0f8f6;}
     <td class="address" data-label="住所">
       <a href="https://www.google.com/maps/search/?api=1&query=〒171-8512 東京都豊島区西池袋1-1-25 東武百貨店池袋店"
          target="_blank" rel="noopener">
-        〒171-8512<br>東京都豊島区西池袋1-1-25<br>東武百貨店池袋店 本館6階10番地
+        <span class="map-icon">📍</span>〒171-8512<br>東京都豊島区西池袋1-1-25<br>東武百貨店池袋店 本館6階10番地
       </a>
     </td>
   </tr>
