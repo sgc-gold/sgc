@@ -170,7 +170,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return event;
   });
 
-  // ★ ここでカテゴリに応じたクラスを追加！
+  // カテゴリクラス付与
   const eventsWithClasses = adjustedEvents.map(event => ({
     title: event.title,
     start: event.start,
@@ -180,7 +180,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       note: event.note || "",
       category: event.category 
     },
-    classNames: [`category-${event.category}`] // ← この1行がスタイル反映の要
+    classNames: [`category-${event.category}`]
   }));
 
   // カレンダー作成
@@ -188,20 +188,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "dayGridMonth",
     locale: "ja",
-    themeSystem: "standard",
     headerToolbar: {
       left: "prev,next today",
       center: "title",
       right: "dayGridMonth,timeGridWeek,timeGridDay"
     },
-    events: eventsWithClasses, // ← ここを使う！
+    events: eventsWithClasses,
+
     eventClick: function(info) {
       info.jsEvent.preventDefault();
 
       const modal = document.getElementById("eventModal");
       const { title, start, end, extendedProps } = info.event;
 
-      // 終了日補正
+      // 終了日表示補正
       const endDateDisplay = end
         ? (() => {
             const d = new Date(end);
@@ -216,24 +216,32 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("modalLocation").textContent = extendedProps.location || "";
       document.getElementById("modalNote").textContent = extendedProps.note || "";
 
-      // ▼ クリック位置を取得
-      const x = info.jsEvent.pageX;
-      const y = info.jsEvent.pageY;
+      // クリック位置
+      let x = info.jsEvent.pageX;
+      let y = info.jsEvent.pageY;
 
-      // ▼ 位置指定（少し下にずらす）
+      // 画面外に出ないよう調整
+      const modalWidth = 260;
+      const screenWidth = window.innerWidth;
+
+      if (x + modalWidth > screenWidth) {
+        x = screenWidth - modalWidth - 10;
+      }
+
       modal.style.left = `${x}px`;
       modal.style.top = `${y + 10}px`;
-
       modal.classList.add("show");
     }
   });
 
   calendar.render();
 
+  // × ボタンで閉じる
   document.getElementById("closeModal").onclick = () =>
     document.getElementById("eventModal").classList.remove("show");
 });
 
+// イベント以外をクリックしたら閉じる
 document.addEventListener("click", (e) => {
   const modal = document.getElementById("eventModal");
   const isEvent = e.target.closest(".fc-event");
@@ -243,14 +251,6 @@ document.addEventListener("click", (e) => {
     modal.classList.remove("show");
   }
 });
-
-// 画面外に出ないよう調整
-const modalWidth = 260;
-const screenWidth = window.innerWidth;
-
-if (x + modalWidth > screenWidth) {
-  modal.style.left = `${screenWidth - modalWidth - 10}px`;
-}
 </script>
 </body>
 </html>
