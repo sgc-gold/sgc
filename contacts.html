@@ -299,19 +299,13 @@ document.querySelectorAll('.map-link').forEach(link => {
     const ua = navigator.userAgent;
 
     const isIOS = /iPhone|iPad|iPod/i.test(ua);
+    const isSafari = isIOS && /Safari/i.test(ua) && !/CriOS|EdgiOS/i.test(ua);
 
-    if(isIOS){
-      // ① まず Googleマップアプリを試す（Safariでは成功）
+    if(isSafari){
+      // Safariだけ Googleマップアプリを試す
       window.location.href = `comgooglemaps://?q=${address}`;
-
-      // ② 失敗した場合の保険（Edge/Chrome用）
-      setTimeout(() => {
-        window.location.href =
-          `https://www.google.com/maps/search/?api=1&query=${address}`;
-      }, 500);
-
     }else{
-      // PC / Android：GoogleマップWeb
+      // Edge / Chrome / PC / Android → Web版Googleマップ
       window.open(
         `https://www.google.com/maps/search/?api=1&query=${address}`,
         '_blank'
