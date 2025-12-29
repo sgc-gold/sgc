@@ -296,13 +296,22 @@ document.querySelectorAll('.map-link').forEach(link => {
     e.preventDefault();
 
     const address = encodeURIComponent(this.dataset.address);
-    const isMobile = window.matchMedia('(max-width:900px)').matches;
+    const ua = navigator.userAgent;
 
-    if(isMobile){
-      // スマホ：マップアプリ起動
-      window.location.href = `geo:0,0?q=${address}`;
+    const isIOS = /iPhone|iPad|iPod/i.test(ua);
+
+    if(isIOS){
+      // ① まず Googleマップアプリを試す（Safariでは成功）
+      window.location.href = `comgooglemaps://?q=${address}`;
+
+      // ② 失敗した場合の保険（Edge/Chrome用）
+      setTimeout(() => {
+        window.location.href =
+          `https://www.google.com/maps/search/?api=1&query=${address}`;
+      }, 500);
+
     }else{
-      // PC：新しいウインドウでGoogleマップ
+      // PC / Android：GoogleマップWeb
       window.open(
         `https://www.google.com/maps/search/?api=1&query=${address}`,
         '_blank'
