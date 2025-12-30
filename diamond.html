@@ -158,6 +158,11 @@ button {
   text-align:center;
 }
 
+/* ===== スマホ用カラットスピン ===== */
+#caratSpinnerMobile {
+  display: none;
+}
+
 /* カラットセット行 */
 #caratSetRow {
   display:flex;
@@ -233,6 +238,26 @@ button {
 
 .colorButtons button:hover:not(.active) {
   background:#f7f7f7;
+}
+
+.colorForms .alphaForm {
+  flex-direction: column;   /* ← これが最重要 */
+  align-items: flex-start;
+}
+
+.color-range {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.treated-check {
+  font-size: 0.9rem;
+  font-weight: normal;
+  margin-top: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* フォーム部分 */
@@ -526,6 +551,39 @@ label {
     flex-wrap: wrap; /* ← カラットセット行は折り返しOK */
   }
 
+  /* PC用inputを隠す */
+  #mainCarat {
+    display: none;
+  }
+
+  #caratSpinnerMobile {
+    display: flex;
+    align-items: center;
+  }
+
+  .spin {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .spin select {
+    width: 40px;              /* ← 横幅を極力小さく */
+    font-size: 1.1rem;
+    text-align: right;
+    padding: 14px 5px 14px 10px;
+    border-radius: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+    background:
+      linear-gradient(180deg,#fff,#f3f3f3);
+  }
+
+  .spin .dot {
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
   /* カラット範囲（最小～最大）を横並び維持 */
   #caratRange {
     flex-direction: row;
@@ -587,7 +645,15 @@ label {
   <div class="flex-row">
     <label for="mainCarat">カラット（ct）</label>
     <div id="caratSetRow">
-      <input type="text" id="mainCarat" placeholder="例：0.345" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">     
+      <input type="text" id="mainCarat" placeholder="例：0.345" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">   
+      <!-- スマホ用カラットスピン（PCでは非表示） -->
+      <div id="caratSpinnerMobile">
+        <div class="spin">
+          <select id="spinInt"></select>
+          <span class="dot">.</span>
+          <select id="spinDec"></select>
+        </div>
+      </div> 
       <button type="button" id="setCarat">セット</button>
       <div id="caratRange">
         <input type="text" id="minCarat" placeholder="最小ct" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
@@ -615,15 +681,23 @@ label {
       <div class="colorForms">
         <!-- アルファベットカラーフォーム -->
         <div class="alphaForm">
-          <select id="fromColor"><option value="">From</option></select>
-          <span>〜</span>
-          <select id="toColor"><option value="">To</option></select>
+          <!-- 1段目：From ～ To -->
+          <div class="color-range">
+            <select id="fromColor"><option value="">From</option></select>
+            <span>〜</span>
+            <select id="toColor"><option value="">To</option></select>
+          </div>
         </div>
         <!-- FANCY系フォーム -->
         <div class="fancyForm" style="display:none;">
           <select id="fancyGradeSelect"><option value="">すべて</option></select>
           <select id="fancyToneSelect"><option value="">すべて</option></select>
         </div>
+        <!-- ★ 共通：TREATED（AtoZ / FANCY 両対応） -->
+        <label class="treated-check" style="font-weight: normal;">
+          <input type="checkbox" id="treatedCheck">
+          TREATED
+        </label>        
       </div>
     </div>
   </div>
@@ -1109,6 +1183,7 @@ document.getElementById("setCarat").addEventListener("click", () => {
       const toColor = document.getElementById("toColor").value;
       const fancyGrade = document.getElementById("fancyGradeSelect").value;
       const fancyTone = document.getElementById("fancyToneSelect").value;
+      const treatedOnly = document.getElementById("treatedCheck").checked;
 
       // ★クラリティ・カットの範囲取得
       const minClarity = document.getElementById("minClaritySelect").value;
@@ -1204,6 +1279,11 @@ document.getElementById("setCarat").addEventListener("click", () => {
         else if((fancyGrade||fancyTone) && !(fromColor && toColor)) colorMatch=matchFancy;
         else if(!(fromColor && toColor) && !(fancyGrade||fancyTone)) colorMatch=true;
         else colorMatch=matchAlphabet || matchFancy;
+
+        // ★ TREATED判定
+        if(treatedOnly){
+          if(!(d.color || "").toUpperCase().includes("TREATED")) return false;
+        }
 
         // ★H&C判定
         if(hcChecked){
@@ -1460,9 +1540,20 @@ document.getElementById("setCarat").addEventListener("click", () => {
       document.getElementById(id).value = "";
     });
 
+    // 🔹 カラットスピンを初期値（0.50）に戻す
+    const spinInt = document.getElementById("spinInt");
+    const spinDec = document.getElementById("spinDec");
+
+    if (spinInt && spinDec) {
+      spinInt.value = "0";
+      spinDec.value = "50";
+    }  
 
     // H&C チェックボックスをリセット
     document.getElementById("hcCheck").checked = false;
+
+    // TREATED チェックボックスをリセット
+    document.getElementById("treatedCheck").checked = false;
 
     // 結果テーブル本体を非表示かつクリア
     document.getElementById("resultBody").innerHTML = "";
@@ -1534,6 +1625,41 @@ document.getElementById("setCarat").addEventListener("click", () => {
     // 掛け率も初期値に戻す（任意）
     document.getElementById("rateSelect").value = "0.7";
   }
+
+    /* ============================
+     スマホ用カラットスピン 初期化
+     ============================ */
+  (function(){
+    const spinInt = document.getElementById("spinInt");
+    const spinDec = document.getElementById("spinDec");
+    const mainCarat = document.getElementById("mainCarat");
+
+    if(!spinInt || !spinDec || !mainCarat) return;
+
+    // 整数部：0〜10
+    for(let i=0;i<=10;i++){
+      spinInt.appendChild(new Option(i,i));
+    }
+
+    // 小数部：01〜99
+    for(let i=1;i<=99;i++){
+      const v = i.toString().padStart(2,"0");
+      spinDec.appendChild(new Option(v,v));
+    }
+
+    // 初期値
+    spinInt.value = "0";
+    spinDec.value = "50";
+    mainCarat.value = "0.50";
+
+    function syncCarat(){
+      mainCarat.value = spinInt.value + "." + spinDec.value;
+    }
+
+    spinInt.addEventListener("change", syncCarat);
+    spinDec.addEventListener("change", syncCarat);
+  })();
+
   </script>
 </body>
 </html>
