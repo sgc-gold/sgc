@@ -56,12 +56,23 @@
     text-align: center;
   }
 
-  .search-row select {
+  .search-row select,
+  .search-row input[type="text"] {
     flex: 1;
     padding: 0.5rem;
     font-size: 1rem;
     border-radius: 0.3rem;
-    margin-right: 5%;
+  }
+
+  /* フリーワード補助チェックは太字にしない */
+  .keyword-options label {
+    font-weight: normal;
+  }
+
+  .keyword-checkboxes {
+    display: flex;
+    gap: 1rem;
+    white-space: nowrap;
   }
 
   #searchButton {
@@ -174,6 +185,14 @@
     background-color: #f9f9f9;
     white-space: normal;
   }
+
+  /* スマホだけ折り返し許可 */
+  @media (max-width: 600px) {
+    .keyword-checkboxes {
+      flex-wrap: wrap;
+      white-space: normal;
+    }
+  }  
 </style>
 </head>
 <body>
@@ -244,15 +263,23 @@
       <input
         type="text"
         id="keywordInput"
-        placeholder="例：天皇、オリンピック、即位"
-        style="
-          flex:1;
-          padding:0.5rem;
-          font-size:1rem;
-          border-radius:0.3rem;
-          margin-right:5%;
-        "
+        placeholder="例：万博、オリンピック"
+        class="search-input"
       >
+    </div>
+    <div class="search-row keyword-options">
+      <label></label>
+      <div class="keyword-checkboxes">
+        <label class="normal-label">
+          <input type="checkbox" class="keyword-check" value="御在位"> 御在位
+        </label>
+        <label class="normal-label">
+          <input type="checkbox" class="keyword-check" value="御即位"> 御即位
+        </label>
+        <label class="normal-label">
+          <input type="checkbox" class="keyword-check" value="御成婚"> 御成婚
+        </label>
+      </div>
     </div>
     <div class="search-row">
       <button id="searchButton">検索</button>
@@ -324,14 +351,32 @@ function filterData(){
   const dia = document.getElementById('diameterSelect').value;
   const keyword = document.getElementById('keywordInput').value.trim();
 
+  // チェックされた語をフリーワードとして合流
+  const checkedWords = Array.from(
+    document.querySelectorAll('.keyword-check:checked')
+  ).map(cb => cb.value);
+
+  const allKeywords = [
+    ...checkedWords,
+    ...(keyword ? [keyword] : [])
+  ];
+
   const filtered = allData.filter(d => {
-    const theme = d['記念テーマ'] || '';
+    const keywordTarget = [
+      d['記念テーマ'],
+      d['図柄（表面）'],
+      d['図柄（裏面）']
+    ].join('');
+
+    const keywordMatch =
+      allKeywords.length === 0 ||
+      allKeywords.some(k => keywordTarget.includes(k));
 
     return (!fv || d['額面'] === fv) &&
            (!weight || d['量目'] === weight) &&
            (!year || d['発行年'] === year) &&
            (!dia || d['直径'] === dia) &&
-           (!keyword || theme.includes(keyword));
+           keywordMatch;
   });
 
   displayCoins(filtered);
@@ -345,6 +390,10 @@ function clearSearch(){
   document.getElementById('yearSelect').value = '';
   document.getElementById('diameterSelect').value = '';
   document.getElementById('keywordInput').value = '';
+
+  document
+  .querySelectorAll('.keyword-check')
+  .forEach(cb => cb.checked = false);
 
   displayCoins(allData); // 全件表示
 }
