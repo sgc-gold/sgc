@@ -998,19 +998,6 @@ document.getElementById("setCarat").addEventListener("click", () => {
   populateFilters();
 
   // ---------------------
-  // FANCYカラー判定
-  // ---------------------
-  function isFancyColor(color){
-    if(!color) return false;
-    const upper=color.toUpperCase().trim();
-    if(upper.includes("UNDER")) return false;
-    if(upper.includes("FANCY")) return true;
-    const fancyTones=["PINK","PURPLE","BLUE","GREEN","ORANGE","YELLOW","BROWN","GRAY","RED","VIOLET","BLACK","WHITE"];
-    const ishTerms=["ISH","ORANGY","PINKISH","PURPLISH","GRAYISH","YELLOWISH","BROWNISH","GREENISH","BLUISH"];
-    return fancyTones.some(t=>upper.includes(t))||ishTerms.some(i=>upper.includes(i));
-  }
-
-  // ---------------------
   // スコアリング関数
   // ---------------------
   function getColorScore(color){
@@ -1096,11 +1083,17 @@ document.getElementById("setCarat").addEventListener("click", () => {
     return score;
   }
 
-  function getCaratGroupIndex(carat,color){
-    const maxIndex=caratThresholds.length;
-    if(isFancyColor(color)) return maxIndex;
-    for(let i=0;i<caratThresholds.length;i++){ if(carat<caratThresholds[i]) return i; }
-    return maxIndex-1;
+  function getCaratGroupIndex(carat, colorType){
+    const maxIndex = caratThresholds.length;
+
+    // FANCY は特別枠（最後）
+    if (colorType === "FANCY") return maxIndex;
+
+    // ALPHA は通常判定
+    for (let i = 0; i < caratThresholds.length; i++) {
+      if (carat < caratThresholds[i]) return i;
+    }
+    return maxIndex - 1;
   }
 
   // ---------------------
@@ -1129,34 +1122,32 @@ document.getElementById("setCarat").addEventListener("click", () => {
   // 形状セレクトを生成する関数
   function populateShapeSelect(shapeCodes) {
     const shapeSelect = document.getElementById("shapeSelect");
-    shapeSelect.innerHTML = ""; // 一度リセット
+    shapeSelect.innerHTML = "";
 
-    // デフォルト「RD」
-    const defaultShape = "RD";
+    // すべて
+    shapeSelect.appendChild(new Option("すべて", ""));
 
-    // 「すべて」追加
-    const allOpt = document.createElement("option");
-    allOpt.value = "";
-    allOpt.textContent = "すべて";
-    shapeSelect.appendChild(allOpt);
+    // ラウンド
+    shapeSelect.appendChild(
+      new Option("↳ ラウンドブリリアント", "RD")
+    );
 
-    // デフォルト「RD」追加
-    const rdOpt = document.createElement("option");
-    rdOpt.value = defaultShape;
-    rdOpt.textContent = shapeMap[defaultShape] || defaultShape;
-    shapeSelect.appendChild(rdOpt);
+    // ラウンド以外（まとめ）
+    shapeSelect.appendChild(
+      new Option("↳ ラウンド以外", "NON_ROUND")
+    );
 
-    // その他の形状を追加（重複除去）
-    const uniqueShapes = [...new Set(shapeCodes.filter(s => s && s !== defaultShape))];
+    // 個別形状（RD以外）
+    const uniqueShapes = [...new Set(shapeCodes.filter(s => s && s !== "RD"))];
     uniqueShapes.forEach(code => {
-      const opt = document.createElement("option");
-      opt.value = code;
-      opt.textContent = shapeMap[code] || code; // 未登録なら英字そのまま
-      shapeSelect.appendChild(opt);
+      const label = `　　↳ ${shapeMap[code] || code}`;
+      shapeSelect.appendChild(
+        new Option(label, code)
+      );
     });
 
-    // デフォルト選択を「RD」に
-    shapeSelect.value = defaultShape;
+    // 初期値
+    shapeSelect.value = "";
   }
 
   // 例：データ取得後に呼び出す
@@ -1221,7 +1212,14 @@ document.getElementById("setCarat").addEventListener("click", () => {
         if(c < minC || c > maxC) return false;
         if(dateVal && d.date.split(" ")[0] < dateVal) return false;
         if(fluVal && d.fluorescence != fluVal) return false;
-        if(shapeVal && d.shape != shapeVal) return false;
+        // ★ 形状判定
+        if (shapeVal) {
+          if (shapeVal === "NON_ROUND") {
+            if (d.shape === "RD") return false;
+          } else {
+            if (d.shape !== shapeVal) return false;
+          }
+        }
 
         // ★クラリティ範囲判定
         if(minClarity || maxClarity){
@@ -1254,58 +1252,62 @@ document.getElementById("setCarat").addEventListener("click", () => {
           if(!keyword.split(" ").every(k=>fields.includes(k))) return false;
         }
 
-        // カラー判定（元コードのまま）
-        const colorUpper=(d.color||"").toUpperCase();
-        const isFancy = isFancyColor(d.color);
-        let matchAlphabet=true;
-        if(!isFancy && fromColor && toColor){
-          const colorIndex = alphabetColors.findIndex(c=>colorUpper.startsWith(c));
-          matchAlphabet=(colorIndex>=fromIndex && colorIndex<=toIndex);
-        } else if(!isFancy){ matchAlphabet=true; } else { matchAlphabet=false; }
+        // ======================
+        // STEP1：前処理
+        // ======================
+        const colorUpper = (d.color || "").toUpperCase();
+        const isFancy = d.colorType === "FANCY";
+        const isAlpha = d.colorType === "ALPHA";
 
-        let matchFancy=true;
-        if(isFancy){
-          if(fancyGrade && fancyTone){
-            matchFancy=colorUpper.includes(fancyGrade.toUpperCase()) && colorUpper.includes(fancyTone.toUpperCase());
-          } else if(fancyGrade){
-            matchFancy=colorUpper.includes(fancyGrade.toUpperCase());
-          } else if(fancyTone){
-            matchFancy=colorUpper.includes(fancyTone.toUpperCase());
+        // ======================
+        // STEP2：カラー条件判定
+        // ======================
+        let colorMatch = true;
+
+        // ---- ALPHA（AtoZ） ----
+        if (isAlpha) {
+          // Fancy条件が入っていたら除外
+          if (fancyGrade || fancyTone) return false;
+
+          // From-To 指定がある場合のみ判定
+          if (fromColor && toColor) {
+            const colorIndex = alphabetColors.findIndex(c => colorUpper.startsWith(c));
+            if (colorIndex < fromIndex || colorIndex > toIndex) return false;
           }
-        } else { matchFancy=false; }
-
-        let colorMatch=true;
-        if((fromColor && toColor) && !(fancyGrade || fancyTone)) colorMatch=matchAlphabet;
-        else if((fancyGrade||fancyTone) && !(fromColor && toColor)) colorMatch=matchFancy;
-        else if(!(fromColor && toColor) && !(fancyGrade||fancyTone)) colorMatch=true;
-        else colorMatch=matchAlphabet || matchFancy;
-
-        // ★ TREATED判定
-        if(treatedOnly){
-          if(!(d.color || "").toUpperCase().includes("TREATED")) return false;
         }
 
-        // ★H&C判定
-        if(hcChecked){
-          const cutUpper = (d.cut||"").toUpperCase();
-          if(!(cutUpper.includes("H&C") || cutUpper.includes("HC"))) return false;
+        // ---- FANCY ----
+        if (isFancy) {
+          // AtoZ条件が入っていたら除外
+          if (fromColor || toColor) return false;
+
+          if (fancyGrade && !colorUpper.includes(fancyGrade.toUpperCase())) return false;
+          if (fancyTone && !colorUpper.includes(fancyTone.toUpperCase())) return false;
         }
 
-        return colorMatch;
+        // ======================
+        // STEP3：付加条件
+        // ======================
+
+        // TREATED
+        if (treatedOnly) {
+          if (!colorUpper.includes("TREATED")) return false;
+        }
+
+        // H&C
+        if (hcChecked) {
+          const cutUpper = (d.cut || "").toUpperCase();
+          if (!(cutUpper.includes("H&C") || cutUpper.includes("HC"))) return false;
+        }
+
+        return true;
       });
 
-      // 並び替え
-      results.sort((a,b)=>{
-        const groupA=getCaratGroupIndex(parseFloat(a.carat),a.color);
-        const groupB=getCaratGroupIndex(parseFloat(b.carat),b.color);
-        if(groupA!==groupB) return groupA-groupB;
-        const colorDiff=getColorScore(b.color)-getColorScore(a.color);
-        if(colorDiff!==0) return colorDiff;
-        const clarityDiff=CLARITY_ORDER.indexOf(a.clarity)-CLARITY_ORDER.indexOf(b.clarity);
-        if(clarityDiff!==0) return clarityDiff;
-        const cutDiff=getCutScore(b.cut)-getCutScore(a.cut);
-        if(cutDiff!==0) return cutDiff;
-        return getFluorescenceScore(b.fluorescence)-getFluorescenceScore(a.fluorescence);
+      // ★ 初期表示は NO 昇順（紙データ順）
+      results.sort((a, b) => {
+        const noA = Number(a.NO) || 0;
+        const noB = Number(b.NO) || 0;
+        return noA - noB;
       });
 
       // ページネーション
@@ -1613,18 +1615,6 @@ document.getElementById("setCarat").addEventListener("click", () => {
     const results = window.lastSearchResults || [];
     updateSummary(results);
   });
-
-  // ===== サマリーリセット関数 =====
-  function clearSummary() {
-    document.getElementById("summaryCount").textContent = "0";
-    document.getElementById("summaryAvgPrice").textContent = "0";
-    document.getElementById("summaryUnitPrice").textContent = "0";
-    document.getElementById("summaryCarat").textContent = "0.000";
-    document.getElementById("summaryTotalPrice").textContent = "0";
-
-    // 掛け率も初期値に戻す（任意）
-    document.getElementById("rateSelect").value = "0.7";
-  }
 
     /* ============================
      スマホ用カラットスピン 初期化
