@@ -1711,8 +1711,8 @@ document.getElementById("setCarat").addEventListener("click", () => {
     document.getElementById("summaryCarat").textContent = "0.000";
     document.getElementById("summaryTotalPrice").textContent = "0";
 
-    // 掛け率も初期値（7掛け）に戻す
-    document.getElementById("rateSelect").value = "0.7";
+    // 掛け率も初期値（8掛け）に戻す
+    document.getElementById("rateSelect").value = "0.8";
 
     // 検索結果キャッシュをリセット
     window.lastSearchResults = [];
@@ -1735,7 +1735,7 @@ document.getElementById("setCarat").addEventListener("click", () => {
     const unitPrice = Math.round(avgPrice * rate);
     const totalPrice = Math.round(unitPrice * carat);
 
-    document.getElementById("summaryCount").textContent = count;
+    document.getElementById("summaryCount").textContent = count.toLocaleString();
     document.getElementById("summaryAvgPrice").textContent = avgPrice.toLocaleString();
     document.getElementById("summaryUnitPrice").textContent = unitPrice.toLocaleString();
     document.getElementById("summaryCarat").textContent = carat.toFixed(3);
