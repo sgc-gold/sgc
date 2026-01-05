@@ -266,6 +266,22 @@ button {
   margin-bottom:0.3rem;
 }
 
+.color-options {
+  display: flex;
+  flex-direction: column;   /* ← これが超重要 */
+  align-items: flex-start;
+  margin-top: 2px;
+  gap: 2px;
+}
+
+.color-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9rem;
+  font-weight: normal;
+}
+
 input[type="checkbox"] {
   /*vertical-align: middle;*/ /* 中央揃え */
   margin: 0; /* iOSの余白調整 */
@@ -674,9 +690,10 @@ label {
   <div class="flex-row">
     <label>カラー</label>
     <div class="colorSelector">
-      <div class="colorButtons">
-        <button type="button" class="colorTypeBtn active" data-type="alpha">A to Z</button>
+      <div class="colorButtons">       
+        <button type="button" class="colorTypeBtn" data-type="alpha">AtoZ</button>
         <button type="button" class="colorTypeBtn" data-type="fancy">FANCY</button>
+        <button type="button" class="colorTypeBtn active" data-type="all">全て</button>
       </div>
       <div class="colorForms">
         <!-- アルファベットカラーフォーム -->
@@ -693,11 +710,16 @@ label {
           <select id="fancyGradeSelect"><option value="">すべて</option></select>
           <select id="fancyToneSelect"><option value="">すべて</option></select>
         </div>
-        <!-- ★ 共通：TREATED（AtoZ / FANCY 両対応） -->
-        <label class="treated-check" style="font-weight: normal;">
-          <input type="checkbox" id="treatedCheck">
-          TREATED
-        </label>        
+        <!-- 2段目：TREATED / FAINT -->
+        <div class="color-options">
+          <label class="treated-check">
+            <input type="checkbox" id="treatedCheck"> TREATED
+          </label>
+
+          <label class="faint-check">
+            <input type="checkbox" id="faintCheck"> FAINT
+          </label>
+        </div>
       </div>
     </div>
   </div>
@@ -863,7 +885,26 @@ label {
   // ---------------------
   // 共通定義
   // ---------------------
-  const alphabetColors = "D E F G H I J K L M N O P Q R S T U V W X Y Z".split(" ");
+  const ALPHA_COLOR_ZONES = [
+    { label: "D",        key: "D",        rank: 100 },
+    { label: "E",        key: "E",        rank: 101 },
+    { label: "F",        key: "F",        rank: 102 },
+    { label: "G",        key: "G",        rank: 103 },
+    { label: "H",        key: "H",        rank: 104 },
+    { label: "I",        key: "I",        rank: 105 },
+    { label: "J",        key: "J",        rank: 106 },
+    { label: "K",        key: "K",        rank: 107 },
+    { label: "L",        key: "L",        rank: 108 },
+    { label: "M",        key: "M",        rank: 109 },
+    { label: "N",        key: "N",        rank: 110 },
+
+    { label: "UNDER N",  key: "UNDER_N",  rank: 401 },
+    { label: "UNDER S",  key: "UNDER_S",  rank: 402 },
+
+    { label: "O～T",     key: "O_T",      rank: 500 },
+    { label: "U～Z",     key: "U_Z",      rank: 600 }
+  ];
+
   const CUT_ORDER = ["EX","VG","GD","FR","PR"];
   const fancyGrades = ["FAINT","VERY LIGHT","LIGHT","FANCY LIGHT","FANCY","FANCY INTENSE","FANCY VIVID","FANCY DEEP","FANCY DARK"];
   const fancyTones = ["YELLOW","PINK","BLUE","GREEN","BROWN","ORANGE","PURPLE","RED","GRAY","BLACK"];
@@ -913,17 +954,54 @@ document.getElementById("setCarat").addEventListener("click", () => {
   // カラー切り替え
   // ---------------------
   const colorBtns = document.querySelectorAll('.colorTypeBtn');
+
   colorBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       // ボタンのアクティブ切替
       colorBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
-      // フォーム切替
       const type = btn.dataset.type;
+
+      // フォーム切替
       document.querySelector('.alphaForm').style.display = type === 'alpha' ? 'flex' : 'none';
       document.querySelector('.fancyForm').style.display = type === 'fancy' ? 'flex' : 'none';
+
+      // ---------------------
+      // TREATED / FAINT 表示制御
+      // ---------------------
+      const treatedLabel = document.querySelector('.treated-check');
+      const faintLabel   = document.querySelector('.faint-check');
+
+      // 一旦すべて非表示 & チェック解除
+      treatedLabel.style.display = 'none';
+      faintLabel.style.display   = 'none';
+      document.getElementById('treatedCheck').checked = false;
+      document.getElementById('faintCheck').checked   = false;
+
+      // FANCY → TREATEDのみ表示
+      if (type === 'fancy') {
+        treatedLabel.style.display = 'inline-flex';
+      }
+
+      // AtoZ → FAINTのみ表示
+      if (type === 'alpha') {
+        faintLabel.style.display = 'inline-flex';
+      }
+
+      // 「すべて」など（念のため）
+      // → どちらも表示しない（初期状態）
     });
+  });
+
+  // ---------------------
+  // 初期状態：AtoZを選択
+  // ---------------------
+  window.addEventListener("DOMContentLoaded", () => {
+    const defaultBtn = document.querySelector('.colorTypeBtn[data-type="alpha"]');
+    if (defaultBtn) {
+      defaultBtn.click(); // ← クリックと同じ処理を実行
+    }
   });
 
   // ---------------------
@@ -982,7 +1060,10 @@ document.getElementById("setCarat").addEventListener("click", () => {
 
     const fromColorSel = document.getElementById("fromColor");
     const toColorSel = document.getElementById("toColor");
-    alphabetColors.forEach(c => { addOption(fromColorSel,c); addOption(toColorSel,c); });
+    ALPHA_COLOR_ZONES.forEach(z => {
+      fromColorSel.appendChild(new Option(z.label, z.key));
+      toColorSel.appendChild(new Option(z.label, z.key));
+    });
 
     const fancyGradeSel = document.getElementById("fancyGradeSelect");
     const fancyToneSel = document.getElementById("fancyToneSelect");
@@ -1014,6 +1095,50 @@ document.getElementById("setCarat").addEventListener("click", () => {
     for(const ish in ishMap) if(upper.includes(ish)) score+=ishMap[ish];
     if(score<1) score+=1000;
     return score;
+  }
+
+  function matchAlphaZone(colorText, zoneKey) {
+    if (!colorText || !zoneKey) return false;
+
+    const upper = colorText.toUpperCase();
+
+    switch (zoneKey) {
+      case "UNDER_N":
+        return upper.includes("UNDER N");
+      case "UNDER_S":
+        return upper.includes("UNDER S");
+      case "O_T":
+        return /[OPQRST]/.test(upper) &&
+               !upper.includes("UNDER N") &&
+               !upper.includes("UNDER S");
+      case "U_Z":
+        return /[UVWXYZ]/.test(upper) &&
+               !upper.includes("UNDER N") &&
+               !upper.includes("UNDER S");
+      default:
+        // D〜N 等
+        return upper.startsWith(zoneKey);
+    }
+  }
+
+  function getAlphaZoneKey(colorText) {
+    if (!colorText) return null;
+
+    const upper = colorText.toUpperCase().trim();
+
+    if (upper.startsWith("UNDER N")) return "UNDER_N";
+    if (upper.startsWith("UNDER S")) return "UNDER_S";
+
+    const m = upper.match(/^[D-Z]/);
+    if (!m) return null;
+
+    const ch = m[0];
+
+    if ("DEFGHIJKLMN".includes(ch)) return ch;
+    if ("OPQRST".includes(ch)) return "O_T";
+    if ("UVWXYZ".includes(ch)) return "U_Z";
+
+    return null;
   }
 
   // ---------------------
@@ -1081,19 +1206,6 @@ document.getElementById("setCarat").addEventListener("click", () => {
     for(const key in intensityMap) if(upper.includes(key)){score+=intensityMap[key];break;}
     for(const key in colorBonusMap) if(upper.includes(key)){score+=colorBonusMap[key];break;}
     return score;
-  }
-
-  function getCaratGroupIndex(carat, colorType){
-    const maxIndex = caratThresholds.length;
-
-    // FANCY は特別枠（最後）
-    if (colorType === "FANCY") return maxIndex;
-
-    // ALPHA は通常判定
-    for (let i = 0; i < caratThresholds.length; i++) {
-      if (carat < caratThresholds[i]) return i;
-    }
-    return maxIndex - 1;
   }
 
   // ---------------------
@@ -1175,6 +1287,7 @@ document.getElementById("setCarat").addEventListener("click", () => {
       const fancyGrade = document.getElementById("fancyGradeSelect").value;
       const fancyTone = document.getElementById("fancyToneSelect").value;
       const treatedOnly = document.getElementById("treatedCheck").checked;
+      const faintOnly   = document.getElementById("faintCheck").checked;
 
       // ★クラリティ・カットの範囲取得
       const minClarity = document.getElementById("minClaritySelect").value;
@@ -1201,12 +1314,13 @@ document.getElementById("setCarat").addEventListener("click", () => {
         tbody.parentElement.insertAdjacentElement("afterend",countBottom);
       }
 
-      const fromIndex = alphabetColors.indexOf(fromColor);
-      const toIndex = alphabetColors.indexOf(toColor);
-
       // ======================
       // 絞り込みロジック
       // ======================
+
+      const activeColorType =
+        document.querySelector('.colorTypeBtn.active')?.dataset.type || "all";
+      
       const results = diamondData.filter(d => {
         const c = parseFloat(d.carat) || 0;
         if(c < minC || c > maxC) return false;
@@ -1262,25 +1376,43 @@ document.getElementById("setCarat").addEventListener("click", () => {
         // ======================
         // STEP2：カラー条件判定
         // ======================
-        let colorMatch = true;
+
+        // ★ colorType による絞り込み
+        if (activeColorType === "alpha" && !isAlpha) return false;
+        if (activeColorType === "fancy" && !isFancy) return false;
+        // all の場合は何もしない
 
         // ---- ALPHA（AtoZ） ----
         if (isAlpha) {
-          // Fancy条件が入っていたら除外
           if (fancyGrade || fancyTone) return false;
 
-          // From-To 指定がある場合のみ判定
           if (fromColor && toColor) {
-            const colorIndex = alphabetColors.findIndex(c => colorUpper.startsWith(c));
-            if (colorIndex < fromIndex || colorIndex > toIndex) return false;
+
+            const fromKey = fromColor;
+            const toKey   = toColor;
+            const itemKey = getAlphaZoneKey(colorUpper);
+
+            // 単独指定
+            if (fromKey && !toKey) {
+              if (itemKey !== fromKey) return false;
+            }
+
+            // 範囲指定
+            if (fromKey && toKey) {
+              const order = ALPHA_COLOR_ZONES.map(z => z.key);
+              const fromIdx = order.indexOf(fromKey);
+              const toIdx   = order.indexOf(toKey);
+              const itemIdx = order.indexOf(itemKey);
+
+              if (itemIdx === -1) return false;
+              if (itemIdx < fromIdx || itemIdx > toIdx) return false;
+            }
           }
         }
 
         // ---- FANCY ----
         if (isFancy) {
-          // AtoZ条件が入っていたら除外
           if (fromColor || toColor) return false;
-
           if (fancyGrade && !colorUpper.includes(fancyGrade.toUpperCase())) return false;
           if (fancyTone && !colorUpper.includes(fancyTone.toUpperCase())) return false;
         }
@@ -1294,6 +1426,11 @@ document.getElementById("setCarat").addEventListener("click", () => {
           if (!colorUpper.includes("TREATED")) return false;
         }
 
+        // FAINT
+        if (faintOnly) {
+          if (!colorUpper.includes("FAINT")) return false;
+        }
+        
         // H&C
         if (hcChecked) {
           const cutUpper = (d.cut || "").toUpperCase();
@@ -1411,36 +1548,35 @@ document.getElementById("setCarat").addEventListener("click", () => {
         sortState = { [colIndex]: direction };
 
         window.lastSearchResults.sort((a, b) => {
-          let keyA = getValueByColumn(a, colIndex);
-          let keyB = getValueByColumn(b, colIndex);
+          let result = 0;
 
-          if (keyA === null || keyA === undefined) return 1;
-          if (keyB === null || keyB === undefined) return -1;
+          // ★ 日付列（colIndex === 0）は NO でソートする
+          if (colIndex === 0) {
+            const noA = Number(a.NO) || 0;
+            const noB = Number(b.NO) || 0;
+            result = noA - noB;
+          }
+          // 数値
+          else {
+            let keyA = getValueByColumn(a, colIndex);
+            let keyB = getValueByColumn(b, colIndex);
 
-          // 日付列の比較
-          if (colIndex === 0) { 
-            // YYYY/MM/DD → Date オブジェクトに変換
-            const [ay, am, ad] = keyA.split("/").map(Number);
-            const [by, bm, bd] = keyB.split("/").map(Number);
-            const dateA = new Date(ay, am - 1, ad);
-            const dateB = new Date(by, bm - 1, bd);
+            if (keyA == null) return 1;
+            if (keyB == null) return -1;
 
-            return direction === "asc" ? dateA - dateB : dateB - dateA;
+            if (!isNaN(keyA) && !isNaN(keyB)) {
+              result = keyA - keyB;
+            }
+            // 文字列
+            else {
+              result = String(keyA).localeCompare(String(keyB), "ja");
+            }
           }
 
-          const numA = parseFloat(keyA);
-          const numB = parseFloat(keyB);
+          // 昇順・降順
+          if (direction === "desc") result *= -1;
 
-          // 数値列は数値比較
-          const bothNumeric = !isNaN(numA) && !isNaN(numB);
-          if (bothNumeric) {
-            return direction === "asc" ? numA - numB : numB - numA;
-          }
-
-          // 文字列列はカスタム順序（クラリティ・カット）対応
-          return direction === "asc"
-            ? String(keyA).localeCompare(String(keyB), "ja")
-            : String(keyB).localeCompare(String(keyA), "ja");
+          return result;
         });
 
         renderPage(1);
@@ -1456,19 +1592,16 @@ document.getElementById("setCarat").addEventListener("click", () => {
           case 0: // 日付
             return row.date;
           case 1: // カラー
-            return getColorScore(row.color); // 数値化して比較
+            return row.color || "";
           case 2: // クラリティ
-            {
-              const idx = CLARITY_ORDER.indexOf(row.clarity);
-              return idx === -1 ? CLARITY_ORDER.length : idx;
-            }
+            return CLARITY_ORDER.indexOf(row.clarity);
           case 3: // カット
             {
               const base = getCutGrade(row.cut)?.base;
-              return base ? (cutRank[base] ?? 999) : 999;
+              return base ? cutRank[base] : 999;
             }
           case 4: // 蛍光性
-            return getFluorescenceScore(row.fluorescence); // 数値化
+            return row.fluorescence || "";
           case 5: // 形状
             return row.shape || "";
           case 6: // カラット
@@ -1650,6 +1783,6 @@ document.getElementById("setCarat").addEventListener("click", () => {
     spinDec.addEventListener("change", syncCarat);
   })();
 
-  </script>
+</script>
 </body>
 </html>
