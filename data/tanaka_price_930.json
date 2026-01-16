@@ -1,23 +1,23 @@
 {
-  "update_time": "2026年01月15日 09:30公表（日本時間）",
+  "update_time": "2026年01月16日 09:30公表（日本時間）",
   "prices": {
     "GOLD": {
-      "retail": "25,998",
-      "retail_diff": "-53",
-      "buy": "25,751",
-      "buy_diff": "-53"
+      "retail": "25,955",
+      "retail_diff": "-43",
+      "buy": "25,709",
+      "buy_diff": "-42"
     },
     "PLATINUM": {
-      "retail": "13,500",
-      "retail_diff": "+102",
-      "buy": "13,215",
-      "buy_diff": "+103"
+      "retail": "13,565",
+      "retail_diff": "+65",
+      "buy": "13,280",
+      "buy_diff": "+65"
     },
     "SILVER": {
-      "retail": "527.12",
-      "retail_diff": "+25.19",
-      "buy": "517.22",
-      "buy_diff": "+25.19"
+      "retail": "520.08",
+      "retail_diff": "-7.04",
+      "buy": "510.18",
+      "buy_diff": "-7.04"
     }
   }
 }
