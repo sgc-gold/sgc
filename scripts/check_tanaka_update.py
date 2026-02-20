@@ -35,7 +35,7 @@ def main():
 
     if current_hash == prev_hash:
         print("⏸ ハッシュに変化なし → 更新スキップ")
-        exit(0)
+        exit(1)
 
     print("✅ ハッシュが変化 → データ更新開始")
     save_hash(current_hash)
