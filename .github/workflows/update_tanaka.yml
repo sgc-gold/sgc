@@ -1,10 +1,8 @@
 name: Check and Update Tanaka 
-
 on:
   workflow_dispatch:
   repository_dispatch:
     types: [CONTAINER_UPDATE]
-
 jobs:
   check-and-update:
     runs-on: ubuntu-latest
@@ -12,29 +10,25 @@ jobs:
       # リポジトリをチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v4
-
       # Python をセットアップ
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: 3.11
-
       # 依存パッケージをインストール
       - name: Install dependencies
         run: |
           pip install requests beautifulsoup4
-
       # check_tanaka_update.py を実行
       - name: Run check script
         id: check
+        continue-on-error: true
         run: |
           python scripts/check_tanaka_update.py
-
       # ハッシュ変化があった場合のみ update_tanaka.py を実行
       - name: Run update script
         if: ${{ steps.check.outcome == 'success' }}
         run: python scripts/update_tanaka.py
-
       # 変更があれば commit & push（PAT を使用）
       - name: Commit changes if any
         if: ${{ steps.check.outcome == 'success' }}
