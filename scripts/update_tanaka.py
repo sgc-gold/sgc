@@ -57,7 +57,7 @@ def main():
 
     if not is_workflow_dispatch and update_text == last_update_time:
         print("⏸ 公表時刻に変化なし → 更新スキップ")
-        sys.exit(1)
+        sys.exit(0)
 
     # === 9:30更新処理 ===
     if "09:30" in update_text:
