@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ダイヤ相場検索システム</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* =============================================
+   CSS Variables
+============================================= */
+:root {
+  --bg:           #f0f2f5;
+  --bg-white:     #ffffff;
+  --bg-header:    #1e3a5f;
+  --bg-notice:    #fff8e1;
+  --border:       #d9dde4;
+  --border-focus: #2563eb;
+  --primary:      #1e3a5f;
+  --primary-light:#2a4f7c;
+  --accent:       #2563eb;
+  --accent-hover: #1d4ed8;
+  --text:         #1a1a2e;
+  --text-sub:     #4b5563;
+  --text-muted:   #9ca3af;
+  --gold:         #b8860b;
+  --gold-bg:      #fef9e7;
+  --success:      #16a34a;
+  --row-alt:      #f8f9fb;
+  --row-hover:    #eff6ff;
+  --th-bg:        #f1f3f8;
+  --th-border:    #c5cad6;
+  --radius:       6px;
+  --shadow-sm:    0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md:    0 2px 8px rgba(0,0,0,0.1);
+  --shadow-lg:    0 4px 16px rgba(0,0,0,0.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans JP', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* =============================================
+   System Header
+============================================= */
+.sys-header {
+  background: var(--bg-header);
+  color: #fff;
+  padding: 0 24px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.sys-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sys-logo {
+  width: 28px;
+  height: 28px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+.sys-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+.sys-title span {
+  font-weight: 300;
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  margin-left: 8px;
+  letter-spacing: 0.02em;
+}
+.sys-badge {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 3px;
+  color: rgba(255,255,255,0.7);
+  font-size: 10px;
+  padding: 2px 8px;
+  letter-spacing: 0.06em;
+}
+
+/* =============================================
+   Notice bar
+============================================= */
+.notice {
+  background: var(--bg-notice);
+  border-bottom: 1px solid #f0d070;
+  padding: 7px 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #7a5c00;
+}
+.notice-icon { font-size: 13px; flex-shrink: 0; }
+.notice-title { font-weight: 700; margin-right: 2px; color: #7a5c00; }
+.notice-text  { color: #5a4400; }
+
+/* =============================================
+   Page layout
+============================================= */
+.page-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 20px 60px;
+}
+
+/* =============================================
+   Card
+============================================= */
+.card {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+}
+.card-header {
+  background: var(--th-bg);
+  border-bottom: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-header-icon {
+  width: 18px;
+  height: 18px;
+  background: var(--primary);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.card-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.06em;
+}
+.card-body {
+  padding: 18px 20px;
+}
+
+/* =============================================
+   Form grid
+============================================= */
+.form-grid {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  row-gap: 10px;
+  column-gap: 0;
+  align-items: center;
+}
+.form-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-sub);
+  text-align: right;
+  padding-right: 14px;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+.form-label::after {
+  content: '';
+  display: inline-block;
+  width: 1px;
+}
+.form-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.form-row-divider {
+  grid-column: 1 / -1;
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+
+/* =============================================
+   Inputs & Selects
+============================================= */
+input[type="text"],
+select {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  padding: 6px 9px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  height: 32px;
+}
+input[type="text"]::placeholder { color: var(--text-muted); }
+input[type="text"]:focus,
+select:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239ca3af'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px;
+  cursor: pointer;
+}
+select option { background: #fff; color: var(--text); }
+
+.range-sep {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  padding: 0 2px;
+}
+.field-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* =============================================
+   Carat
+============================================= */
+#mainCarat { width: 80px; text-align: center; }
+#minCarat, #maxCarat { width: 72px; text-align: center; }
+#caratSetRow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+#caratSpinnerMobile { display: none; }
+
+/* =============================================
+   Buttons
+============================================= */
+.btn {
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 16px;
+  height: 32px;
+  transition: background 0.15s, box-shadow 0.15s;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(37,99,235,0.3);
+}
+.btn-primary:hover { background: var(--accent-hover); box-shadow: 0 2px 6px rgba(37,99,235,0.35); }
+.btn-primary:active { transform: translateY(1px); }
+
+.btn-secondary {
+  background: #fff;
+  color: var(--text-sub);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { background: var(--row-alt); border-color: #b0b8c8; color: var(--text); }
+
+.btn-sm {
+  font-size: 11px;
+  padding: 4px 12px;
+  height: 28px;
+}
+
+/* action row */
+.action-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  margin-top: 14px;
+}
+.btn-search {
+  min-width: 120px;
+  height: 36px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+/* =============================================
+   Color toggle
+============================================= */
+.color-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.color-toggle-btn {
+  background: #fff;
+  border: none;
+  border-right: 1px solid var(--border);
+  color: var(--text-sub);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 5px 14px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  outline: none;
+}
+.color-toggle-btn:last-child { border-right: none; }
+.color-toggle-btn:hover { background: var(--row-alt); color: var(--text); }
+.color-toggle-btn.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.color-forms-wrap { display: flex; flex-direction: column; gap: 4px; }
+.alpha-form,
+.fancy-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* =============================================
+   Checkboxes
+============================================= */
+.check-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-sub);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  height: 28px;
+  transition: border-color 0.12s, background 0.12s;
+}
+.check-label:hover { border-color: var(--accent); color: var(--accent); }
+.check-label input[type="checkbox"] {
+  width: 13px;
+  height: 13px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* =============================================
+   Loading
+============================================= */
+.loading-wrap {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 18px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #dde3ee;
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+.loading-text { font-size: 12px; color: var(--text-muted); }
+
+/* =============================================
+   Summary card
+============================================= */
+.summary-card {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  max-width: 440px;
+  margin: 0 auto 20px;
+  overflow: hidden;
+}
+.summary-card-header {
+  background: var(--primary);
+  color: #fff;
+  padding: 8px 18px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.summary-table tr {
+  border-bottom: 1px solid var(--border);
+}
+.summary-table tr:last-child { border-bottom: none; }
+.summary-table td {
+  padding: 8px 18px;
+  font-size: 12px;
+}
+.summary-table .s-label {
+  width: 45%;
+  color: var(--text-sub);
+  font-weight: 500;
+}
+.summary-table .s-value {
+  text-align: right;
+  color: var(--text);
+  font-weight: 400;
+}
+.summary-table .s-value strong {
+  font-size: 13px;
+  color: var(--text);
+}
+.summary-table .s-unit { font-size: 11px; color: var(--text-muted); margin-left: 2px; }
+.summary-total { background: #f8f9fb; }
+.summary-total .s-label { color: var(--primary); font-weight: 700; font-size: 13px; }
+.summary-total .s-value strong { font-size: 18px; color: var(--primary); }
+.summary-divider { height: 4px; background: var(--th-bg); }
+
+#rateSelect {
+  height: 26px;
+  font-size: 11px;
+  padding: 0 22px 0 8px;
+  border-color: #c5cad6;
+}
+#rateSelect:focus { border-color: var(--border-focus); }
+
+/* =============================================
+   Result header
+============================================= */
+.result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0 8px;
+  margin-bottom: 4px;
+}
+.result-count {
+  font-size: 12px;
+  color: var(--text-sub);
+}
+.result-count strong { color: var(--accent); font-size: 14px; }
+
+/* =============================================
+   Table
+============================================= */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+}
+.table-wrapper::-webkit-scrollbar { height: 5px; }
+.table-wrapper::-webkit-scrollbar-track { background: var(--bg); }
+.table-wrapper::-webkit-scrollbar-thumb { background: #c5cad6; border-radius: 3px; }
+
+#resultTable {
+  width: 100%;
+  border-collapse: collapse;
+  display: none;
+  min-width: 760px;
+  font-size: 12px;
+}
+#resultTable thead th {
+  background: var(--th-bg);
+  border-bottom: 2px solid var(--th-border);
+  color: var(--text-sub);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 9px 10px;
+  text-align: center;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.12s, color 0.12s;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+#resultTable thead th:hover { background: #e8ecf4; color: var(--primary); }
+#resultTable thead th:last-child { cursor: default; }
+#resultTable thead th:last-child:hover { background: var(--th-bg); color: var(--text-sub); }
+
+#resultTable tbody tr { border-bottom: 1px solid #edf0f5; }
+#resultTable tbody tr:nth-child(4n+3),
+#resultTable tbody tr:nth-child(4n+4) { background: var(--row-alt); }
+#resultTable tbody tr:hover { background: var(--row-hover); }
+#resultTable tbody td {
+  padding: 8px 10px;
+  text-align: center;
+  color: var(--text);
+  white-space: nowrap;
+}
+#resultTable tbody td.priceCell {
+  text-align: right;
+  font-feature-settings: "tnum";
+  color: var(--text-sub);
+}
+
+/* detail row */
+.detailsRow { display: none; background: #f5f7fc !important; }
+.detailsRow td {
+  font-size: 11px !important;
+  color: var(--text-sub) !important;
+  text-align: left !important;
+  padding: 7px 18px !important;
+  white-space: normal !important;
+  border-top: 1px dashed var(--border) !important;
+}
+.detailToggle {
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 8px;
+  border: 1px solid #c5d5f0;
+  border-radius: 3px;
+  display: inline-block;
+  background: #f0f6ff;
+  transition: background 0.12s;
+}
+.detailToggle:hover { background: #dceeff; border-color: var(--accent); }
+
+/* =============================================
+   Pagination
+============================================= */
+.pagination-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 0 4px;
+}
+.pagination-wrap button {
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--text-sub);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  padding: 5px 14px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+}
+.pagination-wrap button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.pagination-wrap button:disabled { opacity: 0.35; cursor: not-allowed; }
+.pagination-wrap .page-info { font-size: 11px; color: var(--text-muted); padding: 0 8px; }
+
+/* sort hint */
+.sort-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 5px 0 6px;
+  text-align: right;
+}
+
+/* =============================================
+   Bottom count bar
+============================================= */
+.count-bar {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 6px 0;
+  border-top: 1px solid var(--border);
+  margin-top: 0;
+}
+.count-bar strong { color: var(--accent); }
+
+/* =============================================
+   Mobile
+============================================= */
+@media (max-width: 600px) {
+  .sys-header { padding: 0 14px; }
+  .sys-title span { display: none; }
+  .page-wrap { padding: 12px 12px 40px; }
+  .card-body { padding: 14px 14px; }
+  .form-grid { grid-template-columns: 85px 1fr; row-gap: 8px; }
+  .form-label { font-size: 11px; padding-right: 10px; }
+
+  #mainCarat { display: none; }
+  #caratSpinnerMobile { display: flex; align-items: center; gap: 4px; }
+  .spin { display: flex; align-items: center; gap: 3px; }
+  .spin select {
+    width: 48px; font-size: 12px; padding: 5px 3px;
+    -webkit-appearance: none; appearance: none; background-image: none;
+    text-align: center; height: 32px;
+  }
+  .spin .dot { font-size: 16px; font-weight: 700; color: var(--text-sub); }
+
+  .summary-card { max-width: 100%; }
+  .action-row { flex-direction: row; }
+  .btn-search { min-width: 100px; }
+}
+</style>
+</head>
+<body>
+
+<!-- System Header -->
+<header class="sys-header">
+  <div class="sys-header-left">
+    <div class="sys-logo">💎</div>
+    <div class="sys-title">
+      ダイヤ相場検索
+      <span>Diamond Market Reference System</span>
+    </div>
+  </div>
+  <div class="sys-badge">INTERNAL USE</div>
+</header>
+
+<!-- Notice -->
+<div class="notice">
+  <span class="notice-icon">📢</span>
+  <span class="notice-title">更新情報</span>
+  <span class="notice-text">2026年02月20日　NJ大会 2月前半分のデータを追加</span>
+</div>
+
+<!-- Page -->
+<div class="page-wrap">
+
+  <!-- Search card -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon">🔍</div>
+      <span class="card-title">検索条件</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+
+        <!-- Carat -->
+        <div class="form-label">カラット（ct）</div>
+        <div class="form-control">
+          <div id="caratSetRow">
+            <input type="text" id="mainCarat" placeholder="例: 0.345" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
+            <div id="caratSpinnerMobile">
+              <div class="spin">
+                <select id="spinInt"></select>
+                <span class="dot">.</span>
+                <select id="spinDec"></select>
+              </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" id="setCarat">範囲をセット</button>
+            <input type="text" id="minCarat" placeholder="最小" inputmode="decimal">
+            <span class="range-sep">〜</span>
+            <input type="text" id="maxCarat" placeholder="最大" inputmode="decimal">
+          </div>
+        </div>
+
+        <!-- Date -->
+        <div class="form-label">開催日</div>
+        <div class="form-control">
+          <select id="dateSelect" style="min-width:160px;"><option value="">すべて</option></select>
+          <span class="field-hint">以降で検索</span>
+        </div>
+
+        <div class="form-row-divider"></div>
+
+        <!-- Color -->
+        <div class="form-label">カラー</div>
+        <div class="form-control" style="flex-direction:column; align-items:flex-start;">
+          <div class="color-toggle">
+            <button class="color-toggle-btn active" data-type="alpha">A to Z</button>
+            <button class="color-toggle-btn" data-type="fancy">FANCY</button>
+            <button class="color-toggle-btn" data-type="all">すべて</button>
+          </div>
+          <div class="color-forms-wrap">
+            <div class="alpha-form">
+              <select id="fromColor" style="min-width:90px;"><option value="">From</option></select>
+              <span class="range-sep">〜</span>
+              <select id="toColor" style="min-width:90px;"><option value="">To</option></select>
+              <label class="check-label faint-check">
+                <input type="checkbox" id="faintCheck"> FAINT
+              </label>
+            </div>
+            <div class="fancy-form" style="display:none;">
+              <select id="fancyGradeSelect" style="min-width:140px;"><option value="">Grade: すべて</option></select>
+              <select id="fancyToneSelect" style="min-width:110px;"><option value="">Tone: すべて</option></select>
+              <label class="check-label treated-check">
+                <input type="checkbox" id="treatedCheck"> TREATED
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clarity -->
+        <div class="form-label">クラリティ</div>
+        <div class="form-control">
+          <select id="minClaritySelect" onchange="syncToValue('minClaritySelect','maxClaritySelect')" style="min-width:80px;">
+            <option value="">すべて</option>
+            <option value="FL">FL</option><option value="IF">IF</option>
+            <option value="VVS1">VVS1</option><option value="VVS2">VVS2</option>
+            <option value="VS1">VS1</option><option value="VS2">VS2</option>
+            <option value="SI1">SI1</option><option value="SI2">SI2</option>
+            <option value="I1">I1</option><option value="I2">I2</option><option value="I3">I3</option>
+          </select>
+          <span class="range-sep">〜</span>
+          <select id="maxClaritySelect" style="min-width:80px;">
+            <option value="">すべて</option>
+            <option value="FL">FL</option><option value="IF">IF</option>
+            <option value="VVS1">VVS1</option><option value="VVS2">VVS2</option>
+            <option value="VS1">VS1</option><option value="VS2">VS2</option>
+            <option value="SI1">SI1</option><option value="SI2">SI2</option>
+            <option value="I1">I1</option><option value="I2">I2</option><option value="I3">I3</option>
+          </select>
+        </div>
+
+        <!-- Cut -->
+        <div class="form-label">カット</div>
+        <div class="form-control">
+          <select id="minCutSelect" onchange="syncToValue('minCutSelect','maxCutSelect')" style="min-width:110px;">
+            <option value="">すべて</option>
+            <option value="EX">EXCELLENT</option><option value="VG">VERY GOOD</option>
+            <option value="GD">GOOD</option><option value="FR">FAIR</option><option value="PR">POOR</option>
+          </select>
+          <span class="range-sep">〜</span>
+          <select id="maxCutSelect" style="min-width:110px;">
+            <option value="">すべて</option>
+            <option value="EX">EXCELLENT</option><option value="VG">VERY GOOD</option>
+            <option value="GD">GOOD</option><option value="FR">FAIR</option><option value="PR">POOR</option>
+          </select>
+          <label class="check-label">
+            <input type="checkbox" id="hcCheck"> H&amp;C
+          </label>
+        </div>
+
+        <!-- Fluorescence -->
+        <div class="form-label">蛍光性</div>
+        <div class="form-control">
+          <select id="minFluoSelect" onchange="syncToValue('minFluoSelect','maxFluoSelect')" style="min-width:80px;">
+            <option value="">すべて</option>
+            <option value="N">N</option><option value="F">F</option>
+            <option value="MB">MB</option><option value="SB">SB</option><option value="VSB">VSB</option>
+          </select>
+          <span class="range-sep">〜</span>
+          <select id="maxFluoSelect" style="min-width:80px;">
+            <option value="">すべて</option>
+            <option value="N">N</option><option value="F">F</option>
+            <option value="MB">MB</option><option value="SB">SB</option><option value="VSB">VSB</option>
+          </select>
+        </div>
+
+        <!-- Shape -->
+        <div class="form-label">形状</div>
+        <div class="form-control">
+          <select id="shapeSelect" style="min-width:200px;"><option value="">すべて</option></select>
+        </div>
+
+        <div class="form-row-divider"></div>
+
+        <!-- Keyword -->
+        <div class="form-label">フリーワード</div>
+        <div class="form-control">
+          <input type="text" id="keyword" placeholder="例: D VS1 GD　スペース区切りでAND検索" style="min-width:280px; flex:1; max-width:400px;">
+        </div>
+
+      </div><!-- /form-grid -->
+
+      <div class="action-row">
+        <button id="searchButton" class="btn btn-primary btn-search">🔍　検　索</button>
+        <button id="clearButton" class="btn btn-secondary">クリア</button>
+      </div>
+    </div>
+  </div><!-- /card -->
+
+  <!-- Loading -->
+  <div id="loadingSpinner" class="loading-wrap">
+    <div class="spinner"></div>
+    <span class="loading-text">検索中...</span>
+  </div>
+
+  <!-- Summary card -->
+  <div class="summary-card">
+    <div class="summary-card-header">📊 買取参考価格</div>
+    <table class="summary-table">
+      <tr>
+        <td class="s-label">検索件数</td>
+        <td class="s-value"><strong id="summaryCount">0</strong><span class="s-unit">件</span></td>
+      </tr>
+      <tr>
+        <td class="s-label">平均ガイ単価</td>
+        <td class="s-value"><strong id="summaryAvgPrice">0</strong><span class="s-unit">円</span></td>
+      </tr>
+      <tr>
+        <td class="s-label">掛け率</td>
+        <td class="s-value">
+          <select id="rateSelect">
+            <option value="0.5">5掛け</option>
+            <option value="0.6">6掛け</option>
+            <option value="0.7">7掛け</option>
+            <option value="0.8" selected>8掛け</option>
+            <option value="0.9">9掛け</option>
+          </select>
+        </td>
+      </tr>
+      <tr class="summary-divider"><td colspan="2"></td></tr>
+      <tr>
+        <td class="s-label">ガイ単価</td>
+        <td class="s-value"><strong id="summaryUnitPrice">0</strong><span class="s-unit">円</span></td>
+      </tr>
+      <tr>
+        <td class="s-label">カラット</td>
+        <td class="s-value"><strong id="summaryCarat">0.000</strong><span class="s-unit">ct</span></td>
+      </tr>
+      <tr class="summary-total">
+        <td class="s-label">買取参考価格</td>
+        <td class="s-value"><strong id="summaryTotalPrice">0</strong><span class="s-unit">円</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Results -->
+  <div id="resultSection" style="display:none;">
+    <div class="result-header">
+      <div id="resultCountTop" class="result-count"></div>
+      <div class="sort-hint">▲ 列ヘッダーをクリックして並び替え</div>
+    </div>
+    <div class="table-wrapper">
+      <table id="resultTable">
+        <thead>
+          <tr>
+            <th>日付</th>
+            <th>カラー</th>
+            <th>クラリティ</th>
+            <th>カット</th>
+            <th>蛍光性</th>
+            <th>形状</th>
+            <th>カラット</th>
+            <th>ガイ単価</th>
+            <th>金額</th>
+            <th>備考</th>
+            <th>詳細</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+    </div>
+    <div id="resultCountBottom" class="count-bar"></div>
+    <div id="paginationArea" class="pagination-wrap"></div>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<script>
+/* =============================================
+   Constants
+============================================= */
+const ALPHA_COLOR_ZONES = [
+  { label:"D",       key:"D",       rank:100 },
+  { label:"E",       key:"E",       rank:101 },
+  { label:"F",       key:"F",       rank:102 },
+  { label:"G",       key:"G",       rank:103 },
+  { label:"H",       key:"H",       rank:104 },
+  { label:"I",       key:"I",       rank:105 },
+  { label:"J",       key:"J",       rank:106 },
+  { label:"K",       key:"K",       rank:107 },
+  { label:"L",       key:"L",       rank:108 },
+  { label:"M",       key:"M",       rank:109 },
+  { label:"N",       key:"N",       rank:110 },
+  { label:"UNDER N", key:"UNDER_N", rank:401 },
+  { label:"UNDER S", key:"UNDER_S", rank:402 },
+  { label:"O～T",    key:"O_T",     rank:500 },
+  { label:"U～Z",    key:"U_Z",     rank:600 }
+];
+
+const CLARITY_ORDER    = ["FL","IF","VVS1","VVS2","VS1","VS2","SI1","SI2","I1","I2","I3"];
+const CUT_RANK         = { EX:1, VG:2, GD:3, FR:4, PR:5 };
+const FLUO_ORDER       = ["N","F","MB","SB","VSB"];
+const CARAT_THRESHOLDS = [0,0.1,0.2,0.25,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.5,2,3,5];
+
+const fancyGrades = ["FAINT","VERY LIGHT","LIGHT","FANCY LIGHT","FANCY","FANCY INTENSE","FANCY VIVID","FANCY DEEP","FANCY DARK"];
+const fancyTones  = ["YELLOW","PINK","BLUE","GREEN","BROWN","ORANGE","PURPLE","RED","GRAY","BLACK"];
+
+const shapeMap = {
+  RD:"ラウンドブリリアント", PS:"ペアシェイプ", HS:"ハートシェイプ",
+  OV:"オーバル", EM:"エメラルド", MQ:"マーキス", SQ:"スクエア",
+  FS:"ファンシー", PRI:"プリンセス", BG:"バゲット", CUS:"クッション",
+  BUT:"バタフライ", TRI:"トリリアント", FA:"ファンシーカット", RCT:"レクタンギュラー"
+};
+
+/* =============================================
+   Helpers
+============================================= */
+function syncToValue(fromId, toId) {
+  document.getElementById(toId).value = document.getElementById(fromId).value;
+}
+
+function getCutGrade(value) {
+  if (!value) return null;
+  const str = value.toUpperCase();
+  const hasHC = /H&C|HEART/.test(str);
+  const parts = str.includes("/") ? str.split("/") : str.split(" ");
+  const grade = parts.find(p =>
+    p.includes("EX")||p.includes("VG")||p.includes("GD")||p==="G"||
+    p.includes("FR")||p==="FA"||p==="PO"||p.includes("PR")
+  );
+  if (!grade) return null;
+  let base;
+  if      (grade.includes("EX"))             base = "EX";
+  else if (grade.includes("VG"))             base = "VG";
+  else if (grade.includes("GD")||grade==="G") base = "GD";
+  else if (grade.includes("FR")||grade==="FA") base = "FR";
+  else if (grade.includes("PR")||grade==="PO") base = "PR";
+  else base = null;
+  return { base, hasHC };
+}
+
+function getAlphaZoneKey(colorText) {
+  if (!colorText) return null;
+  const u = colorText.toUpperCase().trim();
+  if (u.startsWith("UNDER N")) return "UNDER_N";
+  if (u.startsWith("UNDER S")) return "UNDER_S";
+  const m = u.match(/^[D-Z]/);
+  if (!m) return null;
+  const ch = m[0];
+  if ("DEFGHIJKLMN".includes(ch)) return ch;
+  if ("OPQRST".includes(ch)) return "O_T";
+  if ("UVWXYZ".includes(ch)) return "U_Z";
+  return null;
+}
+
+function setCountEl(el, count, page, totalPages) {
+  if (!el) return;
+  if (count === 0) { el.innerHTML = "⚠ 該当するデータはありません"; return; }
+  el.innerHTML = `検索結果：<strong>${count.toLocaleString()}</strong> 件（${page} / ${totalPages} ページ）`;
+}
+
+/* =============================================
+   Data load
+============================================= */
+let diamondData = [];
+async function populateFilters() {
+  const resp = await fetch("https://raw.githubusercontent.com/sgc-gold/sgc/main/data/diamonds.json");
+  diamondData = await resp.json();
+
+  const dates = new Set(), shapes = new Set();
+  diamondData.forEach(d => {
+    if (d.date)  dates.add(d.date.split(" ")[0]);
+    if (d.shape) shapes.add(d.shape);
+  });
+
+  const addOpt = (sel, val, label) => sel.appendChild(new Option(label || val, val));
+
+  const dateSel = document.getElementById("dateSelect");
+  Array.from(dates).sort((a,b) => new Date(b)-new Date(a)).forEach(d => addOpt(dateSel, d));
+  dateSel.selectedIndex = 1;
+
+  const fromColorSel = document.getElementById("fromColor");
+  const toColorSel   = document.getElementById("toColor");
+  ALPHA_COLOR_ZONES.forEach(z => { addOpt(fromColorSel, z.key, z.label); addOpt(toColorSel, z.key, z.label); });
+
+  fancyGrades.forEach(g => addOpt(document.getElementById("fancyGradeSelect"), g));
+  fancyTones.forEach(t  => addOpt(document.getElementById("fancyToneSelect"),  t));
+
+  populateShapeSelect(Array.from(shapes));
+}
+populateFilters();
+
+function populateShapeSelect(shapeCodes) {
+  const sel = document.getElementById("shapeSelect");
+  sel.innerHTML = "";
+  sel.appendChild(new Option("すべて", ""));
+  sel.appendChild(new Option("↳ ラウンドブリリアント", "RD"));
+  sel.appendChild(new Option("↳ ラウンド以外", "NON_ROUND"));
+  [...new Set(shapeCodes.filter(s => s && s !== "RD"))].sort().forEach(code => {
+    sel.appendChild(new Option(`　↳ ${shapeMap[code] || code}`, code));
+  });
+  sel.value = "";
+}
+
+/* =============================================
+   Color toggle
+============================================= */
+document.querySelectorAll('.color-toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.color-toggle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const type = btn.dataset.type;
+    document.querySelector('.alpha-form').style.display = (type === 'alpha') ? 'flex' : 'none';
+    document.querySelector('.fancy-form').style.display = (type === 'fancy') ? 'flex' : 'none';
+    document.getElementById('treatedCheck').checked = false;
+    document.getElementById('faintCheck').checked   = false;
+  });
+});
+window.addEventListener("DOMContentLoaded", () => {
+  document.querySelector('.alpha-form').style.display = 'flex';
+  document.querySelector('.fancy-form').style.display = 'none';
+});
+document.getElementById('fromColor').addEventListener('change', function() {
+  document.getElementById('toColor').value = this.value;
+});
+
+/* =============================================
+   Carat set
+============================================= */
+document.getElementById("setCarat").addEventListener("click", () => {
+  const c = parseFloat(document.getElementById("mainCarat").value);
+  if (isNaN(c)) return alert("数値を入力してください");
+  let min = 0, max = null;
+  for (let i = 0; i < CARAT_THRESHOLDS.length - 1; i++) {
+    if (c >= CARAT_THRESHOLDS[i] && c < CARAT_THRESHOLDS[i+1]) {
+      min = CARAT_THRESHOLDS[i]; max = CARAT_THRESHOLDS[i+1] - 0.001; break;
+    }
+  }
+  if (c >= CARAT_THRESHOLDS[CARAT_THRESHOLDS.length - 1]) {
+    min = CARAT_THRESHOLDS[CARAT_THRESHOLDS.length - 1]; max = null;
+  }
+  document.getElementById("minCarat").value = min.toFixed(3);
+  document.getElementById("maxCarat").value = max !== null ? max.toFixed(3) : "";
+});
+
+/* =============================================
+   Search
+============================================= */
+document.getElementById("searchButton").addEventListener("click", runSearch);
+
+function runSearch() {
+  document.getElementById("loadingSpinner").style.display = "flex";
+  setTimeout(() => {
+    const minC      = parseFloat(document.getElementById("minCarat").value) || 0;
+    const maxC      = parseFloat(document.getElementById("maxCarat").value) || 999;
+    const dateVal   = document.getElementById("dateSelect").value;
+    const shapeVal  = document.getElementById("shapeSelect").value;
+    const keyword   = document.getElementById("keyword").value.trim().toLowerCase();
+    const fromColorVal = document.getElementById("fromColor").value;
+    const toColorVal   = document.getElementById("toColor").value;
+    const fancyGrade   = document.getElementById("fancyGradeSelect").value;
+    const fancyTone    = document.getElementById("fancyToneSelect").value;
+    const treatedOnly  = document.getElementById("treatedCheck").checked;
+    const faintOnly    = document.getElementById("faintCheck").checked;
+    const hcChecked    = document.getElementById("hcCheck").checked;
+    const minClarity   = document.getElementById("minClaritySelect").value;
+    const maxClarity   = document.getElementById("maxClaritySelect").value;
+    const minCut       = document.getElementById("minCutSelect").value;
+    const maxCut       = document.getElementById("maxCutSelect").value;
+    const minFluo      = document.getElementById("minFluoSelect").value;
+    const maxFluo      = document.getElementById("maxFluoSelect").value;
+    const activeColorType = document.querySelector('.color-toggle-btn.active')?.dataset.type || "all";
+
+    const results = diamondData.filter(d => {
+      const c = parseFloat(d.carat) || 0;
+      if (c < minC || c > maxC) return false;
+      if (dateVal && d.date.split(" ")[0] < dateVal) return false;
+      if (shapeVal) {
+        if (shapeVal === "NON_ROUND") { if (d.shape === "RD") return false; }
+        else { if (d.shape !== shapeVal) return false; }
+      }
+      if (minClarity || maxClarity) {
+        const ci = CLARITY_ORDER.indexOf(d.clarity);
+        const lo = minClarity ? CLARITY_ORDER.indexOf(minClarity) : -1;
+        const hi = maxClarity ? CLARITY_ORDER.indexOf(maxClarity) : CLARITY_ORDER.length;
+        if (lo !== -1 && ci < lo) return false;
+        if (hi !== CLARITY_ORDER.length && ci > hi) return false;
+      }
+      if (minCut || maxCut) {
+        const res = getCutGrade(d.cut);
+        if (!res || !res.base) return false;
+        if (minCut && CUT_RANK[res.base] < CUT_RANK[minCut]) return false;
+        if (maxCut && CUT_RANK[res.base] > CUT_RANK[maxCut]) return false;
+      }
+      if (minFluo || maxFluo) {
+        const fi = FLUO_ORDER.indexOf(d.fluorescence);
+        const lo = minFluo ? FLUO_ORDER.indexOf(minFluo) : -1;
+        const hi = maxFluo ? FLUO_ORDER.indexOf(maxFluo) : FLUO_ORDER.length;
+        if (fi === -1) return false;
+        if (lo !== -1 && fi < lo) return false;
+        if (hi !== FLUO_ORDER.length && fi > hi) return false;
+      }
+      if (keyword) {
+        const fields = [d.carat,d.color,d.clarity,d.cut,d.fluorescence,d.notes].join(" ").toLowerCase();
+        if (!keyword.split(" ").every(k => fields.includes(k))) return false;
+      }
+      const colorUpper = (d.color || "").toUpperCase();
+      const isFancy = d.colorType === "FANCY";
+      const isAlpha = d.colorType === "ALPHA";
+      if (activeColorType === "alpha" && !isAlpha) return false;
+      if (activeColorType === "fancy" && !isFancy) return false;
+      if (isAlpha && (fromColorVal || toColorVal)) {
+        const itemKey = getAlphaZoneKey(colorUpper);
+        const order   = ALPHA_COLOR_ZONES.map(z => z.key);
+        const fromIdx = fromColorVal ? order.indexOf(fromColorVal) : 0;
+        const toIdx   = toColorVal   ? order.indexOf(toColorVal)   : order.length - 1;
+        const itemIdx = order.indexOf(itemKey);
+        if (itemIdx === -1 || itemIdx < fromIdx || itemIdx > toIdx) return false;
+      }
+      if (isFancy) {
+        if (fancyGrade && !colorUpper.includes(fancyGrade.toUpperCase())) return false;
+        if (fancyTone  && !colorUpper.includes(fancyTone.toUpperCase()))  return false;
+      }
+      if (treatedOnly && !colorUpper.includes("TREATED")) return false;
+      if (faintOnly   && !colorUpper.includes("FAINT"))   return false;
+      if (hcChecked) {
+        const cu = (d.cut || "").toUpperCase();
+        if (!(cu.includes("H&C") || cu.includes("HC"))) return false;
+      }
+      return true;
+    });
+
+    results.sort((a,b) => (Number(a.NO)||0) - (Number(b.NO)||0));
+    window.lastSearchResults = results;
+
+    document.getElementById("resultSection").style.display = "block";
+    document.getElementById("resultTable").style.display   = "table";
+
+    const perPage    = 100;
+    let currentPage  = 1;
+    const totalPages = Math.ceil(results.length / perPage) || 1;
+
+    function renderPage(page) {
+      const tbody = document.getElementById("resultBody");
+      tbody.innerHTML = "";
+      const start = (page - 1) * perPage;
+      window.lastSearchResults.slice(start, start + perPage).forEach(d => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${d.date.split(" ")[0]||""}</td>
+          <td>${d.color||""}</td>
+          <td>${d.clarity||""}</td>
+          <td>${d.cut||""}</td>
+          <td>${d.fluorescence||""}</td>
+          <td>${d.shape||""}</td>
+          <td>${(+d.carat).toFixed(3)||""}</td>
+          <td class="priceCell">${(+d.pricePerCarat).toLocaleString()||""}</td>
+          <td class="priceCell">${Math.floor((+d.pricePerCarat)*(+d.carat)).toLocaleString()||""}</td>
+          <td>${d.notes||""}</td>
+          <td><span class="detailToggle">詳細</span></td>
+        `;
+        tbody.appendChild(row);
+        const detailRow = document.createElement("tr");
+        detailRow.classList.add("detailsRow");
+        let unevenRate = "", heightRatio = "";
+        if (d.diameterMin && d.diameterMax) {
+          const mn = parseFloat(d.diameterMin), mx = parseFloat(d.diameterMax);
+          const avg = (mn + mx) / 2;
+          unevenRate = (((mx - mn) / avg) * 100).toFixed(2) + "%";
+          if (d.height) heightRatio = ((parseFloat(d.height) / avg) * 100).toFixed(2) + "%";
+        }
+        detailRow.innerHTML = `<td colspan="11">直径：${d.diameterMin||"—"}–${d.diameterMax||"—"} mm（不正円率：${unevenRate||"—"}）　高さ：${d.height||"—"} mm（全高比：${heightRatio||"—"}）</td>`;
+        tbody.appendChild(detailRow);
+        row.querySelector(".detailToggle").addEventListener("click", () => {
+          detailRow.style.display = detailRow.style.display === "table-row" ? "none" : "table-row";
+        });
+      });
+      const n = window.lastSearchResults.length;
+      setCountEl(document.getElementById("resultCountTop"),    n, page, totalPages);
+      setCountEl(document.getElementById("resultCountBottom"), n, page, totalPages);
+    }
+
+    function updatePagination() {
+      const wrap = document.getElementById("paginationArea");
+      wrap.innerHTML = "";
+      if (totalPages <= 1) return;
+      const prev = document.createElement("button");
+      prev.textContent = "← 前へ"; prev.disabled = currentPage === 1;
+      prev.onclick = () => { currentPage--; renderPage(currentPage); updatePagination(); };
+      const next = document.createElement("button");
+      next.textContent = "次へ →"; next.disabled = currentPage === totalPages;
+      next.onclick = () => { currentPage++; renderPage(currentPage); updatePagination(); };
+      const info = document.createElement("span");
+      info.className = "page-info";
+      info.textContent = `${currentPage} / ${totalPages}`;
+      wrap.append(prev, info, next);
+    }
+
+    let sortState = {};
+    function enableSort() {
+      document.querySelectorAll("#resultTable thead th").forEach((th, idx) => {
+        if (idx === 10) return;
+        th.addEventListener("click", () => {
+          const dir = sortState[idx] === "asc" ? "desc" : "asc";
+          sortState = { [idx]: dir };
+          window.lastSearchResults.sort((a, b) => {
+            let r = 0;
+            if (idx === 0) { r = (Number(a.NO)||0) - (Number(b.NO)||0); }
+            else {
+              const va = colVal(a, idx), vb = colVal(b, idx);
+              if (va == null) return 1; if (vb == null) return -1;
+              r = (!isNaN(va) && !isNaN(vb)) ? va - vb : String(va).localeCompare(String(vb), "ja");
+            }
+            return dir === "desc" ? -r : r;
+          });
+          currentPage = 1; renderPage(currentPage); updatePagination();
+          document.querySelectorAll("#resultTable thead th").forEach((h, i) => {
+            h.textContent = h.textContent.replace(/ [▲▼]$/, "");
+            if (i === idx) h.textContent += dir === "asc" ? " ▲" : " ▼";
+          });
+        });
+      });
+    }
+
+    function colVal(row, idx) {
+      switch (idx) {
+        case 0: return row.date;
+        case 1: return row.color || "";
+        case 2: return CLARITY_ORDER.indexOf(row.clarity);
+        case 3: { const b = getCutGrade(row.cut)?.base; return b ? CUT_RANK[b] : 999; }
+        case 4: { const fi = FLUO_ORDER.indexOf(row.fluorescence); return fi === -1 ? 999 : fi; }
+        case 5: return row.shape || "";
+        case 6: return parseFloat(row.carat) || 0;
+        case 7: return parseFloat(row.pricePerCarat) || 0;
+        case 8: return (parseFloat(row.pricePerCarat)||0) * (parseFloat(row.carat)||0);
+        case 9: return row.notes || "";
+        default: return "";
+      }
+    }
+
+    renderPage(1); updatePagination(); enableSort();
+    updateSummary(results);
+    document.getElementById("loadingSpinner").style.display = "none";
+  }, 80);
+}
+
+/* =============================================
+   Clear
+============================================= */
+document.getElementById("clearButton").addEventListener("click", () => {
+  ["minCarat","maxCarat","mainCarat","fromColor","toColor",
+   "fancyGradeSelect","fancyToneSelect","minCutSelect","maxCutSelect",
+   "minClaritySelect","maxClaritySelect","minFluoSelect","maxFluoSelect",
+   "shapeSelect","keyword"
+  ].forEach(id => { document.getElementById(id).value = ""; });
+  const si = document.getElementById("spinInt"), sd = document.getElementById("spinDec");
+  if (si && sd) { si.value = "0"; sd.value = "50"; document.getElementById("mainCarat").value = "0.50"; }
+  ["hcCheck","treatedCheck","faintCheck"].forEach(id => { document.getElementById(id).checked = false; });
+  document.getElementById("resultSection").style.display = "none";
+  document.getElementById("resultTable").style.display   = "none";
+  document.getElementById("resultBody").innerHTML        = "";
+  document.getElementById("paginationArea").innerHTML    = "";
+  document.getElementById("summaryCount").textContent     = "0";
+  document.getElementById("summaryAvgPrice").textContent  = "0";
+  document.getElementById("summaryUnitPrice").textContent = "0";
+  document.getElementById("summaryCarat").textContent     = "0.000";
+  document.getElementById("summaryTotalPrice").textContent= "0";
+  document.getElementById("rateSelect").value             = "0.8";
+  window.lastSearchResults = [];
+});
+
+/* =============================================
+   Summary
+============================================= */
+function updateSummary(results) {
+  const carat = parseFloat(document.getElementById("mainCarat").value) || 0;
+  const rate  = parseFloat(document.getElementById("rateSelect").value) || 1;
+  const count = results.length;
+  const avg   = count > 0 ? Math.round(results.reduce((s,d) => s + (parseFloat(d.pricePerCarat)||0), 0) / count) : 0;
+  const unit  = Math.round(avg * rate);
+  const total = Math.round(unit * carat);
+  document.getElementById("summaryCount").textContent      = count.toLocaleString();
+  document.getElementById("summaryAvgPrice").textContent   = avg.toLocaleString();
+  document.getElementById("summaryUnitPrice").textContent  = unit.toLocaleString();
+  document.getElementById("summaryCarat").textContent      = carat.toFixed(3);
+  document.getElementById("summaryTotalPrice").textContent = total.toLocaleString();
+}
+document.getElementById("rateSelect").addEventListener("change", () => {
+  updateSummary(window.lastSearchResults || []);
+});
+
+/* =============================================
+   Mobile spinner
+============================================= */
+(function() {
+  const si = document.getElementById("spinInt"), sd = document.getElementById("spinDec"), mc = document.getElementById("mainCarat");
+  if (!si || !sd || !mc) return;
+  for (let i = 0; i <= 10; i++) si.appendChild(new Option(i, i));
+  for (let i = 1; i <= 99; i++) { const v = String(i).padStart(2,"0"); sd.appendChild(new Option(v,v)); }
+  si.value = "0"; sd.value = "50"; mc.value = "0.50";
+  const sync = () => { mc.value = si.value + "." + sd.value; };
+  si.addEventListener("change", sync); sd.addEventListener("change", sync);
+})();
+</script>
+</body>
+</html>
