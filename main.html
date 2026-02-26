@@ -26,12 +26,14 @@
   --blue:     #1A5A9A;
 }
 
-html { background: var(--cream); }
+html { background: var(--cream); height: 100%; }
 body {
   font-family: 'DM Sans', sans-serif;
   background: var(--cream);
   color: var(--ink);
-  min-height: 100vh;
+  /* Scroll inside the iframe — do NOT use min-height:100vh */
+  overflow-y: auto;
+  overflow-x: hidden;
   padding-bottom: 40px;
 }
 
