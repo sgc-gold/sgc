@@ -2,254 +2,616 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>スケジュール</title>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.js"></script>
 <style>
-  html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    font-family: "Noto Sans JP", sans-serif;
-    background: #1c1c1c;
-    color: #fff;
-  }
-  body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  .page-header {
-    background: linear-gradient(90deg, #b8860b, #ffd700);
-    color: #1c1c1c;
-    text-align: center;
-    padding: 15px;
-    font-size: 1rem;
-    font-weight: bold;
-    letter-spacing: 1px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-  }
+:root {
+  --green:     #1A3628;
+  --green-lt:  #254D38;
+  --green-dk:  #0E1F17;
+  --green-bg:  #0A140D;
+  --gold:      #C09A50;
+  --gold-lt:   #E8D49A;
+  --gold-dk:   #8A6A28;
+  --cream:     #F7F3EB;
+  --white:     #FFFFFF;
+  --ink:       #1C1A16;
+  --border:    rgba(192,154,80,0.18);
+  --border2:   rgba(192,154,80,0.32);
+  --shadow:    0 4px 24px rgba(0,0,0,0.4);
+}
 
-  .calendar-container {
-    flex-grow: 1;
-    max-width: 95%;
-    margin: 15px auto;
-    background: #2c2c2c;
-    padding: 10px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    height: 129%;
-  }
+html, body {
+  height: 100%;
+  margin: 0; padding: 0;
+  background: var(--green-bg);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+}
 
-  /* FullCalendar テキスト系 */
-  .fc .fc-col-header-cell-cushion {
-    color: #ffd700;
-    font-weight: bold;
-    font-size: 0.75rem;
-  }
-  .fc .fc-daygrid-day-number {
-    color: #fff;
-    font-size: 0.7rem;
-  }
+/* ─── Grain ─── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.5;
+}
 
-  /* ===== カテゴリ別カラー ===== */
-  .category-大黄金展 {
-    background: linear-gradient(90deg, #000000, #b8860b) !important;
-    border: 1px solid #ffd700 !important;
-    color: #fff !important;
-    font-weight: bold;
-  }
+/* ─── Header ─── */
+.page-header {
+  position: relative; z-index: 2;
+  background: var(--green-dk);
+  border-bottom: 1px solid rgba(192,154,80,0.15);
+  padding: 24px 20px 20px;
+  text-align: center;
+}
+.page-header::after {
+  content: '';
+  position: absolute; bottom: -1px; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--gold-dk) 20%, var(--gold) 50%, var(--gold-dk) 80%, transparent 100%);
+}
+.header-eyebrow {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.68rem;
+  letter-spacing: 0.3em;
+  color: rgba(200,160,80,0.5);
+  margin-bottom: 5px;
+}
+.header-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.12em;
+}
+.header-title span {
+  display: block;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 0.65rem;
+  color: var(--gold);
+  letter-spacing: 0.3em;
+  margin-top: 4px;
+}
+.header-orn { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 12px; }
+.header-orn::before, .header-orn::after { content: ''; flex: 1; max-width: 60px; height: 1px; background: linear-gradient(90deg, transparent, rgba(192,154,80,0.35)); }
+.header-orn::after { background: linear-gradient(90deg, rgba(192,154,80,0.35), transparent); }
+.orn-d { width: 4px; height: 4px; background: var(--gold); transform: rotate(45deg); }
 
-  .category-クルーズ {
-    background: linear-gradient(90deg, #003366, #00bfff) !important;
-    border: 1px solid #00bfff !important;
-    color: #fff !important;
-  }
+/* ─── Legend ─── */
+.legend-bar {
+  position: relative; z-index: 2;
+  background: var(--green);
+  border-bottom: 1px solid rgba(192,154,80,0.1);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.legend-bar::-webkit-scrollbar { display: none; }
+.legend-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.6);
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+}
+.legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
 
-  .category-特別催事 {
-    background: linear-gradient(90deg, #4b0000, #ffb347) !important;
-    border: 1px solid #ffb347 !important;
-    color: #fff !important;
-  }
+/* ─── Calendar container ─── */
+.calendar-wrap {
+  position: relative; z-index: 1;
+  padding: 16px 12px 24px;
+}
 
-  .category-出張販売 {
-    background: linear-gradient(90deg, #004d00, #00cc66) !important;
-    border: 1px solid #00cc66 !important;
-    color: #fff !important;
-  }
+/* ══════════════════════════════════════
+   FullCalendar Deep Override
+══════════════════════════════════════ */
 
-  /* イベント共通 */
-  .fc-event {
-    border-radius: 6px !important;
-    padding: 3px 5px !important;
-    font-size: 0.75rem;
-    transition: transform 0.2s ease;
-  }
+/* Toolbar */
+.fc .fc-toolbar {
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px !important;
+  padding: 0 4px;
+}
+.fc .fc-toolbar-title {
+  font-family: 'Shippori Mincho', serif !important;
+  font-size: clamp(1rem, 3.5vw, 1.4rem) !important;
+  font-weight: 600 !important;
+  color: var(--gold-lt) !important;
+  letter-spacing: 0.08em;
+}
+.fc .fc-button {
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 0.72rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.05em !important;
+  padding: 5px 12px !important;
+  height: 30px !important;
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(192,154,80,0.22) !important;
+  border-radius: 7px !important;
+  color: rgba(232,212,154,0.7) !important;
+  transition: background 0.18s, border-color 0.18s, color 0.18s !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+.fc .fc-button:hover {
+  background: rgba(192,154,80,0.12) !important;
+  border-color: rgba(192,154,80,0.45) !important;
+  color: var(--gold-lt) !important;
+}
+.fc .fc-button-active,
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background: rgba(192,154,80,0.18) !important;
+  border-color: rgba(192,154,80,0.5) !important;
+  color: var(--gold-lt) !important;
+}
+.fc .fc-button:focus { outline: none !important; box-shadow: none !important; }
+.fc .fc-today-button {
+  background: linear-gradient(135deg, var(--green-lt), var(--green)) !important;
+  border-color: rgba(192,154,80,0.35) !important;
+  color: var(--gold-lt) !important;
+}
 
-  .fc-event:hover {
-    transform: scale(1.05);
-    filter: brightness(1.2);
-  }
+/* Table / Grid */
+.fc .fc-scrollgrid {
+  border-color: rgba(192,154,80,0.12) !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+.fc .fc-scrollgrid td, .fc .fc-scrollgrid th {
+  border-color: rgba(192,154,80,0.1) !important;
+}
+.fc-theme-standard .fc-scrollgrid { border: 1px solid rgba(192,154,80,0.14) !important; }
 
-  /* モーダル */
-  .modal {
+/* Column headers (曜日) */
+.fc .fc-col-header-cell {
+  background: rgba(26,54,40,0.8) !important;
+  padding: 6px 0 !important;
+}
+.fc .fc-col-header-cell-cushion {
+  font-family: 'DM Mono', monospace !important;
+  font-size: 0.65rem !important;
+  font-weight: 500 !important;
+  color: rgba(192,154,80,0.7) !important;
+  letter-spacing: 0.12em !important;
+  text-decoration: none !important;
+  padding: 4px 6px !important;
+}
+
+/* Day cells */
+.fc .fc-daygrid-day {
+  background: rgba(10,20,13,0.6) !important;
+  transition: background 0.15s;
+}
+.fc .fc-daygrid-day:hover { background: rgba(26,54,40,0.5) !important; }
+.fc .fc-day-today {
+  background: rgba(192,154,80,0.07) !important;
+}
+.fc .fc-day-today .fc-daygrid-day-number {
+  background: var(--gold) !important;
+  color: var(--green-dk) !important;
+  border-radius: 50%;
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700 !important;
+}
+.fc .fc-daygrid-day-number {
+  font-family: 'DM Mono', monospace !important;
+  font-size: 0.68rem !important;
+  color: rgba(255,255,255,0.45) !important;
+  text-decoration: none !important;
+  padding: 4px 6px !important;
+}
+.fc .fc-day-sat .fc-daygrid-day-number { color: rgba(100,160,220,0.75) !important; }
+.fc .fc-day-sun .fc-daygrid-day-number { color: rgba(220,100,100,0.75) !important; }
+
+/* More link */
+.fc .fc-daygrid-more-link {
+  color: var(--gold) !important;
+  font-size: 0.65rem !important;
+}
+
+/* Popover */
+.fc .fc-popover {
+  background: #132d20 !important;
+  border: 1px solid rgba(192,154,80,0.3) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+}
+.fc .fc-popover-header {
+  background: rgba(26,54,40,0.9) !important;
+  color: var(--gold-lt) !important;
+  border-radius: 9px 9px 0 0 !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 0.75rem !important;
+  padding: 7px 10px !important;
+}
+.fc .fc-popover-close { color: rgba(192,154,80,0.6) !important; }
+
+/* Week/Day view time */
+.fc .fc-timegrid-slot-label-cushion,
+.fc .fc-timegrid-axis-cushion {
+  font-family: 'DM Mono', monospace !important;
+  font-size: 0.62rem !important;
+  color: rgba(192,154,80,0.4) !important;
+}
+.fc .fc-timegrid-slot { border-color: rgba(192,154,80,0.07) !important; }
+.fc .fc-timegrid-now-indicator-line { border-color: var(--gold) !important; }
+
+/* ══════════════════════════════════════
+   イベント スタイル
+══════════════════════════════════════ */
+.fc-event {
+  border-radius: 5px !important;
+  padding: 2px 5px !important;
+  font-size: 0.7rem !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: filter 0.15s, transform 0.15s !important;
+  border: none !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3) !important;
+}
+.fc-event:hover {
+  filter: brightness(1.18) !important;
+  transform: translateY(-1px) !important;
+}
+.fc-event .fc-event-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* カテゴリ別 */
+.category-大黄金展 {
+  background: linear-gradient(90deg, #1a0d00, #8A6A28, #C09A50) !important;
+  color: #fff !important;
+}
+.category-クルーズ {
+  background: linear-gradient(90deg, #002244, #005b99, #3399cc) !important;
+  color: #fff !important;
+}
+.category-特別催事 {
+  background: linear-gradient(90deg, #2d0a00, #8b2500, #d45500) !important;
+  color: #fff !important;
+}
+.category-出張販売 {
+  background: linear-gradient(90deg, #012a10, #1a6b35, #2e9e55) !important;
+  color: #fff !important;
+}
+
+/* ══════════════════════════════════════
+   モーダル（スライドアップ ドロワー）
+══════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 999;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.modal-overlay.show { opacity: 1; pointer-events: all; }
+
+.modal-drawer {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: #0f2219;
+  border-top: 1px solid rgba(192,154,80,0.3);
+  border-radius: 20px 20px 0 0;
+  padding: 0 0 32px;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.5);
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.32,0.72,0,1);
+  max-height: 75vh;
+  overflow-y: auto;
+}
+.modal-drawer.show { transform: translateY(0); }
+.modal-drawer::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dk) 25%, var(--gold) 50%, var(--gold-dk) 75%, transparent);
+}
+
+.drawer-handle {
+  display: flex; justify-content: center; padding: 12px 0 8px;
+}
+.drawer-handle-bar {
+  width: 36px; height: 4px;
+  background: rgba(192,154,80,0.3);
+  border-radius: 2px;
+}
+
+.drawer-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 4px 20px 12px;
+  border-bottom: 1px solid rgba(192,154,80,0.12);
+  gap: 12px;
+}
+.drawer-category-badge {
+  display: inline-block;
+  font-size: 0.58rem;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 100px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.badge-大黄金展  { background: rgba(192,154,80,0.2); color: var(--gold-lt); border: 1px solid rgba(192,154,80,0.35); }
+.badge-クルーズ  { background: rgba(0,100,180,0.2);  color: #7ac8f0;        border: 1px solid rgba(0,140,220,0.35); }
+.badge-特別催事  { background: rgba(180,60,0,0.2);   color: #f0a070;        border: 1px solid rgba(220,80,0,0.35); }
+.badge-出張販売  { background: rgba(0,120,60,0.2);   color: #70e0a0;        border: 1px solid rgba(0,160,80,0.35); }
+
+.drawer-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.35;
+  flex: 1;
+}
+.drawer-close {
+  background: none; border: none;
+  color: rgba(192,154,80,0.5);
+  cursor: pointer;
+  font-size: 1.4rem;
+  line-height: 1;
+  padding: 0 0 0 8px;
+  transition: color 0.18s;
+  flex-shrink: 0;
+}
+.drawer-close:hover { color: var(--gold); }
+
+.drawer-body {
+  padding: 16px 20px 0;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.drawer-field {
+  display: flex; gap: 12px; align-items: baseline;
+}
+.drawer-field-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold-dk);
+  min-width: 52px;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+.drawer-field-value {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.5;
+}
+.drawer-field-value.date {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--gold-lt);
+  letter-spacing: 0.04em;
+}
+
+/* Desktop: ポップオーバー型 */
+@media (min-width: 640px) {
+  .modal-drawer {
     position: absolute;
-    background: rgba(0,0,0,0.0); /* 背景は透明 */
-    z-index: 1000;
-    display: none;
+    bottom: auto; left: auto; right: auto;
+    border-radius: 14px;
+    border: 1px solid rgba(192,154,80,0.3);
+    width: 280px;
+    max-height: none;
+    transform: scale(0.92) translateY(-6px);
+    opacity: 0;
+    transition: transform 0.22s cubic-bezier(0.32,0.72,0,1), opacity 0.22s ease;
   }
+  .modal-drawer.show {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+  .modal-overlay { display: none; }
+  .drawer-handle { display: none; }
+  .drawer-body { padding-bottom: 16px; }
+}
 
-  .modal.show {
-    display: block;
-  }
-
-  .modal-content {
-    background: #2c2c2c;
-    padding: 15px;
-    border-radius: 10px;
-    width: 260px;
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    font-size: 0.8rem;
-  }
-  .close {
-    position: absolute;
-    top: 8px;
-    right: 12px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: bold;
-    color: #ffd700;
-  }
-
-  /* モバイル最適化 */
-  @media (max-width: 480px) {
-    .page-header { font-size: 1.1rem; padding: 10px; }
-    .calendar-container { padding: 5px; }
-    .fc { font-size: 0.5rem; }
-    .fc .fc-col-header-cell-cushion { font-size: 0.65rem; }
-    .fc .fc-toolbar-title { font-size: 1.0rem; }
-    .fc .fc-daygrid-day-number { font-size: 0.6rem; }
-    .modal-content { width: 90%; padding: 10px; font-size: 0.75rem; }
-  }
+@media (max-width: 480px) {
+  .fc .fc-toolbar { gap: 4px; }
+  .fc .fc-toolbar-title { font-size: 0.95rem !important; }
+  .fc .fc-button { font-size: 0.65rem !important; padding: 4px 8px !important; }
+  .fc-event { font-size: 0.62rem !important; }
+}
 </style>
 </head>
 <body>
 
-<header class="page-header">🏵️ スケジュール</header>
+<!-- Header -->
+<div class="page-header">
+  <div class="header-eyebrow">SGC GROUP — Internal Portal</div>
+  <div class="header-title">
+    スケジュール
+    <span>EVENT CALENDAR</span>
+  </div>
+  <div class="header-orn"><div class="orn-d"></div></div>
+</div>
 
-<main>
-  <div id="calendar" class="calendar-container"></div>
-</main>
+<!-- Legend -->
+<div class="legend-bar">
+  <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(90deg,#8A6A28,#C09A50)"></div>大黄金展</div>
+  <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(90deg,#005b99,#3399cc)"></div>クルーズ</div>
+  <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(90deg,#8b2500,#d45500)"></div>特別催事</div>
+  <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(90deg,#1a6b35,#2e9e55)"></div>出張販売</div>
+</div>
 
-<div id="eventModal" class="modal">
-  <div class="modal-content">
-    <span id="closeModal" class="close">&times;</span>
-    <h2 id="modalTitle"></h2>
-    <p id="modalDate"></p>
-    <p id="modalLocation"></p>
-    <p id="modalNote"></p>
+<!-- Calendar -->
+<div class="calendar-wrap">
+  <div id="calendar"></div>
+</div>
+
+<!-- Modal overlay (mobile) -->
+<div class="modal-overlay" id="modalOverlay"></div>
+
+<!-- Modal drawer -->
+<div class="modal-drawer" id="eventModal">
+  <div class="drawer-handle"><div class="drawer-handle-bar"></div></div>
+  <div class="drawer-header">
+    <div style="flex:1; min-width:0;">
+      <div class="drawer-category-badge" id="modalBadge"></div>
+      <div class="drawer-title" id="modalTitle"></div>
+    </div>
+    <button class="drawer-close" id="closeModal">&times;</button>
+  </div>
+  <div class="drawer-body">
+    <div class="drawer-field">
+      <div class="drawer-field-label">期間</div>
+      <div class="drawer-field-value date" id="modalDate"></div>
+    </div>
+    <div class="drawer-field" id="modalLocationWrap">
+      <div class="drawer-field-label">会場</div>
+      <div class="drawer-field-value" id="modalLocation"></div>
+    </div>
+    <div class="drawer-field" id="modalNoteWrap" style="display:none;">
+      <div class="drawer-field-label">備考</div>
+      <div class="drawer-field-value" id="modalNote"></div>
+    </div>
   </div>
 </div>
 
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
-  // JSONからデータ取得
+
+  // ─── Data ───
   const res = await fetch("./data/exhibition.json");
   const exhibitions = await res.json();
 
-  // 終了日を+1日補正
-  const adjustedEvents = exhibitions.map(e => {
-    const event = { ...e };
-    if (event.end) {
-      const endDate = new Date(event.end);
-      endDate.setDate(endDate.getDate() + 1);
-      event.end = endDate.toISOString().split("T")[0];
-    }
-    return event;
+  const events = exhibitions.map(e => {
+    const endDate = e.end ? (() => {
+      const d = new Date(e.end);
+      d.setDate(d.getDate() + 1);
+      return d.toISOString().split("T")[0];
+    })() : undefined;
+
+    return {
+      title: e.title,
+      start: e.start,
+      end:   endDate,
+      extendedProps: {
+        location: e.location || "",
+        note:     e.note     || "",
+        category: e.category || "",
+        endOrig:  e.end      || ""
+      },
+      classNames: [`category-${e.category}`]
+    };
   });
 
-  // カテゴリクラス付与
-  const eventsWithClasses = adjustedEvents.map(event => ({
-    title: event.title,
-    start: event.start,
-    end: event.end,
-    extendedProps: { 
-      location: event.location,
-      note: event.note || "",
-      category: event.category 
-    },
-    classNames: [`category-${event.category}`]
-  }));
-
-  // カレンダー作成
+  // ─── Calendar ───
   const calendarEl = document.getElementById("calendar");
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "dayGridMonth",
     locale: "ja",
     headerToolbar: {
-      left: "prev,next today",
+      left:   "prev,next today",
       center: "title",
-      right: "dayGridMonth,timeGridWeek,timeGridDay"
+      right:  "dayGridMonth,timeGridWeek,listMonth"
     },
-    events: eventsWithClasses,
+    buttonText: { today: "今日", month: "月", week: "週", list: "一覧" },
+    height: "auto",
+    events,
 
-    eventClick: function(info) {
+    eventClick(info) {
       info.jsEvent.preventDefault();
 
-      const modal = document.getElementById("eventModal");
-      const { title, start, end, extendedProps } = info.event;
+      const { title, start, extendedProps: ep } = info.event;
 
-      // 終了日表示補正
-      const endDateDisplay = end
-        ? (() => {
-            const d = new Date(end);
-            d.setDate(d.getDate() - 1);
-            return d.toLocaleDateString();
-          })()
-        : "";
+      // Badge
+      const badge = document.getElementById("modalBadge");
+      badge.textContent = ep.category;
+      badge.className = `drawer-category-badge badge-${ep.category}`;
 
       document.getElementById("modalTitle").textContent = title;
+
+      // Date
+      const startStr = start ? start.toLocaleDateString("ja-JP", { year:"numeric", month:"2-digit", day:"2-digit" }) : "";
+      const endDisp  = ep.endOrig
+        ? new Date(ep.endOrig).toLocaleDateString("ja-JP", { year:"numeric", month:"2-digit", day:"2-digit" })
+        : "";
       document.getElementById("modalDate").textContent =
-        `${start.toLocaleDateString()} 〜 ${endDateDisplay}`;
-      document.getElementById("modalLocation").textContent = extendedProps.location || "";
-      document.getElementById("modalNote").textContent = extendedProps.note || "";
+        endDisp && endDisp !== startStr ? `${startStr} 〜 ${endDisp}` : startStr;
 
-      // クリック位置
-      let x = info.jsEvent.pageX;
-      let y = info.jsEvent.pageY;
+      // Location
+      const locEl   = document.getElementById("modalLocation");
+      const locWrap = document.getElementById("modalLocationWrap");
+      locEl.textContent   = ep.location;
+      locWrap.style.display = ep.location ? "flex" : "none";
 
-      // 画面外に出ないよう調整
-      const modalWidth = 260;
-      const screenWidth = window.innerWidth;
+      // Note
+      const noteEl   = document.getElementById("modalNote");
+      const noteWrap = document.getElementById("modalNoteWrap");
+      noteEl.textContent   = ep.note;
+      noteWrap.style.display = ep.note ? "flex" : "none";
 
-      if (x + modalWidth > screenWidth) {
-        x = screenWidth - modalWidth - 10;
+      const modal   = document.getElementById("eventModal");
+      const overlay = document.getElementById("modalOverlay");
+
+      // Desktop: position near click
+      if (window.innerWidth >= 640) {
+        const x = info.jsEvent.pageX;
+        const y = info.jsEvent.pageY;
+        const mw = 280;
+        const mh = 220;
+        const sw = window.innerWidth;
+        const sh = document.documentElement.scrollHeight;
+        modal.style.left = `${Math.min(x + 8, sw - mw - 12)}px`;
+        modal.style.top  = `${Math.min(y + 8, sh - mh - 12)}px`;
+        modal.style.right = "auto";
+        modal.style.bottom = "auto";
       }
 
-      modal.style.left = `${x}px`;
-      modal.style.top = `${y + 10}px`;
+      overlay.classList.add("show");
       modal.classList.add("show");
     }
   });
 
   calendar.render();
 
-  // × ボタンで閉じる
-  document.getElementById("closeModal").onclick = () =>
+  // ─── Close ───
+  function closeModal() {
     document.getElementById("eventModal").classList.remove("show");
-});
-
-// イベント以外をクリックしたら閉じる
-document.addEventListener("click", (e) => {
-  const modal = document.getElementById("eventModal");
-  const isEvent = e.target.closest(".fc-event");
-  const isModal = e.target.closest(".modal-content");
-
-  if (!isEvent && !isModal) {
-    modal.classList.remove("show");
+    document.getElementById("modalOverlay").classList.remove("show");
   }
+
+  document.getElementById("closeModal").addEventListener("click", closeModal);
+  document.getElementById("modalOverlay").addEventListener("click", closeModal);
+
+  document.addEventListener("click", e => {
+    const modal = document.getElementById("eventModal");
+    if (!e.target.closest(".fc-event") && !e.target.closest("#eventModal")) {
+      closeModal();
+    }
+  });
+
+  // height notify
+  function notifyHeight() {
+    parent.postMessage({ type: 'resize-iframe', height: document.body.scrollHeight }, '*');
+  }
+  window.addEventListener('load', notifyHeight);
+  window.addEventListener('resize', notifyHeight);
+  setTimeout(notifyHeight, 500);
 });
 </script>
 </body>
