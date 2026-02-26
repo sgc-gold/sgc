@@ -402,60 +402,176 @@
     });
   });
 
-  // ─── Fetch via rss2json proxy ───
-  async function loadNews(query) {
-    showLoading();
+  // ════════════════════════════════════════════════
+  //  FETCH STRATEGY
+  //  Google News RSS は CORS で直接取得不可。
+  //  複数プロキシを並列リクエストし、最初に成功した
+  //  結果を採用する。各リクエストに 8 秒 timeout。
+  // ════════════════════════════════════════════════
 
-    // RSS2JSON is a free proxy that converts Google News RSS to JSON, bypassing CORS
-    const rssUrl = encodeURIComponent(
-      `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=ja&gl=JP&ceid=JP:ja`
-    );
-    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}&count=30`;
+  const TIMEOUT_MS = 8000;
 
-    try {
-      const res = await fetch(apiUrl);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-
-      if (data.status !== "ok" || !data.items || data.items.length === 0) {
-        showError();
-        return;
-      }
-
-      renderNews(data.items, query);
-    } catch (e) {
-      console.error(e);
-      // Fallback: try allorigins proxy
-      try {
-        const allOriginsUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(
-          `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=ja&gl=JP&ceid=JP:ja`
-        )}`;
-        const res2 = await fetch(allOriginsUrl);
-        const data2 = await res2.json();
-        const items = parseRssXml(data2.contents);
-        if (items.length === 0) { showError(); return; }
-        renderNews(items, query);
-      } catch (e2) {
-        console.error(e2);
-        showError();
-      }
-    }
+  // タイムアウト付き fetch
+  function fetchWithTimeout(url, opts = {}) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    return fetch(url, { ...opts, signal: controller.signal })
+      .finally(() => clearTimeout(timer));
   }
 
-  // ─── Parse RSS XML fallback ───
-  function parseRssXml(xmlStr) {
+  // Google News RSS URL を組み立て
+  function buildRssUrl(query) {
+    return `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=ja&gl=JP&ceid=JP:ja`;
+  }
+
+  // ─── Proxy A: rss2json.com ───
+  async function tryRss2json(rssUrl) {
+    const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=30&order_by=pubDate&order_dir=desc`;
+    const res = await fetchWithTimeout(api);
+    if (!res.ok) throw new Error(`rss2json ${res.status}`);
+    const d = await res.json();
+    if (d.status !== "ok" || !d.items?.length) throw new Error("rss2json: empty");
+    return d.items.map(normalizeRss2jsonItem);
+  }
+
+  // ─── Proxy B: allorigins.win ───
+  async function tryAllOrigins(rssUrl) {
+    const api = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
+    const res = await fetchWithTimeout(api);
+    if (!res.ok) throw new Error(`allorigins ${res.status}`);
+    const d = await res.json();
+    const items = parseXml(d.contents);
+    if (!items.length) throw new Error("allorigins: empty");
+    return items;
+  }
+
+  // ─── Proxy C: corsproxy.io ───
+  async function tryCorsproxy(rssUrl) {
+    const api = `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`;
+    const res = await fetchWithTimeout(api);
+    if (!res.ok) throw new Error(`corsproxy ${res.status}`);
+    const xml = await res.text();
+    const items = parseXml(xml);
+    if (!items.length) throw new Error("corsproxy: empty");
+    return items;
+  }
+
+  // ─── Proxy D: thingproxy.freeboard.io ───
+  async function tryThingproxy(rssUrl) {
+    const api = `https://thingproxy.freeboard.io/fetch/${rssUrl}`;
+    const res = await fetchWithTimeout(api);
+    if (!res.ok) throw new Error(`thingproxy ${res.status}`);
+    const xml = await res.text();
+    const items = parseXml(xml);
+    if (!items.length) throw new Error("thingproxy: empty");
+    return items;
+  }
+
+  // ─── Proxy E: jsonp-style via feedrapp.info ───
+  async function tryFeedrapp(rssUrl) {
+    const api = `https://feedrapp.info/api?q=${encodeURIComponent(rssUrl)}&num=30&output=json`;
+    const res = await fetchWithTimeout(api);
+    if (!res.ok) throw new Error(`feedrapp ${res.status}`);
+    const d = await res.json();
+    const entries = d.responseData?.feed?.entries;
+    if (!entries?.length) throw new Error("feedrapp: empty");
+    return entries.map(e => ({
+      title:       e.title || "",
+      link:        e.link  || "",
+      pubDate:     e.publishedDate || "",
+      description: e.contentSnippet || e.content || "",
+      source:      e.publisher || ""
+    }));
+  }
+
+  // ─── Race: 全プロキシを並列で試し最初の成功を返す ───
+  async function loadNews(query) {
+    showLoading();
+    const rssUrl = buildRssUrl(query);
+
+    // 各プロキシを Promise でラップし、失敗は null に変換
+    const tryProxy = fn => fn(rssUrl).catch(e => { console.warn(e.message); return null; });
+
+    // 並列実行 — Promise.any が使えない古いブラウザ対策で手動実装
+    const promises = [
+      tryProxy(tryRss2json),
+      tryProxy(tryAllOrigins),
+      tryProxy(tryCorsproxy),
+      tryProxy(tryThingproxy),
+      tryProxy(tryFeedrapp),
+    ];
+
+    // Promise.race より確実な "最初の非 null 結果を待つ" 実装
+    let resolved = false;
+    const result = await new Promise((resolve) => {
+      let settled = 0;
+      promises.forEach(p => {
+        p.then(items => {
+          if (!resolved && items && items.length > 0) {
+            resolved = true;
+            resolve(items);
+          }
+        }).finally(() => {
+          settled++;
+          if (settled === promises.length && !resolved) resolve(null);
+        });
+      });
+    });
+
+    if (!result) {
+      showError();
+      return;
+    }
+    renderNews(result, query);
+  }
+
+  // ════════════════════════════════════════════════
+  //  XML Parser — DOMParser でGoogle News RSSを解析
+  // ════════════════════════════════════════════════
+  function parseXml(xmlStr) {
+    if (!xmlStr) return [];
     try {
       const parser = new DOMParser();
       const doc = parser.parseFromString(xmlStr, "text/xml");
-      const items = doc.querySelectorAll("item");
-      return Array.from(items).map(item => ({
-        title:       item.querySelector("title")?.textContent || "",
-        link:        item.querySelector("link")?.textContent || "",
-        pubDate:     item.querySelector("pubDate")?.textContent || "",
-        description: item.querySelector("description")?.textContent || "",
-        source:      item.querySelector("source")?.textContent || ""
-      }));
-    } catch(e) { return []; }
+      if (doc.querySelector("parsererror")) throw new Error("XML parse error");
+
+      return Array.from(doc.querySelectorAll("item")).map(item => {
+        // Google News の <link> は CDATA か nextSibling テキストノードになる場合がある
+        let link = "";
+        const linkEl = item.querySelector("link");
+        if (linkEl) {
+          link = linkEl.textContent ||
+                 (linkEl.nextSibling?.nodeType === 3 ? linkEl.nextSibling.textContent : "") ||
+                 linkEl.getAttribute("href") || "";
+        }
+
+        // <source> は属性 url を持つ場合もある
+        const sourceEl = item.querySelector("source");
+        const source   = sourceEl?.textContent || sourceEl?.getAttribute("url") || "";
+
+        return {
+          title:       item.querySelector("title")?.textContent || "",
+          link:        link.trim(),
+          pubDate:     item.querySelector("pubDate")?.textContent || "",
+          description: item.querySelector("description")?.textContent || "",
+          source:      source
+        };
+      });
+    } catch(e) {
+      console.warn("parseXml:", e.message);
+      return [];
+    }
+  }
+
+  // rss2json レスポンスを統一フォーマットに変換
+  function normalizeRss2jsonItem(item) {
+    return {
+      title:       item.title       || "",
+      link:        item.link        || item.guid || "",
+      pubDate:     item.pubDate     || item.isoDate || "",
+      description: item.description || item.content || "",
+      source:      item.author      || (item.source?.name) || ""
+    };
   }
 
   // ─── Render ───
@@ -463,7 +579,7 @@
     const list = document.getElementById("newsList");
     list.innerHTML = "";
 
-    if (items.length === 0) {
+    if (!items || items.length === 0) {
       list.innerHTML = `
         <div class="no-results">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto 12px"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -473,46 +589,49 @@
       return;
     }
 
-    // Detect keyword for badge
-    const hasSGC = /SGC/i.test(query);
-    const hasKogen = /大黄金展/.test(query);
-
     items.forEach((item, i) => {
       const card = document.createElement("a");
       card.className = "news-card";
-      card.href = item.link || item.url || "#";
+
+      // Google News のリンクはリダイレクト URL の場合がある — そのまま使用
+      card.href   = item.link || "#";
       card.target = "_blank";
-      card.rel = "noopener noreferrer";
+      card.rel    = "noopener noreferrer";
       card.style.animationDelay = `${i * 0.03}s`;
 
-      // Clean up title (Google News often has " - Source" appended)
-      const rawTitle = item.title || "";
-      const cleanTitle = rawTitle.replace(/\s*-\s*[^-]+$/, "").trim();
+      // タイトル末尾の " - 媒体名" を分離
+      const rawTitle  = item.title || "";
+      const srcMatch  = rawTitle.match(/\s[-–]\s*([^-–]+)$/);
+      const cleanTitle = srcMatch ? rawTitle.slice(0, rawTitle.lastIndexOf(srcMatch[0])).trim() : rawTitle.trim();
+      const source    = item.source || (srcMatch ? srcMatch[1].trim() : "");
 
-      // Source
-      const source = item.source?.name || item.author ||
-        (rawTitle.match(/-\s*([^-]+)$/) ? rawTitle.match(/-\s*([^-]+)$/)[1].trim() : "");
+      // 日付
+      const dateStr = formatDate(item.pubDate || "");
 
-      // Date
-      const dateStr = formatDate(item.pubDate || item.isoDate || "");
+      // 説明文 — HTML タグ・エンティティを除去
+      const rawDesc   = item.description || "";
+      const cleanDesc = rawDesc
+        .replace(/<[^>]+>/g, " ")
+        .replace(/&nbsp;/g, " ")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/\s+/g, " ")
+        .trim();
 
-      // Description — strip HTML tags
-      const rawDesc = item.description || item.content || "";
-      const cleanDesc = rawDesc.replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").trim();
-
-      // Keyword badge
-      const titleLower = cleanTitle.toLowerCase();
+      // キーワードバッジ
       let badge = "";
-      if (/sgc/.test(titleLower)) badge = `<span class="news-keyword-badge">SGC</span>`;
+      if (/sgc/i.test(cleanTitle))    badge = `<span class="news-keyword-badge">SGC</span>`;
       else if (/大黄金展/.test(cleanTitle)) badge = `<span class="news-keyword-badge">大黄金展</span>`;
 
       card.innerHTML = `
         <div class="news-meta">
-          ${source ? `<span class="news-source">${escHtml(source)}</span>` : ""}
-          <span class="news-date">${escHtml(dateStr)}</span>
+          ${source   ? `<span class="news-source">${escHtml(source)}</span>`   : ""}
+          ${dateStr  ? `<span class="news-date">${escHtml(dateStr)}</span>`    : ""}
           ${badge}
         </div>
-        <div class="news-title">${escHtml(cleanTitle)}</div>
+        <div class="news-title">${escHtml(cleanTitle || rawTitle)}</div>
         ${cleanDesc ? `<div class="news-desc">${escHtml(cleanDesc)}</div>` : ""}
         <div class="news-footer">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -525,7 +644,7 @@
     showList(items.length);
   }
 
-  // ─── UI state helpers ───
+  // ─── UI helpers ───
   function showLoading() {
     document.getElementById("loadingWrap").style.display = "flex";
     document.getElementById("newsList").style.display    = "none";
@@ -555,12 +674,11 @@
     notifyHeight();
   }
 
-  function refreshNews() {
-    loadNews(currentQuery);
-  }
+  function refreshNews() { loadNews(currentQuery); }
 
   // ─── Utils ───
   function escHtml(str) {
+    if (!str) return "";
     return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
 
@@ -568,17 +686,18 @@
     if (!dateStr) return "";
     try {
       const d = new Date(dateStr);
-      if (isNaN(d)) return dateStr;
-      const now = new Date();
-      const diffMs = now - d;
+      if (isNaN(d)) return "";
+      const now     = new Date();
+      const diffMs  = now - d;
       const diffMin = Math.floor(diffMs / 60000);
       const diffH   = Math.floor(diffMs / 3600000);
       const diffD   = Math.floor(diffMs / 86400000);
-      if (diffMin < 60)  return `${diffMin}分前`;
-      if (diffH   < 24)  return `${diffH}時間前`;
-      if (diffD   < 7)   return `${diffD}日前`;
+      if (diffMin < 1)  return "たった今";
+      if (diffMin < 60) return `${diffMin}分前`;
+      if (diffH   < 24) return `${diffH}時間前`;
+      if (diffD   < 7)  return `${diffD}日前`;
       return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
-    } catch(e) { return dateStr; }
+    } catch(e) { return ""; }
   }
 
   function nowStr() {
@@ -587,8 +706,7 @@
   }
 
   function notifyHeight() {
-    const h = document.body.scrollHeight;
-    parent.postMessage({ type: 'resize-iframe', height: h }, '*');
+    parent.postMessage({ type: 'resize-iframe', height: document.body.scrollHeight }, '*');
   }
 
   window.addEventListener('load', () => {
