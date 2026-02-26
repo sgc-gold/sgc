@@ -4,78 +4,598 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ニュース</title>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:    #1A3628;
+      --green-lt: #254D38;
+      --green-dk: #0E1F17;
+      --gold:     #C09A50;
+      --gold-lt:  #E8D49A;
+      --gold-dk:  #8A6A28;
+      --cream:    #F7F3EB;
+      --white:    #FFFFFF;
+      --ink:      #1C1A16;
+      --ink-soft: #5A5448;
+      --border:   rgba(192,154,80,0.18);
+      --shadow:   0 2px 16px rgba(28,26,22,0.08);
+    }
+
+    html { background: var(--cream); }
     body {
-      font-family: "Noto Sans JP", sans-serif;
-      background: #fafafa;
-      color: #003D2E;
-      margin: 0;
-      padding: 1rem;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      padding-bottom: 40px;
+      overflow-x: hidden;
     }
-    nav {
-      margin-bottom: 1.5rem;
+
+    /* Grain */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.4;
     }
-    nav a {
-      margin-right: 1rem;
-      color: #003D2E;
-      text-decoration: none;
-      font-weight: bold;
+
+    /* ─── Page header ─── */
+    .page-header {
+      position: relative; z-index: 1;
+      background: var(--green-dk);
+      padding: 28px 20px 22px;
+      text-align: center;
+      border-bottom: 1px solid rgba(192,154,80,0.15);
     }
-    h1 {
-      font-size: 1.6rem;
-      margin-bottom: 1rem;
-      border-bottom: 2px solid #ccc;
-      padding-bottom: 0.5rem;
+    .page-header::after {
+      content: '';
+      position: absolute; bottom: -1px; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent 0%, var(--gold-dk) 20%, var(--gold) 50%, var(--gold-dk) 80%, transparent 100%);
     }
-    p {
-      margin-top: 0.5rem;
-      margin-bottom: 1rem;
-    }    
-    iframe {
-      width: 100%;
-      height: 75vh;
-      border: 1px solid #ccc;
+    .header-eyebrow {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 0.68rem;
+      letter-spacing: 0.3em;
+      color: rgba(200,160,80,0.5);
+      margin-bottom: 6px;
+    }
+    .header-title {
+      font-family: 'Shippori Mincho', serif;
+      font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: 0.1em;
+    }
+    .header-title span {
+      display: block;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 0.66rem;
+      color: var(--gold);
+      letter-spacing: 0.3em;
+      margin-top: 5px;
+    }
+    .header-orn { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 14px; }
+    .header-orn::before, .header-orn::after { content: ''; flex: 1; max-width: 60px; height: 1px; background: linear-gradient(90deg, transparent, rgba(192,154,80,0.35)); }
+    .header-orn::after { background: linear-gradient(90deg, rgba(192,154,80,0.35), transparent); }
+    .orn-d { width: 4px; height: 4px; background: var(--gold); transform: rotate(45deg); }
+
+    /* ─── Tab bar ─── */
+    .tab-bar {
+      position: relative; z-index: 1;
+      background: var(--green);
+      display: flex;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-bottom: 1px solid rgba(192,154,80,0.12);
+    }
+    .tab-bar::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex-shrink: 0;
+      padding: 12px 18px;
+      font-size: 0.78rem;
+      font-family: 'DM Sans', sans-serif;
+      letter-spacing: 0.06em;
+      color: rgba(232,212,154,0.55);
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color 0.18s, border-color 0.18s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--gold-lt); }
+    .tab-btn.active {
+      color: var(--gold-lt);
+      border-bottom-color: var(--gold);
+    }
+
+    /* ─── Container ─── */
+    .container {
+      position: relative; z-index: 1;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 20px 16px;
+    }
+
+    /* ─── Status bar ─── */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .status-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold-dk);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .status-count {
+      font-size: 0.7rem;
+      color: var(--ink-soft);
+      font-family: 'DM Sans', sans-serif;
+    }
+    .refresh-btn {
+      display: flex; align-items: center; gap: 5px;
+      background: none;
+      border: 1px solid var(--border);
       border-radius: 8px;
-      margin-bottom: 2rem;
-      min-height: 75vh;
+      padding: 5px 10px;
+      font-size: 0.68rem;
+      color: var(--gold-dk);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      letter-spacing: 0.06em;
+      transition: background 0.18s, border-color 0.18s;
     }
-    .linkbox {
-      background: #fff;
-      border: 1px solid #ddd;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 3rem;
+    .refresh-btn:hover { background: rgba(192,154,80,0.06); border-color: rgba(192,154,80,0.35); }
+    .refresh-btn svg { transition: transform 0.5s; }
+    .refresh-btn.spinning svg { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── Loading ─── */
+    .loading-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 48px 0;
+      gap: 12px;
     }
-    .linkbox a {
-      color: #007b5e;
+    .spinner {
+      width: 28px; height: 28px;
+      border: 2px solid rgba(192,154,80,0.15);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    .loading-text { font-size: 0.78rem; color: var(--ink-soft); letter-spacing: 0.08em; }
+
+    /* ─── Error ─── */
+    .error-wrap {
+      display: none;
+      background: rgba(181,41,41,0.06);
+      border: 1px solid rgba(181,41,41,0.2);
+      border-radius: 10px;
+      padding: 16px 18px;
+      font-size: 0.83rem;
+      color: #8a3030;
+      line-height: 1.6;
+    }
+    .error-wrap a { color: #1A3628; font-weight: 500; }
+
+    /* ─── News list ─── */
+    .news-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .news-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
       text-decoration: none;
-      font-weight: bold;
+      color: inherit;
+      display: block;
+      transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+      animation: fadeUp 0.25s ease both;
     }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .news-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(28,26,22,0.12);
+      border-color: rgba(192,154,80,0.35);
+    }
+
+    .news-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+    .news-source {
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      font-weight: 500;
+      text-transform: uppercase;
+      color: var(--gold-dk);
+      background: rgba(192,154,80,0.1);
+      border: 1px solid rgba(192,154,80,0.2);
+      border-radius: 100px;
+      padding: 2px 8px;
+    }
+    .news-date {
+      font-size: 0.68rem;
+      color: #aaa;
+      letter-spacing: 0.04em;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .news-keyword-badge {
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      background: rgba(30,61,44,0.1);
+      color: var(--green-lt);
+      border: 1px solid rgba(30,61,44,0.2);
+      border-radius: 100px;
+      padding: 2px 7px;
+    }
+
+    .news-title {
+      font-family: 'Shippori Mincho', serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.5;
+      margin-bottom: 5px;
+    }
+
+    .news-desc {
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .news-footer {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 8px;
+      font-size: 0.65rem;
+      color: var(--gold-dk);
+      opacity: 0.7;
+    }
+
+    /* ─── No results ─── */
+    .no-results {
+      text-align: center;
+      padding: 40px 0;
+      color: var(--ink-soft);
+      font-size: 0.85rem;
+    }
+    .no-results svg { opacity: 0.25; margin-bottom: 12px; }
+
+    /* ─── External links ─── */
+    .ext-links {
+      margin-top: 24px;
+      padding: 14px 16px;
+      background: rgba(30,61,44,0.05);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .ext-links-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold-dk);
+      margin-bottom: 10px;
+    }
+    .ext-links-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ext-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.73rem;
+      color: var(--green);
+      text-decoration: none;
+      border: 1px solid rgba(30,61,44,0.2);
+      border-radius: 8px;
+      padding: 5px 10px;
+      background: var(--white);
+      transition: border-color 0.18s, background 0.18s;
+    }
+    .ext-link:hover { border-color: rgba(192,154,80,0.4); background: rgba(192,154,80,0.04); }
+    .ext-link svg { opacity: 0.6; }
   </style>
 </head>
 <body>
 
-  <h1>SGC・大黄金展 ニュース</h1>
-  <div class="linkbox">
-    <p>他サイトで「SGC」または「大黄金展」を検索:</p>
-    <ul>
-      <li><a href="https://news.google.com/search?q=SGC+OR+大黄金展&hl=ja&gl=JP&ceid=JP:ja" target="_blank">Googleニュースで検索</a></li>
-      <li><a href="https://news.yahoo.co.jp/search?p=SGC&ei=utf-8" target="_blank">Yahoo!ニュース（SGC）</a></li>
-      <li><a href="https://news.yahoo.co.jp/search?p=大黄金展&ei=utf-8" target="_blank">Yahoo!ニュース（大黄金展）</a></li>
-    </ul>
+<div class="page-header">
+  <div class="header-eyebrow">SGC GROUP — Internal Portal</div>
+  <div class="header-title">
+    ニュース
+    <span>NEWS &amp; MEDIA</span>
   </div>
-  <script>
-    function notifyHeight() {
-      const height = document.body.scrollHeight;
-      parent.postMessage({ type: 'resize-iframe', height }, '*');
-    }
-  
-    window.addEventListener('load', () => {
-      notifyHeight();              // 通常の通知
-      setTimeout(notifyHeight, 500); // ウィジェット描画後に再通知
+  <div class="header-orn"><div class="orn-d"></div></div>
+</div>
+
+<!-- Tabs -->
+<div class="tab-bar">
+  <button class="tab-btn active" data-query="SGC OR 大黄金展" data-label="すべて">すべて</button>
+  <button class="tab-btn" data-query="SGC 金 買取" data-label="SGC">SGC</button>
+  <button class="tab-btn" data-query="大黄金展" data-label="大黄金展">大黄金展</button>
+  <button class="tab-btn" data-query="金 買取 相場" data-label="金相場">金相場</button>
+  <button class="tab-btn" data-query="プラチナ 買取" data-label="プラチナ">プラチナ</button>
+</div>
+
+<div class="container">
+
+  <div class="status-bar">
+    <div class="status-label">
+      <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#C09A50"/></svg>
+      <span id="statusText">読み込み中…</span>
+    </div>
+    <button class="refresh-btn" id="refreshBtn" onclick="refreshNews()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.65"/></svg>
+      更新
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-wrap" id="loadingWrap">
+    <div class="spinner"></div>
+    <div class="loading-text">ニュースを取得中です…</div>
+  </div>
+
+  <!-- Error -->
+  <div class="error-wrap" id="errorWrap">
+    <strong>記事の取得に失敗しました。</strong><br>
+    ネットワーク環境をご確認いただくか、下記リンクから直接ご覧ください。
+  </div>
+
+  <!-- News list -->
+  <div class="news-list" id="newsList" style="display:none;"></div>
+
+  <!-- External links -->
+  <div class="ext-links" id="extLinks" style="display:none; margin-top:20px;">
+    <div class="ext-links-label">直接検索リンク</div>
+    <div class="ext-links-row">
+      <a class="ext-link" href="https://news.google.com/search?q=SGC+OR+大黄金展&hl=ja&gl=JP&ceid=JP:ja" target="_blank" rel="noopener">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Google ニュース
+      </a>
+      <a class="ext-link" href="https://news.yahoo.co.jp/search?p=SGC&ei=utf-8" target="_blank" rel="noopener">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Yahoo! ニュース (SGC)
+      </a>
+      <a class="ext-link" href="https://news.yahoo.co.jp/search?p=大黄金展&ei=utf-8" target="_blank" rel="noopener">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Yahoo! ニュース (大黄金展)
+      </a>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  let currentQuery = "SGC OR 大黄金展";
+
+  // ─── Tab switching ───
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentQuery = btn.dataset.query;
+      loadNews(currentQuery);
     });
-  
-    window.addEventListener('resize', notifyHeight);
-  </script>
+  });
+
+  // ─── Fetch via rss2json proxy ───
+  async function loadNews(query) {
+    showLoading();
+
+    // RSS2JSON is a free proxy that converts Google News RSS to JSON, bypassing CORS
+    const rssUrl = encodeURIComponent(
+      `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=ja&gl=JP&ceid=JP:ja`
+    );
+    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}&count=30`;
+
+    try {
+      const res = await fetch(apiUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      if (data.status !== "ok" || !data.items || data.items.length === 0) {
+        showError();
+        return;
+      }
+
+      renderNews(data.items, query);
+    } catch (e) {
+      console.error(e);
+      // Fallback: try allorigins proxy
+      try {
+        const allOriginsUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(
+          `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=ja&gl=JP&ceid=JP:ja`
+        )}`;
+        const res2 = await fetch(allOriginsUrl);
+        const data2 = await res2.json();
+        const items = parseRssXml(data2.contents);
+        if (items.length === 0) { showError(); return; }
+        renderNews(items, query);
+      } catch (e2) {
+        console.error(e2);
+        showError();
+      }
+    }
+  }
+
+  // ─── Parse RSS XML fallback ───
+  function parseRssXml(xmlStr) {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(xmlStr, "text/xml");
+      const items = doc.querySelectorAll("item");
+      return Array.from(items).map(item => ({
+        title:       item.querySelector("title")?.textContent || "",
+        link:        item.querySelector("link")?.textContent || "",
+        pubDate:     item.querySelector("pubDate")?.textContent || "",
+        description: item.querySelector("description")?.textContent || "",
+        source:      item.querySelector("source")?.textContent || ""
+      }));
+    } catch(e) { return []; }
+  }
+
+  // ─── Render ───
+  function renderNews(items, query) {
+    const list = document.getElementById("newsList");
+    list.innerHTML = "";
+
+    if (items.length === 0) {
+      list.innerHTML = `
+        <div class="no-results">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto 12px"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          該当記事が見つかりませんでした
+        </div>`;
+      showList(0);
+      return;
+    }
+
+    // Detect keyword for badge
+    const hasSGC = /SGC/i.test(query);
+    const hasKogen = /大黄金展/.test(query);
+
+    items.forEach((item, i) => {
+      const card = document.createElement("a");
+      card.className = "news-card";
+      card.href = item.link || item.url || "#";
+      card.target = "_blank";
+      card.rel = "noopener noreferrer";
+      card.style.animationDelay = `${i * 0.03}s`;
+
+      // Clean up title (Google News often has " - Source" appended)
+      const rawTitle = item.title || "";
+      const cleanTitle = rawTitle.replace(/\s*-\s*[^-]+$/, "").trim();
+
+      // Source
+      const source = item.source?.name || item.author ||
+        (rawTitle.match(/-\s*([^-]+)$/) ? rawTitle.match(/-\s*([^-]+)$/)[1].trim() : "");
+
+      // Date
+      const dateStr = formatDate(item.pubDate || item.isoDate || "");
+
+      // Description — strip HTML tags
+      const rawDesc = item.description || item.content || "";
+      const cleanDesc = rawDesc.replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").trim();
+
+      // Keyword badge
+      const titleLower = cleanTitle.toLowerCase();
+      let badge = "";
+      if (/sgc/.test(titleLower)) badge = `<span class="news-keyword-badge">SGC</span>`;
+      else if (/大黄金展/.test(cleanTitle)) badge = `<span class="news-keyword-badge">大黄金展</span>`;
+
+      card.innerHTML = `
+        <div class="news-meta">
+          ${source ? `<span class="news-source">${escHtml(source)}</span>` : ""}
+          <span class="news-date">${escHtml(dateStr)}</span>
+          ${badge}
+        </div>
+        <div class="news-title">${escHtml(cleanTitle)}</div>
+        ${cleanDesc ? `<div class="news-desc">${escHtml(cleanDesc)}</div>` : ""}
+        <div class="news-footer">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          記事を開く
+        </div>`;
+
+      list.appendChild(card);
+    });
+
+    showList(items.length);
+  }
+
+  // ─── UI state helpers ───
+  function showLoading() {
+    document.getElementById("loadingWrap").style.display = "flex";
+    document.getElementById("newsList").style.display    = "none";
+    document.getElementById("errorWrap").style.display   = "none";
+    document.getElementById("extLinks").style.display    = "none";
+    document.getElementById("statusText").textContent    = "読み込み中…";
+    document.getElementById("refreshBtn").classList.add("spinning");
+  }
+
+  function showList(count) {
+    document.getElementById("loadingWrap").style.display = "none";
+    document.getElementById("newsList").style.display    = "flex";
+    document.getElementById("errorWrap").style.display   = "none";
+    document.getElementById("extLinks").style.display    = "block";
+    document.getElementById("statusText").textContent    = `${count}件 · ${nowStr()}`;
+    document.getElementById("refreshBtn").classList.remove("spinning");
+    notifyHeight();
+  }
+
+  function showError() {
+    document.getElementById("loadingWrap").style.display = "none";
+    document.getElementById("newsList").style.display    = "none";
+    document.getElementById("errorWrap").style.display   = "block";
+    document.getElementById("extLinks").style.display    = "block";
+    document.getElementById("statusText").textContent    = "取得失敗";
+    document.getElementById("refreshBtn").classList.remove("spinning");
+    notifyHeight();
+  }
+
+  function refreshNews() {
+    loadNews(currentQuery);
+  }
+
+  // ─── Utils ───
+  function escHtml(str) {
+    return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return "";
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d)) return dateStr;
+      const now = new Date();
+      const diffMs = now - d;
+      const diffMin = Math.floor(diffMs / 60000);
+      const diffH   = Math.floor(diffMs / 3600000);
+      const diffD   = Math.floor(diffMs / 86400000);
+      if (diffMin < 60)  return `${diffMin}分前`;
+      if (diffH   < 24)  return `${diffH}時間前`;
+      if (diffD   < 7)   return `${diffD}日前`;
+      return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+    } catch(e) { return dateStr; }
+  }
+
+  function nowStr() {
+    const d = new Date();
+    return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')} 更新`;
+  }
+
+  function notifyHeight() {
+    const h = document.body.scrollHeight;
+    parent.postMessage({ type: 'resize-iframe', height: h }, '*');
+  }
+
+  window.addEventListener('load', () => {
+    loadNews(currentQuery);
+    setTimeout(notifyHeight, 800);
+  });
+  window.addEventListener('resize', notifyHeight);
+</script>
 </body>
 </html>
