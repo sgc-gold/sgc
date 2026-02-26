@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
   <link rel="icon" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png" type="image/png">
   <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
   <title>SGC 社内ポータル</title>
@@ -21,40 +24,45 @@
     --border:   rgba(192,154,80,0.18);
     --nav-w:    260px;
     --header-h: 58px;
-    --bottom-h: 60px;
+    --bottom-content-h: 56px;
+    --safe-top:    env(safe-area-inset-top,    0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left:   env(safe-area-inset-left,   0px);
+    --safe-right:  env(safe-area-inset-right,  0px);
   }
 
   /* ─────────────────────────────────────
-     The key trick:
-     html/body fill exactly window.innerHeight (set by JS).
-     This uses the VISUAL viewport — excludes browser chrome
-     on mobile. overflow:hidden prevents any page-level scroll.
+     高さ戦略:
+     dvh → svh → 100vh のフォールバックチェーン。
+     JSの visualViewport でさらに補正する。
   ───────────────────────────────────── */
   html {
-    /* fallback — overridden immediately by JS */
-    height: 100%;
+    height: 100vh;
+    height: 100svh;
+    height: 100dvh;
     background: var(--green-dk);
   }
   body {
-    height: 100%;
+    height: 100vh;
+    height: 100svh;
+    height: 100dvh;
     overflow: hidden;
     background: var(--green-dk);
     font-family: 'DM Sans', sans-serif;
   }
 
-  /* ─── App shell: 3-zone grid ─── */
-  /* Desktop: [sidebar | content] stacked under header  */
-  /* Mobile:  [content] stacked under header, above bottom-nav */
+  /* ─── App shell ─── */
   #shell {
     display: grid;
-    /* columns: sidebar | content */
     grid-template-columns: var(--nav-w) 1fr;
-    grid-template-rows: var(--header-h) 1fr;
+    grid-template-rows: calc(var(--header-h) + var(--safe-top)) 1fr;
     grid-template-areas:
       "hdr  hdr"
       "side main";
     width: 100%;
-    height: 100%; /* filled by JS via --vh */
+    height: 100vh;
+    height: 100svh;
+    height: 100dvh;
     overflow: hidden;
   }
 
@@ -64,11 +72,21 @@
     background: var(--green-dk);
     border-bottom: 1px solid rgba(192,154,80,0.12);
     display: flex;
-    align-items: center;
-    padding: 0 16px;
+    align-items: flex-end; /* safe-area padding後に下揃え */
+    padding: var(--safe-top) 16px 0;
+    height: calc(var(--header-h) + var(--safe-top));
+    padding-bottom: 0;
     gap: 12px;
     position: relative;
     z-index: 300;
+  }
+  /* ヘッダー内コンテンツを下端に揃えるラッパー */
+  #app-header .header-inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    height: var(--header-h);
   }
   #app-header::after {
     content: '';
@@ -100,6 +118,7 @@
     padding: 6px;
     border-radius: 8px;
     flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
   }
   .hamburger span {
     display: block; width: 22px; height: 2px;
@@ -118,7 +137,6 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    /* transition only needed on mobile */
   }
 
   .sidebar-scroll {
@@ -128,6 +146,7 @@
     padding: 16px 12px 20px;
     scrollbar-width: thin;
     scrollbar-color: rgba(192,154,80,0.18) transparent;
+    -webkit-overflow-scrolling: touch;
   }
   .sidebar-scroll::-webkit-scrollbar { width: 3px; }
   .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(192,154,80,0.2); border-radius: 4px; }
@@ -154,6 +173,7 @@
     border: 1px solid transparent;
     user-select: none;
     margin-bottom: 1px;
+    -webkit-tap-highlight-color: transparent;
   }
   .nav-link:hover  { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.85); }
   .nav-link.active { background: rgba(192,154,80,0.1); color: var(--gold-lt); border-color: rgba(192,154,80,0.16); }
@@ -172,13 +192,15 @@
     text-align: center;
   }
 
-  /* ─── Main content (iframe) ─── */
+  /* ─── Main content ─── */
   #content-area {
     grid-area: main;
     overflow: hidden;
     background: #F7F3EB;
     display: flex;
     flex-direction: column;
+    padding-left:  var(--safe-left);
+    padding-right: var(--safe-right);
   }
 
   #main-frame {
@@ -186,25 +208,30 @@
     width: 100%;
     border: none;
     display: block;
-    /* height set by JS */
+    min-height: 0;
   }
 
-  /* ─── Overlay (mobile) ─── */
+  /* ─── Overlay ─── */
   #overlay {
     display: none;
     position: fixed; inset: 0; z-index: 250;
     background: rgba(0,0,0,0.5);
     backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
   }
   #overlay.active { display: block; }
 
   /* ══════════════════════════════════
-     MOBILE  (< 900px)
+     MOBILE (< 900px)
   ══════════════════════════════════ */
   @media (max-width: 899px) {
+
     #shell {
       grid-template-columns: 1fr;
-      grid-template-rows: var(--header-h) 1fr var(--bottom-h);
+      grid-template-rows:
+        calc(var(--header-h) + env(safe-area-inset-top, 0px))
+        1fr
+        auto; /* ← auto にして bottom-nav の実測高さに任せる */
       grid-template-areas:
         "hdr"
         "main"
@@ -213,15 +240,13 @@
 
     .hamburger { display: flex; }
 
-    /* Sidebar slides over content */
     #sidebar {
       grid-area: unset;
       position: fixed;
-      top: var(--header-h);
+      top: calc(var(--header-h) + env(safe-area-inset-top, 0px));
       left: 0;
       width: var(--nav-w);
-      /* height = total - header - bottom-nav */
-      bottom: var(--bottom-h);
+      bottom: 0;
       z-index: 260;
       transform: translateX(-100%);
       transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
@@ -229,34 +254,62 @@
     }
     #sidebar.open { transform: translateX(0); }
 
-    /* Bottom nav */
+    /* ─── Bottom nav ─── */
     #bottom-nav {
       grid-area: bnav;
       background: var(--green-dk);
       border-top: 1px solid rgba(192,154,80,0.14);
       display: flex;
       align-items: stretch;
+
+      /* ★ 核心: コンテンツ高さは min-height で保証し、
+           safe-area 分は padding-bottom で追加する。
+           height: auto のままなので grid が正しく計算できる。 */
       padding-bottom: env(safe-area-inset-bottom, 0px);
+      padding-left:   env(safe-area-inset-left,   0px);
+      padding-right:  env(safe-area-inset-right,  0px);
+
+      /* Edge PWA で grid-area が消えることへの保険 */
+      position: relative;
+      z-index: 100;
+      /* Edge で display:flex が無視されるケース対策 */
+      min-height: var(--bottom-content-h);
     }
+
     .bnav-item {
       flex: 1;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
+      display: flex !important; /* Edge PWA で flex が剥がれる対策 */
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       gap: 3px;
       color: rgba(255,255,255,0.38);
-      font-size: 0.58rem; letter-spacing: 0.03em;
-      cursor: pointer; border: none; background: none;
-      padding: 4px 2px;
+      font-size: 0.58rem;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      border: none;
+      background: none;
+      padding: 8px 2px;
+      min-height: var(--bottom-content-h);
       text-decoration: none;
       transition: color 0.15s;
+      -webkit-tap-highlight-color: transparent;
     }
     .bnav-item.active { color: var(--gold); }
-    .bnav-item svg { width: 20px; height: 20px; }
+    .bnav-item svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      display: block; /* SVG が inline のままだと Edge で崩れる */
+    }
+    .bnav-item span {
+      display: block;
+      line-height: 1;
+    }
   }
 
-  /* Desktop: hide bottom nav */
   @media (min-width: 900px) {
-    #bottom-nav { display: none; }
+    #bottom-nav { display: none !important; }
   }
   </style>
 </head>
@@ -265,11 +318,13 @@
 
   <!-- ─── Header ─── -->
   <header id="app-header">
-    <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
-      <span></span><span></span><span></span>
-    </button>
-    <div class="header-title" onclick="navigate('main.html',null)">社内ポータル</div>
-    <img class="header-logo" src="https://www.sgc-gold.co.jp/img/header-logo.png" alt="SGC">
+    <div class="header-inner">
+      <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="header-title" onclick="navigate('main.html',null)">社内ポータル</div>
+      <img class="header-logo" src="https://www.sgc-gold.co.jp/img/header-logo.png" alt="SGC">
+    </div>
   </header>
 
   <!-- ─── Sidebar ─── -->
@@ -343,49 +398,51 @@
 
   <!-- ─── Content ─── -->
   <div id="content-area">
-    <iframe id="main-frame" src="main.html" scrolling="yes"></iframe>
+    <iframe id="main-frame" src="main.html" scrolling="yes" allowtransparency="true"></iframe>
   </div>
 
   <!-- ─── Bottom nav (mobile only) ─── -->
-  <div id="bottom-nav">
+  <nav id="bottom-nav">
     <a class="bnav-item active" onclick="navigate('main.html',this)" data-bnav>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      ホーム
+      <span>ホーム</span>
     </a>
     <a class="bnav-item" onclick="navigate('price.html',this)" data-bnav>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      価格
+      <span>価格</span>
     </a>
     <a class="bnav-item" onclick="navigate('coin.html',this)" data-bnav>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-      金貨
+      <span>金貨</span>
     </a>
     <a class="bnav-item" onclick="navigate('market.html',this)" data-bnav>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-      市況
+      <span>市況</span>
     </a>
     <button class="bnav-item" onclick="toggleSidebar()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="3" y1="6"  x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      メニュー
+      <span>メニュー</span>
     </button>
-  </div>
+  </nav>
 
 </div><!-- /shell -->
 
-<!-- Overlay for mobile sidebar -->
 <div id="overlay" onclick="closeSidebar()"></div>
 
 <script>
 // ─────────────────────────────────────────────
-//  EXACT HEIGHT FIX
-//  window.innerHeight = visual viewport (excludes browser chrome).
-//  We set the shell's height via a CSS custom property so it never
-//  overflows into the address bar area.
+//  HEIGHT FIX
+//  visualViewport API が最も正確（iOS Safari 13+, Edge 79+）
+//  なければ window.innerHeight にフォールバック
 // ─────────────────────────────────────────────
+function getVH() {
+  return window.visualViewport ? window.visualViewport.height : window.innerHeight;
+}
+
 function setHeight() {
-  const h = window.innerHeight;
-  document.getElementById('shell').style.height = h + 'px';
-  // Also size the iframe to fill its flex parent
+  const h = getVH();
+  const shell = document.getElementById('shell');
+  shell.style.height = h + 'px';
   sizeFrame();
 }
 
@@ -393,49 +450,63 @@ function sizeFrame() {
   const frame   = document.getElementById('main-frame');
   const content = document.getElementById('content-area');
   if (!frame || !content) return;
-  // iframe fills content-area exactly
-  frame.style.height = content.clientHeight + 'px';
+  const rect = content.getBoundingClientRect();
+  if (rect.height > 0) {
+    frame.style.height = rect.height + 'px';
+  }
 }
 
-// Run immediately and on every resize / orientation change
+// 初回実行
 setHeight();
-window.addEventListener('resize',            setHeight);
-window.addEventListener('orientationchange', () => setTimeout(setHeight, 300));
 
-// Also re-measure after fonts / images load
-window.addEventListener('load', setHeight);
+// イベント登録
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', setHeight);
+  window.visualViewport.addEventListener('scroll', setHeight);
+} else {
+  window.addEventListener('resize', setHeight);
+}
+
+window.addEventListener('orientationchange', function() {
+  setTimeout(setHeight, 100);
+  setTimeout(setHeight, 350);
+  setTimeout(setHeight, 700);
+});
+
+window.addEventListener('load', function() {
+  setHeight();
+  setTimeout(setHeight, 300);
+});
 
 // ─────────────────────────────────────────────
 //  NAVIGATION
 // ─────────────────────────────────────────────
-const frame = document.getElementById('main-frame');
+var frame = document.getElementById('main-frame');
 
 function navigate(url, el) {
   if (!url || url === '#') return;
   frame.src = url;
 
-  // Sidebar active state
-  document.querySelectorAll('#sidebar .nav-link').forEach(l => l.classList.remove('active'));
-  if (el && el.closest('#sidebar')) el.classList.add('active');
+  document.querySelectorAll('#sidebar .nav-link').forEach(function(l) { l.classList.remove('active'); });
+  if (el && el.closest && el.closest('#sidebar')) el.classList.add('active');
 
-  // Bottom nav active state
-  document.querySelectorAll('[data-bnav]').forEach(l => l.classList.remove('active'));
-  if (el && el.hasAttribute('data-bnav')) el.classList.add('active');
+  document.querySelectorAll('[data-bnav]').forEach(function(l) { l.classList.remove('active'); });
+  if (el && el.hasAttribute && el.hasAttribute('data-bnav')) el.classList.add('active');
 
   if (window.innerWidth < 900) closeSidebar();
 }
 
 // ─────────────────────────────────────────────
-//  SIDEBAR TOGGLE (mobile)
+//  SIDEBAR
 // ─────────────────────────────────────────────
-const sidebar   = document.getElementById('sidebar');
-const overlay   = document.getElementById('overlay');
-const hamburger = document.getElementById('hamburger');
+var sidebar   = document.getElementById('sidebar');
+var overlay   = document.getElementById('overlay');
+var hamburger = document.getElementById('hamburger');
 
 function toggleSidebar() {
-  const open = sidebar.classList.toggle('open');
-  hamburger.classList.toggle('open', open);
-  overlay.classList.toggle('active', open);
+  var isOpen = sidebar.classList.toggle('open');
+  hamburger.classList.toggle('open', isOpen);
+  overlay.classList.toggle('active', isOpen);
 }
 function closeSidebar() {
   sidebar.classList.remove('open');
@@ -443,15 +514,7 @@ function closeSidebar() {
   overlay.classList.remove('active');
 }
 
-// ─────────────────────────────────────────────
-//  iframe postMessage (legacy resize support)
-//  We keep this so child pages work unchanged,
-//  but we don't actually need to resize the iframe
-//  since it's fixed to the content area.
-// ─────────────────────────────────────────────
-window.addEventListener('message', e => {
-  // intentionally ignored — iframe is fixed height / scrolls internally
-});
+window.addEventListener('message', function() {});
 </script>
 </body>
 </html>
