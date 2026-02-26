@@ -4,407 +4,791 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>記念金貨 買取価格</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Noto Sans JP', sans-serif;
-    background: #f4f4f4;
-    box-sizing: border-box;
-  }
-  *, *:before, *:after {
-    box-sizing: inherit;
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  .container {
-    width: 100%;
-    max-width: 100%;
-    margin: 0;
-    padding: 1rem;
-    background: #fff;
-    border-radius: 0.5rem;
-    box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.1);
-    font-size: 0.8rem;
-  }
+:root {
+  --ink:       #1C1A16;
+  --ink-soft:  #5A5448;
+  --gold:      #C09A50;
+  --gold-lt:   #E8D49A;
+  --gold-dk:   #8A6A28;
+  --cream:     #F8F4EC;
+  --cream-dk:  #EDE6D8;
+  --green:     #1E3D2C;
+  --green-lt:  #2C5840;
+  --white:     #FFFFFF;
+  --red:       #B52929;
+  --border:    rgba(192,154,80,0.22);
+  --shadow:    0 4px 24px rgba(28,26,22,0.10);
+}
 
-  .note {
-    background: #fff3cd;
-    color: #856404;
-    padding: 0.5rem;
-    border-radius: 0.3rem;
-    margin-bottom: 1rem;
-  }
+html { background: var(--cream); }
 
-  .search-box {
-    background: #fff;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
-  }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
 
-  .search-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.5rem;
-  }
+/* ─── Grain overlay ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.5;
+}
 
-  .search-row label {
-    width: 35%;
-    font-weight: bold;
-    color: #003D2E;
-    text-align: center;
-  }
+/* ─── Header ─── */
+header {
+  background: var(--green);
+  position: relative;
+  overflow: hidden;
+  padding: 44px 24px 36px;
+  text-align: center;
+}
+header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 100% at 10% 50%, rgba(192,154,80,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 80% at 90% 50%, rgba(192,154,80,0.07) 0%, transparent 55%);
+}
+header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, var(--gold) 30%, var(--gold-lt) 50%, var(--gold) 70%, transparent 100%);
+}
 
-  .search-row select,
-  .search-row input[type="text"] {
-    flex: 1;
-    padding: 0.5rem;
-    font-size: 1rem;
-    border-radius: 0.3rem;
-  }
+.header-eyebrow {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.8rem;
+  color: rgba(232,212,154,0.65);
+  letter-spacing: 0.2em;
+  margin-bottom: 10px;
+  position: relative;
+}
+.header-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: clamp(1.5rem, 4.5vw, 2.2rem);
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.1em;
+  position: relative;
+  line-height: 1.2;
+}
+.header-title span {
+  display: block;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(0.7rem, 2vw, 0.85rem);
+  color: var(--gold-lt);
+  letter-spacing: 0.35em;
+  margin-top: 8px;
+}
+.header-ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 18px;
+  position: relative;
+}
+.header-ornament::before,
+.header-ornament::after {
+  content: '';
+  flex: 1;
+  max-width: 100px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(192,154,80,0.5));
+}
+.header-ornament::after {
+  background: linear-gradient(90deg, rgba(192,154,80,0.5), transparent);
+}
+.header-ornament-diamond {
+  width: 6px; height: 6px;
+  background: var(--gold);
+  transform: rotate(45deg);
+}
 
-  /* フリーワード補助チェックは太字にしない */
-  .keyword-options label {
-    font-weight: normal;
-  }
+/* ─── Notice ─── */
+.notice-bar {
+  background: linear-gradient(90deg, #7A5200, #A07020, #7A5200);
+  color: var(--gold-lt);
+  text-align: center;
+  padding: 9px 20px;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  position: relative;
+  z-index: 1;
+}
+.notice-bar::before { content: '◆ '; }
+.notice-bar::after  { content: ' ◆'; }
 
-  .keyword-checkboxes {
-    display: flex;
-    gap: 1rem;
-    white-space: nowrap;
-  }
+/* ─── Search Panel ─── */
+.search-wrap {
+  position: relative;
+  z-index: 1;
+  padding: 20px 16px 0;
+}
+.search-panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.9);
+  overflow: hidden;
+}
+.search-panel-header {
+  background: linear-gradient(135deg, var(--green) 0%, var(--green-lt) 100%);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.search-panel-header svg { opacity: 0.7; }
+.search-panel-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: 0.12em;
+}
+.search-panel-body {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.field.full { grid-column: 1 / -1; }
+.field label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.field label::before {
+  content: '';
+  display: inline-block;
+  width: 3px; height: 10px;
+  background: var(--gold);
+  border-radius: 2px;
+}
+.field select,
+.field input[type="text"] {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--cream);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  color: var(--ink);
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  outline: none;
+}
+.field select:focus,
+.field input[type="text"]:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(192,154,80,0.15);
+}
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: '▾';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gold-dk);
+  font-size: 0.75rem;
+  pointer-events: none;
+}
 
-  #searchButton {
-    width: 100%;
-    padding: 0.75rem;
-    margin-top: 0.5rem;
-    background: #003D2E;
-    color: #fff;
-    border: none;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    font-size: 1rem;
-  }
+/* keyword checkboxes */
+.kw-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.kw-check-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all 0.18s;
+  user-select: none;
+}
+.kw-check-label input { display: none; }
+.kw-check-label:hover { border-color: var(--gold); color: var(--gold-dk); }
+.kw-check-label.checked {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--white);
+  font-weight: 500;
+}
 
-  #searchButton:hover {
-    background: #005c44;
-  }
+/* buttons */
+.btn-row {
+  padding: 0 20px 20px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+.btn-search {
+  background: linear-gradient(135deg, var(--green) 0%, var(--green-lt) 100%);
+  color: var(--white);
+  border: none;
+  border-radius: 10px;
+  padding: 13px 20px;
+  font-family: 'Shippori Mincho', serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: opacity 0.18s, transform 0.12s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-search:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-search:active { transform: scale(0.97); }
+.btn-clear {
+  background: var(--cream-dk);
+  color: var(--ink-soft);
+  border: none;
+  border-radius: 10px;
+  padding: 13px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.18s;
+  white-space: nowrap;
+}
+.btn-clear:hover { background: #ddd7ca; }
 
-  #clearButton {
-    width: 100%;
-    padding: 0.75rem;
-    margin-top: 0.25rem;
-    background: #ccc;
-    color: #333;
-    border: none;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    font-size: 1rem;
-  }
+/* ─── Result count ─── */
+.result-meta {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 4px;
+}
+.result-count {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.04em;
+}
+.result-count strong {
+  font-family: 'DM Sans', sans-serif;
+  font-style: normal;
+  font-size: 1.15rem;
+  color: var(--green);
+  font-weight: 500;
+}
+.section-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  margin-left: 16px;
+}
 
-  #clearButton:hover {
-    background: #bbb;
-  }
+/* ─── Coin Cards ─── */
+.coins-grid {
+  position: relative;
+  z-index: 1;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
-  #resultCount {
-    font-size: 1rem;
-    font-weight: bold;
-    color: #003D2E;
-    margin: 0.5rem 0;
-    text-align: right;
-  }
+.coin-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  animation: cardIn 0.4s ease both;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
-  .coins {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
+.coin-card-header {
+  padding: 14px 18px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--cream) 0%, var(--white) 100%);
+}
+.coin-theme {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.35;
+  flex: 1;
+}
+.coin-kind-badge {
+  flex-shrink: 0;
+  font-size: 0.62rem;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 100px;
+  background: var(--cream-dk);
+  color: var(--ink-soft);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  border: 1px solid var(--border);
+}
 
-  .coin {
-    background: #fff;
-    border-radius: 0.5rem;
-    padding: 1rem;
-    box-shadow: 0 0.0625rem 0.25rem rgba(0,0,0,0.1);
-    border: 1px solid #ccc;
-  }
+/* images */
+.coin-images {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px 18px;
+  background: var(--cream);
+  border-bottom: 1px solid var(--border);
+}
+.coin-img-wrap {
+  text-align: center;
+}
+.coin-img-wrap img {
+  width: 130px;
+  height: 130px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: var(--cream-dk);
+  box-shadow: 0 4px 16px rgba(28,26,22,0.14), 0 0 0 2px rgba(192,154,80,0.2);
+  display: block;
+}
+.coin-img-label {
+  font-size: 0.6rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-top: 7px;
+}
 
-  .coin-header {
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
+/* price highlight */
+.coin-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: linear-gradient(90deg, rgba(181,41,41,0.06) 0%, rgba(192,154,80,0.08) 100%);
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+.price-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+.price-value {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--red);
+  letter-spacing: 0.03em;
+  line-height: 1;
+}
+.face-value {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  text-align: right;
+}
+.face-value span {
+  display: block;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-bottom: 2px;
+}
 
-  .images {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-    margin-bottom: 1rem;
-  }
+/* specs grid */
+.coin-specs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  border-bottom: 1px solid var(--border);
+}
+.spec-item {
+  padding: 10px 12px;
+  border-right: 1px solid var(--border);
+  text-align: center;
+}
+.spec-item:last-child { border-right: none; }
+.spec-label {
+  font-size: 0.55rem;
+  letter-spacing: 0.15em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.spec-val {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.2;
+}
 
-  .coin-img {
-    width: 40%;
-    max-width: 180px;
-    height: auto;
-    border-radius: 0.25rem;
-  }
+/* design info */
+.coin-design {
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.design-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.design-side {
+  flex-shrink: 0;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--green);
+  color: var(--white);
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-top: 1px;
+  white-space: nowrap;
+}
+.design-text {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
 
-  .price {
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #d32f2f;
-    background: #ffe082;
-    padding: 0.5rem 1rem;
-    text-align: center;
+/* ─── Responsive ─── */
+@media (min-width: 640px) {
+  .coins-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
   }
+}
+@media (min-width: 1024px) {
+  .coins-grid { grid-template-columns: repeat(3, 1fr); }
+  header { padding: 56px 40px 44px; }
+  .search-wrap { padding: 24px 24px 0; }
+  .result-meta { padding: 24px 24px 4px; }
+  .coins-grid { padding: 12px 24px; }
+}
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 1rem;
-  }
-
-  th, td {
-    border: 1px solid #003D2E;
-    padding: 0.5rem;
-    text-align: center;
-  }
-
-  th {
-    background-color: #e0f7fa;
-    font-weight: bold;
-    white-space: nowrap;
-  }
-
-  td {
-    background-color: #f9f9f9;
-    white-space: normal;
-  }
-
-  /* スマホだけ折り返し許可 */
-  @media (max-width: 600px) {
-    .keyword-checkboxes {
-      flex-wrap: wrap;
-      white-space: normal;
-    }
-  }  
+/* empty state */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--ink-soft);
+}
+.empty-state svg { opacity: 0.2; margin-bottom: 16px; }
+.empty-state p { font-family: 'Shippori Mincho', serif; font-size: 1rem; }
 </style>
 </head>
 <body>
-<div class="container">
 
-  <div class="note">【お知らせ】2026年1月30日（金）より価格改定いたします。</div>
+<header>
+  <div class="header-eyebrow">Commemorative Gold Coin</div>
+  <div class="header-title">
+    記念金貨 買取価格
+    <span>PURCHASE PRICE LIST</span>
+  </div>
+  <div class="header-ornament">
+    <div class="header-ornament-diamond"></div>
+  </div>
+</header>
 
-  <div class="search-box">
-    <div class="search-row">
-      <label for="faceValueSelect">額　面：</label>
-      <select id="faceValueSelect">
-        <option value="">選択</option>
-        <option value="10万円">10万円</option>
-        <option value="5万円">5万円</option>
-        <option value="1万円">1万円</option>
-        <option value="5千円">5千円</option>
-      </select>
+<div class="notice-bar">2026年1月30日（金）より価格改定いたします</div>
+
+<!-- Search -->
+<div class="search-wrap">
+  <div class="search-panel">
+    <div class="search-panel-header">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <div class="search-panel-title">絞り込み検索</div>
     </div>
-    <div class="search-row">
-      <label for="weightSelect">量　目：</label>
-      <select id="weightSelect">
-        <option value="">選択</option>
-        <option value="30g">30g</option>
-        <option value="20g">20g</option>
-        <option value="18g">18g</option>
-        <option value="15.6g">15.6g</option>
-        <option value="7.8g">7.8g</option>
-      </select>
-    </div>
-    <div class="search-row">
-      <label for="yearSelect">発行年：</label>
-      <select id="yearSelect">
-        <option value="">選択</option>
-        <option value="昭和61年（1986年）">昭和61年（1986年）</option>
-        <option value="昭和62年（1987年）">昭和62年（1987年）</option>
-        <option value="平成2年（1990年）">平成2年（1990年）</option>
-        <option value="平成5年（1993年）">平成5年（1993年）</option>
-        <option value="平成9年（1997年）">平成9年（1997年）</option>
-        <option value="平成10年（1998年）">平成10年（1998年）</option>
-        <option value="平成11年（1999年）">平成11年（1999年）</option>
-        <option value="平成14年（2002年）">平成14年（2002年）</option>
-        <option value="平成16年（2004年）">平成16年（2004年）</option>
-        <option value="平成21年（2009年）">平成21年（2009年）</option>
-        <option value="平成27年（2015年）">平成27年（2015年）</option>
-        <option value="平成30年（2018年）">平成30年（2018年）</option>
-        <option value="平成31年（2019年）">平成31年（2019年）</option>
-        <option value="令和元年（2019年）">令和元年（2019年）</option>
-        <option value="令和2年（2020年）">令和2年（2020年）</option>
-        <option value="令和3年（2021年）">令和3年（2021年）</option>
-        <option value="令和4年（2022年）">令和4年（2022年）</option>
-        <option value="令和7年（2025年）">令和7年（2025年）</option>
-      </select>
-    </div>
-    <div class="search-row">
-      <label for="diameterSelect">直　径：</label>
-      <select id="diameterSelect">
-        <option value="">選択</option>
-        <option value="33mm">33mm</option>
-        <option value="30mm">30mm</option>
-        <option value="28mm">28mm</option>
-        <option value="27mm">27mm</option>
-        <option value="26mm">26mm</option>
-        <option value="20mm">20mm</option>
-      </select>
-    </div>
-    <div class="search-row">
-      <label for="keywordInput">フリーワード：</label>
-      <input
-        type="text"
-        id="keywordInput"
-        placeholder="例：万博、オリンピック"
-        class="search-input"
-      >
-    </div>
-    <div class="search-row keyword-options">
-      <label></label>
-      <div class="keyword-checkboxes">
-        <label class="normal-label">
-          <input type="checkbox" class="keyword-check" value="御在位"> 御在位
-        </label>
-        <label class="normal-label">
-          <input type="checkbox" class="keyword-check" value="御即位"> 御即位
-        </label>
-        <label class="normal-label">
-          <input type="checkbox" class="keyword-check" value="御成婚"> 御成婚
-        </label>
+    <div class="search-panel-body">
+      <div class="field">
+        <label for="faceValueSelect">額　面</label>
+        <div class="select-wrap">
+          <select id="faceValueSelect">
+            <option value="">すべて</option>
+            <option value="10万円">10万円</option>
+            <option value="5万円">5万円</option>
+            <option value="1万円">1万円</option>
+            <option value="5千円">5千円</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="weightSelect">量　目</label>
+        <div class="select-wrap">
+          <select id="weightSelect">
+            <option value="">すべて</option>
+            <option value="30g">30g</option>
+            <option value="20g">20g</option>
+            <option value="18g">18g</option>
+            <option value="15.6g">15.6g</option>
+            <option value="7.8g">7.8g</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="yearSelect">発行年</label>
+        <div class="select-wrap">
+          <select id="yearSelect">
+            <option value="">すべて</option>
+            <option value="昭和61年（1986年）">昭和61年（1986年）</option>
+            <option value="昭和62年（1987年）">昭和62年（1987年）</option>
+            <option value="平成2年（1990年）">平成2年（1990年）</option>
+            <option value="平成5年（1993年）">平成5年（1993年）</option>
+            <option value="平成9年（1997年）">平成9年（1997年）</option>
+            <option value="平成10年（1998年）">平成10年（1998年）</option>
+            <option value="平成11年（1999年）">平成11年（1999年）</option>
+            <option value="平成14年（2002年）">平成14年（2002年）</option>
+            <option value="平成16年（2004年）">平成16年（2004年）</option>
+            <option value="平成21年（2009年）">平成21年（2009年）</option>
+            <option value="平成27年（2015年）">平成27年（2015年）</option>
+            <option value="平成30年（2018年）">平成30年（2018年）</option>
+            <option value="平成31年（2019年）">平成31年（2019年）</option>
+            <option value="令和元年（2019年）">令和元年（2019年）</option>
+            <option value="令和2年（2020年）">令和2年（2020年）</option>
+            <option value="令和3年（2021年）">令和3年（2021年）</option>
+            <option value="令和4年（2022年）">令和4年（2022年）</option>
+            <option value="令和7年（2025年）">令和7年（2025年）</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="diameterSelect">直　径</label>
+        <div class="select-wrap">
+          <select id="diameterSelect">
+            <option value="">すべて</option>
+            <option value="33mm">33mm</option>
+            <option value="30mm">30mm</option>
+            <option value="28mm">28mm</option>
+            <option value="27mm">27mm</option>
+            <option value="26mm">26mm</option>
+            <option value="20mm">20mm</option>
+          </select>
+        </div>
+      </div>
+      <div class="field full">
+        <label for="keywordInput">フリーワード</label>
+        <input type="text" id="keywordInput" placeholder="例：万博、オリンピック">
+      </div>
+      <div class="field full">
+        <label>よく検索される</label>
+        <div class="kw-checks" id="kwChecks">
+          <label class="kw-check-label"><input type="checkbox" class="keyword-check" value="御在位">御在位</label>
+          <label class="kw-check-label"><input type="checkbox" class="keyword-check" value="御即位">御即位</label>
+          <label class="kw-check-label"><input type="checkbox" class="keyword-check" value="御成婚">御成婚</label>
+        </div>
       </div>
     </div>
-    <div class="search-row">
-      <button id="searchButton">検索</button>
-    </div>
-    <div class="search-row">
-      <button id="clearButton" type="button">クリア</button>
+    <div class="btn-row">
+      <button class="btn-search" id="searchButton">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        検　索
+      </button>
+      <button class="btn-clear" id="clearButton">クリア</button>
     </div>
   </div>
-
-  <div id="resultCount" class="count"></div>
-  <div class="coins" id="coinsContainer"></div>
-
 </div>
+
+<!-- Results -->
+<div class="result-meta">
+  <div class="result-count" id="resultCount"></div>
+  <div class="section-rule"></div>
+</div>
+
+<div class="coins-grid" id="coinsContainer"></div>
 
 <script>
 let allData = [];
 
-// JSON データ読み込み
 fetch('data/coins.json')
-  .then(res => res.json())
-  .then(data => {
-    allData = data;
-    displayCoins(allData); // 最初は全件表示
-  })
-  .catch(err => console.error('データの読み込みに失敗しました', err));
-
-function createCoinHTML(d){
-  return `
-    <div class="coin">
-      <div class="coin-header">
-        <span>${d['記念テーマ']}</span>
-        <span>${d['貨幣種別']}</span>
-      </div>
-      <div class="images">
-        <img class="coin-img" src="${d['画像（表面）']}" alt="表面">
-        <img class="coin-img" src="${d['画像（裏面）']}" alt="裏面">
-      </div>
-      <table>
-        <tr>
-          <th>買取価格</th><td class="price">${d['買取価格']}</td>
-          <th>額面</th><td>${d['額面']}</td>
-        </tr>
-        <tr><th>量目</th><td>${d['量目']}</td><th>直径</th><td>${d['直径']}</td></tr>
-        <tr><th>発行年</th><td>${d['発行年']}</td><th>発行枚数</th><td>${d['発行枚数（千枚）']}</td></tr>
-        <tr>
-          <th>図柄</th>
-          <td colspan="3">
-            <div style="display:flex; flex-direction:column; gap:0.5rem; text-align:left;">
-              <div>【表面】 ${d['図柄（表面）']}</div>
-              <div>【裏面】 ${d['図柄（裏面）']}</div>
-            </div>
-          </td>
-        </tr>
-      </table>
-    </div>
-  `;
-}
-
-function displayCoins(data){
-  document.getElementById('coinsContainer').innerHTML = data.map(createCoinHTML).join('');
-  document.getElementById('resultCount').textContent = `表示件数: ${data.length} 件`;
-}
-
-// 検索機能
-function filterData(){
-  const fv = document.getElementById('faceValueSelect').value;
-  const weight = document.getElementById('weightSelect').value;
-  const year = document.getElementById('yearSelect').value;
-  const dia = document.getElementById('diameterSelect').value;
-  const keyword = document.getElementById('keywordInput').value.trim();
-
-  // チェックされた語をフリーワードとして合流
-  const checkedWords = Array.from(
-    document.querySelectorAll('.keyword-check:checked')
-  ).map(cb => cb.value);
-
-  const allKeywords = [
-    ...checkedWords,
-    ...(keyword ? [keyword] : [])
-  ];
-
-  const filtered = allData.filter(d => {
-    const keywordTarget = [
-      d['記念テーマ'],
-      d['図柄（表面）'],
-      d['図柄（裏面）']
-    ].join('');
-
-    const keywordMatch =
-      allKeywords.length === 0 ||
-      allKeywords.some(k => keywordTarget.includes(k));
-
-    return (!fv || d['額面'] === fv) &&
-           (!weight || d['量目'] === weight) &&
-           (!year || d['発行年'] === year) &&
-           (!dia || d['直径'] === dia) &&
-           keywordMatch;
+  .then(r => r.json())
+  .then(data => { allData = data; displayCoins(allData); })
+  .catch(err => {
+    console.error('データの読み込みに失敗しました', err);
+    // Show demo card so design is visible
+    displayCoins([]);
   });
 
+function createCoinCard(d) {
+  return `
+    <div class="coin-card">
+      <div class="coin-card-header">
+        <div class="coin-theme">${d['記念テーマ']}</div>
+        <div class="coin-kind-badge">${d['貨幣種別']}</div>
+      </div>
+
+      <div class="coin-images">
+        <div class="coin-img-wrap">
+          <img src="${d['画像（表面）']}" alt="表面" onerror="this.style.opacity='0.2'">
+          <div class="coin-img-label">表面 · Obverse</div>
+        </div>
+        <div class="coin-img-wrap">
+          <img src="${d['画像（裏面）']}" alt="裏面" onerror="this.style.opacity='0.2'">
+          <div class="coin-img-label">裏面 · Reverse</div>
+        </div>
+      </div>
+
+      <div class="coin-price-row">
+        <div>
+          <div class="price-label">買取価格</div>
+          <div class="price-value">${d['買取価格']}</div>
+        </div>
+        <div class="face-value">
+          <span>額 面</span>
+          ${d['額面']}
+        </div>
+      </div>
+
+      <div class="coin-specs">
+        <div class="spec-item">
+          <div class="spec-label">量目</div>
+          <div class="spec-val">${d['量目']}</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">直径</div>
+          <div class="spec-val">${d['直径']}</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">発行年</div>
+          <div class="spec-val" style="font-size:0.72rem">${d['発行年']}</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">発行枚数</div>
+          <div class="spec-val" style="font-size:0.72rem">${d['発行枚数（千枚）']}</div>
+        </div>
+      </div>
+
+      <div class="coin-design">
+        <div class="design-row">
+          <span class="design-side">表</span>
+          <span class="design-text">${d['図柄（表面）']}</span>
+        </div>
+        <div class="design-row">
+          <span class="design-side">裏</span>
+          <span class="design-text">${d['図柄（裏面）']}</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+function displayCoins(data) {
+  const c = document.getElementById('coinsContainer');
+  const r = document.getElementById('resultCount');
+  if (data.length === 0) {
+    c.innerHTML = `<div class="empty-state">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <p>該当する金貨が見つかりませんでした</p>
+    </div>`;
+    r.innerHTML = `<strong>0</strong> 件`;
+  } else {
+    c.innerHTML = data.map(createCoinCard).join('');
+    r.innerHTML = `<strong>${data.length}</strong> 件 表示中`;
+  }
+
+  notifyHeight();
+}
+
+function filterData() {
+  const fv      = document.getElementById('faceValueSelect').value;
+  const weight  = document.getElementById('weightSelect').value;
+  const year    = document.getElementById('yearSelect').value;
+  const dia     = document.getElementById('diameterSelect').value;
+  const keyword = document.getElementById('keywordInput').value.trim();
+  const checked = Array.from(document.querySelectorAll('.keyword-check:checked')).map(c => c.value);
+  const kwAll   = [...checked, ...(keyword ? [keyword] : [])];
+
+  const filtered = allData.filter(d => {
+    const target = [d['記念テーマ'], d['図柄（表面）'], d['図柄（裏面）']].join('');
+    return (!fv     || d['額面'] === fv)
+        && (!weight || d['量目'] === weight)
+        && (!year   || d['発行年'] === year)
+        && (!dia    || d['直径'] === dia)
+        && (kwAll.length === 0 || kwAll.some(k => target.includes(k)));
+  });
   displayCoins(filtered);
 }
 
-document.getElementById('searchButton').addEventListener('click', filterData);
-
-function clearSearch(){
-  document.getElementById('faceValueSelect').value = '';
-  document.getElementById('weightSelect').value = '';
-  document.getElementById('yearSelect').value = '';
-  document.getElementById('diameterSelect').value = '';
+function clearSearch() {
+  ['faceValueSelect','weightSelect','yearSelect','diameterSelect'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
   document.getElementById('keywordInput').value = '';
-
-  document
-  .querySelectorAll('.keyword-check')
-  .forEach(cb => cb.checked = false);
-
-  displayCoins(allData); // 全件表示
+  document.querySelectorAll('.keyword-check').forEach(cb => { cb.checked = false; });
+  document.querySelectorAll('.kw-check-label').forEach(l => l.classList.remove('checked'));
+  displayCoins(allData);
 }
 
+document.getElementById('searchButton').addEventListener('click', filterData);
 document.getElementById('clearButton').addEventListener('click', clearSearch);
 
+// Toggle pill styles on checkboxes
+document.querySelectorAll('.kw-check-label').forEach(label => {
+  label.addEventListener('click', () => {
+    const cb = label.querySelector('input');
+    // toggle happens after click, so use setTimeout
+    setTimeout(() => {
+      label.classList.toggle('checked', cb.checked);
+    }, 0);
+  });
+});
+
+// iframe height
 function notifyHeight() {
   const height = document.body.scrollHeight;
   parent.postMessage({ type: 'resize-iframe', height }, '*');
 }
-
 window.addEventListener('load', notifyHeight);
 window.addEventListener('resize', notifyHeight);
 </script>
