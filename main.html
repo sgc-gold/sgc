@@ -4,273 +4,542 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>トップページ</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  html, body {
-    margin: 0;
-    padding: 1rem;
-    font-family: 'Noto Sans JP', sans-serif;
-    background: #f8f9f8;
-    color: #003D2E;
-    box-sizing: border-box;
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* --- 田中貴金属 公表価格タイトル --- */
-  .tanaka-header { text-align: center; margin-bottom: 1rem; padding: 1rem 0.8rem 1.2rem; border: 1px solid #d7c89e; border-radius: 12px; background: linear-gradient(180deg, #fffef9, #f8f6f1); box-shadow: 0 2px 8px rgba(0,0,0,0.05); max-width: 480px; margin-left: auto; margin-right: auto; }
-  .tanaka-title { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.08em; color: #5a4b2e; text-shadow: 0 1px 0 #fff; }
-  .tanaka-update { font-size: 0.85rem; color: #777; margin-top: 0.25rem; }
-  .tanaka-divider { margin: 0.8rem auto 0.8rem; width: 80%; border-top: 1px solid rgba(0,0,0,0.1); }
-  .tanaka-prices { display: flex; justify-content: space-between; align-items: center; max-width: 420px; margin: 0 auto; gap: 0.5rem; font-weight: 600; }
-  .tanaka-item { flex: 1; text-align: center; color: #4a4025; }
-  .tanaka-item:not(:last-child) { border-right: 1px solid rgba(0,0,0,0.08); }
-  .tanaka-item h3 { margin: 0; font-size: 0.9rem; letter-spacing: 0.05em; }
-  .tanaka-item .price { font-size: 1.3rem; font-weight: 700; margin: 0.3rem 0 0.15rem; color: #3a2c0d; }
-  .tanaka-item .diff { font-size: 0.85rem; }
-  .positive { color: #b71c1c; }
-  .negative { color: #1565c0; }
+:root {
+  --green:    #1A3628;
+  --green-lt: #254D38;
+  --green-dk: #0E1F17;
+  --gold:     #C09A50;
+  --gold-lt:  #E8D49A;
+  --gold-dk:  #8A6A28;
+  --cream:    #F7F3EB;
+  --cream-dk: #EDE6D8;
+  --white:    #FFFFFF;
+  --ink:      #1C1A16;
+  --ink-soft: #5A5448;
+  --border:   rgba(192,154,80,0.18);
+  --shadow:   0 4px 24px rgba(28,26,22,0.10);
+  --red:      #B52929;
+  --blue:     #1A5A9A;
+}
 
-  @media (max-width: 480px) {
-    .tanaka-header { padding: 0.9rem 0.6rem 1rem; width: 95%; }
-    .tanaka-prices { max-width: 100%; gap: 0.4rem; }
-    .tanaka-item .price { font-size: 1.1rem; }
-    .tanaka-item h3 { font-size: 0.85rem; }
-  }
+html { background: var(--cream); }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  padding-bottom: 40px;
+}
 
-  h1 { font-size: 1.5rem; margin-bottom: 1rem; border-bottom: 2px solid #ccc; padding-bottom: 0.4rem; }
-  h2 { font-size: 1.2rem; margin-top: 2rem; border-left: 4px solid #0077cc; padding-left: 0.5rem; }
-  p, li { line-height: 1.6; }
-  ul { margin: 0.5rem 0 1rem 1.5rem; padding: 0; margin-bottom: 3rem; }
-  .note { background: #fff3cd; color: #856404; padding: 0.5rem; border-radius: 0.3rem; margin-bottom: 1rem; }
-  .menu-grid { display: flex; gap: 1rem; margin-top: 1.5rem; margin-bottom: 1.5rem; justify-content: space-between; }
-  .menu-grid a { text-decoration: none; color: #003D2E; flex: 1 1 0; min-width: 0; }
-  .menu-icon { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fff; border: 2px solid #003D2E; border-radius: 0.5rem; padding: 1rem; box-shadow: 0 4px 8px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; min-height: 100px; }
-  .menu-icon:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
-  .menu-icon .icon { width: 36px; height: 36px; margin-bottom: 0.4rem; }
-  .menu-icon .label { font-size: 0.9rem; text-align: center; font-weight: 600; }
+/* Grain */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.4;
+}
 
-  /* --- 今日・近日開催イベント --- */
-  #exhibition-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
-  
-  .exhibition-card {
-    background: linear-gradient(180deg, #fffaf0, #fff3e0);
-    border-radius: 12px;
-    padding: 0.8rem 1rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-  
-  .exhibition-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-  }
-  
-  .exhibition-card.today {
-    border-left: 5px solid #f4c430; /* ゴールドのアクセント */
-  }
-  
-  .exhibition-title {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #b8860b; /* ゴールド系 */
-    margin-bottom: 0.3rem;
-  }
-  
-  .exhibition-location {
-    font-size: 0.9rem;
-    color: #4a4025;
-    margin-bottom: 0.2rem;
-  }
-  
-  .exhibition-date {
-    font-size: 0.8rem;
-    color: #777;
-  }
+/* ─── Page header ─── */
+.page-header {
+  position: relative;
+  z-index: 1;
+  background: var(--green-dk);
+  padding: 32px 24px 26px;
+  text-align: center;
+  border-bottom: 1px solid rgba(192,154,80,0.15);
+}
+.page-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--gold-dk) 20%, var(--gold) 50%, var(--gold-dk) 80%, transparent 100%);
+}
+.page-header-eyebrow {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.72rem;
+  color: rgba(200,160,80,0.55);
+  letter-spacing: 0.3em;
+  margin-bottom: 8px;
+}
+.page-header-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: clamp(1.3rem, 4vw, 1.9rem);
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.1em;
+}
+.page-header-title span {
+  display: block;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: var(--gold);
+  letter-spacing: 0.3em;
+  margin-top: 6px;
+}
+.page-header-orn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+.page-header-orn::before,
+.page-header-orn::after {
+  content: '';
+  flex: 1; max-width: 80px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(192,154,80,0.4));
+}
+.page-header-orn::after { background: linear-gradient(90deg, rgba(192,154,80,0.4), transparent); }
+.orn-d { width: 5px; height: 5px; background: var(--gold); transform: rotate(45deg); }
+
+/* ─── Price band ─── */
+.price-band {
+  position: relative; z-index: 1;
+  background: var(--green);
+  padding: 0 20px;
+}
+.price-band-inner {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 18px 0 14px;
+}
+.price-band-title {
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(200,160,80,0.55);
+  text-align: center;
+  margin-bottom: 12px;
+  font-family: 'DM Sans', sans-serif;
+}
+.price-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.price-item {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(192,154,80,0.15);
+  border-radius: 12px;
+  padding: 13px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.price-item-left {}
+.price-item-metal {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: rgba(232,212,154,0.55);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.price-item-val {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--white);
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+.price-item-unit { font-size: 0.65rem; color: rgba(255,255,255,0.35); margin-left: 3px; }
+.price-item-diff {
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 100px;
+  white-space: nowrap;
+  font-family: 'DM Sans', sans-serif;
+}
+.positive { background: rgba(181,41,41,0.18); color: #f08080; }
+.negative { background: rgba(26,90,154,0.2);  color: #7ab0f0; }
+.price-item-diff.loading { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.25); font-size: 0.7rem; }
+.price-update {
+  text-align: center;
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.22);
+  margin-top: 10px;
+  letter-spacing: 0.08em;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+}
+
+/* ─── Quick access ─── */
+.section-wrap {
+  position: relative; z-index: 1;
+  padding: 24px 18px 0;
+}
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.62rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold-dk);
+  margin-bottom: 12px;
+}
+.section-label::after {
+  content: '';
+  flex: 1; height: 1px;
+  background: var(--border);
+}
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.quick-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 8px;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--ink);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s;
+  box-shadow: var(--shadow);
+  min-height: 88px;
+}
+.quick-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(28,26,22,0.14);
+  border-color: rgba(192,154,80,0.4);
+}
+.quick-btn:active { transform: scale(0.96); }
+.quick-btn-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(30,61,44,0.08);
+}
+.quick-btn-icon svg { width: 18px; height: 18px; }
+.quick-btn-label {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--green);
+  line-height: 1.3;
+}
+
+/* ─── Exhibition ─── */
+.exhibition-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.exhibition-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.exhibition-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(28,26,22,0.12);
+}
+.ex-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+.ex-dot.today { background: var(--gold); animation: pulse-dot 2s infinite; }
+.ex-dot.upcoming { background: var(--green-lt); }
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(192,154,80,0.4); }
+  50%       { box-shadow: 0 0 0 5px rgba(192,154,80,0); }
+}
+.ex-body {}
+.ex-badge {
+  display: inline-block;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 100px;
+  margin-bottom: 5px;
+}
+.ex-badge.today    { background: rgba(192,154,80,0.15); color: var(--gold-dk); border: 1px solid rgba(192,154,80,0.3); }
+.ex-badge.upcoming { background: rgba(30,61,44,0.08);   color: var(--green-lt); border: 1px solid rgba(30,61,44,0.15); }
+.ex-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+  line-height: 1.35;
+}
+.ex-location { font-size: 0.8rem; color: var(--ink-soft); margin-bottom: 2px; }
+.ex-date     { font-size: 0.72rem; color: #aaa; letter-spacing: 0.04em; }
+.ex-empty    { font-size: 0.85rem; color: var(--ink-soft); font-style: italic; padding: 8px 0; }
+
+/* ─── Update log ─── */
+.update-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.update-item {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(192,154,80,0.1);
+  font-size: 0.83rem;
+}
+.update-item:last-child { border-bottom: none; }
+.update-date { font-size: 0.7rem; color: var(--ink-soft); white-space: nowrap; letter-spacing: 0.04em; min-width: 90px; }
+.update-text { color: var(--ink); }
+
+/* ─── Contact ─── */
+.contact-box {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
+.contact-box a {
+  color: var(--green);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.contact-box a:hover { color: var(--gold-dk); }
+
+/* ─── Notice ─── */
+.notice-pill {
+  position: relative; z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(30,61,44,0.08);
+  border: 1px solid rgba(192,154,80,0.2);
+  border-radius: 8px;
+  padding: 9px 14px;
+  margin: 16px 18px 0;
+  font-size: 0.78rem;
+  color: var(--gold-dk);
+}
+.notice-pill svg { flex-shrink: 0; }
+
+@media (min-width: 600px) {
+  .quick-grid { grid-template-columns: repeat(3, 1fr); }
+  .price-row  { grid-template-columns: repeat(2, 1fr); }
+}
 </style>
 </head>
 <body>
 
-  <!-- 田中貴金属 公表価格 -->
-  <div class="tanaka-header">
-    <div class="tanaka-title">田中貴金属 買取価格</div>
-    <div class="tanaka-update" id="update-time">-</div>
-    <div class="tanaka-divider"></div>
-    <div class="tanaka-prices">
-      <div class="tanaka-item">
-        <h3>GOLD</h3>
-        <div class="price" id="gold-price">-</div>
-        <div class="diff" id="gold-diff">-</div>
+<div class="page-header">
+  <div class="page-header-eyebrow">Internal Portal</div>
+  <div class="page-header-title">
+    社内ポータル
+    <span>SGC GROUP — STAFF ONLY</span>
+  </div>
+  <div class="page-header-orn"><div class="orn-d"></div></div>
+</div>
+
+<!-- Price band -->
+<div class="price-band">
+  <div class="price-band-inner">
+    <div class="price-band-title">田中貴金属 買取価格</div>
+    <div class="price-row">
+      <div class="price-item">
+        <div class="price-item-left">
+          <div class="price-item-metal">Gold · 金</div>
+          <div class="price-item-val"><span id="gold-price">—</span><span class="price-item-unit">円</span></div>
+        </div>
+        <div class="price-item-diff loading" id="gold-diff">読込中</div>
       </div>
-      <div class="tanaka-item">
-        <h3>PLATINUM</h3>
-        <div class="price" id="pt-price">-</div>
-        <div class="diff" id="pt-diff">-</div>
+      <div class="price-item">
+        <div class="price-item-left">
+          <div class="price-item-metal">Platinum · プラチナ</div>
+          <div class="price-item-val"><span id="pt-price">—</span><span class="price-item-unit">円</span></div>
+        </div>
+        <div class="price-item-diff loading" id="pt-diff">読込中</div>
       </div>
     </div>
+    <div class="price-update" id="update-time">—</div>
   </div>
+</div>
 
-  <!-- ----- アイコンメニュー ----- -->
-  <div class="menu-grid">
-    <a href="#" onclick="openFrame(event, 'diamond.html')">
-      <div class="menu-icon">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#003D2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2L2 9l10 13 10-13-10-7z"/>
-          <path d="M2 9h20"/>
-          <path d="M12 2l3 7-3 13-3-13 3-7z"/>
-        </svg>
-        <span class="label">ダイヤ相場検索</span>
+<div class="notice-pill">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  サイドメニューからも各ページにアクセスできます
+</div>
+
+<!-- Quick Access -->
+<div class="section-wrap">
+  <div class="section-label">クイックアクセス</div>
+  <div class="quick-grid">
+
+    <a class="quick-btn" href="#" onclick="openFrame(event,'diamond.html')">
+      <div class="quick-btn-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1A3628" stroke-width="2"><path d="M12 2L2 9l10 13 10-13-10-7z"/><path d="M2 9h20"/></svg>
       </div>
+      <div class="quick-btn-label">ダイヤ相場検索</div>
     </a>
 
-    <a href="#" onclick="openFrame(event, 'coin.html')">
-      <div class="menu-icon">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#003D2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <path d="M12 8v8M8 12h8"/>
-        </svg>
-        <span class="label">記念金貨 買取価格</span>
+    <a class="quick-btn" href="#" onclick="openFrame(event,'coin.html')">
+      <div class="quick-btn-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1A3628" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 10h8"/></svg>
       </div>
+      <div class="quick-btn-label">記念金貨買取価格</div>
     </a>
 
-    <a href="#" onclick="openFrame(event, 'https://script.google.com/macros/s/AKfycbxeQHB5lwwoTw0f-cgXh657fuaNiHL-LMbo5AfUOm9pDyftHNaF7OPi5hfMOrKNPhKYyQ/exec')">
-      <div class="menu-icon">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#003D2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2v20M2 12h20"/>
-          <rect x="4" y="4" width="16" height="16" rx="2"/>
-        </svg>
-        <span class="label">買取/分割 確認</span>
+    <a class="quick-btn" href="#" onclick="openFrame(event,'https://script.google.com/macros/s/AKfycbxeQHB5lwwoTw0f-cgXh657fuaNiHL-LMbo5AfUOm9pDyftHNaF7OPi5hfMOrKNPhKYyQ/exec')">
+      <div class="quick-btn-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1A3628" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
       </div>
+      <div class="quick-btn-label">買取 / 分割確認</div>
     </a>
+
   </div>
+</div>
 
-  <div class="note">サイドメニューからも各ページにアクセスできます。</div>
+<!-- Exhibition -->
+<div class="section-wrap">
+  <div class="section-label">開催の大黄金展</div>
+  <div class="exhibition-list" id="ex-container">
+    <div class="ex-empty">読み込み中…</div>
+  </div>
+</div>
 
-  <h1>社内案内</h1>
-  <p>この社内ポータルは、買取業務を中心とした情報・お知らせを共有するためのページです。</p>
+<!-- Update log -->
+<div class="section-wrap">
+  <div class="section-label">更新履歴</div>
+  <div class="update-list">
+    <div class="update-item"><span class="update-date">2025/10/13</span><span class="update-text">ダイヤ市場相場検索ページ 公開</span></div>
+    <div class="update-item"><span class="update-date">2025/10/13</span><span class="update-text">IG買取分割確認ページ 公開</span></div>
+    <div class="update-item"><span class="update-date">2025/10/01</span><span class="update-text">記念金貨買取価格ページ 公開</span></div>
+  </div>
+</div>
 
-  <!-- 現在開催の大黄金展 -->
-  <h2>開催の大黄金展</h2>
-  <div id="today-exhibition">読み込み中...</div>
-  <div id="upcoming-exhibition"></div>
-
-  <h2>更新履歴</h2>
-  <ul>
-    <li>2025/10/13　ダイヤ市場相場検索ページ 公開</li>
-    <li>2025/10/13　IG買取分割確認ページ 公開</li>
-    <li>2025/10/01　記念金貨買取価格ページ 公開</li>
-  </ul>
-
-  <h2>問い合わせ</h2>
-  <ul>
-      当ポータルに関するお問い合わせは、
-      <a href="https://works.do/FD5CnsF" target="_blank" rel="noopener noreferrer">横森（LINE WORKS）</a>
-      までお願いいたします。
-  </ul> 
+<!-- Contact -->
+<div class="section-wrap" style="padding-bottom: 24px;">
+  <div class="section-label">問い合わせ</div>
+  <div class="contact-box">
+    当ポータルに関するお問い合わせは
+    <a href="https://works.do/FD5CnsF" target="_blank" rel="noopener noreferrer">横森（LINE WORKS）</a>
+    までお願いいたします。
+  </div>
+</div>
 
 <script>
-function openFrame(e, url){
+function openFrame(e, url) {
   e.preventDefault();
   const iframe = parent.document.getElementById('main-frame');
-  if(iframe){ iframe.src = url; }
+  if (iframe) iframe.src = url;
 }
 
-// --- 金・プラチナ価格取得 ---
+// ─── 金・プラチナ価格 ───
 fetch("data/tanaka_price.json")
-  .then(res => res.json())
+  .then(r => r.json())
   .then(data => {
-    const gold = data.prices.GOLD;
+    const g  = data.prices.GOLD;
     const pt = data.prices.PLATINUM;
+
+    document.getElementById("gold-price").textContent = g.buy;
+    document.getElementById("pt-price").textContent   = pt.buy;
     document.getElementById("update-time").textContent = data.update_time;
 
-    document.getElementById("gold-price").textContent = `${gold.buy} 円`;
-    document.getElementById("pt-price").textContent = `${pt.buy} 円`;
+    const gEl = document.getElementById("gold-diff");
+    gEl.textContent  = g.buy_diff + " 円";
+    gEl.className    = "price-item-diff " + (g.buy_diff.includes('-') ? 'negative' : 'positive');
 
-    document.getElementById("gold-diff").textContent = `${gold.buy_diff} 円`;
-    document.getElementById("pt-diff").textContent = `${pt.buy_diff} 円`;
-
-    document.getElementById("gold-diff").className = gold.buy_diff.includes('-') ? 'diff negative' : 'diff positive';
-    document.getElementById("pt-diff").className = pt.buy_diff.includes('-') ? 'diff negative' : 'diff positive';
-
-    notifyHeight(); // ← 価格表示後に高さ再通知
-  })
-  .catch(err => {
-    console.error("価格情報取得エラー:", err);
-    document.getElementById("gold-price").textContent = "取得失敗";
-    document.getElementById("pt-price").textContent = "取得失敗";
-  });
-
-// --- 開催中／次回開催の大黄金展 ---
-fetch("data/exhibition.json")
-  .then(res => res.json())
-  .then(events => {
-    const today = new Date();
-    const todayStr = today.toISOString().split("T")[0];
-
-    const todayBox = document.getElementById("today-exhibition");
-    const upcomingBox = document.getElementById("upcoming-exhibition");
-
-    // ▼ 大黄金展のみ抽出
-    const goldEvents = events.filter(e => e.category === "大黄金展");
-
-    // ▼ 開催中
-    const todayEvents = goldEvents.filter(
-      e => e.start <= todayStr && e.end >= todayStr
-    );
-
-    // ▼ 次回開催（今日より後）→ 日付昇順 → 最大4件
-    const upcomingEvents = goldEvents
-      .filter(e => e.start > todayStr)
-      .sort((a, b) => a.start.localeCompare(b.start))
-      .slice(0, 4);
-
-    // --- 開催中表示 ---
-    if (todayEvents.length === 0) {
-      todayBox.textContent = "現在開催中の大黄金展はありません。";
-    } else {
-      todayBox.innerHTML = todayEvents.map(e => `
-        <div class="exhibition-card today">
-          <div class="exhibition-title">${e.title}</div>
-          <div class="exhibition-location">${e.location}</div>
-          <div class="exhibition-date">${e.start} 〜 ${e.end}</div>
-        </div>
-      `).join("");
-    }
-
-    // --- 次回開催表示 ---
-    if (upcomingEvents.length > 0) {
-      upcomingBox.innerHTML = `
-        <h3>次回開催予定</h3>
-        ${upcomingEvents.map(e => `
-          <div class="exhibition-card">
-            <div class="exhibition-title">${e.title}</div>
-            <div class="exhibition-location">${e.location}</div>
-            <div class="exhibition-date">${e.start} 〜 ${e.end}</div>
-          </div>
-        `).join("")}
-      `;
-    } else {
-      upcomingBox.innerHTML = "<p>次回開催予定は未定です。</p>";
-    }
+    const ptEl = document.getElementById("pt-diff");
+    ptEl.textContent = pt.buy_diff + " 円";
+    ptEl.className   = "price-item-diff " + (pt.buy_diff.includes('-') ? 'negative' : 'positive');
 
     notifyHeight();
   })
-  .catch(err => {
-    console.error("大黄金展データ取得エラー:", err);
-    document.getElementById("today-exhibition").textContent = "データ取得失敗";
+  .catch(() => {
+    document.getElementById("gold-price").textContent = "取得失敗";
+    document.getElementById("pt-price").textContent   = "取得失敗";
+  });
+
+// ─── 大黄金展 ───
+fetch("data/exhibition.json")
+  .then(r => r.json())
+  .then(events => {
+    const todayStr = new Date().toISOString().split("T")[0];
+    const gold = events.filter(e => e.category === "大黄金展");
+    const todayEv    = gold.filter(e => e.start <= todayStr && e.end >= todayStr);
+    const upcomingEv = gold.filter(e => e.start > todayStr)
+                           .sort((a,b) => a.start.localeCompare(b.start))
+                           .slice(0, 4);
+
+    const box = document.getElementById("ex-container");
+    let html = '';
+
+    if (todayEv.length === 0 && upcomingEv.length === 0) {
+      html = '<div class="ex-empty">現在・直近の開催予定はありません。</div>';
+    } else {
+      todayEv.forEach(e => {
+        html += `<div class="exhibition-card">
+          <div class="ex-dot today"></div>
+          <div class="ex-body">
+            <span class="ex-badge today">開催中</span>
+            <div class="ex-title">${e.title}</div>
+            <div class="ex-location">${e.location}</div>
+            <div class="ex-date">${e.start} 〜 ${e.end}</div>
+          </div>
+        </div>`;
+      });
+      upcomingEv.forEach(e => {
+        html += `<div class="exhibition-card">
+          <div class="ex-dot upcoming"></div>
+          <div class="ex-body">
+            <span class="ex-badge upcoming">開催予定</span>
+            <div class="ex-title">${e.title}</div>
+            <div class="ex-location">${e.location}</div>
+            <div class="ex-date">${e.start} 〜 ${e.end}</div>
+          </div>
+        </div>`;
+      });
+    }
+    box.innerHTML = html;
+    notifyHeight();
+  })
+  .catch(() => {
+    document.getElementById("ex-container").innerHTML = '<div class="ex-empty">データ取得に失敗しました。</div>';
   });
 
 function notifyHeight() {
-  const height = document.body.scrollHeight;
-  parent.postMessage({ type: 'resize-iframe', height }, '*');
+  parent.postMessage({ type: 'resize-iframe', height: document.body.scrollHeight }, '*');
 }
-
 window.addEventListener('load', notifyHeight);
-window.addEventListener('resize', notifyHeight);  
+window.addEventListener('resize', notifyHeight);
 </script>
-
 </body>
 </html>
