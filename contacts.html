@@ -4,349 +4,721 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SGC 拠点一覧</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
-body{
-  margin:0;
-  padding:20px;
-  font-family:'Noto Sans JP',sans-serif;
-  background:#f4f6f8;
-  color:#003D2E;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold: #C8A96E;
+  --gold-light: #E5D4A8;
+  --gold-dark: #9A7A45;
+  --ink: #1A1A1A;
+  --ink-soft: #4A4A4A;
+  --cream: #F9F6F0;
+  --white: #FFFFFF;
+  --hq: #C8373B;
+  --office: #2E7D5E;
+  --store: #4A7FC1;
+  --border: rgba(200,169,110,0.25);
+  --shadow: 0 2px 20px rgba(0,0,0,0.08);
 }
-h1{
-  text-align:center;
-  margin-bottom:20px;
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
 }
-table{
-  width:100%;
-  border-collapse:collapse;
-  background:#fff;
-  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+
+/* ─── Header ─── */
+header {
+  background: var(--ink);
+  padding: 48px 24px 36px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
 }
-th,td{
-  border-bottom:1px solid #ddd;
-  padding:10px 12px;
-  font-size:0.9rem;
-  vertical-align:top;
+header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 80% at 20% 50%, rgba(200,169,110,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 80% 50%, rgba(200,169,110,0.08) 0%, transparent 60%);
 }
-th{
-  background:#003D2E;
-  color:#fff;
-  white-space:nowrap;
+.header-ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  position: relative;
 }
-tr:hover{background:#f0f8f6;}
-.type{
-  display:inline-block;
-  padding:2px 6px;
-  border-radius:4px;
-  font-size:0.75rem;
-  font-weight:bold;
-  margin-right:6px;
+.header-ornament::before,
+.header-ornament::after {
+  content: '';
+  flex: 1;
+  max-width: 80px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold));
 }
-.hq{background:#ffd6d6;color:#b00000;}
-.office{background:#d6f5e3;color:#006644;}
-.store{background:#e3f0ff;color:#003d99;}
-.tel a{display:block;color:#003D2E;text-decoration:none;font-weight:bold;}
-.tel small{font-size:0.75rem;color:#555;}
-.address a{color:#003D2E;text-decoration:none;line-height:1.4;}
-.address a.map-link {
-  color: #0066cc;
-  text-decoration: underline;
+.header-ornament::after {
+  background: linear-gradient(90deg, var(--gold), transparent);
+}
+.header-ornament span {
+  color: var(--gold);
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+}
+h1 {
+  font-family: 'Shippori Mincho', serif;
+  color: var(--white);
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  position: relative;
+}
+h1 em {
+  display: block;
+  font-style: normal;
+  color: var(--gold);
+  font-size: clamp(0.65rem, 2vw, 0.8rem);
+  letter-spacing: 0.35em;
+  margin-top: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+}
+
+/* ─── Filter Tabs ─── */
+.filter-bar {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: var(--ink);
+  padding: 12px 20px 14px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid rgba(200,169,110,0.3);
+}
+.filter-bar::-webkit-scrollbar { display: none; }
+.filter-btn {
+  flex-shrink: 0;
+  border: 1px solid rgba(200,169,110,0.4);
+  background: transparent;
+  color: rgba(255,255,255,0.6);
+  padding: 7px 18px;
+  border-radius: 100px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+.filter-btn:hover { color: var(--white); border-color: var(--gold); }
+.filter-btn.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--ink);
   font-weight: 500;
+}
+
+/* ─── MAP SECTION ─── */
+.map-section {
+  background: #111;
+  padding-bottom: 0;
+}
+.map-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.3em;
+  color: rgba(200,169,110,0.7);
+  text-transform: uppercase;
+}
+.map-header::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(200,169,110,0.2);
+}
+#map {
+  width: 100%;
+  height: 440px;
+  margin-top: 14px;
+}
+.map-legend {
+  display: flex;
+  gap: 20px;
+  padding: 14px 24px 20px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.04em;
+}
+.legend-dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.25);
+}
+.map-hint-text {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.3);
+  padding: 0 24px 16px;
+  letter-spacing: 0.05em;
+}
+
+/* ─── Popup styles ─── */
+.leaflet-popup-content-wrapper {
+  background: #1e1e1e !important;
+  color: #fff !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(200,169,110,0.35) !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6) !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+.leaflet-popup-content { margin: 0 !important; font-family: 'DM Sans', sans-serif !important; }
+.leaflet-popup-tip-container { margin-top: -1px; }
+.leaflet-popup-tip { background: #1e1e1e !important; }
+.leaflet-popup-close-button {
+  color: rgba(200,169,110,0.8) !important;
+  font-size: 20px !important;
+  top: 6px !important;
+  right: 10px !important;
+  padding: 0 !important;
+}
+.popup-inner { padding: 16px 18px 14px; min-width: 210px; }
+.popup-badge {
+  font-size: 0.6rem;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 100px;
+  display: inline-block;
+  margin-bottom: 7px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.popup-badge.hq     { background: rgba(200,55,59,0.3);  color: #f09090; }
+.popup-badge.office { background: rgba(46,125,94,0.3);  color: #70d4a0; }
+.popup-badge.store  { background: rgba(74,127,193,0.3); color: #90b8f0; }
+.popup-name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+.popup-address {
+  font-size: 0.74rem;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.65;
+  margin-bottom: 8px;
+}
+.popup-tel { font-size: 0.82rem; color: var(--gold); font-weight: 500; margin-bottom: 10px; }
+.popup-maplink {
+  display: inline-block;
+  font-size: 0.71rem;
+  color: var(--gold);
+  text-decoration: none;
+  border: 1px solid rgba(200,169,110,0.35);
+  padding: 5px 12px;
+  border-radius: 100px;
+  transition: background 0.15s;
+  letter-spacing: 0.02em;
+}
+.popup-maplink:hover { background: rgba(200,169,110,0.15); }
+
+/* ─── Section Headers ─── */
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 20px 10px;
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ─── Cards ─── */
+.cards {
+  padding: 0 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.card {
+  background: var(--white);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.2s ease;
   cursor: pointer;
 }
-.address a.map-link:hover,
-.address a.map-link:active {
-  opacity: 0.7;
-}
-.map-icon {
-  margin-right: 4px;
-}
-.map-hint {
-  display: none;
-  font-size: 0.85rem;
-  color: #555;
-  margin-bottom: 10px;
-}
-.hidden{display:none;}
-@media(max-width:900px){
-  table,thead,tbody,tr,th,td{display:block;}
-  thead{display:none;}
-  tr{margin-bottom:15px;border:1px solid #ddd;border-radius:6px;overflow:hidden;}
-  td{border:none;padding-left:30%;position:relative;}
-  td::before{
-    position:absolute;
-    top:10px;
-    left:10px;
-    width:40%;
-    font-weight:bold;
-    font-size:0.75rem;
-    color:#555;
-    content:attr(data-label);
+.card:active { transform: scale(0.985); }
+@media(hover:hover) {
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 28px rgba(0,0,0,0.12);
   }
-　.map-hint {
-　display: block;
-  }
+}
+.card.highlighted {
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 0 3px rgba(200,169,110,0.25), 0 6px 28px rgba(0,0,0,0.12) !important;
+}
+.card.hidden { display: none; }
+
+.card-inner { display: flex; }
+.card-stripe { width: 4px; flex-shrink: 0; }
+.card.hq     .card-stripe { background: var(--hq); }
+.card.office .card-stripe { background: var(--office); }
+.card.store  .card-stripe { background: var(--store); }
+
+.card-body { flex: 1; padding: 16px 18px; min-width: 0; }
+.card-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+.badge {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 100px;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+.badge.hq     { background: #FDECEA; color: var(--hq); }
+.badge.office { background: #E8F5F0; color: var(--office); }
+.badge.store  { background: #EAF0F9; color: var(--store); }
+
+.card-name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.35;
+  flex: 1;
+}
+.card-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+.info-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.info-value { font-size: 0.88rem; color: var(--ink); line-height: 1.5; }
+.info-value a { color: var(--ink); text-decoration: none; display: block; }
+.info-value a.tel-link { font-weight: 500; }
+.info-value a.tel-link:hover { color: var(--gold-dark); }
+.tel-group { display: flex; flex-direction: column; gap: 2px; }
+.tel-sub { font-size: 0.72rem; color: var(--ink-soft); font-weight: 300; }
+.tel-row { display: flex; align-items: baseline; gap: 6px; }
+.info-value a.map-link {
+  color: var(--store);
+  font-size: 0.82rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  line-height: 1.55;
+  transition: color 0.15s;
+}
+.info-value a.map-link:hover { color: var(--gold-dark); }
+.map-pin { flex-shrink: 0; margin-top: 2px; }
+.info-value.private { color: #999; font-size: 0.8rem; font-style: italic; }
+.info-item.full { grid-column: 1 / -1; }
+
+@media (min-width: 700px) {
+  .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 24px 24px; }
+  .section-label { padding: 32px 24px 12px; }
+  #map { height: 500px; }
+}
+@media (min-width: 1100px) {
+  .cards { grid-template-columns: repeat(3, 1fr); }
+  header { padding: 60px 40px 44px; }
+  #map { height: 560px; }
+}
+
+footer {
+  text-align: center;
+  padding: 32px 20px;
+  font-size: 0.72rem;
+  color: #aaa;
+  letter-spacing: 0.08em;
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
 }
 </style>
 </head>
 <body>
-<h1>SGC 拠点一覧</h1>
-<p class="map-hint">📍 住所をタップすると Google マップが開きます</p>
-<table>
-<thead>
-<tr>
-<th>拠点名</th>
-<th>電話番号</th>
-<th>FAX</th>
-<th>住所</th>
-</tr>
-</thead>
-<tbody>
 
-  <!-- 本社 -->
-  <tr>
-    <td data-label="拠点名"><span class="type hq">本社</span> 銀座本社</td>
-    <td class="tel" data-label="電話番号">
-      <small>[社内]</small><a href="tel:0362746833">03-6274-6833</a><br>
-      <small>[社外]</small><a href="tel:0362806517">03-6280-6517</a>
-    </td>
-    <td data-label="FAX">03-3572-2265</td>
-    <td class="address" data-label="住所">
-      <a href="https://www.google.com/maps/search/?api=1&query=〒104-0061 東京都中央区銀座5丁目8-1 GINZA PLACE"
-         target="_blank" rel="noopener">
-        <span class="map-icon">📍</span>〒104-0061<br>東京都中央区銀座5丁目8-1<br>GINZA PLACE 10F
-      </a>
-    </td>
-  </tr>
+<header>
+  <div class="header-ornament"><span>SGC GROUP</span></div>
+  <h1>拠点一覧<em>LOCATIONS &amp; OFFICES</em></h1>
+</header>
 
-  <!-- 事務所 -->
-  <tr>
-    <td data-label="拠点名"><span class="type office">事務所</span> 松本SGC</td>
-    <td class="tel" data-label="電話番号"><a href="tel:0263643065">0263-64-3065</a></td>
-    <td data-label="FAX">0263-64-4157</td>
-    <td class="address" data-label="住所">
-      <a href="https://www.google.com/maps/search/?api=1&query=信州ゴールデンキャッスル"
-         target="_blank" rel="noopener">
-        <span class="map-icon">📍</span>〒399-7413<br>長野県松本市金山46
-      </a>
-    </td>
-  </tr>
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filterCards('all', this)">すべて</button>
+  <button class="filter-btn" onclick="filterCards('hq', this)">本社</button>
+  <button class="filter-btn" onclick="filterCards('office', this)">事務所</button>
+  <button class="filter-btn" onclick="filterCards('store', this)">店舗</button>
+</div>
 
-  <tr>
-    <td data-label="拠点名"><span class="type office">事務所</span> 関西事務所</td>
-    <td class="tel" data-label="電話番号"><a href="tel:0726656380">072-665-6380</a></td>
-    <td data-label="FAX">072-665-6380</td>
-    <td class="address" data-label="住所">
-      <a href="https://www.google.com/maps/search/?api=1&query=大阪府茨木市上中条2-1-24"
-         target="_blank" rel="noopener">
-        <span class="map-icon">📍</span>〒567-0881<br>大阪府茨木市上中条2-1-24<br>山崎マンション13-304号室
-      </a>
-    </td>
-  </tr>
+<!-- MAP -->
+<div class="map-section">
+  <div class="map-header">拠点マップ</div>
+  <div id="map"></div>
+  <div class="map-legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#C8373B;"></div>本社</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#2E7D5E;"></div>事務所</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#4A7FC1;"></div>店舗</div>
+  </div>
+  <p class="map-hint-text">📍 ピンをタップすると詳細が表示されます。カードをタップすると地図が移動します。</p>
+</div>
 
-  <tr>
-    <td data-label="拠点名"><span class="type office">事務所</span> SGC工場・美術工藝部</td>
-    <td class="tel" data-label="電話番号">非公開</td>
-    <td data-label="FAX">非公開</td>
-    <td class="address" data-label="住所">非公開</td>
-  </tr>
+<!-- CARDS -->
+<div id="section-hq">
+  <div class="section-label">本社</div>
+  <div class="cards">
+    <div class="card hq" data-type="hq" data-id="0" onclick="focusMarker(0)">
+      <div class="card-inner"><div class="card-stripe"></div><div class="card-body">
+        <div class="card-top"><span class="badge hq">本社</span><div class="card-name">銀座本社</div></div>
+        <div class="card-info">
+          <div class="info-item"><div class="info-label">電話</div><div class="info-value"><div class="tel-group"><div class="tel-row"><span class="tel-sub">[社内]</span><a href="tel:0362746833" class="tel-link">03-6274-6833</a></div><div class="tel-row"><span class="tel-sub">[社外]</span><a href="tel:0362806517" class="tel-link">03-6280-6517</a></div></div></div></div>
+          <div class="info-item"><div class="info-label">FAX</div><div class="info-value">03-3572-2265</div></div>
+          <div class="info-item full"><div class="info-label">住所</div><div class="info-value"><a href="https://www.google.com/maps/search/?api=1&query=東京都中央区銀座5丁目8-1 GINZA PLACE" target="_blank" rel="noopener" class="map-link"><svg class="map-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>〒104-0061 東京都中央区銀座5丁目8-1 GINZA PLACE 10F</a></div></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
 
-  <!-- 店舗 -->
-  <tr>
-    <td data-label="拠点名"><span class="type store">店舗</span> GINZA SGC</td>
-    <td class="tel" data-label="電話番号">
-      <small>[社内]</small><a href="tel:0355370107">03-5537-0107</a><br>
-      <small>[社外]</small><a href="tel:0120375614">0120-375-614</a>
-    </td>
-    <td data-label="FAX">—</td>
-    <td class="address" data-label="住所">
-      <a href="https://www.google.com/maps/search/?api=1&query=銀座SGC"
-         target="_blank" rel="noopener">
-        <span class="map-icon">📍</span>〒104-0061<br>東京都中央区銀座5-7-10<br>EXITMELSA 4階
-      </a>
-    </td>
-  </tr>
+<div id="section-office">
+  <div class="section-label">事務所</div>
+  <div class="cards">
 
-  <tr>
-    <td data-label="拠点名"><span class="type store">店舗</span> SGCゴールドショップ日本橋髙島屋店</td>
-    <td class="tel" data-label="電話番号"><a href="tel:0363800905">03-6380-0905</a></td>
-    <td data-label="FAX">—</td>
-    <td class="address" data-label="住所">
-      <a href="https://www.google.com/maps/search/?api=1&query=SGCゴールドショップ日本橋髙島屋店"
-         target="_blank" rel="noopener">
-        <span class="map-icon">📍</span>〒103-8265<br>東京都中央区日本橋2-4-1<br>日本橋髙島屋 6階
-      </a>
-    </td>
-  </tr>
+    <div class="card office" data-type="office" data-id="1" onclick="focusMarker(1)">
+      <div class="card-inner"><div class="card-stripe"></div><div class="card-body">
+        <div class="card-top"><span class="badge office">事務所</span><div class="card-name">松本SGC</div></div>
+        <div class="card-info">
+          <div class="info-item"><div class="info-label">電話</div><div class="info-value"><a href="tel:0263643065" class="tel-link">0263-64-3065</a></div></div>
+          <div class="info-item"><div class="info-label">FAX</div><div class="info-value">0263-64-4157</div></div>
+          <div class="info-item full"><div class="info-label">住所</div><div class="info-value"><a href="https://www.google.com/maps/search/?api=1&query=長野県松本市金山46" target="_blank" rel="noopener" class="map-link"><svg class="map-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>〒399-7413 長野県松本市金山46</a></div></div>
+        </div>
+      </div></div>
+    </div>
 
-  <tr>
-    <td data-label="拠点名"><span class="type store">店舗</span> SGCゴールドショップ新宿髙島屋店</td>
-    <td class="tel" data-label="電話番号">
-      <small>[社内]</small><a href="tel:0363800905">03-6380-0905</a><br>
-      <small>[社外]</small><a href="tel:0353611067">03-5361-1067</a>
-    </td>
-    <td data-label="FAX">—</td>
-    <td class="address" data-label="住所">
-      <a href="https://www.google.com/maps/search/?api=1&query=ＳＧＣゴールドショップ新宿店"
-         target="_blank" rel="noopener">
-        <span class="map-icon">📍</span>〒151-8580<br>東京都渋谷区千駄ヶ谷5-24-2<br>新宿高島屋 4階
-      </a>
-    </td>
-  </tr>
+    <div class="card office" data-type="office" data-id="2" onclick="focusMarker(2)">
+      <div class="card-inner"><div class="card-stripe"></div><div class="card-body">
+        <div class="card-top"><span class="badge office">事務所</span><div class="card-name">関西事務所</div></div>
+        <div class="card-info">
+          <div class="info-item"><div class="info-label">電話</div><div class="info-value"><a href="tel:0726656380" class="tel-link">072-665-6380</a></div></div>
+          <div class="info-item"><div class="info-label">FAX</div><div class="info-value">072-665-6380</div></div>
+          <div class="info-item full"><div class="info-label">住所</div><div class="info-value"><a href="https://www.google.com/maps/search/?api=1&query=大阪府茨木市上中条2-1-24" target="_blank" rel="noopener" class="map-link"><svg class="map-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>〒567-0881 大阪府茨木市上中条2-1-24 山崎マンション13-304号室</a></div></div>
+        </div>
+      </div></div>
+    </div>
 
-  <tr>
-    <td data-label="拠点名"><span class="type store">店舗</span> SGCゴールドショップ横浜髙島屋店</td>
-    <td class="tel" data-label="電話番号"><a href="tel:0453218866">045-321-8866</a></td>
-    <td data-label="FAX">—</td>
-    <td class="address" data-label="住所">
-      <a href="https://www.google.com/maps/search/?api=1&query=SGCゴールドショップ 横浜髙島屋店"
-         target="_blank" rel="noopener">
-        <span class="map-icon">📍</span>〒220-8601<br>神奈川県横浜市西区南幸1-6-31<br>横浜高島屋 5階
-      </a>
-    </td>
-  </tr>
+    <div class="card office" data-type="office" data-id="-1">
+      <div class="card-inner"><div class="card-stripe"></div><div class="card-body">
+        <div class="card-top"><span class="badge office">事務所</span><div class="card-name">SGC工場・美術工藝部</div></div>
+        <div class="card-info">
+          <div class="info-item"><div class="info-label">電話</div><div class="info-value private">非公開</div></div>
+          <div class="info-item"><div class="info-label">FAX</div><div class="info-value private">非公開</div></div>
+          <div class="info-item full"><div class="info-label">住所</div><div class="info-value private">非公開</div></div>
+        </div>
+      </div></div>
+    </div>
 
-  <tr>
-    <td data-label="拠点名"><span class="type store">店舗</span> SGCゴールドショップ大阪髙島屋店</td>
-    <td class="tel" data-label="電話番号"><a href="tel:0666313377">06-6631-3377</a></td>
-    <td data-label="FAX">—</td>
-    <td class="address" data-label="住所">
-      <a href="https://www.google.com/maps/search/?api=1&query=SGCゴールドショップ大阪店"
-         target="_blank" rel="noopener">
-        <span class="map-icon">📍</span>〒542-8510<br>大阪市中央区難波5-1-5<br>大阪高島屋 7階
-      </a>
-    </td>
-  </tr>
+  </div>
+</div>
 
-  <tr>
-    <td data-label="拠点名"><span class="type store">店舗</span> SGCゴールドショップ京都髙島屋店</td>
-    <td class="tel" data-label="電話番号"><a href="tel:0752522001">075-252-2001</a></td>
-    <td data-label="FAX">—</td>
-    <td class="address" data-label="住所">
-      <a href="https://www.google.com/maps/search/?api=1&query=SGCゴールドショップ京都髙島屋店"
-         target="_blank" rel="noopener">
-        <span class="map-icon">📍</span>〒600-8520<br>京都市下京区真町52<br>京都髙島屋 5階宝石サロン
-      </a>
-    </td>
-  </tr>
+<div id="section-store">
+  <div class="section-label">店舗</div>
+  <div class="cards">
 
-  <tr>
-    <td data-label="拠点名"><span class="type store">店舗</span> SGCゴールドサロン札幌三越店</td>
-    <td class="tel" data-label="電話番号"><a href="tel:0112228957">011-222-8957</a></td>
-    <td data-label="FAX">—</td>
-    <td class="address" data-label="住所">
-      <a href="https://www.google.com/maps/search/?api=1&query=SGCゴールドサロン札幌"
-         target="_blank" rel="noopener">
-        <span class="map-icon">📍</span>〒060-0061<br>札幌市中央区南1条西3丁目8<br>札幌三越 本館9階
-      </a>
-    </td>
-  </tr>
+    <div class="card store" data-type="store" data-id="3" onclick="focusMarker(3)">
+      <div class="card-inner"><div class="card-stripe"></div><div class="card-body">
+        <div class="card-top"><span class="badge store">店舗</span><div class="card-name">GINZA SGC</div></div>
+        <div class="card-info">
+          <div class="info-item"><div class="info-label">電話</div><div class="info-value"><div class="tel-group"><div class="tel-row"><span class="tel-sub">[社内]</span><a href="tel:0355370107" class="tel-link">03-5537-0107</a></div><div class="tel-row"><span class="tel-sub">[社外]</span><a href="tel:0120375614" class="tel-link">0120-375-614</a></div></div></div></div>
+          <div class="info-item"><div class="info-label">FAX</div><div class="info-value">—</div></div>
+          <div class="info-item full"><div class="info-label">住所</div><div class="info-value"><a href="https://www.google.com/maps/search/?api=1&query=東京都中央区銀座5-7-10 EXITMELSA" target="_blank" rel="noopener" class="map-link"><svg class="map-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>〒104-0061 東京都中央区銀座5-7-10 EXITMELSA 4階</a></div></div>
+        </div>
+      </div></div>
+    </div>
 
-  <tr>
-    <td data-label="拠点名"><span class="type store">店舗</span> ゴールドコンシェルジュ日本橋三越本店</td>
-    <td class="tel" data-label="電話番号">
-      <small>[社内]</small><a href="tel:0362623044">03-6262-3044</a><br>
-      <small>[社外]</small><a href="tel:0332746505">03-3274-6505</a>
-    </td>
-    <td data-label="FAX">—</td>
-    <td class="address" data-label="住所">
-      <a href="https://www.google.com/maps/search/?api=1&query=SGCゴールドコンシェルジュ日本橋"
-         target="_blank" rel="noopener">
-        <span class="map-icon">📍</span>〒103-8001<br>東京都中央区日本橋室町1-4-1<br>日本橋三越本店 本館6階
-      </a>
-    </td>
-  </tr>
+    <div class="card store" data-type="store" data-id="4" onclick="focusMarker(4)">
+      <div class="card-inner"><div class="card-stripe"></div><div class="card-body">
+        <div class="card-top"><span class="badge store">店舗</span><div class="card-name">SGCゴールドショップ<br>日本橋髙島屋店</div></div>
+        <div class="card-info">
+          <div class="info-item"><div class="info-label">電話</div><div class="info-value"><a href="tel:0363800905" class="tel-link">03-6380-0905</a></div></div>
+          <div class="info-item"><div class="info-label">FAX</div><div class="info-value">—</div></div>
+          <div class="info-item full"><div class="info-label">住所</div><div class="info-value"><a href="https://www.google.com/maps/search/?api=1&query=東京都中央区日本橋2-4-1 日本橋髙島屋" target="_blank" rel="noopener" class="map-link"><svg class="map-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>〒103-8265 東京都中央区日本橋2-4-1 日本橋髙島屋 6階</a></div></div>
+        </div>
+      </div></div>
+    </div>
 
-  <tr>
-    <td data-label="拠点名"><span class="type store">店舗</span> ゴールドサロンSGC伊勢丹新宿店</td>
-    <td class="tel" data-label="電話番号"><a href="tel:0353577577">03-5357-7577</a></td>
-    <td data-label="FAX">—</td>
-    <td class="address" data-label="住所">
-      <a href="https://www.google.com/maps/search/?api=1&query=伊勢丹 新宿店"
-         target="_blank" rel="noopener">
-        <span class="map-icon">📍</span>〒160-0022<br>東京都新宿区新宿3-14-1<br>伊勢丹新宿店 本館4階
-      </a>
-    </td>
-  </tr>
+    <div class="card store" data-type="store" data-id="5" onclick="focusMarker(5)">
+      <div class="card-inner"><div class="card-stripe"></div><div class="card-body">
+        <div class="card-top"><span class="badge store">店舗</span><div class="card-name">SGCゴールドショップ<br>新宿髙島屋店</div></div>
+        <div class="card-info">
+          <div class="info-item"><div class="info-label">電話</div><div class="info-value"><div class="tel-group"><div class="tel-row"><span class="tel-sub">[社内]</span><a href="tel:0363800905" class="tel-link">03-6380-0905</a></div><div class="tel-row"><span class="tel-sub">[社外]</span><a href="tel:0353611067" class="tel-link">03-5361-1067</a></div></div></div></div>
+          <div class="info-item"><div class="info-label">FAX</div><div class="info-value">—</div></div>
+          <div class="info-item full"><div class="info-label">住所</div><div class="info-value"><a href="https://www.google.com/maps/search/?api=1&query=東京都渋谷区千駄ヶ谷5-24-2 新宿高島屋" target="_blank" rel="noopener" class="map-link"><svg class="map-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>〒151-8580 東京都渋谷区千駄ヶ谷5-24-2 新宿高島屋 4階</a></div></div>
+        </div>
+      </div></div>
+    </div>
 
-  <tr>
-    <td data-label="拠点名"><span class="type store">店舗</span> SGCゴールドショップ松坂屋名古屋店</td>
-    <td class="tel" data-label="電話番号"><a href="tel:05057854635">050-5785-4635</a></td>
-    <td data-label="FAX">—</td>
-    <td class="address" data-label="住所">
-      <a href="https://www.google.com/maps/search/?api=1&query=SGCゴールドショップ松坂屋名古屋店"
-         target="_blank" rel="noopener">
-        <span class="map-icon">📍</span>〒460-8430<br>愛知県名古屋市中区栄3-16-1<br>松坂屋名古屋店 本館7階
-      </a>
-    </td>
-  </tr>
+    <div class="card store" data-type="store" data-id="6" onclick="focusMarker(6)">
+      <div class="card-inner"><div class="card-stripe"></div><div class="card-body">
+        <div class="card-top"><span class="badge store">店舗</span><div class="card-name">SGCゴールドショップ<br>横浜髙島屋店</div></div>
+        <div class="card-info">
+          <div class="info-item"><div class="info-label">電話</div><div class="info-value"><a href="tel:0453218866" class="tel-link">045-321-8866</a></div></div>
+          <div class="info-item"><div class="info-label">FAX</div><div class="info-value">—</div></div>
+          <div class="info-item full"><div class="info-label">住所</div><div class="info-value"><a href="https://www.google.com/maps/search/?api=1&query=神奈川県横浜市西区南幸1-6-31 横浜高島屋" target="_blank" rel="noopener" class="map-link"><svg class="map-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>〒220-8601 神奈川県横浜市西区南幸1-6-31 横浜高島屋 5階</a></div></div>
+        </div>
+      </div></div>
+    </div>
 
-  <tr>
-    <td data-label="拠点名"><span class="type store">店舗</span> SGCゴールドショップ大丸神戸店</td>
-    <td class="tel" data-label="電話番号"><a href="tel:0789458455">078-945-8455</a></td>
-    <td data-label="FAX">—</td>
-    <td class="address" data-label="住所">
-      <a href="https://www.google.com/maps/search/?api=1&query=SGCゴールドショップ大丸神戸店"
-         target="_blank" rel="noopener">
-        <span class="map-icon">📍</span>〒650-0037<br>兵庫県神戸市中央区明石町40<br>大丸神戸店 8階
-      </a>
-    </td>
-  </tr>
+    <div class="card store" data-type="store" data-id="7" onclick="focusMarker(7)">
+      <div class="card-inner"><div class="card-stripe"></div><div class="card-body">
+        <div class="card-top"><span class="badge store">店舗</span><div class="card-name">SGCゴールドショップ<br>大阪髙島屋店</div></div>
+        <div class="card-info">
+          <div class="info-item"><div class="info-label">電話</div><div class="info-value"><a href="tel:0666313377" class="tel-link">06-6631-3377</a></div></div>
+          <div class="info-item"><div class="info-label">FAX</div><div class="info-value">—</div></div>
+          <div class="info-item full"><div class="info-label">住所</div><div class="info-value"><a href="https://www.google.com/maps/search/?api=1&query=大阪市中央区難波5-1-5 大阪高島屋" target="_blank" rel="noopener" class="map-link"><svg class="map-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>〒542-8510 大阪市中央区難波5-1-5 大阪高島屋 7階</a></div></div>
+        </div>
+      </div></div>
+    </div>
 
-  <tr>
-    <td data-label="拠点名"><span class="type store">店舗</span> SGCゴールドショップ大丸福岡天神店</td>
-    <td class="tel" data-label="電話番号"><a href="tel:0927071959">092-707-1959</a></td>
-    <td data-label="FAX">—</td>
-    <td class="address" data-label="住所">
-      <a href="https://www.google.com/maps/search/?api=1&query=SGCゴールドショップ大丸福岡天神店"
-         target="_blank" rel="noopener">
-        <span class="map-icon">📍</span>〒810-8717<br>福岡県福岡市中央区天神1-4-1<br>東館エルガーラ4階
-      </a>
-    </td>
-  </tr>
+    <div class="card store" data-type="store" data-id="8" onclick="focusMarker(8)">
+      <div class="card-inner"><div class="card-stripe"></div><div class="card-body">
+        <div class="card-top"><span class="badge store">店舗</span><div class="card-name">SGCゴールドショップ<br>京都髙島屋店</div></div>
+        <div class="card-info">
+          <div class="info-item"><div class="info-label">電話</div><div class="info-value"><a href="tel:0752522001" class="tel-link">075-252-2001</a></div></div>
+          <div class="info-item"><div class="info-label">FAX</div><div class="info-value">—</div></div>
+          <div class="info-item full"><div class="info-label">住所</div><div class="info-value"><a href="https://www.google.com/maps/search/?api=1&query=京都市下京区真町52 京都髙島屋" target="_blank" rel="noopener" class="map-link"><svg class="map-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>〒600-8520 京都市下京区真町52 京都髙島屋 5階宝石サロン</a></div></div>
+        </div>
+      </div></div>
+    </div>
 
-  <tr>
-    <td data-label="拠点名"><span class="type store">店舗</span> SGCゴールドショップ東武百貨店池袋店</td>
-    <td class="tel" data-label="電話番号"><a href="tel:0358433350">03-5843-3350</a></td>
-    <td data-label="FAX">—</td>
-    <td class="address" data-label="住所">
-      <a href="https://www.google.com/maps/search/?api=1&query=東武百貨店 池袋店"
-         target="_blank" rel="noopener">
-        <span class="map-icon">📍</span>〒171-8512<br>東京都豊島区西池袋1-1-25<br>東武百貨店池袋店 本館6階10番地
-      </a>
-    </td>
-  </tr>
+    <div class="card store" data-type="store" data-id="9" onclick="focusMarker(9)">
+      <div class="card-inner"><div class="card-stripe"></div><div class="card-body">
+        <div class="card-top"><span class="badge store">店舗</span><div class="card-name">SGCゴールドサロン<br>札幌三越店</div></div>
+        <div class="card-info">
+          <div class="info-item"><div class="info-label">電話</div><div class="info-value"><a href="tel:0112228957" class="tel-link">011-222-8957</a></div></div>
+          <div class="info-item"><div class="info-label">FAX</div><div class="info-value">—</div></div>
+          <div class="info-item full"><div class="info-label">住所</div><div class="info-value"><a href="https://www.google.com/maps/search/?api=1&query=札幌市中央区南1条西3丁目8 札幌三越" target="_blank" rel="noopener" class="map-link"><svg class="map-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>〒060-0061 札幌市中央区南1条西3丁目8 札幌三越 本館9階</a></div></div>
+        </div>
+      </div></div>
+    </div>
 
-</tbody>
-</table>
+    <div class="card store" data-type="store" data-id="10" onclick="focusMarker(10)">
+      <div class="card-inner"><div class="card-stripe"></div><div class="card-body">
+        <div class="card-top"><span class="badge store">店舗</span><div class="card-name">ゴールドコンシェルジュ<br>日本橋三越本店</div></div>
+        <div class="card-info">
+          <div class="info-item"><div class="info-label">電話</div><div class="info-value"><div class="tel-group"><div class="tel-row"><span class="tel-sub">[社内]</span><a href="tel:0362623044" class="tel-link">03-6262-3044</a></div><div class="tel-row"><span class="tel-sub">[社外]</span><a href="tel:0332746505" class="tel-link">03-3274-6505</a></div></div></div></div>
+          <div class="info-item"><div class="info-label">FAX</div><div class="info-value">—</div></div>
+          <div class="info-item full"><div class="info-label">住所</div><div class="info-value"><a href="https://www.google.com/maps/search/?api=1&query=東京都中央区日本橋室町1-4-1 日本橋三越本店" target="_blank" rel="noopener" class="map-link"><svg class="map-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>〒103-8001 東京都中央区日本橋室町1-4-1 日本橋三越本店 本館6階</a></div></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="card store" data-type="store" data-id="11" onclick="focusMarker(11)">
+      <div class="card-inner"><div class="card-stripe"></div><div class="card-body">
+        <div class="card-top"><span class="badge store">店舗</span><div class="card-name">ゴールドサロンSGC<br>伊勢丹新宿店</div></div>
+        <div class="card-info">
+          <div class="info-item"><div class="info-label">電話</div><div class="info-value"><a href="tel:0353577577" class="tel-link">03-5357-7577</a></div></div>
+          <div class="info-item"><div class="info-label">FAX</div><div class="info-value">—</div></div>
+          <div class="info-item full"><div class="info-label">住所</div><div class="info-value"><a href="https://www.google.com/maps/search/?api=1&query=東京都新宿区新宿3-14-1 伊勢丹新宿店" target="_blank" rel="noopener" class="map-link"><svg class="map-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>〒160-0022 東京都新宿区新宿3-14-1 伊勢丹新宿店 本館4階</a></div></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="card store" data-type="store" data-id="12" onclick="focusMarker(12)">
+      <div class="card-inner"><div class="card-stripe"></div><div class="card-body">
+        <div class="card-top"><span class="badge store">店舗</span><div class="card-name">SGCゴールドショップ<br>松坂屋名古屋店</div></div>
+        <div class="card-info">
+          <div class="info-item"><div class="info-label">電話</div><div class="info-value"><a href="tel:05057854635" class="tel-link">050-5785-4635</a></div></div>
+          <div class="info-item"><div class="info-label">FAX</div><div class="info-value">—</div></div>
+          <div class="info-item full"><div class="info-label">住所</div><div class="info-value"><a href="https://www.google.com/maps/search/?api=1&query=愛知県名古屋市中区栄3-16-1 松坂屋名古屋店" target="_blank" rel="noopener" class="map-link"><svg class="map-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>〒460-8430 愛知県名古屋市中区栄3-16-1 松坂屋名古屋店 本館7階</a></div></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="card store" data-type="store" data-id="13" onclick="focusMarker(13)">
+      <div class="card-inner"><div class="card-stripe"></div><div class="card-body">
+        <div class="card-top"><span class="badge store">店舗</span><div class="card-name">SGCゴールドショップ<br>大丸神戸店</div></div>
+        <div class="card-info">
+          <div class="info-item"><div class="info-label">電話</div><div class="info-value"><a href="tel:0789458455" class="tel-link">078-945-8455</a></div></div>
+          <div class="info-item"><div class="info-label">FAX</div><div class="info-value">—</div></div>
+          <div class="info-item full"><div class="info-label">住所</div><div class="info-value"><a href="https://www.google.com/maps/search/?api=1&query=兵庫県神戸市中央区明石町40 大丸神戸店" target="_blank" rel="noopener" class="map-link"><svg class="map-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>〒650-0037 兵庫県神戸市中央区明石町40 大丸神戸店 8階</a></div></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="card store" data-type="store" data-id="14" onclick="focusMarker(14)">
+      <div class="card-inner"><div class="card-stripe"></div><div class="card-body">
+        <div class="card-top"><span class="badge store">店舗</span><div class="card-name">SGCゴールドショップ<br>大丸福岡天神店</div></div>
+        <div class="card-info">
+          <div class="info-item"><div class="info-label">電話</div><div class="info-value"><a href="tel:0927071959" class="tel-link">092-707-1959</a></div></div>
+          <div class="info-item"><div class="info-label">FAX</div><div class="info-value">—</div></div>
+          <div class="info-item full"><div class="info-label">住所</div><div class="info-value"><a href="https://www.google.com/maps/search/?api=1&query=福岡県福岡市中央区天神1-4-1 大丸福岡天神店" target="_blank" rel="noopener" class="map-link"><svg class="map-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>〒810-8717 福岡県福岡市中央区天神1-4-1 東館エルガーラ4階</a></div></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="card store" data-type="store" data-id="15" onclick="focusMarker(15)">
+      <div class="card-inner"><div class="card-stripe"></div><div class="card-body">
+        <div class="card-top"><span class="badge store">店舗</span><div class="card-name">SGCゴールドショップ<br>東武百貨店池袋店</div></div>
+        <div class="card-info">
+          <div class="info-item"><div class="info-label">電話</div><div class="info-value"><a href="tel:0358433350" class="tel-link">03-5843-3350</a></div></div>
+          <div class="info-item"><div class="info-label">FAX</div><div class="info-value">—</div></div>
+          <div class="info-item full"><div class="info-label">住所</div><div class="info-value"><a href="https://www.google.com/maps/search/?api=1&query=東京都豊島区西池袋1-1-25 東武百貨店池袋店" target="_blank" rel="noopener" class="map-link"><svg class="map-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>〒171-8512 東京都豊島区西池袋1-1-25 東武百貨店池袋店 本館6階10番地</a></div></div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
 <script>
-function filterRows(type){
-  document.querySelectorAll('.controls button').forEach(b=>b.classList.remove('active'));
-  event.target.classList.add('active');
-  document.querySelectorAll('tbody tr').forEach(tr=>{
-    if(type==='all'||tr.dataset.type===type){tr.classList.remove('hidden');}
-    else{tr.classList.add('hidden');}
+const locations = [
+  { id:0,  type:'hq',     name:'銀座本社',               lat:35.6698,  lng:139.7644, tel:'03-6274-6833', addr:'東京都中央区銀座5丁目8-1 GINZA PLACE 10F',           mapq:'東京都中央区銀座5丁目8-1 GINZA PLACE' },
+  { id:1,  type:'office', name:'松本SGC',                 lat:36.2312,  lng:137.9691, tel:'0263-64-3065', addr:'長野県松本市金山46',                                  mapq:'長野県松本市金山46' },
+  { id:2,  type:'office', name:'関西事務所',               lat:34.8218,  lng:135.5680, tel:'072-665-6380', addr:'大阪府茨木市上中条2-1-24 山崎マンション13-304号室',  mapq:'大阪府茨木市上中条2-1-24' },
+  { id:3,  type:'store',  name:'GINZA SGC',               lat:35.6695,  lng:139.7635, tel:'03-5537-0107', addr:'東京都中央区銀座5-7-10 EXITMELSA 4階',                mapq:'東京都中央区銀座5-7-10 EXITMELSA' },
+  { id:4,  type:'store',  name:'SGCゴールドショップ 日本橋髙島屋店', lat:35.6826, lng:139.7742, tel:'03-6380-0905', addr:'東京都中央区日本橋2-4-1 日本橋髙島屋 6階',  mapq:'東京都中央区日本橋2-4-1 日本橋髙島屋' },
+  { id:5,  type:'store',  name:'SGCゴールドショップ 新宿髙島屋店',  lat:35.6866,  lng:139.7010, tel:'03-5361-1067', addr:'東京都渋谷区千駄ヶ谷5-24-2 新宿高島屋 4階', mapq:'東京都渋谷区千駄ヶ谷5-24-2 新宿高島屋' },
+  { id:6,  type:'store',  name:'SGCゴールドショップ 横浜髙島屋店',  lat:35.4657,  lng:139.6217, tel:'045-321-8866', addr:'神奈川県横浜市西区南幸1-6-31 横浜高島屋 5階', mapq:'神奈川県横浜市西区南幸1-6-31 横浜高島屋' },
+  { id:7,  type:'store',  name:'SGCゴールドショップ 大阪髙島屋店',  lat:34.6686,  lng:135.5022, tel:'06-6631-3377', addr:'大阪市中央区難波5-1-5 大阪高島屋 7階',       mapq:'大阪市中央区難波5-1-5 大阪高島屋' },
+  { id:8,  type:'store',  name:'SGCゴールドショップ 京都髙島屋店',  lat:35.0036,  lng:135.7596, tel:'075-252-2001', addr:'京都市下京区真町52 京都髙島屋 5階宝石サロン', mapq:'京都市下京区真町52 京都髙島屋' },
+  { id:9,  type:'store',  name:'SGCゴールドサロン 札幌三越店',       lat:43.0618,  lng:141.3544, tel:'011-222-8957', addr:'札幌市中央区南1条西3丁目8 札幌三越 本館9階', mapq:'札幌市中央区南1条西3丁目8 札幌三越' },
+  { id:10, type:'store',  name:'ゴールドコンシェルジュ 日本橋三越本店', lat:35.6856, lng:139.7748, tel:'03-3274-6505', addr:'東京都中央区日本橋室町1-4-1 日本橋三越本店 本館6階', mapq:'東京都中央区日本橋室町1-4-1 日本橋三越本店' },
+  { id:11, type:'store',  name:'ゴールドサロンSGC 伊勢丹新宿店',    lat:35.6895,  lng:139.7008, tel:'03-5357-7577', addr:'東京都新宿区新宿3-14-1 伊勢丹新宿店 本館4階', mapq:'東京都新宿区新宿3-14-1 伊勢丹新宿店' },
+  { id:12, type:'store',  name:'SGCゴールドショップ 松坂屋名古屋店', lat:35.1680,  lng:136.9050, tel:'050-5785-4635', addr:'愛知県名古屋市中区栄3-16-1 松坂屋名古屋店 本館7階', mapq:'愛知県名古屋市中区栄3-16-1 松坂屋名古屋店' },
+  { id:13, type:'store',  name:'SGCゴールドショップ 大丸神戸店',     lat:34.6900,  lng:135.1955, tel:'078-945-8455', addr:'兵庫県神戸市中央区明石町40 大丸神戸店 8階',  mapq:'兵庫県神戸市中央区明石町40 大丸神戸店' },
+  { id:14, type:'store',  name:'SGCゴールドショップ 大丸福岡天神店', lat:33.5904,  lng:130.3995, tel:'092-707-1959', addr:'福岡県福岡市中央区天神1-4-1 東館エルガーラ4階', mapq:'福岡県福岡市中央区天神1-4-1 大丸福岡天神店' },
+  { id:15, type:'store',  name:'SGCゴールドショップ 東武百貨店池袋店', lat:35.7306, lng:139.7108, tel:'03-5843-3350', addr:'東京都豊島区西池袋1-1-25 東武百貨店池袋店 本館6階', mapq:'東京都豊島区西池袋1-1-25 東武百貨店池袋店' },
+];
+
+const typeColor   = { hq:'#C8373B', office:'#2E7D5E', store:'#4A7FC1' };
+const typeLabelJa = { hq:'本社', office:'事務所', store:'店舗' };
+const markers = {};
+
+// Init map — dark CartoDB tiles for sleek look
+const map = L.map('map', {
+  center: [37.0, 137.5],
+  zoom: 5,
+  scrollWheelZoom: false,
+  attributionControl: true,
+});
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 19,
+}).addTo(map);
+
+// Build markers
+locations.forEach(loc => {
+  const color = typeColor[loc.type];
+  const isHQ  = loc.type === 'hq';
+  const size  = isHQ ? 22 : 16;
+
+  const iconHtml = isHQ
+    ? `<div style="width:${size}px;height:${size}px;background:${color};border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2.5px solid rgba(255,255,255,0.85);box-shadow:0 0 0 3px rgba(200,55,59,0.4),0 3px 10px rgba(0,0,0,0.7);"></div>`
+    : `<div style="width:${size}px;height:${size}px;background:${color};border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid rgba(255,255,255,0.65);box-shadow:0 2px 8px rgba(0,0,0,0.6);"></div>`;
+
+  const icon = L.divIcon({
+    className: '',
+    html: iconHtml,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size],
+    popupAnchor: [0, -(size + 2)],
   });
+
+  const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc.mapq)}`;
+  const badge  = typeLabelJa[loc.type];
+
+  const popupContent = `
+    <div class="popup-inner">
+      <span class="popup-badge ${loc.type}">${badge}</span>
+      <div class="popup-name">${loc.name}</div>
+      <div class="popup-address">${loc.addr}</div>
+      <div class="popup-tel">${loc.tel}</div>
+      <a href="${mapUrl}" target="_blank" rel="noopener" class="popup-maplink">Google マップで開く →</a>
+    </div>`;
+
+  const popup = L.popup({ maxWidth: 260 }).setContent(popupContent);
+
+  const m = L.marker([loc.lat, loc.lng], { icon })
+    .addTo(map)
+    .bindPopup(popup);
+
+  m.on('click', () => highlightCard(loc.id));
+  markers[loc.id] = m;
+});
+
+function focusMarker(id) {
+  const m   = markers[id];
+  if (!m) return;
+  const loc = locations.find(l => l.id === id);
+  map.setView([loc.lat, loc.lng], 13, { animate: true });
+  setTimeout(() => m.openPopup(), 400);
+  highlightCard(id);
+  document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-document.querySelectorAll('.map-link').forEach(link => {
-  link.addEventListener('click', function(e){
-    e.preventDefault();
+function highlightCard(id) {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('highlighted'));
+  const card = document.querySelector(`.card[data-id="${id}"]`);
+  if (card) {
+    card.classList.add('highlighted');
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
 
-    const mapUrl = this.href;
-    const ua = navigator.userAgent;
-    const isIOS = /iPhone|iPad|iPod/i.test(ua);
+function filterCards(type, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
 
-    if (isIOS) {
-      // iOSは現在タブ遷移（戻れる）
-      window.location.href = mapUrl;
-    } else {
-      // PC / Android は新しいタブ
-      window.open(mapUrl, '_blank', 'noopener');
-    }
+  ['hq','office','store'].forEach(sec => {
+    const el = document.getElementById('section-' + sec);
+    if (el) el.style.display = (type === 'all' || type === sec) ? '' : 'none';
   });
-});
+
+  locations.forEach(loc => {
+    const m = markers[loc.id];
+    if (!m) return;
+    if (type === 'all' || type === loc.type) m.addTo(map);
+    else m.remove();
+  });
+}
 </script>
 </body>
 </html>
