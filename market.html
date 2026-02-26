@@ -4,272 +4,469 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>市況情報</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  body {
-    margin: 0;
-    padding: 1rem;
-    font-family: 'Noto Sans JP', sans-serif;
-    background: #fafafa;
-    color: #003D2E;
-    box-sizing: border-box;
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  h1 {
-    font-size: 1.6rem;
-    margin-bottom: 1rem;
-    border-bottom: 2px solid #ccc;
-    padding-bottom: 0.5rem;
-  }
+:root {
+  --ink:      #0E0D0B;
+  --ink-soft: #6A6256;
+  --gold:     #C09A50;
+  --gold-lt:  #E8D49A;
+  --gold-dk:  #8A6A28;
+  --cream:    #F7F3EB;
+  --white:    #FFFFFF;
+  --green:    #1E3D2C;
+  --green-lt: #2C5840;
+  --silver:   #A8A8B0;
+  --pt:       #8090A8;
+  --usd:      #3A7A58;
+  --dow:      #B87820;
+  --nikkei:   #1A5A9A;
+  --border:   rgba(192,154,80,0.18);
+  --shadow:   0 4px 28px rgba(14,13,11,0.18);
+}
 
-  p {
-    margin-top: 0.5rem;
-    margin-bottom: 1rem;
-  }
+html { background: var(--ink); }
 
-  .market-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-top: 1rem;
-    padding-bottom: 2rem;
-  }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--ink);
+  color: var(--white);
+  min-height: 100vh;
+  padding-bottom: 60px;
+  position: relative;
+}
 
-  .market-card {
-    flex: 1 1 300px;
-    background: #fff;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transition: transform 0.2s, box-shadow 0.2s;
-    min-height: 320px;
-  }
+/* Subtle noise texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.6;
+}
 
-  .market-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-  }
+/* ─── Header ─── */
+header {
+  position: relative;
+  z-index: 1;
+  padding: 44px 24px 36px;
+  text-align: center;
+  background: linear-gradient(180deg, #0A0906 0%, var(--ink) 100%);
+  border-bottom: 1px solid rgba(192,154,80,0.15);
+}
+header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--gold-dk) 20%, var(--gold) 50%, var(--gold-dk) 80%, transparent 100%);
+}
 
-  .market-card h2 {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-    text-align: center;
-    color: #003D2E;
-  }
+.header-eyebrow {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.78rem;
+  color: rgba(200,160,80,0.55);
+  letter-spacing: 0.3em;
+  margin-bottom: 10px;
+}
+.header-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: clamp(1.5rem, 4.5vw, 2.2rem);
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+}
+.header-title span {
+  display: block;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(0.65rem, 1.8vw, 0.8rem);
+  color: var(--gold);
+  letter-spacing: 0.35em;
+  margin-top: 8px;
+}
+.header-ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 18px;
+}
+.header-ornament::before,
+.header-ornament::after {
+  content: '';
+  flex: 1;
+  max-width: 90px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(192,154,80,0.45));
+}
+.header-ornament::after {
+  background: linear-gradient(90deg, rgba(192,154,80,0.45), transparent);
+}
+.orn-diamond {
+  width: 6px; height: 6px;
+  background: var(--gold);
+  transform: rotate(45deg);
+}
 
-  .market-card .icon {
-    width: 40px;
-    height: 40px;
-    margin-bottom: 0.5rem;
-  }
+/* ─── Subtitle bar ─── */
+.subtitle-bar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 24px;
+  background: rgba(192,154,80,0.06);
+  border-bottom: 1px solid rgba(192,154,80,0.1);
+  font-size: 0.73rem;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.08em;
+}
+.live-dot {
+  width: 7px; height: 7px;
+  background: #4CAF50;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(76,175,80,0.4); }
+  50%       { opacity: 0.7; box-shadow: 0 0 0 4px rgba(76,175,80,0); }
+}
 
-  .market-card iframe {
-    width: 100%;
-    height: 200px;
-    border: none;
-    border-radius: 0.3rem;
-  }
+/* ─── Section titles ─── */
+.section-block {
+  position: relative;
+  z-index: 1;
+  padding: 28px 20px 4px;
+}
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 400;
+}
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(192,154,80,0.2);
+}
 
-  @media (max-width: 600px) {
-    .market-card iframe { height: 180px; }
-    .market-card h2 { font-size: 1rem; }
-  }
+/* ─── Grid ─── */
+.cards-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  padding: 14px 20px;
+}
+@media (min-width: 600px)  { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1000px) { .cards-grid { grid-template-columns: repeat(3, 1fr); padding: 14px 28px; } }
+@media (min-width: 1000px) { .section-block { padding: 28px 28px 4px; } }
+
+/* ─── Market Card ─── */
+.market-card {
+  background: #171512;
+  border: 1px solid rgba(192,154,80,0.14);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  animation: cardIn 0.45s ease both;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+}
+.market-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(192,154,80,0.35);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(192,154,80,0.15);
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.market-card:nth-child(1) { animation-delay: 0.05s; }
+.market-card:nth-child(2) { animation-delay: 0.10s; }
+.market-card:nth-child(3) { animation-delay: 0.15s; }
+.market-card:nth-child(4) { animation-delay: 0.20s; }
+
+/* Card header */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+}
+.card-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.1rem;
+}
+.card-header-text {}
+.card-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+.card-subtitle {
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.1em;
+  margin-top: 2px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+}
+
+/* accent top border */
+.market-card::before {
+  content: '';
+  display: block;
+  height: 2px;
+  width: 100%;
+}
+.gold-au::before   { background: linear-gradient(90deg, #C09A50, #E8D49A, #C09A50); }
+.silver-ag::before { background: linear-gradient(90deg, #888, #C8C8C8, #888); }
+.pt::before        { background: linear-gradient(90deg, #6080A0, #A0B8D0, #6080A0); }
+.forex::before     { background: linear-gradient(90deg, #2A7A50, #50C080, #2A7A50); }
+.dow::before       { background: linear-gradient(90deg, #A86820, #E0A840, #A86820); }
+.nikkei::before    { background: linear-gradient(90deg, #1A4A8A, #4A80C8, #1A4A8A); }
+
+/* Icon colors */
+.icon-gold   { background: rgba(192,154,80,0.15); color: var(--gold); }
+.icon-silver { background: rgba(168,168,176,0.15); color: var(--silver); }
+.icon-pt     { background: rgba(128,144,168,0.15); color: var(--pt); }
+.icon-forex  { background: rgba(58,122,88,0.15);  color: #5DC090; }
+.icon-dow    { background: rgba(184,120,32,0.18);  color: #E0A840; }
+.icon-nikkei { background: rgba(26,90,154,0.18);   color: #5A9AE0; }
+
+/* Widget area */
+.card-widget {
+  flex: 1;
+  min-height: 220px;
+  padding: 0;
+  position: relative;
+}
+.card-widget .tradingview-widget-container {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+}
+.card-widget .tradingview-widget-container__widget {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+}
+
+/* TradingView copyright link */
+.tradingview-widget-copyright {
+  padding: 4px 12px 8px;
+  text-align: right;
+}
+.tradingview-widget-copyright a {
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.2) !important;
+  text-decoration: none;
+}
+.tradingview-widget-copyright a:hover { color: var(--gold) !important; }
+.tradingview-widget-copyright .blue-text { color: rgba(255,255,255,0.2) !important; }
 </style>
 </head>
 <body>
 
-<h1>市況情報</h1>
-<p>主要マーケット情報をリアルタイムで確認できます。</p>
-
-<div class="market-container">
-
-  <!-- 円建て金 -->
-  <div class="market-card">
-    <img src="https://img.icons8.com/ios-filled/50/ffd700/gold-bar.png" class="icon" alt="円建て金">
-    <h2>金価格 (円建て)</h2>
-    <!-- TradingView Widget BEGIN -->
-<div class="tradingview-widget-container">
-  <div class="tradingview-widget-container__widget"></div>
-  <div class="tradingview-widget-copyright"><a href="https://jp.tradingview.com/symbols/OANDA-XAUJPY/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
-  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-  {
-  "symbol": "OANDA:XAUJPY",
-  "chartOnly": false,
-  "dateRange": "1D",
-  "noTimeScale": false,
-  "colorTheme": "light",
-  "isTransparent": false,
-  "locale": "ja",
-  "width": "100%",
-  "autosize": true,
-  "height": "100%"
-}
-  </script>
-</div>
-<!-- TradingView Widget END -->
+<header>
+  <div class="header-eyebrow">Real-time Market Data</div>
+  <div class="header-title">
+    市況情報
+    <span>PRECIOUS METALS &amp; MARKET OVERVIEW</span>
   </div>
+  <div class="header-ornament"><div class="orn-diamond"></div></div>
+</header>
 
-  <!-- ドル建て金（TradingView） -->
-  <div class="market-card">
-    <img src="https://img.icons8.com/ios-filled/50/ffd700/gold-bar.png" class="icon" alt="ドル建て金">
-    <h2>金価格 (ドル建て)</h2>
-    <!-- TradingView Widget BEGIN -->
-    <div class="tradingview-widget-container" style="width:100%; height:200px;">
-      <div class="tradingview-widget-container__widget"></div>
-      <div class="tradingview-widget-copyright"><a href="https://jp.tradingview.com/symbols/XAUUSD/?exchange=OANDA" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
-      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-      {
-      "symbol": "OANDA:XAUUSD",
-      "chartOnly": false,
-      "dateRange": "1D",
-      "noTimeScale": false,
-      "colorTheme": "light",
-      "isTransparent": false,
-      "locale": "ja",
-      "width": "100%",
-      "autosize": true,
-      "height": "100%"
-      }
-      </script>
+<div class="subtitle-bar">
+  <div class="live-dot"></div>
+  主要マーケット情報をリアルタイムで確認できます
+</div>
+
+<!-- ─── 貴金属 ─── -->
+<div class="section-block">
+  <div class="section-title">貴金属 · Precious Metals</div>
+</div>
+<div class="cards-grid">
+
+  <div class="market-card gold-au">
+    <div class="card-header">
+      <div class="card-icon icon-gold">✦</div>
+      <div class="card-header-text">
+        <div class="card-title">金価格（円建て）</div>
+        <div class="card-subtitle">XAU / JPY · Gold in Yen</div>
+      </div>
     </div>
-    <!-- TradingView Widget END -->
-  </div>
-
-  <!-- 銀 -->
-  <div class="market-card">
-    <img src="https://img.icons8.com/ios-filled/50/c0c0c0/silver.png" class="icon" alt="銀">
-    <h2>銀価格</h2>
-    <!-- TradingView Widget BEGIN -->
-<div class="tradingview-widget-container">
-  <div class="tradingview-widget-container__widget"></div>
-  <div class="tradingview-widget-copyright"><a href="https://jp.tradingview.com/symbols/OANDA-XAGUSD/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
-  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-  {
-  "symbol": "OANDA:XAGUSD",
-  "chartOnly": false,
-  "dateRange": "1D",
-  "noTimeScale": false,
-  "colorTheme": "light",
-  "isTransparent": false,
-  "locale": "ja",
-  "width": "100%",
-  "autosize": true,
-  "height": "100%"
-}
-  </script>
-</div>
-<!-- TradingView Widget END -->
-  </div>
-
-  <!-- プラチナ -->
-  <div class="market-card">
-    <img src="https://img.icons8.com/ios-filled/50/aaa/platinum.png" class="icon" alt="プラチナ">
-    <h2>プラチナ価格</h2>
-    <!-- TradingView Widget BEGIN -->
-<div class="tradingview-widget-container">
-  <div class="tradingview-widget-container__widget"></div>
-  <div class="tradingview-widget-copyright"><a href="https://jp.tradingview.com/symbols/OANDA-XPTUSD/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
-  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-  {
-  "symbol": "OANDA:XPTUSD",
-  "chartOnly": false,
-  "dateRange": "1D",
-  "noTimeScale": false,
-  "colorTheme": "light",
-  "isTransparent": false,
-  "locale": "ja",
-  "width": "100%",
-  "autosize": true,
-  "height": "100%"
-}
-  </script>
-</div>
-<!-- TradingView Widget END -->
-  </div>
-
-  <!-- 為替 USD/JPY -->
-  <div class="market-card">
-    <img src="https://img.icons8.com/ios-filled/50/009688/us-dollar.png" class="icon" alt="為替">
-    <h2>USD/JPY 為替</h2>
-    <!-- TradingView Widget BEGIN -->
-<div class="tradingview-widget-container">
-  <div class="tradingview-widget-container__widget"></div>
-  <div class="tradingview-widget-copyright"><a href="https://jp.tradingview.com/symbols/USDJPY/?exchange=OANDA" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
-  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-  {
-  "symbol": "OANDA:USDJPY",
-  "chartOnly": false,
-  "dateRange": "1D",
-  "noTimeScale": false,
-  "colorTheme": "light",
-  "isTransparent": false,
-  "locale": "ja",
-  "width": "100%",
-  "autosize": true,
-  "height": "100%"
-}
-  </script>
-</div>
-<!-- TradingView Widget END -->
-  </div>
-
-  <!-- NYダウ -->
-  <div class="market-card">
-    <img src="https://img.icons8.com/ios-filled/50/ff8c00/oil-barrel.png" class="icon" alt="NYダウ">
-    <h2>NYダウ</h2>
-    <!-- TradingView Widget BEGIN -->
-    <div class="tradingview-widget-container">
-      <div class="tradingview-widget-container__widget"></div>
-      <div class="tradingview-widget-copyright"><a href="https://jp.tradingview.com/symbols/SPREADEX-DJI/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
-      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
-      {
-      "symbol": "SPREADEX:DJI",
-      "colorTheme": "light",
-      "isTransparent": false,
-      "locale": "ja",
-      "width": "100%"
-    }
-      </script>
+    <div class="card-widget">
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget"></div>
+        <div class="tradingview-widget-copyright"><a href="https://jp.tradingview.com/symbols/OANDA-XAUJPY/" rel="noopener nofollow" target="_blank"><span class="blue-text">TradingView</span></a></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+        {"symbol":"OANDA:XAUJPY","chartOnly":false,"dateRange":"1D","noTimeScale":false,"colorTheme":"dark","isTransparent":true,"locale":"ja","width":"100%","autosize":true,"height":"100%"}
+        </script>
+      </div>
     </div>
-    <!-- TradingView Widget END -->
   </div>
 
-  <!-- 日経225 -->
-  <div class="market-card">
-    <img src="https://img.icons8.com/ios-filled/50/0077cc/nikkei.png" class="icon" alt="日経225">
-    <h2>日経225</h2>
-    <!-- TradingView Widget BEGIN -->
-    <div class="tradingview-widget-container">
-      <div class="tradingview-widget-container__widget"></div>
-      <div class="tradingview-widget-copyright"><a href="https://jp.tradingview.com/symbols/TOCOM-225/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
-      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
-      {
-      "symbol": "TOCOM:225",
-      "colorTheme": "light",
-      "isTransparent": false,
-      "locale": "ja",
-      "width": "100%"
-    }
-      </script>
+  <div class="market-card gold-au">
+    <div class="card-header">
+      <div class="card-icon icon-gold">✦</div>
+      <div class="card-header-text">
+        <div class="card-title">金価格（ドル建て）</div>
+        <div class="card-subtitle">XAU / USD · Gold in Dollar</div>
+      </div>
     </div>
-    <!-- TradingView Widget END -->
+    <div class="card-widget">
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget"></div>
+        <div class="tradingview-widget-copyright"><a href="https://jp.tradingview.com/symbols/XAUUSD/?exchange=OANDA" rel="noopener nofollow" target="_blank"><span class="blue-text">TradingView</span></a></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+        {"symbol":"OANDA:XAUUSD","chartOnly":false,"dateRange":"1D","noTimeScale":false,"colorTheme":"dark","isTransparent":true,"locale":"ja","width":"100%","autosize":true,"height":"100%"}
+        </script>
+      </div>
+    </div>
+  </div>
+
+  <div class="market-card silver-ag">
+    <div class="card-header">
+      <div class="card-icon icon-silver">◈</div>
+      <div class="card-header-text">
+        <div class="card-title">銀価格</div>
+        <div class="card-subtitle">XAG / USD · Silver</div>
+      </div>
+    </div>
+    <div class="card-widget">
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget"></div>
+        <div class="tradingview-widget-copyright"><a href="https://jp.tradingview.com/symbols/OANDA-XAGUSD/" rel="noopener nofollow" target="_blank"><span class="blue-text">TradingView</span></a></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+        {"symbol":"OANDA:XAGUSD","chartOnly":false,"dateRange":"1D","noTimeScale":false,"colorTheme":"dark","isTransparent":true,"locale":"ja","width":"100%","autosize":true,"height":"100%"}
+        </script>
+      </div>
+    </div>
+  </div>
+
+  <div class="market-card pt">
+    <div class="card-header">
+      <div class="card-icon icon-pt">◇</div>
+      <div class="card-header-text">
+        <div class="card-title">プラチナ価格</div>
+        <div class="card-subtitle">XPT / USD · Platinum</div>
+      </div>
+    </div>
+    <div class="card-widget">
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget"></div>
+        <div class="tradingview-widget-copyright"><a href="https://jp.tradingview.com/symbols/OANDA-XPTUSD/" rel="noopener nofollow" target="_blank"><span class="blue-text">TradingView</span></a></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+        {"symbol":"OANDA:XPTUSD","chartOnly":false,"dateRange":"1D","noTimeScale":false,"colorTheme":"dark","isTransparent":true,"locale":"ja","width":"100%","autosize":true,"height":"100%"}
+        </script>
+      </div>
+    </div>
   </div>
 
 </div>
+
+<!-- ─── 為替・株価指数 ─── -->
+<div class="section-block">
+  <div class="section-title">為替・株価指数 · FX &amp; Indices</div>
+</div>
+<div class="cards-grid">
+
+  <div class="market-card forex">
+    <div class="card-header">
+      <div class="card-icon icon-forex">¥</div>
+      <div class="card-header-text">
+        <div class="card-title">USD / JPY 為替</div>
+        <div class="card-subtitle">Dollar · Yen Exchange Rate</div>
+      </div>
+    </div>
+    <div class="card-widget">
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget"></div>
+        <div class="tradingview-widget-copyright"><a href="https://jp.tradingview.com/symbols/USDJPY/?exchange=OANDA" rel="noopener nofollow" target="_blank"><span class="blue-text">TradingView</span></a></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+        {"symbol":"OANDA:USDJPY","chartOnly":false,"dateRange":"1D","noTimeScale":false,"colorTheme":"dark","isTransparent":true,"locale":"ja","width":"100%","autosize":true,"height":"100%"}
+        </script>
+      </div>
+    </div>
+  </div>
+
+  <div class="market-card dow">
+    <div class="card-header">
+      <div class="card-icon icon-dow">▲</div>
+      <div class="card-header-text">
+        <div class="card-title">NY ダウ</div>
+        <div class="card-subtitle">Dow Jones Industrial Average</div>
+      </div>
+    </div>
+    <div class="card-widget">
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget"></div>
+        <div class="tradingview-widget-copyright"><a href="https://jp.tradingview.com/symbols/SPREADEX-DJI/" rel="noopener nofollow" target="_blank"><span class="blue-text">TradingView</span></a></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
+        {"symbol":"SPREADEX:DJI","colorTheme":"dark","isTransparent":true,"locale":"ja","width":"100%"}
+        </script>
+      </div>
+    </div>
+  </div>
+
+  <div class="market-card nikkei">
+    <div class="card-header">
+      <div class="card-icon icon-nikkei">⬡</div>
+      <div class="card-header-text">
+        <div class="card-title">日経 225</div>
+        <div class="card-subtitle">Nikkei Stock Average</div>
+      </div>
+    </div>
+    <div class="card-widget">
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget"></div>
+        <div class="tradingview-widget-copyright"><a href="https://jp.tradingview.com/symbols/TOCOM-225/" rel="noopener nofollow" target="_blank"><span class="blue-text">TradingView</span></a></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
+        {"symbol":"TOCOM:225","colorTheme":"dark","isTransparent":true,"locale":"ja","width":"100%"}
+        </script>
+      </div>
+    </div>
+  </div>
+
+</div>
+
 <script>
-  function notifyHeight() {
-    const height = document.body.scrollHeight;
-    parent.postMessage({ type: 'resize-iframe', height }, '*');
-  }
-
-  window.addEventListener('load', () => {
-    setTimeout(notifyHeight, 1000); // ウィジェット読み込み後に高さ通知
-  });
-
-  window.addEventListener('resize', notifyHeight);
+function notifyHeight() {
+  const height = document.body.scrollHeight;
+  parent.postMessage({ type: 'resize-iframe', height }, '*');
+}
+window.addEventListener('load', () => setTimeout(notifyHeight, 1500));
+window.addEventListener('resize', notifyHeight);
 </script>
 </body>
 </html>
