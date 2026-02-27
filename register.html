@@ -1,449 +1,876 @@
+<!DOCTYPE html>
+<html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>宝石補正データ登録（補正係数自動計算対応）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>補正データ登録</title>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  /* 全体 */
-  body {
-    font-family: 'Helvetica', Arial, sans-serif;
-    background: linear-gradient(to right, #f0f4f8, #d9e2ec);
-    padding: 20px;
-    margin: 0;
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  h2 {
-    text-align: center;
-    color: #1f2937;
-    margin-bottom: 20px;
-  }
+:root {
+  --bg:       #0A0C0B;
+  --bg2:      #0F1410;
+  --bg3:      #151C16;
+  --panel:    rgba(255,255,255,0.04);
+  --border:   rgba(192,154,80,0.18);
+  --border2:  rgba(192,154,80,0.35);
+  --gold:     #C09A50;
+  --gold-lt:  #E8D49A;
+  --gold-dk:  #8A6A28;
+  --white:    #F5F0E8;
+  --muted:    rgba(245,240,232,0.45);
+  --dim:      rgba(245,240,232,0.22);
+  --green:    #1A3628;
+  --green-lt: #254D38;
+  --green-dk: #0E1F17;
+  --red:      #B52929;
+  --r:        12px;
+}
 
-  .card {
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-    padding: 20px;
-    margin: 10px auto;
-    max-width: 600px;
-  }
+html { background: var(--bg); }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--white);
+  min-height: 100vh;
+  padding-bottom: 60px;
+  overflow-x: hidden;
+}
 
-  label {
-    display: block;
-    margin-top: 12px;
-    font-weight: bold;
-    color: #334155;
-  }
+/* grain */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.55;
+}
 
-  select, input {
-    font-size: 1.1rem;
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid #cbd5e1;
-    background: #f8fafc;
-    margin-top: 6px;
-    width: 100%;
-    box-sizing: border-box;
-  }
+/* ─── Header ─── */
+.page-header {
+  position: relative; z-index: 1;
+  text-align: center;
+  padding: 44px 24px 36px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(14,20,14,0.9) 0%, transparent 100%);
+}
+.page-header::after {
+  content: '';
+  position: absolute; bottom: -1px; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dk) 25%, var(--gold) 50%, var(--gold-dk) 75%, transparent);
+}
+.header-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  color: var(--gold-dk);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.header-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  color: var(--white);
+  line-height: 1.1;
+}
+.header-title em { font-style: italic; color: var(--gold); }
+.header-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--dim);
+  margin-top: 10px;
+}
+.header-orn { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 18px; }
+.header-orn::before, .header-orn::after { content: ''; flex: 1; max-width: 80px; height: 1px; background: linear-gradient(90deg, transparent, rgba(192,154,80,0.4)); }
+.header-orn::after { background: linear-gradient(90deg, rgba(192,154,80,0.4), transparent); }
+.orn-gem { width: 10px; height: 10px; background: var(--gold); clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%); }
 
-  #dimensions .row {
-    margin-bottom: 10px;
-  }
+/* ─── Wrap ─── */
+.wrap {
+  position: relative; z-index: 1;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 18px;
+}
 
-  /* ----------------- ボタン配置 ----------------- */
-  .button-row {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 16px;
-  }
+/* ─── Section label ─── */
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold-dk);
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-  /* ----------------- ボタンスタイル ----------------- */
-  #saveTokenBtn, #addBtn {
-    background: linear-gradient(135deg,#bfa14a,#d6c36b);
-    color: #fff;
-    width: 140px;
-    border: none;
-    box-shadow: 0 2px 6px rgba(191,161,74,0.35);
-    padding: 10px 0;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: 0.3s;
-    font-size: 1.2rem;
-    margin: 1rem 0rem;
-  }
-  #saveTokenBtn:hover, #addBtn:hover {
-    opacity: 0.95;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(191,161,74,0.4);
-  }
+/* ─── Card ─── */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 22px 20px;
+  margin-bottom: 20px;
+}
 
-  #clearBtn {
-    background: linear-gradient(135deg,#f2f2f2,#e0e0e0);
-    color: #333;
-    width: 140px;
-    border: 1px solid #ccc;
-    padding: 10px 0;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: 0.3s;
-  }
-  #clearBtn:hover {
-    background: linear-gradient(135deg,#fafafa,#e8e8e8);
-  }
+/* ─── Auth card ─── */
+.auth-card {
+  background: linear-gradient(135deg, rgba(192,154,80,0.06) 0%, rgba(14,20,14,0.8) 100%);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 28px 24px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.auth-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dk) 30%, var(--gold) 50%, var(--gold-dk) 70%, transparent);
+}
+.auth-icon {
+  width: 38px; height: 38px;
+  background: rgba(192,154,80,0.12);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+}
+.auth-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  color: var(--gold-lt);
+  margin-bottom: 6px;
+}
+.auth-desc {
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
 
-  table {
-    border-collapse: collapse;
-    margin-top: 20px;
-    width: 100%;
-    font-size: 0.9rem;
-  }
+/* ─── Field ─── */
+.field { margin-bottom: 14px; }
+.field-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 5px;
+  display: block;
+}
 
-  th, td {
-    border: 1px solid #ccc;
-    padding: 6px;
-    text-align: center;
-  }
+/* ─── Inputs ─── */
+input[type="text"],
+input[type="password"],
+input[type="number"],
+select {
+  width: 100%;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--white);
+  padding: 0 14px;
+  height: 46px;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+input[type="number"] { font-family: 'DM Mono', monospace; }
+input::placeholder { color: var(--dim); }
+input:focus, select:focus {
+  border-color: rgba(192,154,80,0.5);
+  box-shadow: 0 0 0 3px rgba(192,154,80,0.08);
+}
+select option { background: #0f1410; color: var(--white); }
 
-  th {
-    background: #f0f0f0;
-  }
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: '';
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  border: 4px solid transparent;
+  border-top-color: rgba(192,154,80,0.5);
+  margin-top: 2px;
+  pointer-events: none;
+}
 
-  @media (max-width: 480px) {
-    body { padding: 10px; }
-    h2 { font-size: 1.4rem; }
-    select, input { font-size: 1rem; padding: 6px 10px; }
-    .button-row { flex-direction: column; gap: 8px; }
-    #saveTokenBtn, #addBtn, #clearBtn { width: 100%; }
-  }
+/* ─── Dim grid ─── */
+.dim-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+/* ─── Measured field (highlight) ─── */
+.measured-wrap {
+  background: rgba(192,154,80,0.05);
+  border: 1px solid rgba(192,154,80,0.2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-top: 16px;
+}
+.measured-wrap .field-label {
+  color: rgba(192,154,80,0.7);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+}
+.measured-wrap input {
+  background: rgba(192,154,80,0.07);
+  border-color: rgba(192,154,80,0.25);
+  font-size: 1.1rem;
+  height: 52px;
+  letter-spacing: 0.06em;
+}
+
+/* ─── Buttons ─── */
+.btn-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  margin-top: 20px;
+}
+.btn {
+  height: 52px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  border: none; border-radius: var(--r);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.18s;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary {
+  background: linear-gradient(135deg, #2a4a35 0%, #1a3628 50%, #0f2219 100%);
+  border: 1px solid rgba(192,154,80,0.35);
+  color: var(--gold-lt);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.btn-primary:hover {
+  box-shadow: 0 6px 28px rgba(192,154,80,0.2), inset 0 1px 0 rgba(255,255,255,0.06);
+  border-color: rgba(192,154,80,0.6);
+}
+.btn-auth {
+  width: 100%;
+  background: linear-gradient(135deg, #8A6A28, #C09A50, #8A6A28);
+  border: none;
+  color: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  height: 48px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(192,154,80,0.25);
+  transition: opacity 0.18s, transform 0.15s;
+}
+.btn-auth:hover { opacity: 0.92; transform: translateY(-1px); }
+.btn-secondary {
+  width: 52px; height: 52px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--muted);
+  border-radius: var(--r);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.18s;
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.09); color: var(--white); }
+
+/* ─── Status badge ─── */
+.status-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  padding: 4px 10px;
+  border-radius: 100px;
+  margin-bottom: 18px;
+}
+.status-badge.auth {
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.25);
+  color: #6ee7a0;
+}
+.status-badge.noauth {
+  background: rgba(181,41,41,0.1);
+  border: 1px solid rgba(181,41,41,0.2);
+  color: #f08080;
+}
+.status-dot { width: 6px; height: 6px; border-radius: 50%; }
+.status-dot.green { background: #4ade80; }
+.status-dot.red   { background: #f87171; }
+
+/* ─── Toast ─── */
+.toast {
+  position: fixed;
+  bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--green);
+  border: 1px solid rgba(192,154,80,0.35);
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 0.82rem;
+  color: var(--gold-lt);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+  z-index: 999;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.error { background: #2d0a0a; border-color: rgba(181,41,41,0.4); color: #f08080; }
+
+/* ─── Table ─── */
+.table-section { margin-top: 36px; }
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--panel);
+  -webkit-overflow-scrolling: touch;
+}
+.scroll-hint {
+  font-size: 0.62rem; color: var(--dim);
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+  display: flex; align-items: center; gap: 4px;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 640px;
+  font-size: 0.78rem;
+}
+thead tr {
+  background: rgba(26,54,40,0.8);
+  border-bottom: 1px solid var(--border2);
+}
+th {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold-dk);
+  padding: 10px 14px;
+  text-align: left;
+  white-space: nowrap;
+  font-weight: 500;
+}
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: rgba(245,240,232,0.75);
+  vertical-align: middle;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: rgba(255,255,255,0.03); }
+tbody tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+
+.td-stone { font-family: 'Shippori Mincho', serif; color: var(--white); font-size: 0.85rem; }
+.td-cut   { color: var(--muted); }
+.td-dims  { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--dim); white-space: nowrap; }
+.td-calc  { font-family: 'DM Mono', monospace; color: rgba(100,180,140,0.8); }
+.td-meas  { font-family: 'DM Mono', monospace; color: var(--gold-lt); font-weight: 500; }
+.td-factor {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+.factor-high { color: #6ee7a0; }
+.factor-low  { color: #f08080; }
+.factor-ok   { color: var(--gold-lt); }
+.td-date { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--dim); white-space: nowrap; }
+
+.delete-btn {
+  background: none;
+  border: 1px solid rgba(181,41,41,0.3);
+  border-radius: 6px;
+  color: rgba(181,41,41,0.6);
+  cursor: pointer;
+  padding: 3px 8px;
+  font-size: 0.68rem;
+  font-family: 'DM Mono', monospace;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.delete-btn:hover { background: rgba(181,41,41,0.1); color: #f08080; border-color: rgba(181,41,41,0.5); }
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: var(--dim);
+  font-size: 0.8rem;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 480px) {
+  .dim-grid { grid-template-columns: 1fr 1fr; }
+  .btn-row { grid-template-columns: 1fr; }
+  .btn-secondary { width: 100%; }
+}
 </style>
 </head>
 <body>
 
-<h2>宝石補正データ 登録・管理</h2>
-
-<div id="authDiv">
-  <label>GitHub トークン入力</label>
-  <input type="password" id="ghToken" placeholder="Personal Access Token">
-  <button id="saveTokenBtn">保存</button>
+<div class="page-header">
+  <div class="header-eyebrow">SGC GROUP — Admin Tools</div>
+  <div class="header-title"><em>補正データ</em>登録</div>
+  <div class="header-sub">CALIBRATION DATA MANAGEMENT</div>
+  <div class="header-orn"><div class="orn-gem"></div></div>
 </div>
 
-<div id="formDiv" style="display:none;">
-  <div class="row">
-    <label>石の種類</label>
-    <select id="stone"></select>
+<div class="wrap">
+
+  <!-- Auth card -->
+  <div id="authCard">
+    <div class="section-label">認証 · Authentication</div>
+    <div class="auth-card">
+      <div class="auth-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C09A50" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <div class="auth-title">GitHub 認証</div>
+      <div class="auth-desc">補正データをGitHubリポジトリに保存するため、Personal Access Tokenが必要です。トークンはブラウザのローカルストレージに保存されます。</div>
+      <div class="field">
+        <label class="field-label">PERSONAL ACCESS TOKEN</label>
+        <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false">
+      </div>
+      <button class="btn-auth" id="saveTokenBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;margin-right:6px;vertical-align:middle"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        認証して続ける
+      </button>
+    </div>
   </div>
 
-  <div class="row">
-    <label>カット</label>
-    <select id="cut"></select>
+  <!-- Form -->
+  <div id="formDiv" style="display:none;">
+
+    <!-- Auth status -->
+    <div style="margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+      <div class="status-badge auth">
+        <div class="status-dot green"></div>
+        GitHub 認証済み
+      </div>
+      <button onclick="logout()" style="background:none;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--dim);font-size:0.65rem;padding:4px 10px;cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:0.06em;transition:color 0.15s,border-color 0.15s;" onmouseover="this.style.color='var(--white)'" onmouseout="this.style.color='var(--dim)'">ログアウト</button>
+    </div>
+
+    <!-- Stone & Cut -->
+    <div class="section-label">石とカット · Stone & Cut</div>
+    <div class="card">
+      <div class="field">
+        <label class="field-label">石の種類 · GEMSTONE</label>
+        <div class="select-wrap">
+          <select id="stone"></select>
+        </div>
+        <div id="sgInfo" style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);margin-top:6px;padding:0 4px;"></div>
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label class="field-label">カット · CUT</label>
+        <div class="select-wrap">
+          <select id="cut"></select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dimensions -->
+    <div class="section-label">寸法 · Measurements</div>
+    <div class="card">
+      <div class="dim-grid" id="dimensions"></div>
+
+      <!-- Measured weight -->
+      <div class="measured-wrap">
+        <label class="field-label">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:middle;margin-right:4px;opacity:0.7"><path d="M12 2L2 9l10 13 10-13-10-7z"/></svg>
+          実測重量 · MEASURED WEIGHT (g)
+        </label>
+        <input id="measured_g" type="number" step="0.001" placeholder="0.000">
+      </div>
+
+      <!-- Calc preview -->
+      <div id="calcPreview" style="display:none; margin-top:12px; padding:10px 14px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:9px;">
+        <div style="font-size:0.6rem;letter-spacing:0.15em;font-family:'DM Mono',monospace;color:var(--gold-dk);margin-bottom:6px;">計算プレビュー · PREVIEW</div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:0.6rem;color:var(--dim);margin-bottom:2px;">計算重量</div>
+            <div id="previewCalc" style="font-family:'DM Mono',monospace;font-size:0.88rem;color:rgba(100,180,140,0.9);">—</div>
+          </div>
+          <div>
+            <div style="font-size:0.6rem;color:var(--dim);margin-bottom:2px;">補正係数</div>
+            <div id="previewFactor" style="font-family:'DM Mono',monospace;font-size:0.88rem;color:var(--gold-lt);">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="btn-row">
+      <button class="btn btn-primary" id="addBtn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        登録する
+      </button>
+      <button class="btn-secondary" id="clearBtn" title="フォームをリセット">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.65"/></svg>
+      </button>
+    </div>
   </div>
 
-  <div id="dimensions"></div>
-
-  <div class="row">
-    <label>実測重量(g)</label>
-    <input id="measured_g" type="number" step="0.001">
+  <!-- Table -->
+  <div class="table-section">
+    <div class="section-label">登録済みデータ · Calibration Records</div>
+    <div class="scroll-hint">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      横にスクロールできます
+    </div>
+    <div class="table-wrap">
+      <table id="calibTable">
+        <thead>
+          <tr>
+            <th>石</th>
+            <th>カット</th>
+            <th>寸法</th>
+            <th>計算重量(g)</th>
+            <th>実測重量(g)</th>
+            <th>補正係数</th>
+            <th>登録日</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="8" class="empty-state">データがありません</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
-  <button id="addBtn">登録</button>
-</div>
+</div><!-- /wrap -->
 
-<h3>登録済み補正データ一覧</h3>
-<table id="calibTable">
-  <thead>
-    <tr>
-      <th>石</th>
-      <th>カット</th>
-      <th>寸法</th>
-      <th>計算重量(g)</th>
-      <th>実測重量(g)</th>
-      <th>補正係数</th>
-      <th>登録日</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+<!-- Toast -->
+<div class="toast" id="toast"></div>
 
 <script>
-const owner = "sgc-gold";
-const repo = "sgc";
-const path = "sgc/data/calibrations.json";
+// ─── Models (inline) ───
+const MODELS = {
+  ellipsoid:          (L,W,D) => Math.PI*L*W*D/6.0,
+  round:              (d,D,cr=0.40) => { const r=d/2,Hc=D*cr,Hp=D-Hc,Rc=(r*r+Hc*Hc)/(2*Hc),Vc=Math.PI*Hc*Hc*(Rc-Hc/3),Vp=(1/3)*Math.PI*r*r*Hp; return Vc+Vp; },
+  prism_box:          (L,W,D) => L*W*D*0.94,
+  prism_box_square:   (a,D) => a*a*D*0.93,
+  cabochon:           (d,h) => { const a=d/2,r=(a*a+h*h)/(2*h); return Math.PI*h*h*(r-h/3); },
+  cabochon_ellipsoid: (L,W,h) => { const a=Math.sqrt(L*W)/2,r=(a*a+h*h)/(2*h); return Math.PI*h*h*(r-h/3); },
+  bicone:             (r,h_half) => (2/3)*Math.PI*r*r*h_half*1.03,
+  trilliant:          (A,D) => (1/3)*A*D*0.97,
+  pear:               (L,W,D,sp=0.60) => { const tH=D*sp,bH=D-tH,tV=Math.PI*L*W*tH/6,bV=(1/3)*Math.PI*(W/2)**2*bH; return tV+bV+tV*0.01; },
+  pearl_round:        (d) => (4/3)*Math.PI*(d/2)**3,
+  pearl_mabe:         (L,W,h) => (2/3)*Math.PI*(L/2)*(W/2)*h,
+};
 
-let gemstones=[], cuts=[], models={}, calibrations=[];
+const DIM_LABELS = {
+  d:'直径', D:'厚み/全高', L:'縦', W:'横',
+  a:'辺長', r:'最大半径', h:'高さ',
+  h_half:'片側高さ', A:'底面積 (mm²)', split_ratio:'上部割合'
+};
+
+let gemstones=[], cuts=[], calibrations=[];
 let ghToken = localStorage.getItem("ghToken") || "";
 
-// ----------------- 認証 -----------------
-const authDiv = document.getElementById("authDiv");
-const formDiv = document.getElementById("formDiv");
-
-function showForm() {
-  authDiv.style.display = "none";
-  formDiv.style.display = "block";
-  initData();
+// ─── Toast ───
+function showToast(msg, isError=false, duration=3000) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = 'toast' + (isError ? ' error' : '') + ' show';
+  setTimeout(() => t.classList.remove('show'), duration);
 }
 
-if(ghToken){
-  showForm();
-}
+// ─── Auth ───
+function isAuthed() { return !!ghToken; }
 
-document.getElementById("saveTokenBtn").addEventListener("click", ()=>{
+if (isAuthed()) showForm();
+
+document.getElementById("saveTokenBtn").addEventListener("click", () => {
   const t = document.getElementById("ghToken").value.trim();
-  if(!t){ alert("トークンを入力してください"); return; }
+  if (!t) { showToast("トークンを入力してください", true); return; }
   ghToken = t;
   localStorage.setItem("ghToken", ghToken);
   showForm();
 });
 
-// ----------------- データ初期化 -----------------
-async function initData(){
+function logout() {
+  ghToken = "";
+  localStorage.removeItem("ghToken");
+  document.getElementById("formDiv").style.display = "none";
+  document.getElementById("authCard").style.display = "block";
+  document.getElementById("ghToken").value = "";
+}
+
+function showForm() {
+  document.getElementById("authCard").style.display = "none";
+  document.getElementById("formDiv").style.display = "block";
+  initData();
+}
+
+// ─── Init ───
+async function initData() {
   try {
     await loadGemstones();
     await loadCuts();
-    await loadModels();
     await loadCalibrations();
     displayCalibrations();
   } catch(e) {
-    console.error("initData error:", e);
-    alert("データ初期化に失敗しました。コンソールを確認してください。");
+    console.error("initData:", e);
+    showToast("データ読み込みに失敗しました", true);
   }
 }
 
-// ----------------- gemstone / cuts / models -----------------
-async function loadGemstones(){
-  const res = await fetch('./data/gemstones.json').then(r=>r.json());
+// ─── Gemstones ───
+async function loadGemstones() {
+  const res = await fetch('./data/gemstones.json').then(r => r.json());
   gemstones = res.gemstones;
-
-  // カタカナ優先であいうえお順ソート
-  function isKatakana(str) {
-    return /^[\u30A0-\u30FF]+$/.test(str);
-  }
-
-  const sortedGemstones = [...gemstones].sort((a, b) => {
-    const aKatakana = isKatakana(a.name_ja);
-    const bKatakana = isKatakana(b.name_ja);
-
-    if (aKatakana && !bKatakana) return -1; // aがカタカナ、bが漢字 → a先
-    if (!aKatakana && bKatakana) return 1;  // aが漢字、bがカタカナ → b先
-
-    // 両方カタカナ or 両方漢字の場合はあいうえお順
-    return a.name_ja.localeCompare(b.name_ja, 'ja');
+  function isKatakana(s) { return /^[\u30A0-\u30FF]+$/.test(s); }
+  const sorted = [...gemstones].sort((a,b) => {
+    const ak=isKatakana(a.name_ja), bk=isKatakana(b.name_ja);
+    if(ak&&!bk) return -1; if(!ak&&bk) return 1;
+    return a.name_ja.localeCompare(b.name_ja,'ja');
   });
-
   const sel = document.getElementById("stone");
-  sel.innerHTML = ""; // 既存のoptionをクリア
-  sortedGemstones.forEach(s=>{
-    const opt = document.createElement("option");
-    opt.value = s.id;
-    opt.textContent = s.name_ja;
-    sel.appendChild(opt);
+  sel.innerHTML = "";
+  sorted.forEach(s => {
+    const o = document.createElement("option");
+    o.value = s.id; o.textContent = `${s.name_ja}　(SG ${s.sg_std})`;
+    sel.appendChild(o);
   });
+  sel.addEventListener("change", updateSgInfo);
+  updateSgInfo();
 }
 
-async function loadCuts(){
-  const res = await fetch('./data/cuts.json').then(r=>r.json());
+function updateSgInfo() {
+  const g = gemstones.find(s => s.id === document.getElementById("stone").value);
+  document.getElementById("sgInfo").textContent = g
+    ? `比重 SG: ${g.sg_std}　(${g.sg_min} – ${g.sg_max})` : "";
+}
+
+// ─── Cuts ───
+async function loadCuts() {
+  const res = await fetch('./data/cuts.json').then(r => r.json());
   cuts = res.cuts;
   const sel = document.getElementById("cut");
-  cuts.forEach(c=>{
-    const opt = document.createElement("option");
-    opt.value = c.id;
-    opt.textContent = c.name_ja;
-    sel.appendChild(opt);
+  sel.innerHTML = "";
+  cuts.forEach(c => {
+    const o = document.createElement("option");
+    o.value = c.id; o.textContent = c.name_ja;
+    sel.appendChild(o);
   });
   sel.addEventListener("change", updateDimensionFields);
   updateDimensionFields();
 }
 
-async function loadModels(){
-  const res = await fetch('./data/models.json').then(r=>r.json());
-  models = {};
-  res.models.forEach(m=>models[m.id]=m);
+function updateDimensionFields() {
+  const cutId = document.getElementById("cut").value;
+  const cut = cuts.find(c => c.id === cutId);
+  if (!cut) return;
+  const area = document.getElementById("dimensions");
+  area.innerHTML = "";
+  cut.measurement_fields.forEach(f => {
+    const div = document.createElement("div");
+    div.className = "field";
+    const label = DIM_LABELS[f] || f;
+    const unit  = f === 'A' ? 'mm²' : f === 'split_ratio' ? '' : 'mm';
+    div.innerHTML = `
+      <label class="field-label">${label.toUpperCase()}${unit ? ' (' + unit + ')' : ''}</label>
+      <input id="dim_${f}" type="number" step="0.01"
+        value="${f==='split_ratio'?'0.6':''}"
+        placeholder="${f==='split_ratio'?'0.6':'0.00'}">`;
+    area.appendChild(div);
+    div.querySelector('input').addEventListener('input', updatePreview);
+  });
+  document.getElementById("measured_g").addEventListener('input', updatePreview);
+  updatePreview();
 }
 
-// ----------------- calibrations.json 読み込み -----------------
-async function loadCalibrations(){
-  try{
+// ─── Preview ───
+function updatePreview() {
+  const cutId = document.getElementById("cut").value;
+  const cut = cuts.find(c => c.id === cutId);
+  const stone = gemstones.find(s => s.id === document.getElementById("stone").value);
+  if (!cut || !stone) return;
+
+  try {
+    const args = cut.measurement_fields.map(f => {
+      const v = parseFloat(document.getElementById("dim_"+f)?.value) || 0;
+      return v;
+    });
+    if (args.some(v => v <= 0 && !['split_ratio'].includes(cut.measurement_fields[args.indexOf(v)]))) {
+      document.getElementById("calcPreview").style.display = "none"; return;
+    }
+    const fn = MODELS[cut.model];
+    if (!fn) return;
+    let V = fn(...args) * cut.correction_factor;
+    const calc = stone.sg_std * V / 1000;
+    const meas = parseFloat(document.getElementById("measured_g").value) || 0;
+    const factor = meas > 0 ? meas / calc : null;
+
+    document.getElementById("previewCalc").textContent = calc.toFixed(3) + " g";
+    document.getElementById("previewFactor").textContent = factor ? factor.toFixed(3) : "—";
+
+    const fEl = document.getElementById("previewFactor");
+    if (factor) {
+      fEl.className = factor > 1.1 ? 'factor-high' : factor < 0.9 ? 'factor-low' : 'factor-ok';
+    }
+    document.getElementById("calcPreview").style.display = "block";
+  } catch(e) {
+    document.getElementById("calcPreview").style.display = "none";
+  }
+}
+
+// ─── Calibrations ───
+async function loadCalibrations() {
+  try {
     const res = await fetch('./data/calibrations.json');
     const data = await res.json();
     calibrations = data.calibrations || [];
-  }catch(e){
+  } catch(e) {
     calibrations = [];
-    console.warn("calibrations.json 読み込み失敗:", e);
   }
 }
 
-// ----------------- 寸法フィールド生成 -----------------
-function updateDimensionFields(){
-  const cutId = document.getElementById("cut").value;
-  const cutObj = cuts.find(c=>c.id===cutId);
-  if(!cutObj) return;
-  const fields = cutObj.measurement_fields;
-
-  const area = document.getElementById("dimensions");
-  area.innerHTML="";
-
-  fields.forEach(f=>{
-    const label = {
-      d: "直径(mm)",
-      D: "厚み/全高(mm)",
-      L: "縦(mm)",
-      W: "横(mm)",
-      a: "辺長(mm)",
-      r: "最大半径(mm)",
-      h: "高さ(mm)",
-      h_half: "片側高さ(mm)",
-      A: "底面積(mm²)",
-      split_ratio: "上部割合(0.4〜0.7推奨)"
-    }[f] || f;
-
-    const row = document.createElement("div");
-    row.className="row";
-    row.innerHTML = `<label>${label}</label>
-      <input id="dim_${f}" type="number" step="0.01" value="${f==='split_ratio'?0.6:''}">`;
-    area.appendChild(row);
-  });
-}
-
-// ----------------- 登録処理 -----------------
-document.getElementById("addBtn").addEventListener("click", async ()=>{
-  try{
+// ─── Register ───
+document.getElementById("addBtn").addEventListener("click", async () => {
+  try {
     const stoneId = document.getElementById("stone").value;
-    const cutId = document.getElementById("cut").value;
-    const cutObj = cuts.find(c=>c.id===cutId);
-    if(!stoneId || !cutId){ alert("石とカットを選択してください"); return; }
+    const cutId   = document.getElementById("cut").value;
+    const cut     = cuts.find(c => c.id === cutId);
+    const stone   = gemstones.find(s => s.id === stoneId);
+    if (!stoneId || !cutId) { showToast("石とカットを選択してください", true); return; }
 
-    const entry = {stone: stoneId, cut: cutId, date: new Date().toISOString()};
-
-    // 寸法フィールド
-    const args=[];
-    cutObj.measurement_fields.forEach(f=>{
-      const val=parseFloat(document.getElementById("dim_"+f).value) || 0;
-      entry[f]=val;
-      args.push(val);
+    const entry = { stone: stoneId, cut: cutId, date: new Date().toISOString() };
+    const args  = [];
+    cut.measurement_fields.forEach(f => {
+      const v = parseFloat(document.getElementById("dim_"+f).value) || 0;
+      entry[f] = v; args.push(v);
     });
 
-    // 計算重量
-    const stoneObj = gemstones.find(s=>s.id===stoneId);
-    const model = models[cutObj.model];
-    if(!model){ alert("モデルが未定義です"); return; }
-    
-    // 修正版: evalを一旦関数化
-    const func = eval(model.formula_js);
-    let V = func(...args);
-    V *= cutObj.correction_factor;
-    const calculated_g = stoneObj.sg_std * V / 1000;
-    entry.calculated_g = parseFloat(calculated_g.toFixed(3));
-    console.log("計算重量:", calculated_g);
+    const fn = MODELS[cut.model];
+    if (!fn) { showToast("モデルが未定義です", true); return; }
+    let V = fn(...args) * cut.correction_factor;
+    const calc = stone.sg_std * V / 1000;
+    entry.calculated_g = parseFloat(calc.toFixed(3));
 
-    // 実測重量
-    const measured_g = parseFloat(document.getElementById("measured_g").value) || 0;
-    if(!measured_g){ alert("実測重量を入力してください"); return; }
-    entry.measured_g = measured_g;
-
-    // 補正係数
-    entry.correction_factor = parseFloat((measured_g / calculated_g).toFixed(3));
+    const meas = parseFloat(document.getElementById("measured_g").value) || 0;
+    if (!meas) { showToast("実測重量を入力してください", true); return; }
+    entry.measured_g = meas;
+    entry.correction_factor = parseFloat((meas / calc).toFixed(3));
 
     calibrations.push(entry);
     displayCalibrations();
-    await saveToGitHub();
-    alert("登録しました！");
-  } catch(e){
-    console.error("登録処理エラー:", e);
-    alert("登録処理中にエラーが発生しました。コンソールを確認してください。");
+
+    const btn = document.getElementById("addBtn");
+    btn.textContent = "保存中…"; btn.disabled = true;
+    try {
+      await saveToGitHub(entry);
+      showToast("✓ 登録・保存しました");
+    } catch(e) {
+      showToast("GitHub保存に失敗しました: " + e.message, true, 5000);
+    }
+    btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> 登録する`;
+    btn.disabled = false;
+
+  } catch(e) {
+    console.error(e);
+    showToast("登録処理中にエラーが発生しました", true);
   }
 });
 
-// ----------------- GitHub 保存 -----------------
-async function saveToGitHub() {
-  const owner = "sgc-gold";
-  const repo = "sgc";
-  const path = "data/calibrations.json";
-  const ghToken = localStorage.getItem("ghToken");
-  if (!ghToken) throw new Error("GitHubトークンが設定されていません。");
+// ─── Clear ───
+document.getElementById("clearBtn").addEventListener("click", () => {
+  document.getElementById("cut").dispatchEvent(new Event("change"));
+  document.getElementById("measured_g").value = "";
+  document.getElementById("calcPreview").style.display = "none";
+});
 
-  // --- 現在のcalibrations.jsonを取得 ---
-  let sha = null;
-  let existingData = { calibrations: [] };
-
-  try {
-    const resGet = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-      headers: {
-        "Authorization": "token " + ghToken.trim(),
-        "Accept": "application/vnd.github.v3+json"
-      }
-    });
-
-    if (resGet.ok) {
-      const data = await resGet.json();
-      sha = data.sha;
-      existingData = JSON.parse(atob(data.content));
-    } else if (resGet.status === 404) {
-      console.log("calibrations.json は存在しません。新規作成します。");
-    } else {
-      throw new Error("GitHub GET 失敗: " + resGet.status);
-    }
-  } catch (e) {
-    console.warn("既存データの取得に失敗しました:", e);
-  }
-
-  // --- フロント側の補正データを追加 ---
-  if (!calibrations.length) {
-    throw new Error("登録データが存在しません。");
-  }
-  const latest = calibrations[calibrations.length - 1]; // 直近の登録データ
-
-  // 同一stone & cutがある場合は上書き（重複防止）
-  existingData.calibrations = existingData.calibrations.filter(c =>
-    !(c.stone === latest.stone && c.cut === latest.cut)
-  );
-  existingData.calibrations.push(latest);
-
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(existingData, null, 2))));
-
-  // --- PUTでGitHubに保存 ---
-  const resPut = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-    method: "PUT",
-    headers: {
-      "Authorization": "token " + ghToken.trim(),
-      "Accept": "application/vnd.github.v3+json",
-      "Content-Type": "application/json; charset=utf-8"
-    },
-    body: JSON.stringify({
-      message: `Add calibration (${latest.stone}-${latest.cut})`,
-      content,
-      sha: sha || undefined
-    })
-  });
-
-  if (!resPut.ok) {
-    const errText = await resPut.text();
-    console.error("PUT失敗:", errText);
-    throw new Error("GitHub保存に失敗しました。");
-  }
-
-  alert("calibrations.json に保存しました。");
+// ─── Delete ───
+function deleteEntry(idx) {
+  if (!confirm("このデータを削除しますか？")) return;
+  calibrations.splice(idx, 1);
+  displayCalibrations();
+  saveToGitHub(null).catch(e => showToast("削除の保存に失敗: "+e.message, true));
 }
 
-// ----------------- 一覧表示 -----------------
-function displayCalibrations(){
-  const tbody = document.querySelector("#calibTable tbody");
-  tbody.innerHTML="";
+// ─── GitHub ───
+async function saveToGitHub(newEntry) {
+  const owner = "sgc-gold", repo = "sgc", path = "data/calibrations.json";
+  const token = localStorage.getItem("ghToken");
+  if (!token) throw new Error("トークンが未設定です");
 
-  calibrations.forEach(c=>{
+  // GET existing
+  let sha = null;
+  let existing = { calibrations: [] };
+  try {
+    const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+      headers: { "Authorization": "token "+token.trim(), "Accept": "application/vnd.github.v3+json" }
+    });
+    if (r.ok) {
+      const d = await r.json();
+      sha = d.sha;
+      existing = JSON.parse(atob(d.content.replace(/\n/g,'')));
+    }
+  } catch(e) { console.warn("GET failed:", e); }
+
+  // 最新の calibrations 全件を保存
+  existing.calibrations = calibrations;
+
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(existing, null, 2))));
+  const label = newEntry ? `${newEntry.stone}-${newEntry.cut}` : "delete";
+  const r2 = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+    method: "PUT",
+    headers: {
+      "Authorization": "token "+token.trim(),
+      "Accept": "application/vnd.github.v3+json",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ message: `Update calibration (${label})`, content, ...(sha ? {sha} : {}) })
+  });
+  if (!r2.ok) {
+    const e = await r2.text(); throw new Error(e);
+  }
+}
+
+// ─── Display table ───
+function displayCalibrations() {
+  const tbody = document.querySelector("#calibTable tbody");
+  tbody.innerHTML = "";
+
+  if (!calibrations.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">データがありません</td></tr>';
+    return;
+  }
+
+  calibrations.forEach((c, i) => {
     const stoneName = gemstones.find(s=>s.id===c.stone)?.name_ja || c.stone;
-    const cutName = cuts.find(cu=>cu.id===c.cut)?.name_ja || c.cut;
-    const dims = cuts.find(cu=>cu.id===c.cut).measurement_fields.map(f=>`${f}:${c[f]||''}`).join(", ");
+    const cutObj    = cuts.find(cu=>cu.id===c.cut);
+    const cutName   = cutObj?.name_ja || c.cut;
+    const dims      = cutObj ? cutObj.measurement_fields.map(f=>`${f}:${c[f]??''}`).join(" ") : "";
+    const f         = c.correction_factor;
+    const fClass    = f>1.1 ? 'factor-high' : f<0.9 ? 'factor-low' : 'factor-ok';
+    const dateStr   = c.date ? new Date(c.date).toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'}) : "";
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${stoneName}</td>
-      <td>${cutName}</td>
-      <td>${dims}</td>
-      <td>${c.calculated_g}</td>
-      <td>${c.measured_g}</td>
-      <td>${c.correction_factor}</td>
-      <td>${new Date(c.date).toLocaleString()}</td>
-    `;
+      <td class="td-stone">${stoneName}</td>
+      <td class="td-cut">${cutName}</td>
+      <td class="td-dims">${dims}</td>
+      <td class="td-calc">${c.calculated_g}</td>
+      <td class="td-meas">${c.measured_g}</td>
+      <td class="td-factor ${fClass}">${f}</td>
+      <td class="td-date">${dateStr}</td>
+      <td><button class="delete-btn" onclick="deleteEntry(${i})">削除</button></td>`;
     tbody.appendChild(tr);
   });
 }
