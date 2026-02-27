@@ -4,166 +4,501 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>YouTube</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:    #1A3628;
+      --green-lt: #254D38;
+      --green-dk: #0E1F17;
+      --gold:     #C09A50;
+      --gold-lt:  #E8D49A;
+      --gold-dk:  #8A6A28;
+      --cream:    #F7F3EB;
+      --white:    #FFFFFF;
+      --ink:      #1C1A16;
+      --ink-soft: #5A5448;
+      --border:   rgba(192,154,80,0.18);
+      --shadow:   0 2px 16px rgba(28,26,22,0.08);
+    }
+
+    html { background: var(--cream); }
     body {
-      font-family: 'Noto Sans JP', sans-serif;
-      background-color: #fafafa;
-      margin: 0;
-      padding: 0;
-      color: #003D2E;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      padding-bottom: 40px;
+      overflow-x: hidden;
     }
-    header {
-      background: #003D2E;
-      color: #fff;
+
+    /* Grain */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+
+    /* ─── Page header ─── */
+    .page-header {
+      position: relative; z-index: 1;
+      background: var(--green-dk);
+      padding: 28px 20px 22px;
       text-align: center;
-      padding: 1rem;
+      border-bottom: 1px solid rgba(192,154,80,0.15);
     }
-    h1 { margin: 0; font-size: 1.4rem; }
-    h2 { color: #003D2E; margin: 1rem; }
-    main {
-      padding: 1rem;
+    .page-header::after {
+      content: '';
+      position: absolute; bottom: -1px; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent 0%, var(--gold-dk) 20%, var(--gold) 50%, var(--gold-dk) 80%, transparent 100%);
+    }
+    .header-eyebrow {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 0.68rem;
+      letter-spacing: 0.3em;
+      color: rgba(200,160,80,0.5);
+      margin-bottom: 6px;
+    }
+    .header-title {
+      font-family: 'Shippori Mincho', serif;
+      font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: 0.1em;
+    }
+    .header-title span {
+      display: block;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 0.66rem;
+      color: var(--gold);
+      letter-spacing: 0.3em;
+      margin-top: 5px;
+    }
+    .header-orn { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 14px; }
+    .header-orn::before, .header-orn::after { content: ''; flex: 1; max-width: 60px; height: 1px; background: linear-gradient(90deg, transparent, rgba(192,154,80,0.35)); }
+    .header-orn::after { background: linear-gradient(90deg, rgba(192,154,80,0.35), transparent); }
+    .orn-d { width: 4px; height: 4px; background: var(--gold); transform: rotate(45deg); }
+
+    /* ─── Container ─── */
+    .container {
+      position: relative; z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    /* ─── Section ─── */
+    .section {
+      padding-top: 28px;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.62rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold-dk);
+    }
+    .section-label::after {
+      content: '';
+      width: 40px; height: 1px;
+      background: var(--border);
+    }
+    .section-title {
+      font-family: 'Shippori Mincho', serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: 0.06em;
+    }
+    .section-keyword {
+      display: inline-block;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      background: rgba(192,154,80,0.1);
+      border: 1px solid rgba(192,154,80,0.25);
+      color: var(--gold-dk);
+      border-radius: 100px;
+      padding: 2px 10px;
+    }
+
+    /* ─── Video grid ─── */
+    .video-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
     }
+
+    /* ─── Video card ─── */
     .video-card {
-      background: #fff;
+      background: var(--white);
+      border: 1px solid var(--border);
       border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
       overflow: hidden;
+      box-shadow: var(--shadow);
       display: flex;
       flex-direction: column;
-      transition: transform 0.2s ease;
-    }
-    .video-card:hover { transform: scale(1.02); }
-    iframe {
-      width: 100%;
-      aspect-ratio: 16/9;
-      border: none;
-    }
-    .video-info { padding: 0.8rem; }
-    .video-title {
-      font-size: 1rem;
-      font-weight: bold;
-      margin: 0 0 0.4rem 0;
-      color: #003D2E;
-    }
-    .video-date { font-size: 0.8rem; color: #666; }
-
-    .load-more {
-      display: block;
-      margin: 1rem auto;
-      padding: 0.6rem 1.2rem;
-      border: none;
-      border-radius: 8px;
-      background-color: #003D2E;
-      color: white;
-      font-size: 1rem;
       cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+      animation: fadeUp 0.25s ease both;
     }
-    .load-more:hover {
-      background-color: #025d45;
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .video-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 28px rgba(28,26,22,0.13);
+      border-color: rgba(192,154,80,0.35);
+    }
+
+    /* サムネイル */
+    .thumb-wrap {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      background: var(--green-dk);
+    }
+    .thumb-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+    .video-card:hover .thumb-wrap img { transform: scale(1.04); }
+
+    /* 再生ボタンオーバーレイ */
+    .play-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.18);
+      opacity: 0;
+      transition: opacity 0.18s;
+    }
+    .video-card:hover .play-overlay { opacity: 1; }
+    .play-btn {
+      width: 48px; height: 48px;
+      background: rgba(255,0,0,0.88);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+    .play-btn svg { width: 20px; height: 20px; fill: white; margin-left: 3px; }
+
+    /* YouTube バッジ */
+    .yt-badge {
+      position: absolute;
+      top: 8px; right: 8px;
+      background: rgba(255,0,0,0.85);
+      color: white;
+      font-size: 0.52rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    /* カード情報 */
+    .video-info {
+      padding: 11px 13px 13px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .video-title {
+      font-family: 'Shippori Mincho', serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .video-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: auto;
+      padding-top: 6px;
+    }
+    .video-date {
+      font-size: 0.68rem;
+      color: #aaa;
+      font-family: 'DM Mono', monospace;
+    }
+    .video-open {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 3px;
+      font-size: 0.62rem;
+      color: var(--gold-dk);
+      opacity: 0;
+      transition: opacity 0.18s;
+    }
+    .video-card:hover .video-open { opacity: 1; }
+
+    /* ─── Loading ─── */
+    .loading-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 40px 0; gap: 12px;
+    }
+    .spinner {
+      width: 28px; height: 28px;
+      border: 2px solid rgba(192,154,80,0.15);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 0.78rem; color: var(--ink-soft); letter-spacing: 0.08em; }
+
+    /* ─── Error / empty ─── */
+    .msg-box {
+      background: rgba(192,154,80,0.06);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      font-size: 0.82rem;
+      color: var(--ink-soft);
+      text-align: center;
+    }
+
+    /* ─── Load more ─── */
+    .load-more-wrap {
+      display: flex; justify-content: center;
+      margin-top: 16px;
+    }
+    .load-more-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      color: var(--gold-dk);
+      cursor: pointer;
+      transition: background 0.18s, border-color 0.18s, color 0.18s;
+    }
+    .load-more-btn:hover {
+      background: rgba(192,154,80,0.07);
+      border-color: rgba(192,154,80,0.4);
+      color: var(--gold);
+    }
+    .load-more-btn svg { width: 13px; height: 13px; }
+
+    /* ─── Divider ─── */
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 28px 0 0;
     }
   </style>
 </head>
 <body>
 
-  <div id="video-container">
-    <p style="padding:1rem;">動画を読み込み中です...</p>
+<!-- Header -->
+<div class="page-header">
+  <div class="header-eyebrow">SGC GROUP — Internal Portal</div>
+  <div class="header-title">
+    YouTube
+    <span>VIDEO LIBRARY</span>
   </div>
+  <div class="header-orn"><div class="orn-d"></div></div>
+</div>
 
-  <script>
-    // ① 高さ通知関数
-    function notifyHeight() {
-      const height = document.body.scrollHeight;
-      parent.postMessage({ type: 'resize-iframe', height }, '*');
-    }
-  
-    const API_KEY = 'AIzaSyC4YLySfOAuuxslQiLMAIN5l-e5Trh44g4';
-    const KEYWORDS = ['大黄金展', '池水雄一'];
-    const MAX_RESULTS = 5;
-    const nextPageTokens = {};
-  
-    async function fetchVideos(keyword, pageToken = '') {
-      const url = new URL('https://www.googleapis.com/youtube/v3/search');
-      url.search = new URLSearchParams({
-        part: 'snippet',
-        q: keyword,
-        type: 'video',
-        order: 'date',
-        maxResults: MAX_RESULTS,
-        key: API_KEY,
-        pageToken
-      });
-  
-      const res = await fetch(url);
-      const data = await res.json();
-      nextPageTokens[keyword] = data.nextPageToken || null;
-      return data.items || [];
-    }
-  
-    async function renderVideos(keyword, append = false) {
-      const container = document.getElementById(`videos-${keyword}`);
-      if (!append) container.innerHTML = '';
-      const videos = await fetchVideos(keyword, nextPageTokens[keyword]);
-  
-      if (videos.length === 0) {
-        container.innerHTML = '<p>該当する動画が見つかりませんでした。</p>';
-        notifyHeight(); // ③ 高さ通知（該当なし時）
-        return;
-      }
-  
-      videos.forEach(item => {
-        const videoId = item.id.videoId;
-        const title = item.snippet.title;
-        const publishedAt = new Date(item.snippet.publishedAt).toLocaleDateString('ja-JP');
-        const card = document.createElement('div');
-        card.className = 'video-card';
-        card.innerHTML = `
-          <iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen title="${title}"></iframe>
-          <div class="video-info">
-            <p class="video-title">${title}</p>
-            <p class="video-date">公開日: ${publishedAt}</p>
+<div class="container" id="video-container">
+  <div class="loading-wrap">
+    <div class="spinner"></div>
+    <div class="loading-text">動画を読み込み中です…</div>
+  </div>
+</div>
+
+<script>
+  function notifyHeight() {
+    parent.postMessage({ type: 'resize-iframe', height: document.body.scrollHeight }, '*');
+  }
+
+  const API_KEY     = 'AIzaSyC4YLySfOAuuxslQiLMAIN5l-e5Trh44g4';
+  const KEYWORDS    = ['大黄金展', '池水雄一'];
+  const MAX_RESULTS = 6;
+  const nextPageTokens = {};
+
+  // ─── Fetch ───
+  async function fetchVideos(keyword, pageToken = '') {
+    const url = new URL('https://www.googleapis.com/youtube/v3/search');
+    url.search = new URLSearchParams({
+      part: 'snippet',
+      q: keyword,
+      type: 'video',
+      order: 'date',
+      maxResults: MAX_RESULTS,
+      key: API_KEY,
+      ...(pageToken ? { pageToken } : {})
+    });
+    const res  = await fetch(url);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    nextPageTokens[keyword] = data.nextPageToken || null;
+    return data.items || [];
+  }
+
+  // ─── Render cards ───
+  function createCard(item) {
+    const videoId     = item.id.videoId;
+    const title       = item.snippet.title;
+    const publishedAt = new Date(item.snippet.publishedAt)
+      .toLocaleDateString('ja-JP', { year:'numeric', month:'2-digit', day:'2-digit' });
+    // hqdefault はほぼ全動画で存在する最も安定したサムネ
+    const thumb = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+    const ytUrl  = `https://www.youtube.com/watch?v=${videoId}`;
+
+    const a = document.createElement('a');
+    a.className = 'video-card';
+    a.href      = ytUrl;
+    a.target    = '_blank';
+    a.rel       = 'noopener noreferrer';
+    a.innerHTML = `
+      <div class="thumb-wrap">
+        <img src="${thumb}" alt="${escHtml(title)}" loading="lazy">
+        <div class="play-overlay">
+          <div class="play-btn">
+            <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
           </div>
-        `;
-        container.appendChild(card);
-      });
-  
-      // ② 高さ通知（動画描画後）
+        </div>
+        <div class="yt-badge">YouTube</div>
+      </div>
+      <div class="video-info">
+        <div class="video-title">${escHtml(title)}</div>
+        <div class="video-meta">
+          <span class="video-date">${publishedAt}</span>
+          <span class="video-open">
+            開く
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </span>
+        </div>
+      </div>`;
+    return a;
+  }
+
+  // ─── Render section ───
+  async function renderVideos(keyword, gridEl, append = false) {
+    if (!append) gridEl.innerHTML = '';
+
+    let videos;
+    try {
+      videos = await fetchVideos(keyword, append ? nextPageTokens[keyword] : '');
+    } catch(e) {
+      gridEl.innerHTML = `<div class="msg-box">動画の取得に失敗しました。<br><small>${escHtml(e.message)}</small></div>`;
       notifyHeight();
-  
-      const btnId = `btn-${keyword}`;
-      let loadMoreBtn = document.getElementById(btnId);
-      if (nextPageTokens[keyword]) {
-        if (!loadMoreBtn) {
-          loadMoreBtn = document.createElement('button');
-          loadMoreBtn.id = btnId;
-          loadMoreBtn.className = 'load-more';
-          loadMoreBtn.textContent = 'さらに読み込む';
-          loadMoreBtn.onclick = () => renderVideos(keyword, true);
-          container.parentNode.appendChild(loadMoreBtn);
-          notifyHeight(); // ③ 高さ通知（ボタン追加後）
-        }
-      } else if (loadMoreBtn) {
-        loadMoreBtn.remove();
-        notifyHeight(); // ③ 高さ通知（ボタン削除後）
-      }
+      return;
     }
-  
-    async function loadAllVideos() {
-      const wrapper = document.getElementById('video-container');
-      wrapper.innerHTML = '';
-      for (const keyword of KEYWORDS) {
-        const section = document.createElement('section');
-        section.innerHTML = `<h2>「${keyword}」の最新動画</h2><main id="videos-${keyword}"></main>`;
-        wrapper.appendChild(section);
-        await renderVideos(keyword);
-        notifyHeight(); // ③ 高さ通知（各キーワード描画後）
-      }
+
+    if (videos.length === 0 && !append) {
+      gridEl.innerHTML = '<div class="msg-box">該当する動画が見つかりませんでした。</div>';
+      notifyHeight();
+      return;
     }
-  
-    loadAllVideos();
-  </script>
+
+    videos.forEach((item, i) => {
+      const card = createCard(item);
+      card.style.animationDelay = `${i * 0.04}s`;
+      gridEl.appendChild(card);
+    });
+
+    notifyHeight();
+  }
+
+  // ─── Build load-more button ───
+  function buildLoadMore(keyword, gridEl, wrapEl) {
+    const existing = wrapEl.querySelector('.load-more-wrap');
+    if (existing) existing.remove();
+
+    if (nextPageTokens[keyword]) {
+      const div = document.createElement('div');
+      div.className = 'load-more-wrap';
+      div.innerHTML = `
+        <button class="load-more-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.65"/></svg>
+          さらに読み込む
+        </button>`;
+      div.querySelector('button').onclick = async () => {
+        div.remove();
+        await renderVideos(keyword, gridEl, true);
+        buildLoadMore(keyword, gridEl, wrapEl);
+        notifyHeight();
+      };
+      wrapEl.appendChild(div);
+    }
+  }
+
+  // ─── Main ───
+  async function loadAllVideos() {
+    const wrapper = document.getElementById('video-container');
+    wrapper.innerHTML = '';
+
+    for (let i = 0; i < KEYWORDS.length; i++) {
+      const keyword = KEYWORDS[i];
+
+      if (i > 0) {
+        const hr = document.createElement('hr');
+        hr.className = 'section-divider';
+        wrapper.appendChild(hr);
+      }
+
+      const section = document.createElement('div');
+      section.className = 'section';
+      section.innerHTML = `
+        <div class="section-header">
+          <div class="section-label">検索キーワード</div>
+          <span class="section-keyword">「${escHtml(keyword)}」</span>
+        </div>
+        <div class="video-grid" id="grid-${escId(keyword)}"></div>`;
+      wrapper.appendChild(section);
+
+      const gridEl = section.querySelector('.video-grid');
+
+      // ローディング表示
+      gridEl.innerHTML = `
+        <div class="loading-wrap" style="grid-column:1/-1">
+          <div class="spinner"></div>
+          <div class="loading-text">読み込み中…</div>
+        </div>`;
+
+      await renderVideos(keyword, gridEl);
+      buildLoadMore(keyword, gridEl, section);
+      notifyHeight();
+    }
+  }
+
+  function escHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function escId(str) {
+    return str.replace(/[^\w]/g, '_');
+  }
+
+  window.addEventListener('load', notifyHeight);
+  window.addEventListener('resize', notifyHeight);
+
+  loadAllVideos();
+</script>
 </body>
 </html>
