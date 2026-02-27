@@ -5,1043 +5,1639 @@
       "name_ja": "ダイヤモンド",
       "sg_min": 3.5,
       "sg_max": 3.53,
-      "sg_std": 3.52
+      "sg_std": 3.52,
+      "color_group": "colorless",
+      "description": "最硬の宝石。輝きと分散の王者。地球最深部からの贈り物",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Brillanten.jpg/320px-Brillanten.jpg",
+      "color_swatch": "linear-gradient(135deg,#C0C8D0,#E8F0F8,#FFFFFF)"
     },
     {
       "id": "ruby",
       "name_ja": "ルビー",
       "sg_min": 3.95,
       "sg_max": 4.1,
-      "sg_std": 4.0
+      "sg_std": 4.0,
+      "color_group": "red",
+      "description": "コランダムの赤色変種。最高級はミャンマー産ピジョンブラッド",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Corundum-gem7.jpg/320px-Corundum-gem7.jpg",
+      "color_swatch": "linear-gradient(135deg,#6B0000,#C0392B,#E74C3C)"
     },
     {
       "id": "sapphire",
       "name_ja": "サファイア",
       "sg_min": 3.9,
       "sg_max": 4.1,
-      "sg_std": 4.0
+      "sg_std": 4.0,
+      "color_group": "blue",
+      "description": "コランダムの青色変種。カシミール産が最高峰",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Sapphire_gem.jpg/320px-Sapphire_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#0A1545,#1565C0,#42A5F5)"
     },
     {
       "id": "emerald",
       "name_ja": "エメラルド",
       "sg_min": 2.67,
       "sg_max": 2.8,
-      "sg_std": 2.73
+      "sg_std": 2.73,
+      "color_group": "green",
+      "description": "最高級緑の宝石。コロンビア産ムゾー産が最高峰",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Emerald_gem.jpg/320px-Emerald_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#003A1A,#006B3A,#00A060)"
     },
     {
       "id": "aquamarine",
       "name_ja": "アクアマリン",
       "sg_min": 2.68,
       "sg_max": 2.8,
-      "sg_std": 2.74
+      "sg_std": 2.74,
+      "color_group": "blue",
+      "description": "海水のような澄んだ青。ベリルの青色変種",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Aquamarine_gem.jpg/320px-Aquamarine_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#004D7A,#0097C4,#00C8E0)"
     },
     {
       "id": "alexandrite",
       "name_ja": "アレキサンドライト",
       "sg_min": 3.71,
       "sg_max": 3.73,
-      "sg_std": 3.72
+      "sg_std": 3.72,
+      "color_group": "multi",
+      "description": "昼は緑、白熱灯下では赤に変色する奇跡の石",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Alexandrite_gems.jpg/320px-Alexandrite_gems.jpg",
+      "color_swatch": "linear-gradient(135deg,#1A6A20,#308A30,#8B1A4A)"
     },
     {
       "id": "amethyst",
       "name_ja": "アメジスト",
       "sg_min": 2.65,
       "sg_max": 2.66,
-      "sg_std": 2.66
+      "sg_std": 2.66,
+      "color_group": "purple",
+      "description": "紫水晶。クォーツの紫色変種。古来から魔除けの石とされた",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Amethyst_gem.jpg/320px-Amethyst_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#3D0A6B,#7B1FA2,#AB47BC)"
     },
     {
       "id": "ametrine",
       "name_ja": "アメトリン",
       "sg_min": 2.65,
       "sg_max": 2.66,
-      "sg_std": 2.655
+      "sg_std": 2.655,
+      "color_group": "purple",
+      "description": "アメジストとシトリンが一石に共存。ボリビア産が有名",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Ametrine_gem.jpg/320px-Ametrine_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#5A1A7A,#9B4DCA,#E8C030)"
     },
     {
       "id": "andalusite",
       "name_ja": "アンダルサイト",
       "sg_min": 3.13,
       "sg_max": 3.21,
-      "sg_std": 3.17
+      "sg_std": 3.17,
+      "color_group": "brown",
+      "description": "強い多色性で赤・緑・黄が方向により見える",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Andalusite_gem.jpg/320px-Andalusite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#5A3A20,#9A6840,#C09060)"
     },
     {
       "id": "apatite",
       "name_ja": "アパタイト",
       "sg_min": 3.17,
       "sg_max": 3.23,
-      "sg_std": 3.2
+      "sg_std": 3.2,
+      "color_group": "blue",
+      "description": "ネオンブルーから黄緑まで。パライバトルマリンに似た発色も",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Apatite_gem.jpg/320px-Apatite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#004A6A,#1080B0,#40C0E0)"
     },
     {
       "id": "amber",
       "name_ja": "琥珀（アンバー）",
       "sg_min": 1.03,
       "sg_max": 1.1,
-      "sg_std": 1.06
+      "sg_std": 1.06,
+      "color_group": "orange",
+      "description": "数千万年前の樹脂が化石化。内部に虫や植物が閉じ込まることも",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Amber_gem.jpg/320px-Amber_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#7A4000,#C07800,#E8A800)"
     },
     {
       "id": "axinite",
       "name_ja": "アクシナイト",
       "sg_min": 3.27,
       "sg_max": 3.35,
-      "sg_std": 3.29
+      "sg_std": 3.29,
+      "color_group": "brown",
+      "description": "褐色から紫、グレーまで。クサビ型の結晶が特徴",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Axinite_gem.jpg/320px-Axinite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#5A3A20,#8A6040,#B08868)"
     },
     {
       "id": "benitoite",
       "name_ja": "ベニトアイト",
       "sg_min": 3.64,
       "sg_max": 3.68,
-      "sg_std": 3.66
+      "sg_std": 3.66,
+      "color_group": "blue",
+      "description": "カリフォルニア州産の希少鉱物。強い蛍光と分散が特徴",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Benitoite_gem.jpg/320px-Benitoite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#0A2080,#2040C0,#4080F0)"
     },
     {
       "id": "beryl",
       "name_ja": "ベリル",
       "sg_min": 2.68,
       "sg_max": 2.8,
-      "sg_std": 2.74
+      "sg_std": 2.74,
+      "color_group": "green",
+      "description": "ベリル族の総称。エメラルド・アクアマリン・モルガナイトの母石",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Beryl.jpg/320px-Beryl.jpg",
+      "color_swatch": "linear-gradient(135deg,#2A6A40,#50AA70,#90D0A0)"
     },
     {
       "id": "brazilianite",
       "name_ja": "ブラジリアナイト",
       "sg_min": 2.98,
       "sg_max": 3.01,
-      "sg_std": 2.99
+      "sg_std": 2.99,
+      "color_group": "yellow",
+      "description": "鮮やかな黄緑色。ブラジル産の国石的存在",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Brazilianite_gem.jpg/320px-Brazilianite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#4A7A00,#80C000,#B0E820)"
     },
     {
       "id": "carnelian",
       "name_ja": "カーネリアン",
       "sg_min": 2.58,
       "sg_max": 2.64,
-      "sg_std": 2.61
+      "sg_std": 2.61,
+      "color_group": "orange",
+      "description": "赤橙から橙のカルセドニー。古代から印鑑や護符に使われた",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Carnelian_gem.jpg/320px-Carnelian_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#7A2A00,#C05000,#E87828)"
     },
     {
       "id": "cassiterite",
       "name_ja": "カッシテライト",
       "sg_min": 6.8,
       "sg_max": 7.1,
-      "sg_std": 6.95
+      "sg_std": 6.95,
+      "color_group": "brown",
+      "description": "錫の酸化鉱物。強い分散でダイヤに近い輝き。希少コレクター石",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Cassiterite_gem.jpg/320px-Cassiterite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#3A2A10,#6A5020,#9A7840)"
     },
     {
       "id": "cat_eye_chrysoberyl",
       "name_ja": "キャッツアイ（クリソベリル）",
       "sg_min": 3.71,
       "sg_max": 3.73,
-      "sg_std": 3.72
+      "sg_std": 3.72,
+      "color_group": "yellow",
+      "description": "シャトヤンシー効果で猫目が浮かぶクリソベリル",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Chrysoberyl_cats_eye.jpg/320px-Chrysoberyl_cats_eye.jpg",
+      "color_swatch": "linear-gradient(135deg,#6A5A00,#AA9010,#D4C040)"
     },
     {
       "id": "chalcedony",
       "name_ja": "カルセドニー",
       "sg_min": 2.58,
       "sg_max": 2.62,
-      "sg_std": 2.6
+      "sg_std": 2.6,
+      "color_group": "colorless",
+      "description": "半透明の微細石英。青灰〜白。カルセドニーの総称でもある",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Chalcedony_gem.jpg/320px-Chalcedony_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#8090A8,#A8B8C8,#D0E0F0)"
     },
     {
       "id": "charoite",
       "name_ja": "チャロアイト",
       "sg_min": 2.54,
       "sg_max": 2.68,
-      "sg_std": 2.6
+      "sg_std": 2.6,
+      "color_group": "purple",
+      "description": "渦巻くような紫模様。シベリア産の単産鉱物",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Charoite_gem.jpg/320px-Charoite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#3D0A5E,#6B1A9E,#9B4DCC)"
     },
     {
       "id": "chrome_diopside",
       "name_ja": "クロムダイオプサイド",
       "sg_min": 3.27,
       "sg_max": 3.38,
-      "sg_std": 3.29
+      "sg_std": 3.29,
+      "color_group": "green",
+      "description": "シベリア産の深みのある緑。エメラルドの代替としても使われる",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Chrome_diopside_gem.jpg/320px-Chrome_diopside_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#0A3A10,#1A6A20,#309A40)"
     },
     {
       "id": "chrome_tourmaline",
       "name_ja": "クロムトルマリン",
       "sg_min": 3.02,
       "sg_max": 3.26,
-      "sg_std": 3.06
+      "sg_std": 3.06,
+      "color_group": "green",
+      "description": "クロムによる深い森緑色。タンザニア産が主産地",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Chrome_tourmaline.jpg/320px-Chrome_tourmaline.jpg",
+      "color_swatch": "linear-gradient(135deg,#0A3A0A,#1A6A1A,#309A30)"
     },
     {
       "id": "chrysoberyl",
       "name_ja": "クリソベリル",
       "sg_min": 3.71,
       "sg_max": 3.73,
-      "sg_std": 3.72
+      "sg_std": 3.72,
+      "color_group": "yellow",
+      "description": "クリソベリル。黄緑から黄色。アレキサンドライトとキャッツアイの母石",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Chrysoberyl_gem.jpg/320px-Chrysoberyl_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#4A5A00,#8AA000,#C0D000)"
     },
     {
       "id": "chrysoprase",
       "name_ja": "クリソプレーズ",
       "sg_min": 2.58,
       "sg_max": 2.64,
-      "sg_std": 2.62
+      "sg_std": 2.62,
+      "color_group": "green",
+      "description": "ニッケルによる鮮やかなアップルグリーン。カルセドニーの一種",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Chrysoprase_gem.jpg/320px-Chrysoprase_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#1A5A20,#30A040,#60D060)"
     },
     {
       "id": "citrine",
       "name_ja": "シトリン",
       "sg_min": 2.65,
       "sg_max": 2.75,
-      "sg_std": 2.7
+      "sg_std": 2.7,
+      "color_group": "yellow",
+      "description": "黄色の水晶。アメジストの加熱処理品が多い",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Citrine_gem.jpg/320px-Citrine_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#7A5A00,#C09000,#E8C000)"
     },
     {
       "id": "clinohumite",
       "name_ja": "クリノヒュマイト",
       "sg_min": 3.13,
       "sg_max": 3.35,
-      "sg_std": 3.21
+      "sg_std": 3.21,
+      "color_group": "yellow",
+      "description": "シベリア産のオレンジ〜黄色。希少石",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Clinohumite_gem.jpg/320px-Clinohumite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#7A5A00,#C09020,#E8C040)"
     },
     {
       "id": "cobaltite",
       "name_ja": "コバルタイト",
       "sg_min": 5.95,
       "sg_max": 6.33,
-      "sg_std": 6.1
+      "sg_std": 6.1,
+      "color_group": "red",
+      "description": "コバルト砒化物。銀〜赤みがかった金属光沢",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Cobaltite_gem.jpg/320px-Cobaltite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#4A1A2A,#8A3A4A,#C07080)"
     },
     {
       "id": "conch_pearl",
       "name_ja": "コンクパール",
       "sg_min": 2.83,
       "sg_max": 2.86,
-      "sg_std": 2.85
+      "sg_std": 2.85,
+      "color_group": "red",
+      "description": "巻貝から採れる天然パール。ピンク〜オレンジの炎模様が特徴",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Conch_pearl.jpg/320px-Conch_pearl.jpg",
+      "color_swatch": "linear-gradient(135deg,#C07878,#F4A0A0,#FFDDE1)"
     },
     {
       "id": "coral",
       "name_ja": "珊瑚（コーラル）",
       "sg_min": 2.6,
       "sg_max": 2.7,
-      "sg_std": 2.65
+      "sg_std": 2.65,
+      "color_group": "red",
+      "description": "海洋生物の骨格。血赤珊瑚は最高級品",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Red_coral_gem.jpg/320px-Red_coral_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#8B1A00,#D4380A,#FF6347)"
     },
     {
       "id": "cubic_zirconia_synth",
       "name_ja": "キュービックジルコニア（合成）",
       "sg_min": 5.6,
       "sg_max": 6.0,
-      "sg_std": 5.8
+      "sg_std": 5.8,
+      "color_group": "colorless",
+      "description": "酸化ジルコニウムの合成宝石。ダイヤの代替として広く流通",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/CubicZirconia.jpg/320px-CubicZirconia.jpg",
+      "color_swatch": "linear-gradient(135deg,#C8D0D8,#E8F0F8,#FFFFFF)"
     },
     {
       "id": "cuprite",
       "name_ja": "キュープライト",
       "sg_min": 5.85,
       "sg_max": 6.15,
-      "sg_std": 6.0
+      "sg_std": 6.0,
+      "color_group": "red",
+      "description": "深い赤の銅鉱石。希少なファセットカット石はコレクター垂涎",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Cuprite_gem.jpg/320px-Cuprite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#5A0A00,#9A1A10,#C83020)"
     },
     {
       "id": "danburite",
       "name_ja": "ダンビュライト",
       "sg_min": 2.97,
       "sg_max": 3.03,
-      "sg_std": 3.0
+      "sg_std": 3.0,
+      "color_group": "colorless",
+      "description": "無色から淡黄。強い輝きを持ちダイヤの代替にもなる",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Danburite_gem.jpg/320px-Danburite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#C8D0C0,#E8F0D8,#FAFFF0)"
     },
     {
       "id": "demantoid",
       "name_ja": "デマントイドガーネット",
       "sg_min": 3.82,
       "sg_max": 3.88,
-      "sg_std": 3.84
+      "sg_std": 3.84,
+      "color_group": "green",
+      "description": "最高輝度のガーネット。ホーテールインクルージョンが真正の証",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Demantoid_garnet.jpg/320px-Demantoid_garnet.jpg",
+      "color_swatch": "linear-gradient(135deg,#0A4A1A,#1A8A3A,#40C060)"
     },
     {
       "id": "diaspore",
       "name_ja": "ダイアスポア（ザルタナイト）",
       "sg_min": 3.3,
       "sg_max": 3.4,
-      "sg_std": 3.35
+      "sg_std": 3.35,
+      "color_group": "multi",
+      "description": "ザルタナイトとも。光源により緑〜ピンクパープルに変色するトルコ産鉱物",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Diaspore_gem.jpg/320px-Diaspore_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#3A6A40,#60A060,#C08080)"
     },
     {
       "id": "diopside",
       "name_ja": "ダイオプサイド",
       "sg_min": 3.22,
       "sg_max": 3.38,
-      "sg_std": 3.29
+      "sg_std": 3.29,
+      "color_group": "green",
+      "description": "クロムダイオプサイドとも重なる緑から白まで",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Diopside_gem.jpg/320px-Diopside_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#1A4A20,#308A40,#60B060)"
     },
     {
       "id": "dumortierite",
       "name_ja": "デュモルティエライト",
       "sg_min": 3.26,
       "sg_max": 3.41,
-      "sg_std": 3.35
+      "sg_std": 3.35,
+      "color_group": "blue",
+      "description": "インクブルーから紫青。カボションや彫刻に使われる",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Dumortierite_gem.jpg/320px-Dumortierite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#1A1060,#3020A0,#5040C0)"
     },
     {
       "id": "enstatite",
       "name_ja": "エンスタタイト",
       "sg_min": 3.1,
       "sg_max": 3.3,
-      "sg_std": 3.2
+      "sg_std": 3.2,
+      "color_group": "brown",
+      "description": "褐色から黒緑。スタールーチル状の内包物でキャッツアイ効果も",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Enstatite_gem.jpg/320px-Enstatite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#3A3020,#6A5A38,#9A8858)"
     },
     {
       "id": "epidote",
       "name_ja": "エピドート",
       "sg_min": 3.25,
       "sg_max": 3.5,
-      "sg_std": 3.38
+      "sg_std": 3.38,
+      "color_group": "green",
+      "description": "黄緑から暗緑。強い多色性で方向により色が大きく変化",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Epidote_gem.jpg/320px-Epidote_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#2A4010,#4A7020,#709040)"
     },
     {
       "id": "euclase",
       "name_ja": "ユークレース",
       "sg_min": 2.99,
       "sg_max": 3.1,
-      "sg_std": 3.05
+      "sg_std": 3.05,
+      "color_group": "blue",
+      "description": "青から緑がかった青。強い劈開を持つ希少石",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Euclase_gem.jpg/320px-Euclase_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#2A5A8A,#4A8ABA,#80C0E8)"
     },
     {
       "id": "fabulite",
       "name_ja": "ファビュライト（合成チタン酸ストロンチウム）",
       "sg_min": 5.1,
       "sg_max": 5.13,
-      "sg_std": 5.12
+      "sg_std": 5.12,
+      "color_group": "colorless",
+      "description": "合成チタン酸ストロンチウム。強い分散でダイヤより虹色が強い",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Strontium_titanate_gem.jpg/320px-Strontium_titanate_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#C0C8D0,#E0E8F0,#FFFFFF)"
     },
     {
       "id": "feldspar_sunstone",
       "name_ja": "サンストーン（フェルドスパー）",
       "sg_min": 2.62,
       "sg_max": 2.65,
-      "sg_std": 2.64
+      "sg_std": 2.64,
+      "color_group": "orange",
+      "description": "オレゴンサンストーン。コッパーインクルージョンで赤〜金に輝く",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Sunstone_gem.jpg/320px-Sunstone_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#8A5000,#C88020,#E8B040)"
     },
     {
       "id": "fire_agate",
       "name_ja": "ファイアアゲート",
       "sg_min": 2.6,
       "sg_max": 2.65,
-      "sg_std": 2.62
+      "sg_std": 2.62,
+      "color_group": "orange",
+      "description": "層状シリカによる干渉色で虹色の火花が輝く",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Fire_agate.jpg/320px-Fire_agate.jpg",
+      "color_swatch": "linear-gradient(135deg,#6A2000,#B04A10,#D07830)"
     },
     {
       "id": "fire_opal",
       "name_ja": "ファイアオパール",
       "sg_min": 1.98,
       "sg_max": 2.2,
-      "sg_std": 2.1
+      "sg_std": 2.1,
+      "color_group": "orange",
+      "description": "透明なオレンジ系オパール。遊色がなくても人気が高い",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Fire_opal_gem.jpg/320px-Fire_opal_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#8B3A00,#D06000,#FF8C00)"
     },
     {
       "id": "fluorite",
       "name_ja": "フローライト",
       "sg_min": 3.17,
       "sg_max": 3.19,
-      "sg_std": 3.18
+      "sg_std": 3.18,
+      "color_group": "multi",
+      "description": "紫・緑・青・黄と最も多彩な色変化。蛍光現象の語源",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Fluorite_gem.jpg/320px-Fluorite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#3A1A6A,#1A8A3A,#8A3AB8)"
     },
     {
       "id": "forsterite",
       "name_ja": "フォルステライト",
       "sg_min": 3.21,
       "sg_max": 3.26,
-      "sg_std": 3.23
+      "sg_std": 3.23,
+      "color_group": "colorless",
+      "description": "マグネシウムのオリビン。ペリドットの純粋な端成分",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Forsterite_gem.jpg/320px-Forsterite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#C0C8B0,#E0E8C8,#F8FFF0)"
     },
     {
       "id": "garnet_almandine",
       "name_ja": "アルマンディンガーネット",
       "sg_min": 3.93,
       "sg_max": 4.3,
-      "sg_std": 4.05
+      "sg_std": 4.05,
+      "color_group": "red",
+      "description": "深みのある赤紫色。ガーネット族で最も流通量が多い",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Almandine_garnet.jpg/320px-Almandine_garnet.jpg",
+      "color_swatch": "linear-gradient(135deg,#4A0000,#8B0000,#C0392B)"
     },
     {
       "id": "garnet_grossular",
       "name_ja": "グロッシュラーガーネット",
       "sg_min": 3.57,
       "sg_max": 3.73,
-      "sg_std": 3.61
+      "sg_std": 3.61,
+      "color_group": "green",
+      "description": "グロッシュラーガーネット。無色から緑まで幅広い色",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Grossular_garnet.jpg/320px-Grossular_garnet.jpg",
+      "color_swatch": "linear-gradient(135deg,#2A5A20,#4A9A40,#70C060)"
     },
     {
       "id": "garnet_hessonite",
       "name_ja": "ヘッソナイトガーネット",
       "sg_min": 3.57,
       "sg_max": 3.73,
-      "sg_std": 3.61
+      "sg_std": 3.61,
+      "color_group": "orange",
+      "description": "オレンジブラウンのグロッシュラーガーネット。ヘッソナイト",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Hessonite_garnet.jpg/320px-Hessonite_garnet.jpg",
+      "color_swatch": "linear-gradient(135deg,#6A3800,#B06010,#D89040)"
     },
     {
       "id": "garnet_malaia",
       "name_ja": "マライアガーネット",
       "sg_min": 3.72,
       "sg_max": 3.87,
-      "sg_std": 3.78
+      "sg_std": 3.78,
+      "color_group": "red",
+      "description": "ピンクからオレンジピンク。東アフリカ産のハイブリッドガーネット",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Malaia_garnet.jpg/320px-Malaia_garnet.jpg",
+      "color_swatch": "linear-gradient(135deg,#8B2040,#D4406A,#FF6090)"
     },
     {
       "id": "garnet_mandarin",
       "name_ja": "マンダリンガーネット（スペサルタイト）",
       "sg_min": 4.12,
       "sg_max": 4.2,
-      "sg_std": 4.16
+      "sg_std": 4.16,
+      "color_group": "orange",
+      "description": "鮮烈なオレンジ。ナミビア産スペサルタイトの商品名",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Mandarin_garnet.jpg/320px-Mandarin_garnet.jpg",
+      "color_swatch": "linear-gradient(135deg,#8B4500,#D4690A,#FF8C00)"
     },
     {
       "id": "garnet_pyrope",
       "name_ja": "パイロープガーネット",
       "sg_min": 3.65,
       "sg_max": 3.87,
-      "sg_std": 3.78
+      "sg_std": 3.78,
+      "color_group": "red",
+      "description": "血のような深紅。炎を意味するギリシャ語が語源",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Pyrope_gem.jpg/320px-Pyrope_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#5A0000,#9B1B1B,#D32F2F)"
     },
     {
       "id": "garnet_rhodolite",
       "name_ja": "ロードライトガーネット",
       "sg_min": 3.74,
       "sg_max": 3.94,
-      "sg_std": 3.84
+      "sg_std": 3.84,
+      "color_group": "red",
+      "description": "ラズベリーピンクから紫みの赤。パイロープとアルマンディンの混晶",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Rhodolite_garnet.jpg/320px-Rhodolite_garnet.jpg",
+      "color_swatch": "linear-gradient(135deg,#6B1540,#A0286A,#C0478A)"
     },
     {
       "id": "garnet_spessartite",
       "name_ja": "スペサルタイトガーネット",
       "sg_min": 3.97,
       "sg_max": 4.27,
-      "sg_std": 4.15
+      "sg_std": 4.15,
+      "color_group": "orange",
+      "description": "オレンジから赤みオレンジ。蛍光感のある発色が特徴",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Spessartine_gem.jpg/320px-Spessartine_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#7B3A00,#C0610A,#E8820A)"
     },
     {
       "id": "garnet_tsavorite",
       "name_ja": "ツァボライトガーネット",
       "sg_min": 3.57,
       "sg_max": 3.73,
-      "sg_std": 3.61
+      "sg_std": 3.61,
+      "color_group": "green",
+      "description": "ケニア・タンザニア産の鮮緑グロッシュラーガーネット",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Tsavorite_garnet.jpg/320px-Tsavorite_garnet.jpg",
+      "color_swatch": "linear-gradient(135deg,#004A20,#008040,#00C060)"
     },
     {
       "id": "garnet_uvarovite",
       "name_ja": "ウバロバイトガーネット",
       "sg_min": 3.4,
       "sg_max": 3.6,
-      "sg_std": 3.5
+      "sg_std": 3.5,
+      "color_group": "green",
+      "description": "エメラルドグリーンの小粒結晶。単結晶カットは極めて稀",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Uvarovite_garnet.jpg/320px-Uvarovite_garnet.jpg",
+      "color_swatch": "linear-gradient(135deg,#004A10,#008A30,#20C050)"
     },
     {
       "id": "gaspeite",
       "name_ja": "ガスペアイト",
       "sg_min": 3.6,
       "sg_max": 3.7,
-      "sg_std": 3.65
+      "sg_std": 3.65,
+      "color_group": "green",
+      "description": "アップルグリーンのニッケル炭酸塩。オーストラリア産",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Gaspeite_gem.jpg/320px-Gaspeite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#2A6A20,#50A040,#80D060)"
     },
     {
       "id": "goshenite",
       "name_ja": "ゴッシェナイト（無色ベリル）",
       "sg_min": 2.68,
       "sg_max": 2.8,
-      "sg_std": 2.74
+      "sg_std": 2.74,
+      "color_group": "colorless",
+      "description": "無色のベリル。宝石名はマサチューセッツ州ゴーシェンに由来",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Goshenite.jpg/320px-Goshenite.jpg",
+      "color_swatch": "linear-gradient(135deg,#C0C8D0,#DDE8F0,#F5FAFF)"
     },
     {
       "id": "heliodor",
       "name_ja": "ヘリオドール（黄色ベリル）",
       "sg_min": 2.68,
       "sg_max": 2.8,
-      "sg_std": 2.74
+      "sg_std": 2.74,
+      "color_group": "yellow",
+      "description": "黄金色のベリル。ヘリオスはギリシャ語で太陽の意",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Heliodor.jpg/320px-Heliodor.jpg",
+      "color_swatch": "linear-gradient(135deg,#6A5000,#B09000,#E0C820)"
     },
     {
       "id": "hematite",
       "name_ja": "ヘマタイト",
       "sg_min": 4.95,
       "sg_max": 5.2,
-      "sg_std": 5.08
+      "sg_std": 5.08,
+      "color_group": "black",
+      "description": "鉄鉱石の一種。金属光沢のある銀黒色。ビーズや彫刻に使われる",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Hematite_gem.jpg/320px-Hematite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#1A1A1A,#3C3C3C,#606060)"
     },
     {
       "id": "hessonite",
       "name_ja": "ヘッソナイト",
       "sg_min": 3.57,
       "sg_max": 3.73,
-      "sg_std": 3.64
+      "sg_std": 3.64,
+      "color_group": "orange",
+      "description": "オレンジ〜茶のグロッシュラーガーネット",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Hessonite_garnet.jpg/320px-Hessonite_garnet.jpg",
+      "color_swatch": "linear-gradient(135deg,#6A3800,#B06010,#D89040)"
     },
     {
       "id": "hiddenite",
       "name_ja": "ヒデナイト（緑スポジュメン）",
       "sg_min": 3.15,
       "sg_max": 3.21,
-      "sg_std": 3.18
+      "sg_std": 3.18,
+      "color_group": "green",
+      "description": "クロムによる緑色のスポジュメン。エメラルドグリーン",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Hiddenite_gem.jpg/320px-Hiddenite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#1A4A20,#308A40,#60B060)"
     },
     {
       "id": "howlite",
       "name_ja": "ハウライト",
       "sg_min": 2.45,
       "sg_max": 2.58,
-      "sg_std": 2.53
+      "sg_std": 2.53,
+      "color_group": "colorless",
+      "description": "白に灰色の静脈模様。ターコイズの着色代替に使われることも",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Howlite_gem.jpg/320px-Howlite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#C0C0B8,#E0E0D8,#F8F8F0)"
     },
     {
       "id": "hypersthene",
       "name_ja": "ハイパースシーン",
       "sg_min": 3.4,
       "sg_max": 3.5,
-      "sg_std": 3.45
+      "sg_std": 3.45,
+      "color_group": "black",
+      "description": "金属光沢でシルバーの閃光が美しいシラーストーン",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Hypersthene_gem.jpg/320px-Hypersthene_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#2A2020,#4A3838,#706868)"
     },
     {
       "id": "idocrase",
       "name_ja": "イドクレース（ベズビアナイト）",
       "sg_min": 3.32,
       "sg_max": 3.47,
-      "sg_std": 3.4
+      "sg_std": 3.4,
+      "color_group": "green",
+      "description": "ヴェズビアナイトとも。黄緑から濃緑",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Vesuvianite_gem.jpg/320px-Vesuvianite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#1A4A20,#309A40,#60C060)"
     },
     {
       "id": "iolite",
       "name_ja": "アイオライト",
       "sg_min": 2.57,
       "sg_max": 2.7,
-      "sg_std": 2.64
+      "sg_std": 2.64,
+      "color_group": "blue",
+      "description": "多色性が強く方向により青・紫・黄に変化。コンパス代わりに使われた",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Iolite_gem.jpg/320px-Iolite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#1B1060,#3D2AA0,#6B52D0)"
     },
     {
       "id": "ivory",
       "name_ja": "象牙（アイボリー）",
       "sg_min": 1.7,
       "sg_max": 1.9,
-      "sg_std": 1.8
+      "sg_std": 1.8,
+      "color_group": "organic",
+      "description": "象牙。現在はワシントン条約で厳しく規制されている",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Ivory_gem.jpg/320px-Ivory_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#D8C8A0,#EDE0C0,#F8F0D8)"
     },
     {
       "id": "jadeite",
       "name_ja": "ジェイダイト（翡翠）",
       "sg_min": 3.25,
       "sg_max": 3.45,
-      "sg_std": 3.34
+      "sg_std": 3.34,
+      "color_group": "green",
+      "description": "翡翠の一種。帝王玉と呼ばれる深緑が最高級",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Jadeite_gem.jpg/320px-Jadeite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#004030,#006B50,#009B70)"
     },
     {
       "id": "jasper",
       "name_ja": "ジャスパー（碧玉）",
       "sg_min": 2.58,
       "sg_max": 2.91,
-      "sg_std": 2.7
+      "sg_std": 2.7,
+      "color_group": "multi",
+      "description": "不透明な石英の一種。赤・黄・緑など多彩な色と模様",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Jasper_gem.jpg/320px-Jasper_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#8A3020,#C06040,#D09060)"
     },
     {
       "id": "jeremejevite",
       "name_ja": "ジェレメイエブ石",
       "sg_min": 3.27,
       "sg_max": 3.31,
-      "sg_std": 3.29
+      "sg_std": 3.29,
+      "color_group": "blue",
+      "description": "コーンフラワーブルーの超希少石。宝石品質は極めて稀",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Jeremejevite_gem.jpg/320px-Jeremejevite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#1A4A8A,#3070C0,#60A0F0)"
     },
     {
       "id": "jet",
       "name_ja": "ジェット",
       "sg_min": 1.19,
       "sg_max": 1.35,
-      "sg_std": 1.32
+      "sg_std": 1.32,
+      "color_group": "black",
+      "description": "古代の木が炭化した有機鉱物。ビクトリア朝の喪服宝石として有名",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Jet_gem.jpg/320px-Jet_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#0A0A0A,#1E1E1E,#333333)"
     },
     {
       "id": "kornerupine",
       "name_ja": "コーネルピン",
       "sg_min": 3.27,
       "sg_max": 3.45,
-      "sg_std": 3.32
+      "sg_std": 3.32,
+      "color_group": "green",
+      "description": "緑から褐色。強い多色性を示すコレクター向け石",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Kornerupine_gem.jpg/320px-Kornerupine_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#1A4A20,#2D8040,#60B060)"
     },
     {
       "id": "kunzite",
       "name_ja": "クンツァイト（桃色スポジュメン）",
       "sg_min": 3.15,
       "sg_max": 3.21,
-      "sg_std": 3.18
+      "sg_std": 3.18,
+      "color_group": "red",
+      "description": "淡いピンクから紫ピンク。スポジュメンのピンク変種",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Kunzite_gem.jpg/320px-Kunzite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#7B3070,#C060A0,#E090C0)"
     },
     {
       "id": "kyanite",
       "name_ja": "カイヤナイト",
       "sg_min": 3.53,
       "sg_max": 3.7,
-      "sg_std": 3.61
+      "sg_std": 3.61,
+      "color_group": "blue",
+      "description": "刀のような柱状結晶。ブルーが最も一般的",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Kyanite_gem.jpg/320px-Kyanite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#0C2A7A,#1E5AB5,#4D8FE0)"
     },
     {
       "id": "labradorite",
       "name_ja": "ラブラドライト",
       "sg_min": 2.68,
       "sg_max": 2.72,
-      "sg_std": 2.7
+      "sg_std": 2.7,
+      "color_group": "multi",
+      "description": "ラブラドレッセンス現象で青〜金に輝く。魔法の石とも呼ばれる",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Labradorite_gem.jpg/320px-Labradorite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#1A2040,#2050A0,#60A0D0)"
     },
     {
       "id": "lapis_lazuli",
       "name_ja": "ラピスラズリ",
       "sg_min": 2.7,
       "sg_max": 2.9,
-      "sg_std": 2.8
+      "sg_std": 2.8,
+      "color_group": "blue",
+      "description": "深い瑠璃色に黄鉄鉱の金点が輝く。古代から顔料にも使われた",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Lapis_lazuli_gem.jpg/320px-Lapis_lazuli_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#0A1A5E,#1A3A9E,#2244C8)"
     },
     {
       "id": "larimar",
       "name_ja": "ラリマー",
       "sg_min": 2.7,
       "sg_max": 2.9,
-      "sg_std": 2.75
+      "sg_std": 2.75,
+      "color_group": "blue",
+      "description": "カリブ海のみに産する青い珪灰石。ドミニカ共和国の国石",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Larimar_gem.jpg/320px-Larimar_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#1A7A8A,#40B0C0,#80D8E8)"
     },
     {
       "id": "lazulite",
       "name_ja": "ラズライト",
       "sg_min": 3.06,
       "sg_max": 3.34,
-      "sg_std": 3.12
+      "sg_std": 3.12,
+      "color_group": "blue",
+      "description": "ラピスラズリに似た深い青。マトリックスカボションが多い",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Lazulite_gem.jpg/320px-Lazulite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#0A2060,#1A4090,#3060B0)"
     },
     {
       "id": "lepidolite",
       "name_ja": "レピドライト",
       "sg_min": 2.8,
       "sg_max": 3.0,
-      "sg_std": 2.9
+      "sg_std": 2.9,
+      "color_group": "purple",
+      "description": "ライラックから淡紫。雲母の一種でリチウムを含む",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Lepidolite_gem.jpg/320px-Lepidolite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#6B4A7B,#A07AB5,#C8A8D8)"
     },
     {
       "id": "malachite",
       "name_ja": "マラカイト",
       "sg_min": 3.74,
       "sg_max": 3.95,
-      "sg_std": 3.85
+      "sg_std": 3.85,
+      "color_group": "green",
+      "description": "縞模様が美しい緑銅鉱。カボションと彫刻作品が多い",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Malachite_gem.jpg/320px-Malachite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#004A10,#007A30,#20B050)"
     },
     {
       "id": "moldavite",
       "name_ja": "モルダバイト",
       "sg_min": 2.32,
       "sg_max": 2.46,
-      "sg_std": 2.4
+      "sg_std": 2.4,
+      "color_group": "green",
+      "description": "隕石衝突で生成された天然ガラス。深い瓶緑が特徴",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Moldavite_gem.jpg/320px-Moldavite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#0A3010,#1A6020,#30902A)"
     },
     {
       "id": "moonstone",
       "name_ja": "ムーンストーン",
       "sg_min": 2.56,
       "sg_max": 2.6,
-      "sg_std": 2.58
+      "sg_std": 2.58,
+      "color_group": "colorless",
+      "description": "アデュラレッセンス効果で月光のような青白い光が浮かぶ",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Moonstone_gem.jpg/320px-Moonstone_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#8090A8,#B0C0D8,#E8F0FF)"
     },
     {
       "id": "morganite",
       "name_ja": "モルガナイト（桃色ベリル）",
       "sg_min": 2.71,
       "sg_max": 2.9,
-      "sg_std": 2.8
+      "sg_std": 2.8,
+      "color_group": "red",
+      "description": "桃色のベリル。ピーチからサーモンピンクが人気",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Morganite.jpg/320px-Morganite.jpg",
+      "color_swatch": "linear-gradient(135deg,#8B3A5A,#D4748A,#FFAAB5)"
     },
     {
       "id": "musgravite",
       "name_ja": "マスグラバイト",
       "sg_min": 3.64,
       "sg_max": 3.67,
-      "sg_std": 3.66
+      "sg_std": 3.66,
+      "color_group": "purple",
+      "description": "世界で数十石しか確認されていない最希少鉱物の一つ",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Musgravite_gem.jpg/320px-Musgravite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#3A1A5A,#6A3A9A,#9A6ACC)"
     },
     {
       "id": "nephrite",
       "name_ja": "ネフライト",
       "sg_min": 2.9,
       "sg_max": 3.1,
-      "sg_std": 2.98
+      "sg_std": 2.98,
+      "color_group": "green",
+      "description": "ネフライト翡翠。羊脂玉（白）から菠菜玉（濃緑）まで",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Nephrite_gem.jpg/320px-Nephrite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#1A4A2A,#2D7A4A,#50A070)"
     },
     {
       "id": "obsidian",
       "name_ja": "黒曜石（オブシディアン）",
       "sg_min": 2.35,
       "sg_max": 2.6,
-      "sg_std": 2.4
+      "sg_std": 2.4,
+      "color_group": "black",
+      "description": "火山性ガラス。虹色の光沢が特徴",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Obsidian_gem.jpg/320px-Obsidian_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#0A0A10,#1A1A22,#2E2E3E)"
     },
     {
       "id": "onyx",
       "name_ja": "オニキス",
       "sg_min": 2.58,
       "sg_max": 2.62,
-      "sg_std": 2.6
+      "sg_std": 2.6,
+      "color_group": "black",
+      "description": "黒いカルセドニー。縞模様のサードオニキスも同族",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Onyx_gem.jpg/320px-Onyx_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#0A0A0A,#202020,#383838)"
     },
     {
       "id": "opal_black",
       "name_ja": "ブラックオパール",
       "sg_min": 1.98,
       "sg_max": 2.2,
-      "sg_std": 2.15
+      "sg_std": 2.15,
+      "color_group": "black",
+      "description": "暗い地色に鮮やかな遊色が輝く。ライトニングリッジ産が最高峰",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Black_opal.jpg/320px-Black_opal.jpg",
+      "color_swatch": "linear-gradient(135deg,#0A0A15,#1A1A30,#FF4444)"
     },
     {
       "id": "opal_boulder",
       "name_ja": "ボルダーオパール",
       "sg_min": 2.55,
       "sg_max": 2.65,
-      "sg_std": 2.6
+      "sg_std": 2.6,
+      "color_group": "multi",
+      "description": "鉄石英の母岩付き。自然な形と遊色が個性的",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Boulder_opal.jpg/320px-Boulder_opal.jpg",
+      "color_swatch": "linear-gradient(135deg,#3A2A10,#D06030,#40A0E0)"
     },
     {
       "id": "opal_crystal",
       "name_ja": "クリスタルオパール",
       "sg_min": 2.08,
       "sg_max": 2.15,
-      "sg_std": 2.1
+      "sg_std": 2.1,
+      "color_group": "multi",
+      "description": "透明な地色に鮮明な遊色。地色がないため色がより鮮やか",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Crystal_opal.jpg/320px-Crystal_opal.jpg",
+      "color_swatch": "linear-gradient(135deg,#D0E8F8,#E8F8FF,#FFE8F0)"
     },
     {
       "id": "opal_white",
       "name_ja": "ホワイトオパール",
       "sg_min": 1.98,
       "sg_max": 2.2,
-      "sg_std": 2.08
+      "sg_std": 2.08,
+      "color_group": "multi",
+      "description": "白地に虹色の遊色が輝く。最も一般的なオパール",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/White_opal.jpg/320px-White_opal.jpg",
+      "color_swatch": "linear-gradient(135deg,#D0D0D8,#E8E8FF,#FFD0D8)"
     },
     {
       "id": "orthoclase",
       "name_ja": "オーソクレース",
       "sg_min": 2.55,
       "sg_max": 2.63,
-      "sg_std": 2.57
+      "sg_std": 2.57,
+      "color_group": "yellow",
+      "description": "黄色の透明長石。マダガスカル産が最上質のカット石",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Orthoclase_gem.jpg/320px-Orthoclase_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#9A8A40,#C8B860,#E8D880)"
     },
     {
       "id": "painite",
       "name_ja": "ペイナイト",
       "sg_min": 4.0,
       "sg_max": 4.04,
-      "sg_std": 4.01
+      "sg_std": 4.01,
+      "color_group": "red",
+      "description": "一時期世界最希少鉱物。ミャンマー産の暗赤〜茶",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Painite_gem.jpg/320px-Painite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#5A1010,#9A3020,#C06040)"
     },
     {
       "id": "pearl",
       "name_ja": "真珠（パール）",
       "sg_min": 2.6,
       "sg_max": 2.78,
-      "sg_std": 2.69
+      "sg_std": 2.69,
+      "color_group": "colorless",
+      "description": "貝が生み出す有機宝石。白から黒まで多彩なオリエントを持つ",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Pearl_gem.jpg/320px-Pearl_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#B8B8C0,#D8D8E0,#F8F8FF)"
     },
     {
       "id": "pearl_mabe",
       "name_ja": "マベパール",
       "sg_min": 2.6,
       "sg_max": 2.78,
-      "sg_std": 2.69
+      "sg_std": 2.69,
+      "color_group": "colorless",
+      "description": "マベパール。貝殻に密着した半球形の養殖真珠",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Mabe_pearl.jpg/320px-Mabe_pearl.jpg",
+      "color_swatch": "linear-gradient(135deg,#B0B8C8,#D0D8E8,#F0F8FF)"
     },
     {
       "id": "peridot",
       "name_ja": "ペリドット",
       "sg_min": 3.27,
       "sg_max": 3.48,
-      "sg_std": 3.34
+      "sg_std": 3.34,
+      "color_group": "green",
+      "description": "黄緑色のオリビン。鉄含有量により色が変化する",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Peridot_gem.jpg/320px-Peridot_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#3A5A00,#6BA000,#9AD000)"
     },
     {
       "id": "phenakite",
       "name_ja": "フェナカイト",
       "sg_min": 2.93,
       "sg_max": 2.97,
-      "sg_std": 2.95
+      "sg_std": 2.95,
+      "color_group": "colorless",
+      "description": "ベリリウムの珪酸塩。強い輝きを持つ希少なコレクター石",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Phenakite_gem.jpg/320px-Phenakite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#C0C8D0,#E0E8F0,#FAFCFF)"
     },
     {
       "id": "pietersite",
       "name_ja": "ピータサイト",
       "sg_min": 2.6,
       "sg_max": 2.65,
-      "sg_std": 2.61
+      "sg_std": 2.61,
+      "color_group": "blue",
+      "description": "タイガーアイが変成したもの。嵐の石とも呼ばれる",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Pietersite_gem.jpg/320px-Pietersite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#1A2040,#2A4080,#6080C0)"
     },
     {
       "id": "prasiolite",
       "name_ja": "プラシオライト（緑アメジスト）",
       "sg_min": 2.65,
       "sg_max": 2.66,
-      "sg_std": 2.66
+      "sg_std": 2.66,
+      "color_group": "green",
+      "description": "アメジストの加熱処理品。淡い黄緑色",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Prasiolite.jpg/320px-Prasiolite.jpg",
+      "color_swatch": "linear-gradient(135deg,#3A5A30,#60A050,#90C878)"
     },
     {
       "id": "prehnite",
       "name_ja": "プレナイト",
       "sg_min": 2.8,
       "sg_max": 2.95,
-      "sg_std": 2.87
+      "sg_std": 2.87,
+      "color_group": "green",
+      "description": "ミントグリーンから黄緑。「癒しの石」として人気",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Prehnite_gem.jpg/320px-Prehnite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#2A5030,#4A8A50,#80B878)"
     },
     {
       "id": "pyrite",
       "name_ja": "パイライト（黄鉄鉱）",
       "sg_min": 4.9,
       "sg_max": 5.2,
-      "sg_std": 5.02
+      "sg_std": 5.02,
+      "color_group": "yellow",
+      "description": "愚者の金。黄金色の金属光沢。スペインなど産地が多い",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Pyrite_gem.jpg/320px-Pyrite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#5A5000,#9A8800,#C8B800)"
     },
     {
       "id": "pyromorphite",
       "name_ja": "パイロモルファイト",
       "sg_min": 6.5,
       "sg_max": 7.1,
-      "sg_std": 6.9
+      "sg_std": 6.9,
+      "color_group": "green",
+      "description": "燐酸鉛鉱物。六角柱の結晶。緑・黄・褐色",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Pyromorphite_gem.jpg/320px-Pyromorphite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#2A5A10,#50A030,#80D050)"
     },
     {
       "id": "quartz",
       "name_ja": "クオーツ（水晶）",
       "sg_min": 2.65,
       "sg_max": 2.66,
-      "sg_std": 2.66
+      "sg_std": 2.66,
+      "color_group": "colorless",
+      "description": "水晶。最も産出量が多い鉱物の一つ。完全な透明度を持つ",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Quartz_gem.jpg/320px-Quartz_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#B8C0C8,#D8E0E8,#F0F8FF)"
     },
     {
       "id": "rhodochrosite",
       "name_ja": "ロードクロサイト（インカローズ）",
       "sg_min": 3.45,
       "sg_max": 3.7,
-      "sg_std": 3.6
+      "sg_std": 3.6,
+      "color_group": "red",
+      "description": "鮮やかなバラ色。インカの王族の石とも呼ばれる",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Rhodochrosite_gem.jpg/320px-Rhodochrosite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#8B1A4A,#E91E8C,#F48FB1)"
     },
     {
       "id": "rhodolite",
       "name_ja": "ロードライト",
       "sg_min": 3.74,
       "sg_max": 3.94,
-      "sg_std": 3.84
+      "sg_std": 3.84,
+      "color_group": "red",
+      "description": "ラズベリーピンクから紫赤。ロードライトガーネットの単独エントリ",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Rhodolite_garnet.jpg/320px-Rhodolite_garnet.jpg",
+      "color_swatch": "linear-gradient(135deg,#6B1540,#A0286A,#C0478A)"
     },
     {
       "id": "rhodonite",
       "name_ja": "ロードナイト",
       "sg_min": 3.4,
       "sg_max": 3.74,
-      "sg_std": 3.6
+      "sg_std": 3.6,
+      "color_group": "red",
+      "description": "黒いマンガン模様が入るピンク〜赤。カボションで多く使われる",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Rhodonite_gem.jpg/320px-Rhodonite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#7B2D3A,#C0556A,#E57383)"
     },
     {
       "id": "rose_quartz",
       "name_ja": "ローズクォーツ",
       "sg_min": 2.65,
       "sg_max": 2.66,
-      "sg_std": 2.66
+      "sg_std": 2.66,
+      "color_group": "red",
+      "description": "淡いピンクの石英。愛と美のシンボルとして世界中で人気",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Rose_quartz_gem.jpg/320px-Rose_quartz_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#8B4A5A,#C07888,#E8A8B8)"
     },
     {
       "id": "rubellite",
       "name_ja": "ルベライト（赤トルマリン）",
       "sg_min": 3.01,
       "sg_max": 3.26,
-      "sg_std": 3.05
+      "sg_std": 3.05,
+      "color_group": "red",
+      "description": "ルビーに似た深みのある赤から赤紫。トルマリンの仲間",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Rubellite_gem.jpg/320px-Rubellite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#7B1025,#B71C4C,#E91E8C)"
     },
     {
       "id": "rutile",
       "name_ja": "ルチル（合成スタールーチル）",
       "sg_min": 4.23,
       "sg_max": 4.3,
-      "sg_std": 4.25
+      "sg_std": 4.25,
+      "color_group": "orange",
+      "description": "合成ルチル（スタールーチル）は強い分散を持つ",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Rutile_gem.jpg/320px-Rutile_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#7A4000,#C07020,#E0A040)"
     },
     {
       "id": "rutilated_quartz",
       "name_ja": "ルチルクォーツ",
       "sg_min": 2.65,
       "sg_max": 2.7,
-      "sg_std": 2.68
+      "sg_std": 2.68,
+      "color_group": "multi",
+      "description": "金色または赤銅色のルチル針が内包した水晶",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Rutilated_quartz_gem.jpg/320px-Rutilated_quartz_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#B8A860,#D8C880,#E8D890)"
     },
     {
       "id": "sapphire_padparadscha",
       "name_ja": "パパラチアサファイア",
       "sg_min": 3.95,
       "sg_max": 4.05,
-      "sg_std": 4.0
+      "sg_std": 4.0,
+      "color_group": "orange",
+      "description": "ピンクとオレンジの中間色。蓮の花の色に由来するサファイア",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Padparadscha.jpg/320px-Padparadscha.jpg",
+      "color_swatch": "linear-gradient(135deg,#8B4530,#D4886A,#FFB090)"
     },
     {
       "id": "sapphire_star",
       "name_ja": "スターサファイア",
       "sg_min": 3.95,
       "sg_max": 4.05,
-      "sg_std": 4.0
+      "sg_std": 4.0,
+      "color_group": "blue",
+      "description": "スタールビー同様の星効果を持つサファイア",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Star_sapphire_gem.jpg/320px-Star_sapphire_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#0A1545,#1565C0,#5C9BE6)"
     },
     {
       "id": "scapolite",
       "name_ja": "スカポライト",
       "sg_min": 2.57,
       "sg_max": 2.74,
-      "sg_std": 2.67
+      "sg_std": 2.67,
+      "color_group": "yellow",
+      "description": "黄色から紫まで。キャッツアイ効果を示す標本もある",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Scapolite_gem.jpg/320px-Scapolite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#7A7A00,#C0B800,#E8E020)"
     },
     {
       "id": "shell_cameo",
       "name_ja": "シェル・カメオ",
       "sg_min": 1.47,
       "sg_max": 1.52,
-      "sg_std": 1.5
+      "sg_std": 1.5,
+      "color_group": "colorless",
+      "description": "貝殻を彫刻したカメオ。白と橙のコントラストが美しい",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Shell_cameo.jpg/320px-Shell_cameo.jpg",
+      "color_swatch": "linear-gradient(135deg,#C8B090,#E8D0A8,#FFF0D8)"
     },
     {
       "id": "sinhalite",
       "name_ja": "シンハライト",
       "sg_min": 3.47,
       "sg_max": 3.5,
-      "sg_std": 3.48
+      "sg_std": 3.48,
+      "color_group": "brown",
+      "description": "セイロン（スリランカ）産の希少石。黄褐色から緑がかった茶",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Sinhalite_gem.jpg/320px-Sinhalite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#5A4820,#8A7840,#B0A060)"
     },
     {
       "id": "smithsonite",
       "name_ja": "スミソナイト",
       "sg_min": 4.3,
       "sg_max": 4.45,
-      "sg_std": 4.35
+      "sg_std": 4.35,
+      "color_group": "blue",
+      "description": "亜鉛の炭酸塩。青から緑、ピンクと変化に富む",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Smithsonite_gem.jpg/320px-Smithsonite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#205050,#408080,#70C0C0)"
     },
     {
       "id": "sodalite",
       "name_ja": "ソーダライト",
       "sg_min": 2.14,
       "sg_max": 2.4,
-      "sg_std": 2.27
+      "sg_std": 2.27,
+      "color_group": "blue",
+      "description": "深いコバルトブルー。白い方解石脈が特徴的",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Sodalite_gem.jpg/320px-Sodalite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#0A1A6B,#1A3AA0,#2255C8)"
     },
     {
       "id": "sphalerite",
       "name_ja": "スファレライト",
       "sg_min": 3.9,
       "sg_max": 4.1,
-      "sg_std": 4.05
+      "sg_std": 4.05,
+      "color_group": "black",
+      "description": "亜鉛の硫化鉱物。強い分散でダイヤを超えるファイアを持つ",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Sphalerite_gem.jpg/320px-Sphalerite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#2A1A0A,#5A3A18,#8A6030)"
     },
     {
       "id": "sphene",
       "name_ja": "スフェーン（チタナイト）",
       "sg_min": 3.48,
       "sg_max": 3.6,
-      "sg_std": 3.52
+      "sg_std": 3.52,
+      "color_group": "yellow",
+      "description": "チタナイトとも。強い分散でダイヤに匹敵する虹色ファイア",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Sphene_titanite.jpg/320px-Sphene_titanite.jpg",
+      "color_swatch": "linear-gradient(135deg,#5A5A00,#A0A000,#D0C020)"
     },
     {
       "id": "spinel",
       "name_ja": "スピネル",
       "sg_min": 3.57,
       "sg_max": 4.06,
-      "sg_std": 3.6
+      "sg_std": 3.6,
+      "color_group": "red",
+      "description": "長年ルビーと混同された希少な赤。無処理が多くコレクター人気が高い",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Red_spinel.jpg/320px-Red_spinel.jpg",
+      "color_swatch": "linear-gradient(135deg,#6B0020,#B71C3C,#FF4081)"
     },
     {
       "id": "spinel_blue",
       "name_ja": "ブルースピネル",
       "sg_min": 3.57,
       "sg_max": 4.06,
-      "sg_std": 3.6
+      "sg_std": 3.6,
+      "color_group": "blue",
+      "description": "コバルトブルーから青紫。希少性が高くサファイアとも区別される",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Blue_spinel_gem.jpg/320px-Blue_spinel_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#0D1B5E,#1565C0,#42A5F5)"
     },
     {
       "id": "spodumene",
       "name_ja": "スポジュメン",
       "sg_min": 3.15,
       "sg_max": 3.21,
-      "sg_std": 3.18
+      "sg_std": 3.18,
+      "color_group": "purple",
+      "description": "クンツァイト（ピンク）ヒデナイト（緑）の総称",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Kunzite_gem.jpg/320px-Kunzite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#7B3070,#C060A0,#E090C0)"
     },
     {
       "id": "star_ruby",
       "name_ja": "スタールビー",
       "sg_min": 3.95,
       "sg_max": 4.1,
-      "sg_std": 4.0
+      "sg_std": 4.0,
+      "color_group": "red",
+      "description": "シルク状内包物によるスター効果。光の下で六条の星が浮かぶ",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Star_ruby.jpg/320px-Star_ruby.jpg",
+      "color_swatch": "linear-gradient(135deg,#6B0000,#B71C1C,#E53935)"
     },
     {
       "id": "staurolite",
       "name_ja": "スタウロライト",
       "sg_min": 3.65,
       "sg_max": 3.83,
-      "sg_std": 3.74
+      "sg_std": 3.74,
+      "color_group": "brown",
+      "description": "十字型の双晶が有名。妖精の涙とも呼ばれるお守り石",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Staurolite_gem.jpg/320px-Staurolite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#4A3010,#7A5828,#A08050)"
     },
     {
       "id": "sugilite",
       "name_ja": "スギライト",
       "sg_min": 2.74,
       "sg_max": 2.8,
-      "sg_std": 2.76
+      "sg_std": 2.76,
+      "color_group": "purple",
+      "description": "鮮やかなマゼンタ紫。南アフリカ産が最も高品質",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Sugilite_gem.jpg/320px-Sugilite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#4A0A6B,#8B1FAA,#BB55DD)"
     },
     {
       "id": "sunstone",
       "name_ja": "サンストーン",
       "sg_min": 2.62,
       "sg_max": 2.65,
-      "sg_std": 2.64
+      "sg_std": 2.64,
+      "color_group": "orange",
+      "description": "アベンチュレッセンス効果で金属的な輝き。長石の一種",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Sunstone_gem.jpg/320px-Sunstone_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#8A5000,#C88020,#E8B040)"
     },
     {
       "id": "tanzanite",
       "name_ja": "タンザナイト",
       "sg_min": 3.35,
       "sg_max": 3.45,
-      "sg_std": 3.35
+      "sg_std": 3.35,
+      "color_group": "blue",
+      "description": "タンザニア産のゾイサイト。ブルーとバイオレットに変色する希少石",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Tanzanite_gem.jpg/320px-Tanzanite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#1A0A5E,#4A2AB5,#7C5CE0)"
     },
     {
       "id": "tiger_eye",
       "name_ja": "タイガーアイ",
       "sg_min": 2.6,
       "sg_max": 2.65,
-      "sg_std": 2.64
+      "sg_std": 2.64,
+      "color_group": "brown",
+      "description": "ゴールドと茶が縞模様に交差。光で猫目効果が現れる",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Tiger_eye_gem.jpg/320px-Tiger_eye_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#5A3000,#9A6010,#C89030)"
     },
     {
       "id": "topaz",
       "name_ja": "トパーズ",
       "sg_min": 3.49,
       "sg_max": 3.57,
-      "sg_std": 3.53
+      "sg_std": 3.53,
+      "color_group": "yellow",
+      "description": "無色・青・ピンク・インペリアルオレンジと多彩な色相",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Topaz_gem.jpg/320px-Topaz_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#7A5A20,#C09040,#E8C060)"
     },
     {
       "id": "topaz_imperial",
       "name_ja": "インペリアルトパーズ",
       "sg_min": 3.49,
       "sg_max": 3.57,
-      "sg_std": 3.53
+      "sg_std": 3.53,
+      "color_group": "orange",
+      "description": "オレンジから赤みオレンジのトパーズ。ブラジル産が最上質",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Imperial_topaz.jpg/320px-Imperial_topaz.jpg",
+      "color_swatch": "linear-gradient(135deg,#7A3A00,#C06820,#E89840)"
     },
     {
       "id": "tourmaline",
       "name_ja": "トルマリン",
       "sg_min": 2.9,
       "sg_max": 3.26,
-      "sg_std": 3.05
+      "sg_std": 3.05,
+      "color_group": "multi",
+      "description": "トルマリンの総称。赤・緑・青・無色など最も色の多い宝石族",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Tourmaline_gem.jpg/320px-Tourmaline_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#8B1A1A,#1A8B1A,#1A1A8B)"
     },
     {
       "id": "tourmaline_blue",
       "name_ja": "ブルートルマリン（インディコライト）",
       "sg_min": 3.02,
       "sg_max": 3.26,
-      "sg_std": 3.09
+      "sg_std": 3.09,
+      "color_group": "blue",
+      "description": "インディゴブルーから青緑。インディコライトとも呼ばれる",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Indicolite_tourmaline.jpg/320px-Indicolite_tourmaline.jpg",
+      "color_swatch": "linear-gradient(135deg,#003050,#0066AA,#4499DD)"
     },
     {
       "id": "tourmaline_green",
       "name_ja": "グリーントルマリン（ヴェルデライト）",
       "sg_min": 3.02,
       "sg_max": 3.26,
-      "sg_std": 3.07
+      "sg_std": 3.07,
+      "color_group": "green",
+      "description": "ヴェルデライト。鮮やかな緑から黄緑。ブラジル産が有名",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Green_tourmaline.jpg/320px-Green_tourmaline.jpg",
+      "color_swatch": "linear-gradient(135deg,#0A4A0A,#1A8A1A,#40C040)"
     },
     {
       "id": "tourmaline_paraiba",
       "name_ja": "パライバトルマリン",
       "sg_min": 2.9,
       "sg_max": 3.1,
-      "sg_std": 3.0
+      "sg_std": 3.0,
+      "color_group": "blue",
+      "description": "ネオンブルーから青緑。銅由来の発色で最高値のトルマリン",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Paraiba_tourmaline.jpg/320px-Paraiba_tourmaline.jpg",
+      "color_swatch": "linear-gradient(135deg,#004A5E,#00A0C0,#00D4E8)"
     },
     {
       "id": "tourmaline_watermelon",
       "name_ja": "ウォーターメロントルマリン",
       "sg_min": 3.02,
       "sg_max": 3.26,
-      "sg_std": 3.05
+      "sg_std": 3.05,
+      "color_group": "multi",
+      "description": "断面がスイカのように緑と赤に分かれる。スライスで販売されることも",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Watermelon_tourmaline.jpg/320px-Watermelon_tourmaline.jpg",
+      "color_swatch": "linear-gradient(135deg,#007A20,#70B060,#E03050)"
     },
     {
       "id": "tremolite",
       "name_ja": "トレモライト",
       "sg_min": 2.98,
       "sg_max": 3.1,
-      "sg_std": 3.0
+      "sg_std": 3.0,
+      "color_group": "colorless",
+      "description": "白〜灰色の角閃石。透明なカット石は希少なコレクター向け",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Tremolite_gem.jpg/320px-Tremolite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#A0A898,#C8D0C0,#E8F0E0)"
     },
     {
       "id": "tsavorite",
       "name_ja": "ツァボライト",
       "sg_min": 3.57,
       "sg_max": 3.73,
-      "sg_std": 3.61
+      "sg_std": 3.61,
+      "color_group": "green",
+      "description": "ツァボライト。鮮やかな緑のグロッシュラーガーネット",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Tsavorite_garnet.jpg/320px-Tsavorite_garnet.jpg",
+      "color_swatch": "linear-gradient(135deg,#004A20,#008040,#00C060)"
     },
     {
       "id": "turquoise",
       "name_ja": "トルコ石（ターコイズ）",
       "sg_min": 2.6,
       "sg_max": 2.9,
-      "sg_std": 2.75
+      "sg_std": 2.75,
+      "color_group": "blue",
+      "description": "スカイブルーからグリーンブルー。古来から神聖視されてきた",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Turquoise_gem.jpg/320px-Turquoise_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#006B6B,#00A0A0,#48CAC8)"
     },
     {
       "id": "unakite",
       "name_ja": "ユナカイト",
       "sg_min": 2.85,
       "sg_max": 3.2,
-      "sg_std": 3.03
+      "sg_std": 3.03,
+      "color_group": "green",
+      "description": "ピンクの長石と緑のエピドートが混在。ユニークな模様",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Unakite_gem.jpg/320px-Unakite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#3A4A20,#C07060,#A09040)"
     },
     {
       "id": "variscite",
       "name_ja": "バリシャイト",
       "sg_min": 2.42,
       "sg_max": 2.58,
-      "sg_std": 2.5
+      "sg_std": 2.5,
+      "color_group": "multi",
+      "description": "ミントグリーンから青緑。ターコイズと混同されることが多い",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Variscite_gem.jpg/320px-Variscite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#2A5A3A,#40908A,#70C0A0)"
     },
     {
       "id": "vesuvianite",
       "name_ja": "ヴェスヴィアナイト",
       "sg_min": 3.32,
       "sg_max": 3.47,
-      "sg_std": 3.4
+      "sg_std": 3.4,
+      "color_group": "green",
+      "description": "ヴェスヴィアナイト。黄緑から濃緑のカボションが多い",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Vesuvianite_gem.jpg/320px-Vesuvianite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#1A4A20,#309A40,#60C060)"
     },
     {
       "id": "vivianite",
       "name_ja": "ヴィビアナイト",
       "sg_min": 2.67,
       "sg_max": 2.71,
-      "sg_std": 2.69
+      "sg_std": 2.69,
+      "color_group": "blue",
+      "description": "深い青緑から青。光に当たると色が増す稀少な鉱物",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Vivianite_gem.jpg/320px-Vivianite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#0A3050,#1A6090,#30A0C0)"
     },
     {
       "id": "wardite",
       "name_ja": "ワーダイト",
       "sg_min": 2.81,
       "sg_max": 2.87,
-      "sg_std": 2.84
+      "sg_std": 2.84,
+      "color_group": "blue",
+      "description": "淡い青緑の希少リン酸塩。カボションで使われることが多い",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Wardite_gem.jpg/320px-Wardite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#2A5A5A,#408888,#70B8B0)"
     },
     {
       "id": "williamsite",
       "name_ja": "ウィリアムサイト（緑蛇紋石）",
       "sg_min": 2.5,
       "sg_max": 2.62,
-      "sg_std": 2.55
+      "sg_std": 2.55,
+      "color_group": "green",
+      "description": "オイルグリーンの蛇紋石。翡翠の代替として流通",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Serpentine_gem.jpg/320px-Serpentine_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#1A4A20,#309A40,#50B060)"
     },
     {
       "id": "willemite",
       "name_ja": "ウィレマイト",
       "sg_min": 3.89,
       "sg_max": 4.18,
-      "sg_std": 3.99
+      "sg_std": 3.99,
+      "color_group": "green",
+      "description": "強蛍光緑が有名。ニュージャージー産が代表的",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Willemite_gem.jpg/320px-Willemite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#1A5A10,#30A020,#60D040)"
     },
     {
       "id": "zircon_blue",
       "name_ja": "ブルージルコン",
       "sg_min": 4.6,
       "sg_max": 4.8,
-      "sg_std": 4.7
+      "sg_std": 4.7,
+      "color_group": "blue",
+      "description": "強い輝きと分散。加熱処理によるブルーが流通の主体",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Blue_zircon_gem.jpg/320px-Blue_zircon_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#003060,#0060C0,#3090F0)"
     },
     {
       "id": "zircon_colorless",
       "name_ja": "カラーレスジルコン",
       "sg_min": 4.6,
       "sg_max": 4.8,
-      "sg_std": 4.7
+      "sg_std": 4.7,
+      "color_group": "colorless",
+      "description": "天然ジルコン。高い屈折率と分散でダイヤに最も近い輝き",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Colorless_zircon_gem.jpg/320px-Colorless_zircon_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#B8C8D8,#D8E8F0,#F8FEFF)"
     },
     {
       "id": "zircon_orange",
       "name_ja": "オレンジジルコン（ヒヤシンス）",
       "sg_min": 4.6,
       "sg_max": 4.8,
-      "sg_std": 4.69
+      "sg_std": 4.69,
+      "color_group": "orange",
+      "description": "ヒヤシンス色のジルコン。天然のオレンジ〜赤橙",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Orange_zircon_gem.jpg/320px-Orange_zircon_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#7A3000,#C06000,#E88828)"
     },
     {
       "id": "zircon_red",
       "name_ja": "レッドジルコン",
       "sg_min": 4.6,
       "sg_max": 4.8,
-      "sg_std": 4.7
+      "sg_std": 4.7,
+      "color_group": "red",
+      "description": "天然の赤〜赤橙ジルコン。加熱前の原色",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Red_zircon_gem.jpg/320px-Red_zircon_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#6A1A00,#AA3010,#D86030)"
     },
     {
       "id": "zoisite",
       "name_ja": "ゾイサイト",
       "sg_min": 3.1,
       "sg_max": 3.38,
-      "sg_std": 3.35
+      "sg_std": 3.35,
+      "color_group": "blue",
+      "description": "タンザナイトの母石属。緑色のゾイサイトはルビー混入品も",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Tanzanite_gem.jpg/320px-Tanzanite_gem.jpg",
+      "color_swatch": "linear-gradient(135deg,#1A4A6A,#308AAA,#60C0D8)"
     }
   ]
 }
