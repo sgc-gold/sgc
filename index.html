@@ -236,7 +236,11 @@
       <div class="nav-section-title">Market · 貴金属市況</div>
       <a class="nav-link" onclick="navigate('price.html',this)">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        価格情報
+        田中貴金属価格情報
+      </a>
+      <a class="nav-link" onclick="navigate('sgcprice.html',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 9l10 13 10-13-10-7z"/><line x1="12" y1="9" x2="12" y2="15"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
+        SGC買取価格情報
       </a>
       <a class="nav-link" onclick="navigate('market.html',this)">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
@@ -265,16 +269,6 @@
         色石重量検索
       </a>
 
-      <!-- ★ 銀座店用 ★ -->
-      <a class="nav-link ginza" id="ginza-link" onclick="ginzaClick(this)">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <rect x="3" y="11" width="18" height="11" rx="2"/>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
-        銀座店用
-        <span class="ginza-badge" id="ginza-badge">🔒 限定</span>
-      </a>
-
       <div class="nav-section-title">Sales · 販売関連</div>
       <a class="nav-link disabled">準備中</a>
 
@@ -296,6 +290,17 @@
       <a class="nav-link" onclick="navigate('youtube.html',this)">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.54C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
         YouTube
+      </a>
+
+      <!-- ★ 銀座店用 ── 最下部 ★ -->
+      <div class="nav-section-title">Ginza · 銀座店</div>
+      <a class="nav-link ginza" id="ginza-link" onclick="ginzaClick(this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        銀座店用
+        <span class="ginza-badge" id="ginza-badge">🔒 限定</span>
       </a>
 
     </div>
