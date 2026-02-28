@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SGC ポータル">
   <meta name="mobile-web-app-capable" content="yes">
   <link rel="icon" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png" type="image/png">
   <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
@@ -207,6 +208,156 @@
   .pw-submit:active { transform: scale(0.97); }
   .pw-cancel { display: block; width: 100%; margin-top: 10px; background: none; border: none; color: rgba(255,255,255,0.27); font-family: 'DM Sans', sans-serif; font-size: 0.75rem; letter-spacing: 0.04em; cursor: pointer; padding: 4px; transition: color 0.15s; text-align: center; }
   .pw-cancel:hover { color: rgba(255,255,255,0.6); }
+
+  /* ══════════════════════════════════════════
+     iOS PWA インストールバナー
+  ══════════════════════════════════════════ */
+  #pwa-banner {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 800;
+    padding: 0 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
+    pointer-events: none;
+    animation: bannerSlideUp 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  #pwa-banner.show { display: block; }
+  @keyframes bannerSlideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* モバイル底部ナビがある場合に被らないよう調整 */
+  @media (max-width: 899px) {
+    #pwa-banner { padding-bottom: calc(var(--bottom-content-h) + env(safe-area-inset-bottom, 0px) + 12px); }
+  }
+
+  .pwa-card {
+    background: linear-gradient(135deg, #0C1C14 0%, #142214 100%);
+    border: 1px solid rgba(192,154,80,0.28);
+    border-radius: 18px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.65), 0 0 0 1px rgba(192,154,80,0.06);
+    padding: 16px 16px 14px;
+    pointer-events: all;
+    position: relative;
+    overflow: hidden;
+  }
+  .pwa-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dk) 25%, var(--gold) 50%, var(--gold-dk) 75%, transparent);
+  }
+
+  .pwa-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .pwa-app-icon {
+    width: 44px; height: 44px; border-radius: 11px;
+    background: rgba(192,154,80,0.1); border: 1px solid rgba(192,154,80,0.2);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; overflow: hidden;
+  }
+  .pwa-app-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+  .pwa-text { flex: 1; min-width: 0; }
+  .pwa-title { font-family: 'Shippori Mincho', serif; font-size: 0.92rem; font-weight: 700; color: #fff; letter-spacing: 0.06em; }
+  .pwa-desc { font-size: 0.72rem; color: rgba(192,154,80,0.65); margin-top: 2px; letter-spacing: 0.02em; line-height: 1.4; }
+  .pwa-close {
+    background: none; border: none; color: rgba(255,255,255,0.3);
+    font-size: 1.1rem; cursor: pointer; padding: 4px; line-height: 1;
+    flex-shrink: 0; align-self: flex-start;
+    transition: color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pwa-close:hover { color: rgba(255,255,255,0.7); }
+
+  .pwa-actions { display: flex; gap: 8px; }
+  .pwa-btn-primary {
+    flex: 1; height: 40px;
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-lt) 100%);
+    border: none; border-radius: 10px;
+    color: #fff; font-family: 'Shippori Mincho', serif; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.08em;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+    box-shadow: 0 3px 10px rgba(14,31,23,0.4);
+    transition: opacity 0.15s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pwa-btn-primary:active { transform: scale(0.97); opacity: 0.88; }
+  .pwa-btn-skip {
+    height: 40px; padding: 0 14px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px; color: rgba(255,255,255,0.4);
+    font-family: 'DM Sans', sans-serif; font-size: 0.78rem;
+    cursor: pointer; white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pwa-btn-skip:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.65); }
+
+  /* ── 手順モーダル（古いiOS向け） ── */
+  #pwa-guide-backdrop {
+    display: none; position: fixed; inset: 0; z-index: 850;
+    background: rgba(8,14,11,0.82);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    align-items: flex-end; justify-content: center;
+    padding: 20px 16px calc(env(safe-area-inset-bottom, 0px) + 20px);
+  }
+  #pwa-guide-backdrop.show { display: flex; }
+
+  #pwa-guide-modal {
+    width: 100%; max-width: 400px;
+    background: #0C1C14;
+    border: 1px solid rgba(192,154,80,0.22);
+    border-radius: 20px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.7);
+    overflow: hidden;
+    animation: pwIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  .pwa-guide-top {
+    background: linear-gradient(160deg, #091510 0%, #142214 100%);
+    padding: 24px 20px 18px; text-align: center;
+    border-bottom: 1px solid rgba(192,154,80,0.12);
+    position: relative;
+  }
+  .pwa-guide-top::after {
+    content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dk) 25%, var(--gold) 50%, var(--gold-dk) 75%, transparent);
+  }
+  .pwa-guide-title { font-family: 'Shippori Mincho', serif; font-size: 1.05rem; font-weight: 700; color: #fff; letter-spacing: 0.1em; }
+  .pwa-guide-sub { font-size: 0.68rem; color: rgba(192,154,80,0.5); letter-spacing: 0.12em; margin-top: 4px; }
+
+  .pwa-guide-body { padding: 20px; }
+  .pwa-step { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+  .pwa-step:last-child { margin-bottom: 0; }
+  .pwa-step-num {
+    width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+    background: rgba(192,154,80,0.12); border: 1px solid rgba(192,154,80,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; font-weight: 700; color: var(--gold);
+  }
+  .pwa-step-text { flex: 1; }
+  .pwa-step-title { font-size: 0.8rem; color: #fff; font-weight: 500; letter-spacing: 0.02em; line-height: 1.4; }
+  .pwa-step-note { font-size: 0.68rem; color: rgba(255,255,255,0.4); margin-top: 2px; line-height: 1.4; }
+  .pwa-step-icon { display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; margin: 0 2px; }
+
+  .pwa-guide-footer { padding: 0 20px 20px; }
+  .pwa-guide-close {
+    width: 100%; height: 42px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 11px; color: rgba(255,255,255,0.5);
+    font-family: 'DM Sans', sans-serif; font-size: 0.82rem; letter-spacing: 0.04em;
+    cursor: pointer; transition: background 0.15s, color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pwa-guide-close:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.75); }
+
+  /* 矢印アニメーション（バナーの下向き矢印） */
+  .pwa-arrow-down {
+    display: block; text-align: center; margin-top: 8px;
+    font-size: 1.2rem; animation: arrowBounce 1.4s ease-in-out infinite;
+    color: var(--gold); opacity: 0.7;
+  }
+  @keyframes arrowBounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(5px); }
+  }
   </style>
 </head>
 <body>
@@ -363,6 +514,70 @@
   </div>
 </div>
 
+<!-- ══════════════════════════════════
+     PWA インストールバナー（iOS Safari用）
+══════════════════════════════════ -->
+<div id="pwa-banner">
+  <div class="pwa-card">
+    <div class="pwa-top">
+      <div class="pwa-app-icon">
+        <img src="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png" alt="SGC" onerror="this.parentNode.innerHTML='🏅'">
+      </div>
+      <div class="pwa-text">
+        <div class="pwa-title">アプリとして追加する</div>
+        <div class="pwa-desc">ホーム画面に追加するとアプリのように快適に使えます</div>
+      </div>
+      <button class="pwa-close" onclick="dismissBanner()" aria-label="閉じる">✕</button>
+    </div>
+    <div class="pwa-actions">
+      <button class="pwa-btn-primary" onclick="triggerInstall()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v13M5 9l7 6 7-6"/><path d="M3 20h18"/></svg>
+        ホーム画面に追加
+      </button>
+      <button class="pwa-btn-skip" onclick="dismissBanner()">後で</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 手順ガイドモーダル（古いiOS向け Share未対応） ── -->
+<div id="pwa-guide-backdrop">
+  <div id="pwa-guide-modal" role="dialog" aria-modal="true">
+    <div class="pwa-guide-top">
+      <div class="pwa-guide-title">ホーム画面に追加する方法</div>
+      <div class="pwa-guide-sub">Safari · iOS</div>
+    </div>
+    <div class="pwa-guide-body">
+      <div class="pwa-step">
+        <div class="pwa-step-num">1</div>
+        <div class="pwa-step-text">
+          <div class="pwa-step-title">下部の「共有」ボタンをタップ</div>
+          <div class="pwa-step-note">画面下中央の
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;display:inline-block"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+            アイコンです
+          </div>
+        </div>
+      </div>
+      <div class="pwa-step">
+        <div class="pwa-step-num">2</div>
+        <div class="pwa-step-text">
+          <div class="pwa-step-title">「ホーム画面に追加」を選択</div>
+          <div class="pwa-step-note">メニューをスクロールすると見つかります</div>
+        </div>
+      </div>
+      <div class="pwa-step">
+        <div class="pwa-step-num">3</div>
+        <div class="pwa-step-text">
+          <div class="pwa-step-title">右上の「追加」をタップ</div>
+          <div class="pwa-step-note">アプリとしてホーム画面に追加されます</div>
+        </div>
+      </div>
+    </div>
+    <div class="pwa-guide-footer">
+      <button class="pwa-guide-close" onclick="closeGuide()">閉じる</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ══════════════════════════════════════════════
 //  ★ パスワード設定 ★
@@ -439,15 +654,12 @@ function closeSidebar() {
 function isAuthed() {
   return localStorage.getItem(STORAGE_KEY) === '1';
 }
-
-// バッジ表示を認証状態に合わせて更新
 function refreshBadge() {
   var badge = document.getElementById('ginza-badge');
   var link  = document.getElementById('ginza-link');
   if (isAuthed()) {
     badge.textContent = '銀座店';
     badge.style.background = 'rgba(192,154,80,0.28)';
-    // アイコンを錠前→建物に切り替え
     link.querySelector('svg').innerHTML =
       '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>';
   } else {
@@ -457,7 +669,6 @@ function refreshBadge() {
 }
 refreshBadge();
 
-// 銀座店リンクをクリック
 function ginzaClick(el) {
   if (isAuthed()) {
     document.querySelectorAll('#sidebar .nav-link').forEach(function(l) { l.classList.remove('active'); });
@@ -496,7 +707,6 @@ function submitPw() {
     localStorage.setItem(STORAGE_KEY, '1');
     refreshBadge();
     closePw();
-    // 認証後すぐ銀座ページへ
     var link = document.getElementById('ginza-link');
     document.querySelectorAll('#sidebar .nav-link').forEach(function(l) { l.classList.remove('active'); });
     link.classList.add('active');
@@ -506,23 +716,96 @@ function submitPw() {
     err.textContent = 'パスワードが正しくありません。';
     document.getElementById('pw-input').value = '';
     document.getElementById('pw-input').focus();
-    // 揺らすアニメーション
     var modal = document.getElementById('pw-modal');
     modal.style.animation = 'none';
-    void modal.offsetWidth; // reflow
+    void modal.offsetWidth;
     modal.style.animation = 'shake 0.38s ease';
   }
 }
-
-// Enterキー対応
 document.getElementById('pw-input').addEventListener('keydown', function(e) {
   if (e.key === 'Enter')  submitPw();
   if (e.key === 'Escape') closePw();
 });
-// 背景クリックで閉じる
 backdrop.addEventListener('click', function(e) {
   if (e.target === backdrop) closePw();
 });
+
+// ══════════════════════════════════════════════
+//  PWA インストールバナー
+// ══════════════════════════════════════════════
+(function() {
+  var BANNER_DISMISS_KEY  = 'sgc_pwa_banner_dismissed';
+  var DISMISS_DAYS        = 7; // 何日間バナーを非表示にするか
+
+  // ① スタンドアロン（PWA）起動中は表示しない
+  var isStandalone = (
+    window.navigator.standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches
+  );
+  if (isStandalone) return;
+
+  // ② iOS Safari のみ対象
+  var ua = navigator.userAgent;
+  var isIOS = /iP(hone|ad|od)/.test(ua);
+  var isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|OPiOS|EdgiOS/.test(ua);
+  if (!isIOS || !isSafari) return;
+
+  // ③ 最近 dismiss した場合はスキップ
+  var dismissed = localStorage.getItem(BANNER_DISMISS_KEY);
+  if (dismissed) {
+    var since = Date.now() - parseInt(dismissed, 10);
+    if (since < DISMISS_DAYS * 24 * 60 * 60 * 1000) return;
+  }
+
+  // ④ iOSバージョンを取得
+  var iosMatch = ua.match(/OS (\d+)_(\d+)/);
+  var iosMajor = iosMatch ? parseInt(iosMatch[1], 10) : 0;
+
+  // ⑤ バナーを表示（少し遅延させてページロード後に）
+  var banner = document.getElementById('pwa-banner');
+  setTimeout(function() {
+    banner.classList.add('show');
+  }, 1800);
+
+  // ⑥ 「ホーム画面に追加」ボタン処理
+  window.triggerInstall = function() {
+    // iOS 16.4+ : Web Share API の shareURL を使ってシェアシートを開く
+    // → シェアシートから「ホーム画面に追加」が選べる
+    if (iosMajor >= 16 && navigator.share) {
+      navigator.share({
+        title: 'SGC 社内ポータル',
+        url: location.href
+      }).catch(function() {
+        // share がキャンセルされた or 失敗 → ガイドを表示
+        showGuide();
+      });
+    } else {
+      // 古いiOS → 手順ガイドモーダル
+      showGuide();
+    }
+  };
+
+  // ⑦ バナーを閉じる
+  window.dismissBanner = function() {
+    banner.classList.remove('show');
+    localStorage.setItem(BANNER_DISMISS_KEY, Date.now().toString());
+  };
+
+  // ⑧ 手順ガイド
+  var guideBackdrop = document.getElementById('pwa-guide-backdrop');
+  function showGuide() {
+    banner.classList.remove('show');
+    guideBackdrop.classList.add('show');
+  }
+  window.closeGuide = function() {
+    guideBackdrop.classList.remove('show');
+    localStorage.setItem(BANNER_DISMISS_KEY, Date.now().toString());
+  };
+  guideBackdrop.addEventListener('click', function(e) {
+    if (e.target === guideBackdrop) window.closeGuide();
+  });
+
+})();
 
 window.addEventListener('message', function() {});
 </script>
