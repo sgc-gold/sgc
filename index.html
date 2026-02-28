@@ -266,7 +266,7 @@
       </a>
 
       <!-- ★ 銀座店用 ★ -->
-      <a class="nav-link ginza" id="ginza-link" onclick="navigate('https://script.google.com/macros/s/AKfycbyf2YPwoPW7dM6OMrK9OyxCJkGXeAa883HcQe6Atz982MHyqF8iobXqGSGFjULebLRp/exec',this)">
+      <a class="nav-link ginza" id="ginza-link" onclick="navigate('ginza.html',this)">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
           <rect x="3" y="11" width="18" height="11" rx="2"/>
           <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
@@ -457,7 +457,7 @@ function ginzaClick(el) {
   if (isAuthed()) {
     document.querySelectorAll('#sidebar .nav-link').forEach(function(l) { l.classList.remove('active'); });
     el.classList.add('active');
-    frame.src = 'ginza.html';
+    frame.src = 'https://script.google.com/macros/s/AKfycbyf2YPwoPW7dM6OMrK9OyxCJkGXeAa883HcQe6Atz982MHyqF8iobXqGSGFjULebLRp/exec';
     if (window.innerWidth < 900) closeSidebar();
   } else {
     openPw();
@@ -495,7 +495,7 @@ function submitPw() {
     var link = document.getElementById('ginza-link');
     document.querySelectorAll('#sidebar .nav-link').forEach(function(l) { l.classList.remove('active'); });
     link.classList.add('active');
-    frame.src = 'ginza.html';
+    frame.src = 'https://script.google.com/macros/s/AKfycbyf2YPwoPW7dM6OMrK9OyxCJkGXeAa883HcQe6Atz982MHyqF8iobXqGSGFjULebLRp/exec';
     if (window.innerWidth < 900) closeSidebar();
   } else {
     err.textContent = 'パスワードが正しくありません。';
