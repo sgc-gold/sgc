@@ -31,286 +31,182 @@
     --safe-right:  env(safe-area-inset-right,  0px);
   }
 
-  /* ─────────────────────────────────────
-     高さ戦略:
-     dvh → svh → 100vh のフォールバックチェーン。
-     JSの visualViewport でさらに補正する。
-  ───────────────────────────────────── */
-  html {
-    height: 100vh;
-    height: 100svh;
-    height: 100dvh;
-    background: var(--green-dk);
-  }
-  body {
-    height: 100vh;
-    height: 100svh;
-    height: 100dvh;
-    overflow: hidden;
-    background: var(--green-dk);
-    font-family: 'DM Sans', sans-serif;
-  }
+  html { height: 100vh; height: 100svh; height: 100dvh; background: var(--green-dk); }
+  body { height: 100vh; height: 100svh; height: 100dvh; overflow: hidden; background: var(--green-dk); font-family: 'DM Sans', sans-serif; }
 
-  /* ─── App shell ─── */
   #shell {
     display: grid;
     grid-template-columns: var(--nav-w) 1fr;
     grid-template-rows: calc(var(--header-h) + var(--safe-top)) 1fr;
-    grid-template-areas:
-      "hdr  hdr"
-      "side main";
-    width: 100%;
-    height: 100vh;
-    height: 100svh;
-    height: 100dvh;
-    overflow: hidden;
+    grid-template-areas: "hdr hdr" "side main";
+    width: 100%; height: 100vh; height: 100svh; height: 100dvh; overflow: hidden;
   }
 
   /* ─── Header ─── */
   #app-header {
-    grid-area: hdr;
-    background: var(--green-dk);
+    grid-area: hdr; background: var(--green-dk);
     border-bottom: 1px solid rgba(192,154,80,0.12);
-    display: flex;
-    align-items: flex-end; /* safe-area padding後に下揃え */
+    display: flex; align-items: flex-end;
     padding: var(--safe-top) 16px 0;
     height: calc(var(--header-h) + var(--safe-top));
-    padding-bottom: 0;
-    gap: 12px;
-    position: relative;
-    z-index: 300;
+    gap: 12px; position: relative; z-index: 300;
   }
-  /* ヘッダー内コンテンツを下端に揃えるラッパー */
-  #app-header .header-inner {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    height: var(--header-h);
-  }
+  #app-header .header-inner { display: flex; align-items: center; gap: 12px; width: 100%; height: var(--header-h); }
   #app-header::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0; height: 1px;
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
     background: linear-gradient(90deg, transparent, var(--gold-dk) 25%, var(--gold) 50%, var(--gold-dk) 75%, transparent);
   }
-
   .header-logo  { height: 26px; width: auto; opacity: 0.9; flex-shrink: 0; }
-  .header-title {
-    flex: 1;
-    font-family: 'Shippori Mincho', serif;
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: var(--white);
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    user-select: none;
-  }
+  .header-title { flex: 1; font-family: 'Shippori Mincho', serif; font-size: 1.05rem; font-weight: 600; color: var(--white); letter-spacing: 0.1em; cursor: pointer; user-select: none; }
   .header-title:hover { color: var(--gold-lt); }
-
-  .hamburger {
-    display: none;
-    flex-direction: column;
-    gap: 5px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 6px;
-    border-radius: 8px;
-    flex-shrink: 0;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .hamburger span {
-    display: block; width: 22px; height: 2px;
-    background: rgba(255,255,255,0.8); border-radius: 2px;
-    transition: all 0.28s ease;
-  }
+  .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 6px; border-radius: 8px; flex-shrink: 0; -webkit-tap-highlight-color: transparent; }
+  .hamburger span { display: block; width: 22px; height: 2px; background: rgba(255,255,255,0.8); border-radius: 2px; transition: all 0.28s ease; }
   .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   .hamburger.open span:nth-child(2) { opacity: 0; }
   .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
   /* ─── Sidebar ─── */
-  #sidebar {
-    grid-area: side;
-    background: var(--green-dk);
-    border-right: 1px solid rgba(192,154,80,0.1);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .sidebar-scroll {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 16px 12px 20px;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(192,154,80,0.18) transparent;
-    -webkit-overflow-scrolling: touch;
-  }
+  #sidebar { grid-area: side; background: var(--green-dk); border-right: 1px solid rgba(192,154,80,0.1); display: flex; flex-direction: column; overflow: hidden; }
+  .sidebar-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px 12px 20px; scrollbar-width: thin; scrollbar-color: rgba(192,154,80,0.18) transparent; -webkit-overflow-scrolling: touch; }
   .sidebar-scroll::-webkit-scrollbar { width: 3px; }
   .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(192,154,80,0.2); border-radius: 4px; }
 
-  .nav-section-title {
-    font-size: 0.56rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: rgba(192,154,80,0.45);
-    padding: 14px 8px 5px;
-    display: flex; align-items: center; gap: 8px;
-  }
+  .nav-section-title { font-size: 0.56rem; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(192,154,80,0.45); padding: 14px 8px 5px; display: flex; align-items: center; gap: 8px; }
   .nav-section-title::after { content: ''; flex: 1; height: 1px; background: rgba(192,154,80,0.1); }
 
-  .nav-link {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 10px;
-    border-radius: 8px;
-    color: rgba(255,255,255,0.55);
-    font-size: 0.84rem;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-    border: 1px solid transparent;
-    user-select: none;
-    margin-bottom: 1px;
-    -webkit-tap-highlight-color: transparent;
-  }
+  .nav-link { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; color: rgba(255,255,255,0.55); font-size: 0.84rem; text-decoration: none; cursor: pointer; transition: background 0.15s, color 0.15s; border: 1px solid transparent; user-select: none; margin-bottom: 1px; -webkit-tap-highlight-color: transparent; }
   .nav-link:hover  { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.85); }
   .nav-link.active { background: rgba(192,154,80,0.1); color: var(--gold-lt); border-color: rgba(192,154,80,0.16); }
   .nav-link.disabled { opacity: 0.28; pointer-events: none; text-decoration: line-through; }
   .nav-icon { width: 16px; height: 16px; opacity: 0.55; flex-shrink: 0; transition: opacity 0.15s; }
   .nav-link:hover .nav-icon, .nav-link.active .nav-icon { opacity: 0.9; }
 
-  .sidebar-footer {
-    padding: 10px 14px;
-    border-top: 1px solid rgba(192,154,80,0.08);
-    font-size: 0.6rem;
-    color: rgba(255,255,255,0.18);
-    letter-spacing: 0.06em;
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    text-align: center;
+  /* ── 銀座店専用リンク ── */
+  .nav-link.ginza {
+    border-color: rgba(192,154,80,0.15);
+    background: rgba(192,154,80,0.04);
+    color: rgba(232,212,154,0.55);
+  }
+  .nav-link.ginza:hover { background: rgba(192,154,80,0.12); color: var(--gold-lt); }
+  .nav-link.ginza.active { background: rgba(192,154,80,0.18); color: var(--gold-lt); border-color: rgba(192,154,80,0.3); }
+  .ginza-badge {
+    margin-left: auto; flex-shrink: 0;
+    font-size: 0.5rem; font-weight: 700; letter-spacing: 0.06em;
+    padding: 2px 7px; border-radius: 4px;
+    background: rgba(192,154,80,0.18); border: 1px solid rgba(192,154,80,0.25);
+    color: var(--gold-lt); white-space: nowrap;
+    transition: background 0.2s;
   }
 
-  /* ─── Main content ─── */
-  #content-area {
-    grid-area: main;
-    overflow: hidden;
-    background: #F7F3EB;
-    display: flex;
-    flex-direction: column;
-    padding-left:  var(--safe-left);
-    padding-right: var(--safe-right);
-  }
+  .sidebar-footer { padding: 10px 14px; border-top: 1px solid rgba(192,154,80,0.08); font-size: 0.6rem; color: rgba(255,255,255,0.18); letter-spacing: 0.06em; font-family: 'Cormorant Garamond', serif; font-style: italic; text-align: center; }
 
-  #main-frame {
-    flex: 1;
-    width: 100%;
-    border: none;
-    display: block;
-    min-height: 0;
-  }
+  /* ─── Content ─── */
+  #content-area { grid-area: main; overflow: hidden; background: #F7F3EB; display: flex; flex-direction: column; padding-left: var(--safe-left); padding-right: var(--safe-right); }
+  #main-frame { flex: 1; width: 100%; border: none; display: block; min-height: 0; }
 
   /* ─── Overlay ─── */
-  #overlay {
-    display: none;
-    position: fixed; inset: 0; z-index: 250;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-  }
+  #overlay { display: none; position: fixed; inset: 0; z-index: 250; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
   #overlay.active { display: block; }
 
-  /* ══════════════════════════════════
-     MOBILE (< 900px)
-  ══════════════════════════════════ */
+  /* ══════════════════
+     MOBILE
+  ══════════════════ */
   @media (max-width: 899px) {
-
-    #shell {
-      grid-template-columns: 1fr;
-      grid-template-rows:
-        calc(var(--header-h) + env(safe-area-inset-top, 0px))
-        1fr
-        auto; /* ← auto にして bottom-nav の実測高さに任せる */
-      grid-template-areas:
-        "hdr"
-        "main"
-        "bnav";
-    }
-
+    #shell { grid-template-columns: 1fr; grid-template-rows: calc(var(--header-h) + env(safe-area-inset-top, 0px)) 1fr auto; grid-template-areas: "hdr" "main" "bnav"; }
     .hamburger { display: flex; }
-
-    #sidebar {
-      grid-area: unset;
-      position: fixed;
-      top: calc(var(--header-h) + env(safe-area-inset-top, 0px));
-      left: 0;
-      width: var(--nav-w);
-      bottom: 0;
-      z-index: 260;
-      transform: translateX(-100%);
-      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-      box-shadow: 4px 0 24px rgba(0,0,0,0.55);
-    }
+    #sidebar { grid-area: unset; position: fixed; top: calc(var(--header-h) + env(safe-area-inset-top, 0px)); left: 0; width: var(--nav-w); bottom: 0; z-index: 260; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); box-shadow: 4px 0 24px rgba(0,0,0,0.55); }
     #sidebar.open { transform: translateX(0); }
-
-    /* ─── Bottom nav ─── */
-    #bottom-nav {
-      grid-area: bnav;
-      background: var(--green-dk);
-      border-top: 1px solid rgba(192,154,80,0.14);
-      display: flex;
-      align-items: stretch;
-
-      /* ★ 核心: コンテンツ高さは min-height で保証し、
-           safe-area 分は padding-bottom で追加する。
-           height: auto のままなので grid が正しく計算できる。 */
-      padding-bottom: env(safe-area-inset-bottom, 0px);
-      padding-left:   env(safe-area-inset-left,   0px);
-      padding-right:  env(safe-area-inset-right,  0px);
-
-      /* Edge PWA で grid-area が消えることへの保険 */
-      position: relative;
-      z-index: 100;
-      /* Edge で display:flex が無視されるケース対策 */
-      min-height: var(--bottom-content-h);
-    }
-
-    .bnav-item {
-      flex: 1;
-      display: flex !important; /* Edge PWA で flex が剥がれる対策 */
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 3px;
-      color: rgba(255,255,255,0.38);
-      font-size: 0.58rem;
-      letter-spacing: 0.03em;
-      cursor: pointer;
-      border: none;
-      background: none;
-      padding: 8px 2px;
-      min-height: var(--bottom-content-h);
-      text-decoration: none;
-      transition: color 0.15s;
-      -webkit-tap-highlight-color: transparent;
-    }
+    #bottom-nav { grid-area: bnav; background: var(--green-dk); border-top: 1px solid rgba(192,154,80,0.14); display: flex; align-items: stretch; padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); position: relative; z-index: 100; min-height: var(--bottom-content-h); }
+    .bnav-item { flex: 1; display: flex !important; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: rgba(255,255,255,0.38); font-size: 0.58rem; letter-spacing: 0.03em; cursor: pointer; border: none; background: none; padding: 8px 2px; min-height: var(--bottom-content-h); text-decoration: none; transition: color 0.15s; -webkit-tap-highlight-color: transparent; }
     .bnav-item.active { color: var(--gold); }
-    .bnav-item svg {
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
-      display: block; /* SVG が inline のままだと Edge で崩れる */
-    }
-    .bnav-item span {
-      display: block;
-      line-height: 1;
-    }
+    .bnav-item svg { width: 20px; height: 20px; flex-shrink: 0; display: block; }
+    .bnav-item span { display: block; line-height: 1; }
+  }
+  @media (min-width: 900px) { #bottom-nav { display: none !important; } }
+
+  /* ══════════════════════════════════════════
+     パスワードモーダル
+  ══════════════════════════════════════════ */
+  #pw-backdrop {
+    display: none; position: fixed; inset: 0; z-index: 900;
+    background: rgba(8,14,11,0.78);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  #pw-backdrop.show { display: flex; }
+
+  #pw-modal {
+    width: 100%; max-width: 360px;
+    background: #0C1C14;
+    border: 1px solid rgba(192,154,80,0.22);
+    border-radius: 20px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(192,154,80,0.08);
+    overflow: hidden;
+    animation: pwIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes pwIn {
+    from { opacity:0; transform: scale(0.85) translateY(24px); }
+    to   { opacity:1; transform: scale(1) translateY(0); }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%,60%  { transform: translateX(-9px); }
+    40%,80%  { transform: translateX(9px); }
   }
 
-  @media (min-width: 900px) {
-    #bottom-nav { display: none !important; }
+  .pw-top {
+    background: linear-gradient(160deg, #091510 0%, #142214 100%);
+    padding: 30px 24px 22px;
+    text-align: center;
+    border-bottom: 1px solid rgba(192,154,80,0.12);
+    position: relative;
   }
+  .pw-top::after {
+    content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dk) 25%, var(--gold) 50%, var(--gold-dk) 75%, transparent);
+  }
+  .pw-icon {
+    width: 56px; height: 56px; margin: 0 auto 14px;
+    background: rgba(192,154,80,0.1); border: 1px solid rgba(192,154,80,0.22);
+    border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;
+  }
+  .pw-title { font-family: 'Shippori Mincho', serif; font-size: 1.15rem; font-weight: 700; color: #fff; letter-spacing: 0.1em; }
+  .pw-sub { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 0.7rem; color: rgba(192,154,80,0.5); letter-spacing: 0.22em; margin-top: 6px; }
+
+  .pw-body { padding: 22px 22px 24px; }
+  .pw-label { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(192,154,80,0.55); display: block; margin-bottom: 8px; }
+  .pw-field { position: relative; margin-bottom: 6px; }
+  #pw-input {
+    width: 100%; height: 46px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(192,154,80,0.2);
+    border-radius: 11px; color: #fff;
+    font-family: 'DM Sans', sans-serif; font-size: 1rem; letter-spacing: 0.18em;
+    padding: 0 46px 0 14px; outline: none;
+    transition: border-color 0.18s, box-shadow 0.18s;
+  }
+  #pw-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(192,154,80,0.18); }
+  #pw-input::placeholder { color: rgba(255,255,255,0.18); letter-spacing: 0.06em; }
+  .pw-eye-btn {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    color: rgba(192,154,80,0.4); font-size: 0.9rem; padding: 4px; line-height: 1;
+    transition: color 0.15s;
+  }
+  .pw-eye-btn:hover { color: var(--gold); }
+  .pw-err { font-size: 0.72rem; color: #E07070; min-height: 20px; margin-bottom: 10px; letter-spacing: 0.02em; }
+  .pw-submit {
+    width: 100%; height: 46px;
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-lt) 100%);
+    border: none; border-radius: 11px; color: #fff;
+    font-family: 'Shippori Mincho', serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.14em;
+    cursor: pointer; box-shadow: 0 3px 12px rgba(14,31,23,0.45);
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .pw-submit:hover { opacity: 0.88; }
+  .pw-submit:active { transform: scale(0.97); }
+  .pw-cancel { display: block; width: 100%; margin-top: 10px; background: none; border: none; color: rgba(255,255,255,0.27); font-family: 'DM Sans', sans-serif; font-size: 0.75rem; letter-spacing: 0.04em; cursor: pointer; padding: 4px; transition: color 0.15s; text-align: center; }
+  .pw-cancel:hover { color: rgba(255,255,255,0.6); }
   </style>
 </head>
 <body>
@@ -369,6 +265,16 @@
         色石重量検索
       </a>
 
+      <!-- ★ 銀座店用 ★ -->
+      <a class="nav-link ginza" id="ginza-link" onclick="ginzaClick(this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        銀座店用
+        <span class="ginza-badge" id="ginza-badge">🔒 限定</span>
+      </a>
+
       <div class="nav-section-title">Sales · 販売関連</div>
       <a class="nav-link disabled">準備中</a>
 
@@ -420,7 +326,7 @@
       <span>市況</span>
     </a>
     <button class="bnav-item" onclick="toggleSidebar()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="3" y1="6"  x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       <span>メニュー</span>
     </button>
   </nav>
@@ -429,80 +335,88 @@
 
 <div id="overlay" onclick="closeSidebar()"></div>
 
+<!-- ══════════════════════════════════
+     パスワードモーダル
+══════════════════════════════════ -->
+<div id="pw-backdrop">
+  <div id="pw-modal" role="dialog" aria-modal="true" aria-label="銀座店専用ログイン">
+    <div class="pw-top">
+      <div class="pw-icon">🏬</div>
+      <div class="pw-title">銀座店専用ページ</div>
+      <div class="pw-sub">GINZA STORE · STAFF ONLY</div>
+    </div>
+    <div class="pw-body">
+      <label class="pw-label" for="pw-input">パスワード</label>
+      <div class="pw-field">
+        <input type="password" id="pw-input" placeholder="Password" autocomplete="current-password">
+        <button class="pw-eye-btn" id="pw-eye" type="button" onclick="toggleEye()" aria-label="パスワード表示切替">👁</button>
+      </div>
+      <div class="pw-err" id="pw-err"></div>
+      <button class="pw-submit" onclick="submitPw()">ログイン</button>
+      <button class="pw-cancel" onclick="closePw()">キャンセル</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// ─────────────────────────────────────────────
+// ══════════════════════════════════════════════
+//  ★ パスワード設定 ★
+//  このファイルを編集できる管理者だけが変更可能です。
+//  GitHubリポジトリを非公開にしておいてください。
+// ══════════════════════════════════════════════
+var GINZA_PW     = 'ginza2025';     // ← ここを任意のパスワードに変更
+var STORAGE_KEY  = 'sgc_ginza_ok';  // localStorageのキー
+
+// ────────────────────────────────────
 //  HEIGHT FIX
-//  visualViewport API が最も正確（iOS Safari 13+, Edge 79+）
-//  なければ window.innerHeight にフォールバック
-// ─────────────────────────────────────────────
+// ────────────────────────────────────
 function getVH() {
   return window.visualViewport ? window.visualViewport.height : window.innerHeight;
 }
-
 function setHeight() {
-  const h = getVH();
-  const shell = document.getElementById('shell');
-  shell.style.height = h + 'px';
+  var h = getVH();
+  document.getElementById('shell').style.height = h + 'px';
   sizeFrame();
 }
-
 function sizeFrame() {
-  const frame   = document.getElementById('main-frame');
-  const content = document.getElementById('content-area');
+  var frame   = document.getElementById('main-frame');
+  var content = document.getElementById('content-area');
   if (!frame || !content) return;
-  const rect = content.getBoundingClientRect();
-  if (rect.height > 0) {
-    frame.style.height = rect.height + 'px';
-  }
+  var rect = content.getBoundingClientRect();
+  if (rect.height > 0) frame.style.height = rect.height + 'px';
 }
-
-// 初回実行
 setHeight();
-
-// イベント登録
 if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', setHeight);
   window.visualViewport.addEventListener('scroll', setHeight);
 } else {
   window.addEventListener('resize', setHeight);
 }
-
 window.addEventListener('orientationchange', function() {
-  setTimeout(setHeight, 100);
-  setTimeout(setHeight, 350);
-  setTimeout(setHeight, 700);
+  setTimeout(setHeight, 100); setTimeout(setHeight, 350); setTimeout(setHeight, 700);
 });
+window.addEventListener('load', function() { setHeight(); setTimeout(setHeight, 300); });
 
-window.addEventListener('load', function() {
-  setHeight();
-  setTimeout(setHeight, 300);
-});
-
-// ─────────────────────────────────────────────
+// ────────────────────────────────────
 //  NAVIGATION
-// ─────────────────────────────────────────────
+// ────────────────────────────────────
 var frame = document.getElementById('main-frame');
-
 function navigate(url, el) {
   if (!url || url === '#') return;
   frame.src = url;
-
   document.querySelectorAll('#sidebar .nav-link').forEach(function(l) { l.classList.remove('active'); });
   if (el && el.closest && el.closest('#sidebar')) el.classList.add('active');
-
   document.querySelectorAll('[data-bnav]').forEach(function(l) { l.classList.remove('active'); });
   if (el && el.hasAttribute && el.hasAttribute('data-bnav')) el.classList.add('active');
-
   if (window.innerWidth < 900) closeSidebar();
 }
 
-// ─────────────────────────────────────────────
+// ────────────────────────────────────
 //  SIDEBAR
-// ─────────────────────────────────────────────
+// ────────────────────────────────────
 var sidebar   = document.getElementById('sidebar');
 var overlay   = document.getElementById('overlay');
 var hamburger = document.getElementById('hamburger');
-
 function toggleSidebar() {
   var isOpen = sidebar.classList.toggle('open');
   hamburger.classList.toggle('open', isOpen);
@@ -513,6 +427,97 @@ function closeSidebar() {
   hamburger.classList.remove('open');
   overlay.classList.remove('active');
 }
+
+// ────────────────────────────────────
+//  GINZA AUTH
+// ────────────────────────────────────
+function isAuthed() {
+  return localStorage.getItem(STORAGE_KEY) === '1';
+}
+
+// バッジ表示を認証状態に合わせて更新
+function refreshBadge() {
+  var badge = document.getElementById('ginza-badge');
+  var link  = document.getElementById('ginza-link');
+  if (isAuthed()) {
+    badge.textContent = '銀座店';
+    badge.style.background = 'rgba(192,154,80,0.28)';
+    // アイコンを錠前→建物に切り替え
+    link.querySelector('svg').innerHTML =
+      '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>';
+  } else {
+    badge.textContent = '🔒 限定';
+    badge.style.background = '';
+  }
+}
+refreshBadge();
+
+// 銀座店リンクをクリック
+function ginzaClick(el) {
+  if (isAuthed()) {
+    document.querySelectorAll('#sidebar .nav-link').forEach(function(l) { l.classList.remove('active'); });
+    el.classList.add('active');
+    frame.src = 'ginza.html';
+    if (window.innerWidth < 900) closeSidebar();
+  } else {
+    openPw();
+  }
+}
+
+// ────────────────────────────────────
+//  PASSWORD MODAL
+// ────────────────────────────────────
+var backdrop = document.getElementById('pw-backdrop');
+
+function openPw() {
+  document.getElementById('pw-input').value = '';
+  document.getElementById('pw-err').textContent = '';
+  backdrop.classList.add('show');
+  setTimeout(function() { document.getElementById('pw-input').focus(); }, 160);
+}
+function closePw() {
+  backdrop.classList.remove('show');
+}
+function toggleEye() {
+  var inp = document.getElementById('pw-input');
+  var eye = document.getElementById('pw-eye');
+  if (inp.type === 'password') { inp.type = 'text';     eye.textContent = '🙈'; }
+  else                          { inp.type = 'password'; eye.textContent = '👁'; }
+}
+function submitPw() {
+  var val = document.getElementById('pw-input').value;
+  var err = document.getElementById('pw-err');
+  if (val === GINZA_PW) {
+    localStorage.setItem(STORAGE_KEY, '1');
+    refreshBadge();
+    closePw();
+    // 認証後すぐ銀座ページへ
+    var link = document.getElementById('ginza-link');
+    document.querySelectorAll('#sidebar .nav-link').forEach(function(l) { l.classList.remove('active'); });
+    link.classList.add('active');
+    frame.src = 'ginza.html';
+    if (window.innerWidth < 900) closeSidebar();
+  } else {
+    err.textContent = 'パスワードが正しくありません。';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+    // 揺らすアニメーション
+    var modal = document.getElementById('pw-modal');
+    modal.style.animation = 'none';
+    void modal.offsetWidth; // reflow
+    modal.style.animation = 'shake 0.38s ease';
+  }
+}
+
+// Enterキー対応
+document.getElementById('pw-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter')  submitPw();
+  if (e.key === 'Escape') closePw();
+});
+// 背景クリックで閉じる
+backdrop.addEventListener('click', function(e) {
+  if (e.target === backdrop) closePw();
+});
 
 window.addEventListener('message', function() {});
 </script>
