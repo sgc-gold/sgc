@@ -634,6 +634,111 @@ let gemGridVisible  = true;
 // ══════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════
+//  WIKIPEDIA IMAGE LOADER
+// ══════════════════════════════════════════════════
+const WIKI_PAGE_MAP = {
+  diamond:'Diamond', ruby:'Ruby', sapphire:'Sapphire', emerald:'Emerald',
+  aquamarine:'Aquamarine_(gemstone)', alexandrite:'Alexandrite', amethyst:'Amethyst',
+  ametrine:'Ametrine', andalusite:'Andalusite', apatite:'Apatite', amber:'Amber',
+  axinite:'Axinite', benitoite:'Benitoite', beryl:'Beryl', brazilianite:'Brazilianite',
+  carnelian:'Carnelian', cassiterite:'Cassiterite', cat_eye_chrysoberyl:'Chrysoberyl',
+  chalcedony:'Chalcedony', charoite:'Charoite', chrome_diopside:'Diopside',
+  chrome_tourmaline:'Tourmaline', chrysoberyl:'Chrysoberyl', chrysoprase:'Chrysoprase',
+  citrine:'Citrine_(gemstone)', clinohumite:'Clinohumite', cobaltite:'Cobaltite',
+  conch_pearl:'Conch_pearl', coral:'Coral_(gemstone)', cubic_zirconia_synth:'Cubic_zirconia',
+  cuprite:'Cuprite', danburite:'Danburite', demantoid:'Demantoid',
+  diaspore:'Diaspore_(mineral)', diopside:'Diopside', dumortierite:'Dumortierite',
+  enstatite:'Enstatite', epidote:'Epidote', euclase:'Euclase',
+  fabulite:'Strontium_titanate', feldspar_sunstone:'Sunstone_(gemstone)',
+  fire_agate:'Fire_agate', fire_opal:'Opal', fluorite:'Fluorite',
+  forsterite:'Forsterite', garnet_almandine:'Almandine', garnet_grossular:'Grossular',
+  garnet_hessonite:'Hessonite', garnet_malaia:'Malaia_garnet',
+  garnet_mandarin:'Spessartine', garnet_pyrope:'Pyrope', garnet_rhodolite:'Rhodolite',
+  garnet_spessartite:'Spessartine', garnet_tsavorite:'Tsavorite',
+  garnet_uvarovite:'Uvarovite', gaspeite:'Gaspeite', goshenite:'Goshenite',
+  heliodor:'Heliodor', hematite:'Hematite', hessonite:'Hessonite',
+  hiddenite:'Hiddenite', howlite:'Howlite', hypersthene:'Hypersthene',
+  idocrase:'Vesuvianite', iolite:'Iolite', ivory:'Ivory', jadeite:'Jadeite',
+  jasper:'Jasper', jeremejevite:'Jeremejevite', jet:'Jet_(gemstone)',
+  kornerupine:'Kornerupine', kunzite:'Kunzite', kyanite:'Kyanite',
+  labradorite:'Labradorite', lapis_lazuli:'Lapis_lazuli', larimar:'Larimar',
+  lazulite:'Lazulite', lepidolite:'Lepidolite', malachite:'Malachite',
+  moldavite:'Moldavite', moonstone:'Moonstone_(gemstone)', morganite:'Morganite',
+  musgravite:'Musgravite', nephrite:'Nephrite', obsidian:'Obsidian', onyx:'Onyx',
+  opal_black:'Opal', opal_boulder:'Opal', opal_crystal:'Opal', opal_white:'Opal',
+  orthoclase:'Orthoclase', painite:'Painite', pearl:'Pearl', pearl_mabe:'Pearl',
+  peridot:'Peridot', phenakite:'Phenakite', pietersite:'Pietersite',
+  prasiolite:'Prasiolite', prehnite:'Prehnite', pyrite:'Pyrite',
+  pyromorphite:'Pyromorphite', quartz:'Quartz', rhodochrosite:'Rhodochrosite',
+  rhodolite:'Rhodolite', rhodonite:'Rhodonite', rose_quartz:'Rose_quartz',
+  rubellite:'Tourmaline', rutile:'Rutile', rutilated_quartz:'Rutilated_quartz',
+  sapphire_padparadscha:'Padparadscha', sapphire_star:'Star_sapphire',
+  scapolite:'Scapolite', shell_cameo:'Cameo_(jewelry)', sinhalite:'Sinhalite',
+  smithsonite:'Smithsonite', sodalite:'Sodalite', sphalerite:'Sphalerite',
+  sphene:'Titanite', spinel:'Spinel', spinel_blue:'Spinel', spodumene:'Spodumene',
+  star_ruby:'Star_ruby', staurolite:'Staurolite', sugilite:'Sugilite',
+  sunstone:'Sunstone_(gemstone)', tanzanite:'Tanzanite', tiger_eye:"Tiger's_eye",
+  topaz:'Topaz', topaz_imperial:'Imperial_topaz', tourmaline:'Tourmaline',
+  tourmaline_blue:'Indicolite', tourmaline_green:'Tourmaline',
+  tourmaline_paraiba:'Para%C3%ADba_tourmaline', tourmaline_watermelon:'Watermelon_tourmaline',
+  tremolite:'Tremolite', tsavorite:'Tsavorite', turquoise:'Turquoise',
+  unakite:'Unakite', variscite:'Variscite', vesuvianite:'Vesuvianite',
+  vivianite:'Vivianite_(mineral)', wardite:'Wardite',
+  williamsite:'Serpentine_group', willemite:'Willemite',
+  zircon_blue:'Zircon', zircon_colorless:'Zircon', zircon_orange:'Zircon',
+  zircon_red:'Zircon', zoisite:'Zoisite',
+};
+
+async function loadWikiImages() {
+  const ids = Object.keys(WIKI_PAGE_MAP);
+  const batchSize = 20;
+  for (let i = 0; i < ids.length; i += batchSize) {
+    const batch = ids.slice(i, i + batchSize);
+    const titles = [...new Set(batch.map(id => WIKI_PAGE_MAP[id]))].join('|');
+    try {
+      const url = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(titles)}&prop=pageimages&pithumbsize=320&format=json&origin=*`;
+      const resp = await fetch(url);
+      const data = await resp.json();
+      const pages = data.query.pages;
+      const titleThumb = {};
+      for (const page of Object.values(pages)) {
+        if (page.thumbnail) {
+          titleThumb[page.title.replace(/ /g,'_')] = page.thumbnail.source;
+        }
+      }
+      for (const gemId of batch) {
+        const wikiKey = WIKI_PAGE_MAP[gemId];
+        const thumb = titleThumb[wikiKey] || titleThumb[decodeURIComponent(wikiKey).replace(/ /g,'_')];
+        if (!thumb) continue;
+        const gem = GEMSTONES.find(g => g.id === gemId);
+        if (gem) gem.image_url = thumb;
+        const card = document.querySelector(`.gem-card[data-id="${gemId}"]`);
+        if (card) {
+          const photo = card.querySelector('.gem-photo');
+          const swatch = card.querySelector('.swatch-fallback');
+          let img = photo.querySelector('img');
+          if (!img) {
+            img = document.createElement('img');
+            img.alt = gem ? gem.name_ja : gemId;
+            img.loading = 'lazy';
+            photo.insertBefore(img, swatch);
+          }
+          img.onerror = function() {
+            this.style.display='none';
+            if(swatch) swatch.style.display='flex';
+          };
+          img.onload = function() {
+            this.style.display='';
+            if(swatch) swatch.style.display='none';
+          };
+          img.src = thumb;
+          if (swatch) swatch.style.display = 'none';
+        }
+      }
+    } catch(e) { /* silently ignore network errors */ }
+  }
+}
+
 async function init() {
   // Gemstone data (inline)
   GEMSTONES = GEMSTONES_DATA;
@@ -650,6 +755,9 @@ async function init() {
   buildCutGroups();
   buildDimFields(selectedCutId);
   selectGem(GEMSTONES[0].id, false);
+
+  // Load real images from Wikipedia API (async, non-blocking)
+  loadWikiImages();
 }
 
 // ══════════════════════════════════════════════════
