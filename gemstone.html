@@ -228,7 +228,7 @@ body::before{
 .dim-input:focus{border-color:rgba(192,154,80,.5);box-shadow:0 0 0 3px rgba(192,154,80,.08)}
 
 /* ─── Buttons ─── */
-.btn-row{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:8px}
+.btn-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;margin-top:8px;align-items:end}
 .btn{
   height:56px;display:flex;align-items:center;justify-content:center;gap:8px;
   border:none;border-radius:var(--r);
@@ -249,6 +249,71 @@ body::before{
   transition:background .18s,border-color .18s,color .18s;
 }
 .btn-reset:hover{background:rgba(255,255,255,.09);color:var(--white);border-color:rgba(255,255,255,.2)}
+
+/* ─── Multiplier Drum ─── */
+.multiplier-drum-wrap{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  background:rgba(192,154,80,.06);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:6px 10px 8px;
+  min-width:80px;
+  height:56px;
+  justify-content:center;
+  position:relative;
+  overflow:hidden;
+}
+.multiplier-drum-wrap::before,
+.multiplier-drum-wrap::after{
+  content:'';
+  position:absolute;left:0;right:0;height:14px;z-index:2;pointer-events:none;
+}
+.multiplier-drum-wrap::before{
+  top:0;
+  background:linear-gradient(to bottom, rgba(10,12,11,.9) 0%, transparent 100%);
+}
+.multiplier-drum-wrap::after{
+  bottom:0;
+  background:linear-gradient(to top, rgba(10,12,11,.9) 0%, transparent 100%);
+}
+.drum-label{
+  font-family:'DM Mono',monospace;font-size:.48rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold-dk);line-height:1;margin-bottom:2px;
+}
+.drum-value-row{
+  display:flex;align-items:center;gap:0;
+}
+.drum-btn{
+  background:none;border:none;cursor:pointer;
+  color:var(--gold-dk);padding:0 4px;
+  display:flex;align-items:center;justify-content:center;
+  transition:color .15s,transform .1s;
+  -webkit-tap-highlight-color:transparent;
+  font-size:.7rem;line-height:1;
+}
+.drum-btn:hover{color:var(--gold)}
+.drum-btn:active{transform:scale(.85)}
+
+.drum-viewport{
+  width:48px;height:30px;
+  overflow:hidden;
+  position:relative;
+}
+.drum-track{
+  display:flex;flex-direction:column;
+  transition:transform 0.22s cubic-bezier(0.4,0,0.2,1);
+  will-change:transform;
+}
+.drum-item{
+  height:30px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;font-size:1rem;font-weight:500;
+  color:var(--gold-lt);letter-spacing:.04em;
+  flex-shrink:0;
+  user-select:none;
+}
+.drum-item.dim{color:var(--gold-dk);font-size:.8rem;}
+.drum-item.far-dim{color:rgba(192,154,80,.2);font-size:.65rem;}
 
 /* ─── Result panel ─── */
 .result-panel{
@@ -283,8 +348,8 @@ body::before{
   .gem-grid{grid-template-columns:repeat(auto-fill,minmax(90px,1fr))}
   .cut-grid{grid-template-columns:repeat(4,1fr)}
   .dim-grid{grid-template-columns:1fr 1fr}
-  .btn-row{grid-template-columns:1fr}
-  .btn-reset{width:100%}
+  .btn-row{grid-template-columns:auto 1fr auto}
+  .multiplier-drum-wrap{min-width:72px}
 }
 </style>
 </head>
@@ -346,7 +411,22 @@ body::before{
       寸法入力 · Measurements (mm)
     </div>
     <div class="dim-grid" id="dimGrid"></div>
+
+    <!-- btn-row: multiplier | calc | reset -->
     <div class="btn-row" style="margin-top:14px">
+
+      <!-- Multiplier Drum -->
+      <div class="multiplier-drum-wrap" id="multiplierDrum" title="掛け率">
+        <div class="drum-label">掛け率</div>
+        <div class="drum-value-row">
+          <button class="drum-btn" id="drumDown" aria-label="減らす">&#9650;</button>
+          <div class="drum-viewport" id="drumViewport">
+            <div class="drum-track" id="drumTrack"></div>
+          </div>
+          <button class="drum-btn" id="drumUp" aria-label="増やす">&#9660;</button>
+        </div>
+      </div>
+
       <button class="btn btn-calc" id="calcBtn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
         重量を計算する
@@ -525,9 +605,6 @@ const GEMSTONES_DATA = [
   {"id":"zoisite","name_ja":"ゾイサイト","sg_min":3.1,"sg_max":3.38,"sg_std":3.35,"color_group":"blue","description":"タンザナイトの母石属。緑色のゾイサイトはルビー混入品も","image_url":"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Tanzanite_gem.jpg/320px-Tanzanite_gem.jpg","color_swatch":"linear-gradient(135deg,#1A4A6A,#308AAA,#60C0D8)"}
 ];
 
-// ══════════════════════════════════════════════════
-//  COLOR GROUPS
-// ══════════════════════════════════════════════════
 const COLOR_GROUPS = [
   {id:'all',     label:'すべて',     swatch:'linear-gradient(135deg,#8B1A1A,#1A8B3A,#1A3A8B,#8B8B1A)',emoji:'✦'},
   {id:'red',     label:'赤・ピンク', swatch:'linear-gradient(135deg,#6B0020,#C0392B,#FF6090)',emoji:''},
@@ -543,9 +620,6 @@ const COLOR_GROUPS = [
   {id:'organic', label:'有機・特殊', swatch:'linear-gradient(135deg,#5A3000,#9A5800,#C0A060)',emoji:''},
 ];
 
-// ══════════════════════════════════════════════════
-//  CUT DATA (inline)
-// ══════════════════════════════════════════════════
 const CUTS = [
   {id:'round_brilliant',name_ja:'ラウンド',model:'round',measurement_fields:['d','D'],correction_factor:0.985,group:'facet_round'},
   {id:'oval',name_ja:'オーバル',model:'ellipsoid',measurement_fields:['L','W','D'],correction_factor:0.972,group:'facet_round'},
@@ -595,7 +669,6 @@ const DIM_LABELS = {d:'直径',D:'厚み / 全高',L:'縦（長辺）',W:'横（
 const DIM_DEFAULTS = {d:5,D:3,L:8,W:6,a:5,r:4,h:2,h_half:4,A:50,split_ratio:0.6};
 const DIM_STEPS    = {A:1,split_ratio:0.05};
 
-// Cut SVG icons
 const CUT_SVGS = {
   round_brilliant:`<svg viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="15" stroke="#C09A50" stroke-width="1.2" fill="rgba(192,154,80,.08)"/><circle cx="22" cy="22" r="8" stroke="#C09A50" stroke-width=".7" fill="rgba(192,154,80,.12)"/><line x1="7" y1="22" x2="37" y2="22" stroke="#C09A50" stroke-width=".5" opacity=".4"/><line x1="22" y1="7" x2="22" y2="37" stroke="#C09A50" stroke-width=".5" opacity=".4"/><line x1="11" y1="11" x2="33" y2="33" stroke="#C09A50" stroke-width=".5" opacity=".35"/><line x1="33" y1="11" x2="11" y2="33" stroke="#C09A50" stroke-width=".5" opacity=".35"/></svg>`,
   oval:`<svg viewBox="0 0 44 44" fill="none"><ellipse cx="22" cy="22" rx="15" ry="11" stroke="#C09A50" stroke-width="1.2" fill="rgba(192,154,80,.08)"/><ellipse cx="22" cy="22" rx="8" ry="5" stroke="#C09A50" stroke-width=".7" fill="rgba(192,154,80,.12)"/><line x1="7" y1="22" x2="37" y2="22" stroke="#C09A50" stroke-width=".5" opacity=".4"/><line x1="22" y1="11" x2="22" y2="33" stroke="#C09A50" stroke-width=".5" opacity=".4"/></svg>`,
@@ -631,166 +704,137 @@ let selectedCutId   = CUTS[0].id;
 let activeGroup     = 'all';
 let gemGridVisible  = true;
 
-// ══════════════════════════════════════════════════
-//  GEMSTONE IMAGE LOADER
-//  Uses Wikimedia Commons "Faceted XXX" categories
-//  to guarantee cut/polished gemstone photos
-// ══════════════════════════════════════════════════
+// ── Multiplier Drum State ──
+const MULTIPLIER_VALUES = [1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0];
+let drumIndex = 0; // index 0 = 1.0
 
-// Commons category name for each gem (prioritises "Faceted XXX" categories)
+function getMultiplier() {
+  return MULTIPLIER_VALUES[drumIndex];
+}
+
+function buildDrum() {
+  const track = document.getElementById('drumTrack');
+  track.innerHTML = '';
+  MULTIPLIER_VALUES.forEach((v,i) => {
+    const item = document.createElement('div');
+    item.className = 'drum-item';
+    item.dataset.index = i;
+    item.textContent = v.toFixed(1);
+    track.appendChild(item);
+  });
+  updateDrum(false);
+}
+
+function updateDrum(animate) {
+  const track = document.getElementById('drumTrack');
+  const ITEM_H = 30;
+  if (!animate) {
+    track.style.transition = 'none';
+  } else {
+    track.style.transition = 'transform 0.22s cubic-bezier(0.4,0,0.2,1)';
+  }
+  track.style.transform = `translateY(${-drumIndex * ITEM_H}px)`;
+
+  // Style items by distance from center
+  track.querySelectorAll('.drum-item').forEach((item, i) => {
+    const dist = Math.abs(i - drumIndex);
+    item.className = 'drum-item';
+    if (dist === 1) item.classList.add('dim');
+    if (dist >= 2) item.classList.add('far-dim');
+  });
+}
+
+function drumStep(dir) {
+  // dir: -1 = decrease (up arrow = lower value), +1 = increase (down arrow = higher value)
+  const next = drumIndex + dir;
+  if (next < 0 || next >= MULTIPLIER_VALUES.length) return;
+  drumIndex = next;
+  updateDrum(true);
+}
+
+// Touch / swipe support for drum
+function initDrumTouch() {
+  const viewport = document.getElementById('drumViewport');
+  let startY = 0;
+  let isDragging = false;
+
+  viewport.addEventListener('touchstart', e => {
+    startY = e.touches[0].clientY;
+    isDragging = true;
+  }, {passive:true});
+
+  viewport.addEventListener('touchmove', e => {
+    if (!isDragging) return;
+    e.preventDefault();
+  }, {passive:false});
+
+  viewport.addEventListener('touchend', e => {
+    if (!isDragging) return;
+    isDragging = false;
+    const dy = startY - e.changedTouches[0].clientY;
+    if (Math.abs(dy) > 10) {
+      drumStep(dy > 0 ? 1 : -1);
+    }
+  }, {passive:true});
+
+  // Mouse wheel
+  viewport.addEventListener('wheel', e => {
+    e.preventDefault();
+    drumStep(e.deltaY > 0 ? 1 : -1);
+  }, {passive:false});
+}
+
+// ══════════════════════════════════════════════════
+//  Wikimedia image loading
+// ══════════════════════════════════════════════════
 const GEM_COMMONS_CATEGORIES = {
-  diamond:              'Faceted diamonds',
-  ruby:                 'Faceted rubies',
-  sapphire:             'Faceted sapphires',
-  emerald:              'Faceted emeralds',
-  aquamarine:           'Faceted aquamarines',
-  alexandrite:          'Alexandrite',
-  amethyst:             'Faceted amethysts',
-  ametrine:             'Ametrine',
-  andalusite:           'Andalusite',
-  apatite:              'Apatite',
-  amber:                'Amber gemstones',
-  axinite:              'Axinite',
-  benitoite:            'Benitoite',
-  beryl:                'Beryl',
-  brazilianite:         'Brazilianite',
-  carnelian:            'Carnelian',
-  cassiterite:          'Cassiterite',
-  cat_eye_chrysoberyl:  'Chrysoberyl',
-  chalcedony:           'Chalcedony',
-  charoite:             'Charoite',
-  chrome_diopside:      'Diopside',
-  chrome_tourmaline:    'Tourmaline',
-  chrysoberyl:          'Chrysoberyl',
-  chrysoprase:          'Chrysoprase',
-  citrine:              'Faceted citrines',
-  clinohumite:          'Clinohumite',
-  cobaltite:            'Cobaltite',
-  conch_pearl:          'Conch pearls',
-  coral:                'Coral gemstones',
-  cubic_zirconia_synth: 'Cubic zirconia',
-  cuprite:              'Cuprite',
-  danburite:            'Danburite',
-  demantoid:            'Demantoid',
-  diaspore:             'Diaspore',
-  diopside:             'Diopside',
-  dumortierite:         'Dumortierite',
-  enstatite:            'Enstatite',
-  epidote:              'Epidote',
-  euclase:              'Euclase',
-  fabulite:             'Cubic zirconia',
-  feldspar_sunstone:    'Sunstone',
-  fire_agate:           'Fire agate',
-  fire_opal:            'Fire opals',
-  fluorite:             'Fluorite',
-  forsterite:           'Forsterite',
-  garnet_almandine:     'Almandine',
-  garnet_grossular:     'Grossular',
-  garnet_hessonite:     'Hessonite',
-  garnet_malaia:        'Malaia garnet',
-  garnet_mandarin:      'Spessartine',
-  garnet_pyrope:        'Pyrope',
-  garnet_rhodolite:     'Rhodolite',
-  garnet_spessartite:   'Spessartine',
-  garnet_tsavorite:     'Tsavorite',
-  garnet_uvarovite:     'Uvarovite',
-  gaspeite:             'Gaspeite',
-  goshenite:            'Goshenite',
-  heliodor:             'Heliodor',
-  hematite:             'Hematite',
-  hessonite:            'Hessonite',
-  hiddenite:            'Hiddenite',
-  howlite:              'Howlite',
-  hypersthene:          'Hypersthene',
-  idocrase:             'Vesuvianite',
-  iolite:               'Iolite',
-  ivory:                'Ivory',
-  jadeite:              'Jadeite',
-  jasper:               'Jasper',
-  jeremejevite:         'Jeremejevite',
-  jet:                  'Jet gemstone',
-  kornerupine:          'Kornerupine',
-  kunzite:              'Kunzite',
-  kyanite:              'Kyanite',
-  labradorite:          'Labradorite',
-  lapis_lazuli:         'Lapis lazuli',
-  larimar:              'Larimar',
-  lazulite:             'Lazulite',
-  lepidolite:           'Lepidolite',
-  malachite:            'Malachite',
-  moldavite:            'Moldavite',
-  moonstone:            'Moonstone',
-  morganite:            'Morganite',
-  musgravite:           'Musgravite',
-  nephrite:             'Nephrite',
-  obsidian:             'Obsidian',
-  onyx:                 'Onyx',
-  opal_black:           'Black opals',
-  opal_boulder:         'Boulder opals',
-  opal_crystal:         'Crystal opals',
-  opal_white:           'White opals',
-  orthoclase:           'Orthoclase',
-  painite:              'Painite',
-  pearl:                'Pearls',
-  pearl_mabe:           'Mabé pearls',
-  peridot:              'Faceted peridots',
-  phenakite:            'Phenakite',
-  pietersite:           'Pietersite',
-  prasiolite:           'Prasiolite',
-  prehnite:             'Prehnite',
-  pyrite:               'Pyrite',
-  pyromorphite:         'Pyromorphite',
-  quartz:               'Quartz gemstones',
-  rhodochrosite:        'Rhodochrosite',
-  rhodolite:            'Rhodolite',
-  rhodonite:            'Rhodonite',
-  rose_quartz:          'Rose quartz',
-  rubellite:            'Rubellite',
-  rutile:               'Rutile',
-  rutilated_quartz:     'Rutilated quartz',
-  sapphire_padparadscha:'Padparadscha',
-  sapphire_star:        'Star sapphires',
-  scapolite:            'Scapolite',
-  shell_cameo:          'Cameos',
-  sinhalite:            'Sinhalite',
-  smithsonite:          'Smithsonite',
-  sodalite:             'Sodalite',
-  sphalerite:           'Sphalerite',
-  sphene:               'Titanite',
-  spinel:               'Faceted spinels',
-  spinel_blue:          'Faceted spinels',
-  spodumene:            'Spodumene',
-  star_ruby:            'Star rubies',
-  staurolite:           'Staurolite',
-  sugilite:             'Sugilite',
-  sunstone:             'Sunstone',
-  tanzanite:            'Tanzanite',
-  tiger_eye:            'Tiger eye',
-  topaz:                'Faceted topazes',
-  topaz_imperial:       'Faceted topazes',
-  tourmaline:           'Faceted tourmalines',
-  tourmaline_blue:      'Indicolite',
-  tourmaline_green:     'Faceted tourmalines',
-  tourmaline_paraiba:   'Paraíba tourmaline',
-  tourmaline_watermelon:'Watermelon tourmaline',
-  tremolite:            'Tremolite',
-  tsavorite:            'Tsavorite',
-  turquoise:            'Turquoise',
-  unakite:              'Unakite',
-  variscite:            'Variscite',
-  vesuvianite:          'Vesuvianite',
-  vivianite:            'Vivianite',
-  wardite:              'Wardite',
-  williamsite:          'Serpentine group',
-  willemite:            'Willemite',
-  zircon_blue:          'Faceted zircons',
-  zircon_colorless:     'Faceted zircons',
-  zircon_orange:        'Faceted zircons',
-  zircon_red:           'Faceted zircons',
-  zoisite:              'Tanzanite',
+  diamond:'Faceted diamonds',ruby:'Faceted rubies',sapphire:'Faceted sapphires',
+  emerald:'Faceted emeralds',aquamarine:'Faceted aquamarines',alexandrite:'Alexandrite',
+  amethyst:'Faceted amethysts',ametrine:'Ametrine',andalusite:'Andalusite',
+  apatite:'Apatite',amber:'Amber gemstones',axinite:'Axinite',benitoite:'Benitoite',
+  beryl:'Beryl',brazilianite:'Brazilianite',carnelian:'Carnelian',cassiterite:'Cassiterite',
+  cat_eye_chrysoberyl:'Chrysoberyl',chalcedony:'Chalcedony',charoite:'Charoite',
+  chrome_diopside:'Diopside',chrome_tourmaline:'Tourmaline',chrysoberyl:'Chrysoberyl',
+  chrysoprase:'Chrysoprase',citrine:'Faceted citrines',clinohumite:'Clinohumite',
+  cobaltite:'Cobaltite',conch_pearl:'Conch pearls',coral:'Coral gemstones',
+  cubic_zirconia_synth:'Cubic zirconia',cuprite:'Cuprite',danburite:'Danburite',
+  demantoid:'Demantoid',diaspore:'Diaspore',diopside:'Diopside',dumortierite:'Dumortierite',
+  enstatite:'Enstatite',epidote:'Epidote',euclase:'Euclase',fabulite:'Cubic zirconia',
+  feldspar_sunstone:'Sunstone',fire_agate:'Fire agate',fire_opal:'Fire opals',
+  fluorite:'Fluorite',forsterite:'Forsterite',garnet_almandine:'Almandine',
+  garnet_grossular:'Grossular',garnet_hessonite:'Hessonite',garnet_malaia:'Malaia garnet',
+  garnet_mandarin:'Spessartine',garnet_pyrope:'Pyrope',garnet_rhodolite:'Rhodolite',
+  garnet_spessartite:'Spessartine',garnet_tsavorite:'Tsavorite',garnet_uvarovite:'Uvarovite',
+  gaspeite:'Gaspeite',goshenite:'Goshenite',heliodor:'Heliodor',hematite:'Hematite',
+  hessonite:'Hessonite',hiddenite:'Hiddenite',howlite:'Howlite',hypersthene:'Hypersthene',
+  idocrase:'Vesuvianite',iolite:'Iolite',ivory:'Ivory',jadeite:'Jadeite',jasper:'Jasper',
+  jeremejevite:'Jeremejevite',jet:'Jet gemstone',kornerupine:'Kornerupine',kunzite:'Kunzite',
+  kyanite:'Kyanite',labradorite:'Labradorite',lapis_lazuli:'Lapis lazuli',larimar:'Larimar',
+  lazulite:'Lazulite',lepidolite:'Lepidolite',malachite:'Malachite',moldavite:'Moldavite',
+  moonstone:'Moonstone',morganite:'Morganite',musgravite:'Musgravite',nephrite:'Nephrite',
+  obsidian:'Obsidian',onyx:'Onyx',opal_black:'Black opals',opal_boulder:'Boulder opals',
+  opal_crystal:'Crystal opals',opal_white:'White opals',orthoclase:'Orthoclase',
+  painite:'Painite',pearl:'Pearls',pearl_mabe:'Mabé pearls',peridot:'Faceted peridots',
+  phenakite:'Phenakite',pietersite:'Pietersite',prasiolite:'Prasiolite',prehnite:'Prehnite',
+  pyrite:'Pyrite',pyromorphite:'Pyromorphite',quartz:'Quartz gemstones',
+  rhodochrosite:'Rhodochrosite',rhodolite:'Rhodolite',rhodonite:'Rhodonite',
+  rose_quartz:'Rose quartz',rubellite:'Rubellite',rutile:'Rutile',
+  rutilated_quartz:'Rutilated quartz',sapphire_padparadscha:'Padparadscha',
+  sapphire_star:'Star sapphires',scapolite:'Scapolite',shell_cameo:'Cameos',
+  sinhalite:'Sinhalite',smithsonite:'Smithsonite',sodalite:'Sodalite',
+  sphalerite:'Sphalerite',sphene:'Titanite',spinel:'Faceted spinels',
+  spinel_blue:'Faceted spinels',spodumene:'Spodumene',star_ruby:'Star rubies',
+  staurolite:'Staurolite',sugilite:'Sugilite',sunstone:'Sunstone',tanzanite:'Tanzanite',
+  tiger_eye:'Tiger eye',topaz:'Faceted topazes',topaz_imperial:'Faceted topazes',
+  tourmaline:'Faceted tourmalines',tourmaline_blue:'Indicolite',
+  tourmaline_green:'Faceted tourmalines',tourmaline_paraiba:'Paraíba tourmaline',
+  tourmaline_watermelon:'Watermelon tourmaline',tremolite:'Tremolite',tsavorite:'Tsavorite',
+  turquoise:'Turquoise',unakite:'Unakite',variscite:'Variscite',vesuvianite:'Vesuvianite',
+  vivianite:'Vivianite',wardite:'Wardite',williamsite:'Serpentine group',willemite:'Willemite',
+  zircon_blue:'Faceted zircons',zircon_colorless:'Faceted zircons',
+  zircon_orange:'Faceted zircons',zircon_red:'Faceted zircons',zoisite:'Tanzanite',
 };
 
-// Cache to avoid duplicate API calls for shared categories
 const _catCache = {};
 
 async function fetchCategoryImage(category) {
@@ -800,12 +844,9 @@ async function fetchCategoryImage(category) {
     const resp = await fetch(url);
     const data = await resp.json();
     const members = data?.query?.categorymembers || [];
-    // Filter for jpg/jpeg/png images (skip svg, gif, tif)
     const imgFiles = members.filter(m => /\.(jpg|jpeg|png)$/i.test(m.title));
     if (!imgFiles.length) { _catCache[category] = null; return null; }
-    // Pick a stable first image
     const chosen = imgFiles[0].title.replace('File:', '');
-    // Get thumbnail URL via imageinfo API
     const infoUrl = `https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(chosen)}&prop=imageinfo&iiprop=url&iiurlwidth=320&format=json&origin=*`;
     const infoResp = await fetch(infoUrl);
     const infoData = await infoResp.json();
@@ -823,7 +864,6 @@ async function fetchCategoryImage(category) {
 function setGemImage(gemId, url) {
   const gem = GEMSTONES.find(g => g.id === gemId);
   if (gem) gem.image_url = url;
-  // Update card
   const card = document.querySelector(`.gem-card[data-id="${gemId}"]`);
   if (card) {
     const photo = card.querySelector('.gem-photo');
@@ -835,30 +875,19 @@ function setGemImage(gemId, url) {
       img.loading = 'lazy';
       photo.insertBefore(img, swatch);
     }
-    img.onerror = function() {
-      this.style.display = 'none';
-      if (swatch) swatch.style.display = 'flex';
-    };
-    img.onload = function() {
-      this.style.display = '';
-      if (swatch) swatch.style.display = 'none';
-    };
+    img.onerror = function() { this.style.display='none'; if(swatch)swatch.style.display='flex'; };
+    img.onload  = function() { this.style.display=''; if(swatch)swatch.style.display='none'; };
     if (swatch) swatch.style.display = 'none';
     img.src = url;
   }
-  // Update banner thumb if this gem is currently selected
   if (gemId === selectedGemId) {
     const thumb = document.getElementById('bannerThumb');
-    if (thumb) {
-      const bImg = thumb.querySelector('img');
-      if (bImg) bImg.src = url;
-    }
+    if (thumb) { const bImg = thumb.querySelector('img'); if(bImg) bImg.src = url; }
   }
 }
 
 async function loadGemImages() {
   const ids = Object.keys(GEM_COMMONS_CATEGORIES);
-  // Process in small concurrent batches
   const BATCH = 5;
   for (let i = 0; i < ids.length; i += BATCH) {
     const batch = ids.slice(i, i + BATCH);
@@ -874,10 +903,7 @@ async function loadGemImages() {
 //  INIT
 // ══════════════════════════════════════════════════
 async function init() {
-  // Gemstone data (inline)
   GEMSTONES = GEMSTONES_DATA;
-
-  // Load calibrations.json (optional, from GitHub Pages or local)
   try {
     const r = await fetch('./data/calibrations.json');
     const d = await r.json();
@@ -890,7 +916,12 @@ async function init() {
   buildDimFields(selectedCutId);
   selectGem(GEMSTONES[0].id, false);
 
-  // Load real faceted-gemstone photos from Wikimedia Commons (async)
+  buildDrum();
+  initDrumTouch();
+
+  document.getElementById('drumDown').addEventListener('click', () => drumStep(-1));
+  document.getElementById('drumUp').addEventListener('click',   () => drumStep(+1));
+
   loadGemImages();
 }
 
@@ -903,9 +934,7 @@ function buildColorTiles() {
     const tile = document.createElement('div');
     tile.className = 'color-tile' + (g.id === 'all' ? ' active' : '');
     tile.dataset.group = g.id;
-    tile.innerHTML = `
-      <div class="tile-swatch" style="background:${g.swatch}"></div>
-      <div class="tile-label">${g.label}</div>`;
+    tile.innerHTML = `<div class="tile-swatch" style="background:${g.swatch}"></div><div class="tile-label">${g.label}</div>`;
     tile.addEventListener('click', () => filterByGroup(g.id));
     wrap.appendChild(tile);
   });
@@ -927,26 +956,21 @@ function isKatakana(s) { return /^[\u30A0-\u30FF]/.test(s); }
 function buildGemGrid() {
   const grid = document.getElementById('gemGrid');
   grid.innerHTML = '';
-
   const sorted = [...GEMSTONES].sort((a,b) => {
     const ak = isKatakana(a.name_ja), bk = isKatakana(b.name_ja);
     if(ak && !bk) return -1; if(!ak && bk) return 1;
     return a.name_ja.localeCompare(b.name_ja, 'ja');
   });
-
   sorted.forEach(g => {
     const card = document.createElement('div');
     card.className = 'gem-card';
     card.dataset.id = g.id;
     card.dataset.group = g.color_group || 'multi';
     card.dataset.name = g.name_ja;
-
     const hasImg = !!g.image_url;
     card.innerHTML = `
       <div class="gem-photo">
-        ${hasImg
-          ? `<img src="${g.image_url}" alt="${g.name_ja}" loading="lazy" onerror="this.style.display='none';this.parentNode.querySelector('.swatch-fallback').style.display='flex'">`
-          : ''}
+        ${hasImg ? `<img src="${g.image_url}" alt="${g.name_ja}" loading="lazy" onerror="this.style.display='none';this.parentNode.querySelector('.swatch-fallback').style.display='flex'">` : ''}
         <div class="swatch-fallback" style="background:${g.color_swatch||'#333'};${hasImg?'display:none':''}">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"><path d="M12 2L2 9l10 13 10-13-10-7z"/></svg>
         </div>
@@ -963,9 +987,7 @@ function buildGemGrid() {
 function filterGems() {
   const q = document.getElementById('searchInput').value.trim();
   const grid = document.getElementById('gemGrid');
-  const isSearch = q.length > 0;
-  grid.classList.toggle('search-mode', isSearch);
-
+  grid.classList.toggle('search-mode', q.length > 0);
   document.querySelectorAll('.gem-card').forEach(card => {
     const matchGroup = activeGroup === 'all' || card.dataset.group === activeGroup;
     const matchName  = !q || card.dataset.name.includes(q);
@@ -977,14 +999,9 @@ function selectGem(gemId, showBanner) {
   selectedGemId = gemId;
   const g = GEMSTONES.find(x => x.id === gemId);
   if(!g) return;
-
-  // Highlight card
   document.querySelectorAll('.gem-card').forEach(c =>
     c.classList.toggle('active', c.dataset.id === gemId));
-
-  if(showBanner) {
-    showGemBanner(g);
-  }
+  if(showBanner) showGemBanner(g);
 }
 
 function showGemBanner(g) {
@@ -992,29 +1009,20 @@ function showGemBanner(g) {
   document.getElementById('gemGrid').style.display = 'none';
   document.getElementById('colorTiles').style.display = 'none';
   document.getElementById('searchInput').closest('.search-wrap').style.display = 'none';
-
   const banner = document.getElementById('gemBanner');
   banner.classList.add('show');
-
-  // Thumb image in banner
   const thumb = document.getElementById('bannerThumb');
   thumb.innerHTML = '';
   if(g.image_url) {
     const img = document.createElement('img');
-    img.src = g.image_url;
-    img.alt = g.name_ja;
+    img.src = g.image_url; img.alt = g.name_ja;
     img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:8px';
-    img.onerror = () => {
-      thumb.innerHTML = '';
-      thumb.style.background = g.color_swatch || '#333';
-      thumb.style.borderRadius = '8px';
-    };
+    img.onerror = () => { thumb.innerHTML=''; thumb.style.background=g.color_swatch||'#333'; thumb.style.borderRadius='8px'; };
     thumb.appendChild(img);
   } else {
     thumb.style.background = g.color_swatch || '#333';
     thumb.style.borderRadius = '8px';
   }
-
   document.getElementById('bannerName').textContent = g.name_ja;
   document.getElementById('bannerDesc').textContent = g.description || '';
   document.getElementById('bannerSg').textContent   = `比重 SG: ${g.sg_std}  (${g.sg_min} – ${g.sg_max})`;
@@ -1071,7 +1079,6 @@ function buildDimFields(cutId) {
   const cut  = CUTS.find(c => c.id === cutId);
   const grid = document.getElementById('dimGrid');
   grid.innerHTML = '';
-
   cut.measurement_fields.forEach(f => {
     const wrap = document.createElement('div');
     wrap.className = 'dim-field';
@@ -1097,8 +1104,7 @@ function calculate() {
   const stone = GEMSTONES.find(s => s.id === selectedGemId);
   const cut   = CUTS.find(c => c.id === selectedCutId);
   const fn    = MODELS[cut.model];
-
-  const args = cut.measurement_fields.map(f => {
+  const args  = cut.measurement_fields.map(f => {
     const v = parseFloat(document.getElementById('dim_'+f)?.value);
     return isNaN(v) ? (DIM_DEFAULTS[f] || 0) : v;
   });
@@ -1115,11 +1121,17 @@ function calculate() {
     calibApplied = true;
   }
 
+  // Apply multiplier
+  const multiplier = getMultiplier();
+  massG *= multiplier;
+
   const massCt = massG / 0.2;
   document.getElementById('resultG').textContent  = massG.toFixed(3);
   document.getElementById('resultCt').textContent = massCt.toFixed(3);
+
+  const multNote = multiplier !== 1.0 ? `　×${multiplier.toFixed(1)}` : '';
   document.getElementById('resultGemName').textContent =
-    `${stone.name_ja}　/　${cut.name_ja.replace('\n',' ')}`;
+    `${stone.name_ja}　/　${cut.name_ja.replace('\n',' ')}${multNote}`;
   document.getElementById('calibNote').textContent = calibApplied
     ? '▸ 実測補正データ適用済み'
     : '▸ 標準モデル値（補正データなし）';
@@ -1135,6 +1147,8 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   filterByGroup('all');
   selectGem(GEMSTONES[0]?.id, false);
   selectCut(CUTS[0].id);
+  drumIndex = 0;
+  updateDrum(true);
   document.getElementById('resultG').textContent  = '0.000';
   document.getElementById('resultCt').textContent = '0.000';
   document.getElementById('resultGemName').textContent = '';
@@ -1143,7 +1157,6 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   document.getElementById('searchInput').value = '';
 });
 
-// Search
 document.getElementById('searchInput').addEventListener('input', () => {
   const q = document.getElementById('searchInput').value;
   if(q) {
@@ -1154,7 +1167,6 @@ document.getElementById('searchInput').addEventListener('input', () => {
   filterGems();
 });
 
-// Height notify
 function notifyHeight(){parent.postMessage({type:'resize-iframe',height:document.body.scrollHeight},'*')}
 window.addEventListener('load',notifyHeight);
 window.addEventListener('resize',notifyHeight);
