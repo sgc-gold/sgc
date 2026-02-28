@@ -703,7 +703,7 @@ function buildGemGrid() {
     card.innerHTML = `
       <div class="gem-photo">
         ${hasImg
-          ? `<img src="${g.image_url}" alt="${g.name_ja}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+          ? `<img src="${g.image_url}" alt="${g.name_ja}" loading="lazy" onerror="this.style.display='none';this.parentNode.querySelector('.swatch-fallback').style.display='flex'">`
           : ''}
         <div class="swatch-fallback" style="background:${g.color_swatch||'#333'};${hasImg?'display:none':''}">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"><path d="M12 2L2 9l10 13 10-13-10-7z"/></svg>
