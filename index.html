@@ -819,6 +819,11 @@ window.addEventListener('message', function(e) {
     // ginza_shift.htmlからginza.htmlへ戻る
     frame.src = BASE + '?page=ginza';
   }
+  if (e.data.type === 'logout') {
+    localStorage.removeItem(STORAGE_KEY);
+    refreshBadge();
+    frame.src = 'main.html';
+  }  
 });
 </script>
 </body>
