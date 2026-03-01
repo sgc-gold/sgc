@@ -808,6 +808,20 @@ backdrop.addEventListener('click', function(e) {
 })();
 
 window.addEventListener('message', function() {});
+
+// GAS子ページからのメッセージを受け取る
+window.addEventListener('message', function(e) {
+  var iframe = document.getElementById('ここにiframeのid');
+  
+  if (e.data && e.data.type === 'go-page') {
+    // サブページへ
+    iframe.src = 'https://script.google.com/macros/s/AKfycbyf2YPwoPW7dM6OMrK9OyxCJkGXeAa883HcQe6Atz982MHyqF8iobXqGSGFjULebLRp/exec?page=' + e.data.page;
+  }
+  if (e.data && e.data.type === 'go-back') {
+    // トップに戻る
+    iframe.src = 'https://script.google.com/macros/s/AKfycbyf2YPwoPW7dM6OMrK9OyxCJkGXeAa883HcQe6Atz982MHyqF8iobXqGSGFjULebLRp/exec?page=ginza';
+  }
+});  
 </script>
 </body>
 </html>
