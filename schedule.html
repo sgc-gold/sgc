@@ -280,16 +280,12 @@ body::before {
   background: linear-gradient(90deg, #1a0d00, #8A6A28, #C09A50) !important;
   color: #fff !important;
 }
-.category-クルーズ {
-  background: linear-gradient(90deg, #002244, #005b99, #3399cc) !important;
-  color: #fff !important;
-}
-.category-特別催事 {
+.category-ミニ催事 {
   background: linear-gradient(90deg, #2d0a00, #8b2500, #d45500) !important;
   color: #fff !important;
 }
-.category-出張販売 {
-  background: linear-gradient(90deg, #012a10, #1a6b35, #2e9e55) !important;
+.category-その他 {
+  background: linear-gradient(90deg, #1a1a2e, #4a3f6b, #7b6fa0) !important;
   color: #fff !important;
 }
 
@@ -354,9 +350,8 @@ body::before {
   text-transform: uppercase;
 }
 .badge-大黄金展  { background: rgba(192,154,80,0.2); color: var(--gold-lt); border: 1px solid rgba(192,154,80,0.35); }
-.badge-クルーズ  { background: rgba(0,100,180,0.2);  color: #7ac8f0;        border: 1px solid rgba(0,140,220,0.35); }
-.badge-特別催事  { background: rgba(180,60,0,0.2);   color: #f0a070;        border: 1px solid rgba(220,80,0,0.35); }
-.badge-出張販売  { background: rgba(0,120,60,0.2);   color: #70e0a0;        border: 1px solid rgba(0,160,80,0.35); }
+.badge-ミニ催事  { background: rgba(180,60,0,0.2);   color: #f0a070;        border: 1px solid rgba(220,80,0,0.35); }
+.badge-その他    { background: rgba(100,80,160,0.2);  color: #c0b0e8;        border: 1px solid rgba(130,110,200,0.35); }
 
 .drawer-title {
   font-family: 'Shippori Mincho', serif;
@@ -452,9 +447,8 @@ body::before {
 <!-- Legend -->
 <div class="legend-bar">
   <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(90deg,#8A6A28,#C09A50)"></div>大黄金展</div>
-  <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(90deg,#005b99,#3399cc)"></div>クルーズ</div>
-  <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(90deg,#8b2500,#d45500)"></div>特別催事</div>
-  <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(90deg,#1a6b35,#2e9e55)"></div>出張販売</div>
+  <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(90deg,#8b2500,#d45500)"></div>ミニ催事</div>
+  <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(90deg,#4a3f6b,#7b6fa0)"></div>その他</div>
 </div>
 
 <!-- Calendar -->
@@ -498,26 +492,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   const res = await fetch("./data/exhibition.json");
   const exhibitions = await res.json();
 
-  const events = exhibitions.map(e => {
-    const endDate = e.end ? (() => {
-      const d = new Date(e.end);
-      d.setDate(d.getDate() + 1);
-      return d.toISOString().split("T")[0];
-    })() : undefined;
+  // カテゴリのフィルタリング：クルーズ・出張販売を除外
+  const excluded = ["クルーズ", "出張販売"];
 
-    return {
-      title: e.title,
-      start: e.start,
-      end:   endDate,
-      extendedProps: {
-        location: e.location || "",
-        note:     e.note     || "",
-        category: e.category || "",
-        endOrig:  e.end      || ""
-      },
-      classNames: [`category-${e.category}`]
-    };
-  });
+  const events = exhibitions
+    .filter(e => !excluded.includes(e.category))
+    .map(e => {
+      // 特別催事 → ミニ催事 に変換
+      const category = e.category === "特別催事" ? "ミニ催事" : e.category;
+
+      const endDate = e.end ? (() => {
+        const d = new Date(e.end);
+        d.setDate(d.getDate() + 1);
+        return d.toISOString().split("T")[0];
+      })() : undefined;
+
+      return {
+        title: e.title,
+        start: e.start,
+        end:   endDate,
+        extendedProps: {
+          location: e.location || "",
+          note:     e.note     || "",
+          category: category,
+          endOrig:  e.end      || ""
+        },
+        classNames: [`category-${category}`]
+      };
+    });
 
   // ─── Calendar ───
   const calendarEl = document.getElementById("calendar");
