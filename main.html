@@ -68,7 +68,7 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 .price-band-title {
   font-family: 'Shippori Mincho', serif;
@@ -96,6 +96,12 @@ body::before {
   border-color: rgba(192,154,80,0.6);
 }
 .price-detail-link svg { width: 11px; height: 11px; }
+
+.sgc-link {
+  border-color: rgba(192,154,80,0.5);
+  color: var(--gold-lt);
+  margin-bottom: 14px;
+}
 
 .price-row {
   display: grid;
@@ -140,7 +146,6 @@ body::before {
 .negative { background: rgba(26,90,154,0.2);  color: #7ab0f0; }
 .price-item-diff.loading { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.25); font-size: 0.7rem; }
 
-/* Update time — more readable */
 .price-update {
   display: flex;
   align-items: center;
@@ -310,6 +315,12 @@ body::before {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
     </div>
+
+    <a class="price-detail-link sgc-link" href="#" onclick="openFrame(event,'https://script.google.com/macros/s/AKfycbyoZvlzgcQrVdYI2JCgJBHaZ11BYASFME91VkWhc5sriiI8Sr2CqJpVV8mGzyXb6XCW/exec')">
+      💎 SGC 買取価格はこちら
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+
     <div class="price-row">
       <div class="price-item">
         <div class="price-item-left">
@@ -379,6 +390,9 @@ body::before {
 <div class="section-wrap">
   <div class="section-label">更新履歴</div>
   <div class="update-list">
+    <div class="update-item"><span class="update-date">2026/3/1</span><span class="update-text">SGC買取価格ページ 公開</span></div>
+    <div class="update-item"><span class="update-date">2026/2/28</span><span class="update-text">デザインリニューアル</span></div>
+    <div class="update-item"><span class="update-date">2026/2/28</span><span class="update-text">色石重量検索ページ 公開</span></div>
     <div class="update-item"><span class="update-date">2025/10/13</span><span class="update-text">ダイヤ市場相場検索ページ 公開</span></div>
     <div class="update-item"><span class="update-date">2025/10/13</span><span class="update-text">IG買取分割確認ページ 公開</span></div>
     <div class="update-item"><span class="update-date">2025/10/01</span><span class="update-text">記念金貨買取価格ページ 公開</span></div>
