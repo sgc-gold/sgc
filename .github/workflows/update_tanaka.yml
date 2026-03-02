@@ -2,7 +2,7 @@ name: Check and Update Tanaka
 on:
   workflow_dispatch:
   repository_dispatch:
-    types: [CONTAINER_UPDATE]
+    types: [Check and Update Tanaka]
 jobs:
   check-and-update:
     runs-on: ubuntu-latest
