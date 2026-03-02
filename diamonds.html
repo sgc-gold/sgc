@@ -4,1784 +4,2057 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ダイヤ相場検索</title>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-/* =======================
-   基本スタイル
-======================= */
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Variables ── */
+:root {
+  --green:     #1A3628;
+  --green-lt:  #254D38;
+  --green-dk:  #0E1F17;
+  --gold:      #C09A50;
+  --gold-lt:   #E8D49A;
+  --gold-dk:   #8A6A28;
+  --cream:     #F7F3EB;
+  --cream-dk:  #EDE6D8;
+  --white:     #FFFFFF;
+  --ink:       #1C1A16;
+  --ink-soft:  #5A5448;
+  --border:    rgba(192,154,80,0.18);
+  --border-ui: #D8D2C8;
+  --shadow:    0 4px 24px rgba(28,26,22,0.09);
+  --radius:    10px;
+  --focus:     rgba(192,154,80,0.35);
+  --up:        #B52929;
+  --dn:        #1A5A9A;
+}
+
+html { background: var(--cream); height: 100%; }
 body {
-  margin:0; padding:0;
-  font-family:'Noto Sans JP', sans-serif;
-  background: linear-gradient(180deg, #fdfdfd 0%, #f7f6f3 100%);
-  color: #1b2b2b;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  overflow-y: auto;
+  overflow-x: hidden;
+  font-size: 13px;
+  line-height: 1.6;
+  padding-bottom: 60px;
+}
+body::before {
+  content: ''; position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.4;
 }
 
-.notice {
+/* ── Page Header ── */
+.page-header {
+  position: relative; z-index: 1;
+  background: var(--green-dk);
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid rgba(192,154,80,0.15);
+}
+.page-header::after {
+  content: ''; position: absolute;
+  bottom: -1px; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dk) 20%, var(--gold) 50%, var(--gold-dk) 80%, transparent);
+}
+.page-header-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.page-header-left  { display: flex; align-items: center; gap: 12px; }
+.page-header-icon {
+  width: 40px; height: 40px;
+  background: rgba(192,154,80,0.12);
+  border: 1px solid rgba(192,154,80,0.25);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0;
+}
+.page-header-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: clamp(1rem, 3vw, 1.4rem);
+  font-weight: 700; color: var(--white);
+  letter-spacing: 0.08em; line-height: 1.2;
+}
+.page-header-title span {
+  display: block;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic; font-weight: 400;
+  font-size: 0.68rem; color: var(--gold);
+  letter-spacing: 0.22em; margin-top: 3px;
+}
+.page-header-badge {
+  font-size: 0.6rem; font-weight: 600;
+  letter-spacing: 0.1em;
+  background: rgba(192,154,80,0.12);
+  border: 1px solid rgba(192,154,80,0.25);
+  color: rgba(232,212,154,0.7);
+  padding: 4px 10px; border-radius: 100px; white-space: nowrap;
+}
+
+/* Notice bar */
+.notice-bar {
+  position: relative; z-index: 1;
+  background: rgba(192,154,80,0.08);
+  border-bottom: 1px solid rgba(192,154,80,0.15);
+  padding: 8px 20px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.75rem; color: var(--gold-dk);
+}
+.notice-bar svg { flex-shrink: 0; opacity: 0.7; }
+
+/* ── Tab Navigation ── */
+.tab-nav {
+  position: relative; z-index: 1;
+  background: var(--green-dk);
   display: flex;
+  border-bottom: 2px solid rgba(192,154,80,0.25);
+  padding: 0 16px;
+}
+.tab-btn {
+  background: none; border: none;
+  color: rgba(255,255,255,0.5);
+  font-family: 'Shippori Mincho', serif;
+  font-size: 0.82rem; font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 12px 20px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+  display: flex; align-items: center; gap: 6px;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: rgba(255,255,255,0.8); }
+.tab-btn.active { color: var(--gold-lt); border-bottom-color: var(--gold); }
+.tab-btn .tab-icon { font-size: 0.9rem; }
+
+/* ── Page wrap ── */
+.page-wrap {
+  position: relative; z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 18px 16px 0;
+}
+
+/* Tab panels */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── Panel (card) ── */
+.panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.panel-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, rgba(247,243,235,0.9) 0%, var(--white) 100%);
+  border-bottom: 1px solid rgba(192,154,80,0.12);
+}
+.panel-header-dot { width: 4px; height: 16px; background: var(--gold); border-radius: 2px; flex-shrink: 0; }
+.panel-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 0.82rem; font-weight: 600;
+  color: var(--ink); letter-spacing: 0.08em;
+}
+.panel-body { padding: 16px 18px; }
+
+/* ── Form grid ── */
+.form-grid {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  row-gap: 9px; column-gap: 0;
   align-items: center;
-  justify-content: flex-start;
-  background: linear-gradient(90deg, #fff8e1, #fff3cd);
-  border-left: 5px solid #d4af37;
-  color: #4a3b00;
-  padding: 14px 20px;
-  /*border-radius: 12px;*/
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  /*margin: 20px auto;*/
-  max-width: 900px;
-  animation: fadeIn 0.6s ease-out;
-  font-family: "Noto Sans JP", sans-serif;
+}
+.form-label {
+  font-size: 0.71rem; font-weight: 500;
+  color: var(--ink-soft); text-align: right;
+  padding-right: 14px; white-space: nowrap;
+  line-height: 1.4; letter-spacing: 0.02em;
+}
+.form-control { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.form-divider { grid-column: 1 / -1; height: 1px; background: rgba(192,154,80,0.1); margin: 3px 0; }
+
+input[type="text"], select {
+  background: var(--cream);
+  border: 1px solid var(--border-ui);
+  border-radius: 8px;
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  padding: 6px 10px;
+  height: 32px;
+  outline: none;
+  transition: border-color 0.16s, box-shadow 0.16s;
+  appearance: none; -webkit-appearance: none;
+}
+input[type="text"]::placeholder { color: rgba(90,84,72,0.4); }
+input[type="text"]:focus, select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--focus);
+  background: var(--white);
+}
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238A6A28'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  padding-right: 26px; cursor: pointer;
+}
+.range-sep { font-size: 0.75rem; color: var(--ink-soft); flex-shrink: 0; }
+.field-hint { font-size: 0.68rem; color: rgba(90,84,72,0.55); letter-spacing: 0.02em; }
+
+#mainCarat { width: 90px; text-align: center; }
+#minCarat, #maxCarat { width: 76px; text-align: center; }
+
+.color-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border-ui);
+  border-radius: 8px; overflow: hidden;
+  margin-bottom: 8px;
+}
+.ctog-btn {
+  background: var(--cream); border: none;
+  border-right: 1px solid var(--border-ui);
+  color: var(--ink-soft);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem; font-weight: 400;
+  padding: 5px 14px; cursor: pointer;
+  transition: background 0.14s, color 0.14s;
+  outline: none; height: 28px;
+}
+.ctog-btn:last-child { border-right: none; }
+.ctog-btn:hover { background: var(--cream-dk); color: var(--ink); }
+.ctog-btn.active { background: var(--green); color: var(--white); }
+.color-forms-wrap { display: flex; flex-direction: column; gap: 5px; }
+.alpha-form, .fancy-form { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+.check-label {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 0.72rem; color: var(--ink-soft);
+  cursor: pointer; user-select: none;
+  padding: 3px 10px;
+  border: 1px solid var(--border-ui); border-radius: 100px;
+  background: var(--cream); height: 28px;
+  transition: all 0.14s; white-space: nowrap;
+}
+.check-label:hover { border-color: var(--gold); color: var(--gold-dk); }
+.check-label input[type="checkbox"] {
+  width: 12px; height: 12px;
+  accent-color: var(--gold-dk); cursor: pointer; flex-shrink: 0;
 }
 
-.notice-icon {
-  font-size: 1.6rem;
-  margin-right: 15px;
-  color: #c29e30;
-  animation: ring 1.5s infinite;
+.btn {
+  border: none; border-radius: 9px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem; font-weight: 500;
+  padding: 6px 16px; height: 32px;
+  transition: opacity 0.14s, transform 0.1s, box-shadow 0.14s;
+  display: inline-flex; align-items: center; gap: 5px;
+  white-space: nowrap; outline: none;
 }
+.btn:active { transform: scale(0.96); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--green) 0%, var(--green-lt) 100%);
+  color: var(--white);
+  box-shadow: 0 2px 8px rgba(14,31,23,0.25);
+}
+.btn-primary:hover { opacity: 0.88; }
+.btn-secondary {
+  background: var(--cream-dk); color: var(--ink-soft);
+  border: 1px solid var(--border-ui);
+}
+.btn-secondary:hover { background: #ddd7ca; color: var(--ink); }
+.btn-sm { font-size: 0.72rem; padding: 4px 12px; height: 28px; }
 
-.notice-content {
-  display: flex;
-  flex-direction: column;
+.action-row {
+  display: flex; justify-content: center; gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(192,154,80,0.1);
+  margin-top: 12px;
 }
+.btn-search { min-width: 130px; height: 38px; font-size: 0.9rem; letter-spacing: 0.06em; }
 
-.notice-title {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #8b6b00;
-  letter-spacing: 1px;
-}
-
-.notice-text {
-  font-size: 0.75rem;
-  color: #5a4a00;
-}
-
-/* アニメーション */
-@keyframes ring {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(10deg); }
-  75% { transform: rotate(-10deg); }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.container {
-  max-width:900px;
-  background:#fff;
-  padding:2.0rem 1.4rem;
-  /*border-radius: 16px;*/
-  box-shadow: 0 4px 18px rgba(0,0,0,0.06);
-  border: 1px solid #eae7dc;
-}
-
-/* 見出し */
-h2 {
-  margin-bottom:1rem;
-  color:#1b2b2b;
-  font-weight:700;
-  border-bottom: 2px solid #bfa14a;
-  display:inline-block;
-  padding-bottom: 4px;
-  letter-spacing: 0.5px;
-}
-
-/* 入力・ボタン共通 */
-input, select, button {
-  font-size:1.05rem;
-  padding:0.8rem 0.75rem;
-  border-radius:8px;
-  border:1px solid #d3d3d3;
-  background:#fff;
-  transition:all 0.25s ease;
-}
-
-input:focus, select:focus {
-  outline:none;
-  border-color:#bfa14a;
-  box-shadow:0 0 0 3px rgba(191,161,74,0.25);
-}
-
-/* ボタン */
-button {
-  cursor:pointer;
-  font-weight:600;
-  letter-spacing:0.3px;
-}
-
-#searchButton {
-  background:linear-gradient(135deg,#bfa14a,#d6c36b);
-  color:#fff;
-  width:140px;
-  border:none;
-  box-shadow:0 2px 6px rgba(191,161,74,0.35);
-}
-#searchButton:hover {
-  opacity:0.95;
-  transform:translateY(-1px);
-  box-shadow:0 4px 10px rgba(191,161,74,0.4);
-}
-
-#clearButton {
-  background:linear-gradient(135deg,#f2f2f2,#e0e0e0);
-  color:#333;
-  width:140px;
-  border:1px solid #ccc;
-}
-#clearButton:hover {
-  background:linear-gradient(135deg,#fafafa,#e8e8e8);
-}
-
-/* 行レイアウト */
-.flex-row {
-  display:flex;
-  flex-wrap:wrap;
-  gap:0.5rem;
-  align-items:center;
-  margin-bottom:0.8rem;
-}
-.flex-row label {
-  width:150px;
-  font-weight:600;
-  text-align:center;
-  color:#333;
-}
-.flex-row select {
-    flex: 1 1 60px; /* flex-grow:1, flex-shrink:1, flex-basis:60px */
-    min-width: 60px; 
-}   
-
-/* カラット入力 */
-#mainCarat {
-  width:90px;
-  text-align:center;
-}
-
-/* ===== スマホ用カラットスピン ===== */
-#caratSpinnerMobile {
+.loading-wrap {
   display: none;
+  justify-content: center; align-items: center; gap: 10px;
+  padding: 20px;
 }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  width: 20px; height: 20px;
+  border: 2px solid var(--border-ui);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+.loading-text { font-size: 0.8rem; color: var(--ink-soft); }
 
-/* カラットセット行 */
-#caratSetRow {
-  display:flex;
-  align-items:center;
-  flex-wrap:wrap;
+/* ── Summary card ── */
+.summary-panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  overflow: hidden; margin-bottom: 14px;
+  max-width: 480px; margin-left: auto; margin-right: auto;
 }
+.summary-panel::before {
+  content: ''; display: block; height: 3px;
+  background: linear-gradient(90deg, var(--gold-dk), var(--gold-lt), var(--gold));
+}
+.summary-header {
+  padding: 12px 18px;
+  background: linear-gradient(135deg, rgba(247,243,235,0.9) 0%, var(--white) 100%);
+  border-bottom: 1px solid rgba(192,154,80,0.12);
+  display: flex; align-items: center; gap: 8px;
+}
+.summary-header-icon { font-size: 0.9rem; }
+.summary-header-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 0.82rem; font-weight: 600;
+  color: var(--ink); letter-spacing: 0.08em;
+}
+.summary-rows { padding: 4px 0; }
+.summary-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 18px;
+  border-bottom: 1px solid rgba(192,154,80,0.07);
+  font-size: 0.82rem;
+}
+.summary-row:last-child { border-bottom: none; }
+.summary-row.total {
+  background: linear-gradient(135deg, rgba(26,54,40,0.04) 0%, rgba(192,154,80,0.05) 100%);
+  border-top: 1px solid rgba(192,154,80,0.15);
+}
+.s-label { color: var(--ink-soft); }
+.summary-row.total .s-label { color: var(--green); font-weight: 600; font-family: 'Shippori Mincho', serif; font-size: 0.88rem; }
+.s-value { font-weight: 500; color: var(--ink); }
+.s-value strong { font-size: 1.05rem; }
+.summary-row.total .s-value strong { font-size: 1.3rem; color: var(--green); }
+.s-unit { font-size: 0.68rem; color: var(--ink-soft); margin-left: 3px; }
+#rateSelect { height: 26px; font-size: 0.72rem; padding: 0 22px 0 8px; border-color: var(--border-ui); }
 
-#caratSetRow button#setCarat {
-  margin-right:2rem;
-  margin-left:1rem;
-  background:linear-gradient(135deg,#bfa14a,#d4b95e);
-  color:#fff;
-  border:none;
-  box-shadow:0 2px 6px rgba(191,161,74,0.35);
+/* ── Results ── */
+.result-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 2px 6px;
 }
-#caratSetRow button#setCarat:hover {
-  opacity:0.95;
-  transform:translateY(-1px);
-}
+.result-count { font-size: 0.78rem; color: var(--ink-soft); }
+.result-count strong { color: var(--green); font-size: 0.95rem; }
+.sort-hint { font-size: 0.68rem; color: rgba(90,84,72,0.5); letter-spacing: 0.03em; }
 
-/* 最小～最大カラット */
-#caratRange {
-  display:inline-flex;
-  align-items:center;
-}
-
-#caratRange input {
-  width:50px;
-  text-align:center;
-  border-radius:6px;
-  border:1px solid #ccc;
-  padding:0.45rem 0.6rem;
-  margin:0.4rem;
-  background:#fdfdfd;
-}
-#caratRange input:focus {
-  border-color:#bfa14a;
-  box-shadow:0 0 0 3px rgba(191,161,74,0.2);
-}
-#caratRange span {
-  font-weight:600;
-  color:#444;
-}
-
-/* カラー切替用 */
-.colorSelector {
-  display:flex;
-  flex-direction:column;
-  flex:1;
-}
-
-.colorButtons {
-  display:flex;
-  gap:0.5rem;
-  margin-bottom:0.4rem;
-}
-
-.colorButtons button {
-  padding:0.5rem 0.8rem;
-  border-radius:6px;
-  border:1px solid #ccc;
-  background:#fdfdfd;
-  cursor:pointer;
-  font-weight:600;
-  transition:all 0.2s ease;
-}
-
-.colorButtons button.active {
-  background:linear-gradient(135deg,#bfa14a,#d4b95e);
-  color:#fff;
-  border:none;
-}
-
-.colorButtons button:hover:not(.active) {
-  background:#f7f7f7;
-}
-
-.colorForms .alphaForm {
-  flex-direction: column;   /* ← これが最重要 */
-  align-items: flex-start;
-}
-
-.color-range {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.treated-check {
-  font-size: 0.9rem;
-  font-weight: normal;
-  margin-top: 2px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* フォーム部分 */
-.colorForms select {
-  margin-right:0.4rem;
-  margin-bottom:0.3rem;
-}
-
-.color-options {
-  display: flex;
-  flex-direction: column;   /* ← これが超重要 */
-  align-items: flex-start;
-  margin-top: 2px;
-  gap: 2px;
-}
-
-.color-options label {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.9rem;
-  font-weight: normal;
-}
-
-input[type="checkbox"] {
-  /*vertical-align: middle;*/ /* 中央揃え */
-  margin: 0; /* iOSの余白調整 */
-}
-
-label {
-  vertical-align: middle; /* チェックボックスと同じラインに揃える */
-}
-
-/* =======================
-   テーブル
-======================= */
 .table-wrapper {
-  width: 100%;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden; overflow-x: auto;
 }
+.table-wrapper::-webkit-scrollbar { height: 5px; }
+.table-wrapper::-webkit-scrollbar-track { background: var(--cream); }
+.table-wrapper::-webkit-scrollbar-thumb { background: var(--border-ui); border-radius: 3px; }
 
-/* ---------------------
-   テーブル本体
---------------------- */
 #resultTable {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-  display: none;
-  border: 1px solid #e5e5e5;
+  width: 100%; border-collapse: collapse;
+  display: none; min-width: 760px; font-size: 0.78rem;
+}
+#resultTable thead th {
+  background: var(--green-dk);
+  color: rgba(255,255,255,0.7);
+  font-size: 0.65rem; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 10px 10px; text-align: center;
+  white-space: nowrap; cursor: pointer; user-select: none;
+  transition: background 0.12s, color 0.12s;
+  position: sticky; top: 0; z-index: 2;
+  border-right: 1px solid rgba(255,255,255,0.05);
+}
+#resultTable thead th:hover { background: var(--green-lt); color: var(--white); }
+#resultTable thead th:last-child { cursor: default; border-right: none; }
+#resultTable thead th:last-child:hover { background: var(--green-dk); color: rgba(255,255,255,0.7); }
+#resultTable tbody tr { border-bottom: 1px solid rgba(192,154,80,0.08); }
+#resultTable tbody tr:nth-child(4n+3),
+#resultTable tbody tr:nth-child(4n+4) { background: rgba(247,243,235,0.5); }
+#resultTable tbody tr:hover { background: rgba(192,154,80,0.06); }
+#resultTable tbody td {
+  padding: 8px 10px; text-align: center;
+  color: var(--ink); white-space: nowrap;
+}
+#resultTable tbody td.priceCell {
+  text-align: right; font-feature-settings: "tnum";
+  color: var(--ink-soft); font-weight: 500;
+}
+.detailsRow { display: none; background: rgba(247,243,235,0.8) !important; }
+.detailsRow td {
+  font-size: 0.72rem !important; color: var(--ink-soft) !important;
+  text-align: left !important; padding: 7px 18px !important;
+  white-space: normal !important;
+  border-top: 1px dashed rgba(192,154,80,0.2) !important;
+}
+.detail-toggle {
+  font-size: 0.68rem; color: var(--gold-dk); cursor: pointer;
+  padding: 2px 9px;
+  border: 1px solid rgba(192,154,80,0.3); border-radius: 100px;
+  background: rgba(192,154,80,0.07); transition: background 0.12s;
+  display: inline-block;
+}
+.detail-toggle:hover { background: rgba(192,154,80,0.15); }
+
+.pagination-wrap {
+  display: flex; justify-content: center; align-items: center; gap: 6px;
+  padding: 14px 0 4px;
+}
+.pagination-wrap button {
+  background: var(--white); border: 1px solid var(--border-ui);
+  color: var(--ink-soft); font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem; padding: 5px 14px; border-radius: 8px;
+  cursor: pointer; transition: border-color 0.12s, color 0.12s;
+}
+.pagination-wrap button:hover:not(:disabled) { border-color: var(--gold); color: var(--gold-dk); }
+.pagination-wrap button:disabled { opacity: 0.3; cursor: not-allowed; }
+.pagination-wrap .page-info { font-size: 0.72rem; color: var(--ink-soft); padding: 0 8px; }
+
+.count-bar {
+  font-size: 0.72rem; color: var(--ink-soft);
+  padding: 6px 0; border-top: 1px solid rgba(192,154,80,0.1);
+}
+.count-bar strong { color: var(--green); }
+
+/* ── Graph view panels ── */
+.graph-view-btn { transition: color .15s, border-color .15s; }
+.graph-view-btn.active { color: var(--ink) !important; border-bottom-color: var(--gold) !important; }
+.graph-view-btn:hover:not(.active) { color: var(--ink-soft) !important; }
+.graph-chart-wrap {
+  position: relative;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  min-height: 340px;
+}
+.graph-chart-wrap canvas { max-height: 380px; }
+.shape-toggle-wrap {
+  display: inline-flex;
+  border: 1px solid var(--border-ui);
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+.shape-tog-ct, .shape-tog-gr {
+  background: var(--cream); border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem; padding: 5px 14px;
+  cursor: pointer; height: 30px;
+  color: var(--ink-soft);
+  transition: background .14s, color .14s;
+}
+.shape-tog-ct:not(:first-child), .shape-tog-gr:not(:first-child) {
+  border-left: 1px solid var(--border-ui);
+}
+.shape-tog-ct.active, .shape-tog-gr.active {
+  background: var(--green); color: #fff;
 }
 
-#resultTable th,
-#resultTable td {
-  border: 1px solid #e8e8e8;
-  padding: 10px 6px; /* スマホ向けに広め */
-  text-align: center;
-  font-size: 0.75rem;
+/* ══════════════════════════════════
+   RAPAPORT TAB STYLES
+══════════════════════════════════ */
+.rapa-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
 }
+@media (max-width: 700px) { .rapa-grid { grid-template-columns: 1fr; } }
 
-#resultTable th {
-  background: linear-gradient(180deg, #faf9f5, #f1efe8);
-  font-weight: 700;
-  color: #2c2c2c;
-  border-bottom: 2px solid #d1c089;
-  position: relative;      /* ソートアイコン表示用 */
-  cursor: pointer;         /* タップ可能 */
-}
-
-/* ソートアイコン */
-#resultTable th .sortIcon {
-  position: absolute;
-  right: 4px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.65rem;
-  opacity: 0.4;
-  transition: opacity 0.2s;
-}
-
-#resultTable th.active .sortIcon {
-  opacity: 1;
-}
-
-/* 初回ユーザー向けヒント */
-.sortHint {
-  background: linear-gradient(90deg, #ff9a9e, #fad0c4);
-  color: #fff;
-  padding: 0.5rem 1rem;
-  border-radius: 1rem;
-  text-align: center;
-  font-size: 0.75rem;
-  margin-bottom: 0.5rem;
-}
-
-.detailsRow {
-  display:none;
-  background:#fbfbfa;
-}
-
-.detailsRow td {
-  text-align:left;
-  font-size:0.9rem;
-}
-
-.detailToggle {
-  color:#bfa14a;
-  cursor:pointer;
-  font-weight:600;
-  transition:color 0.2s ease;
-}
-.detailToggle:hover {
-  color:#8e7a38;
-}
-
-#resultTable td.priceCell {
-  text-align:right;
-  padding-right:1rem;
-}
-
-/* サマリーボックス全体を中央寄せ（他レイアウトに影響が出る場合は .container 内に調整してください） */
-.summary-box {
-  margin: 2.5rem auto;           /* 横中央に配置 */
-  padding: 1rem 1.25rem;
-  border: 1px solid #e0d8b0;
+/* Rate info bar */
+.rate-info-bar {
+  background: linear-gradient(135deg, var(--green-dk), var(--green));
   border-radius: 12px;
-  background: linear-gradient(135deg,#fdf9f0,#f7f2de);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-  width: 380px;                  /* 必要に応じて調整 */
-  max-width: 90%;
+  padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 10px;
+  margin-bottom: 14px;
+  color: var(--white);
+}
+.rate-info-bar .rate-main {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem; font-weight: 400;
+  color: var(--gold-lt);
+  letter-spacing: 0.04em;
+}
+.rate-info-bar .rate-label {
+  font-size: 0.68rem; color: rgba(255,255,255,0.6);
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.rate-info-bar .rate-date {
+  font-size: 0.72rem; color: rgba(255,255,255,0.5);
 }
 
-/* テーブルを使って左右2列を安定配置 */
-.summary-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: "Noto Sans JP", sans-serif;
+/* Lookup form */
+.lookup-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.lookup-grid select {
+  width: 100%; font-size: 0.82rem;
+}
+.lookup-result-card {
+  background: linear-gradient(135deg, rgba(26,54,40,0.03) 0%, rgba(192,154,80,0.05) 100%);
+  border: 1px solid rgba(192,154,80,0.2);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-top: 12px;
+  display: none;
+}
+.lookup-result-card.visible { display: block; }
+.lookup-result-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(192,154,80,0.1);
+  font-size: 0.82rem;
+}
+.lookup-result-row:last-child { border-bottom: none; }
+.lookup-result-row .lr-label { color: var(--ink-soft); }
+.lookup-result-row .lr-val {
+  font-weight: 600; color: var(--ink);
+  font-feature-settings: "tnum";
+}
+.lookup-result-row .lr-val.big {
+  font-size: 1.4rem;
+  color: var(--green);
+  font-family: 'Cormorant Garamond', serif;
+}
+.lookup-result-row .lr-val.usd {
+  font-size: 1.1rem; color: var(--gold-dk);
+}
+.lookup-result-row .lr-unit {
+  font-size: 0.68rem; color: var(--ink-soft); margin-left: 4px;
 }
 
-.summary-table td {
-  padding: 3px 6px;
-  vertical-align: middle;
+/* Rate input section */
+.rate-input-row {
+  display: flex; align-items: center; gap: 8px;
+  flex-wrap: wrap; margin-top: 10px;
+}
+.rate-input-row input[type="text"] { width: 80px; text-align: center; }
+.rate-badge {
+  display: inline-flex; align-items: center;
+  gap: 4px; font-size: 0.72rem;
+  padding: 3px 10px; border-radius: 100px;
+  background: rgba(192,154,80,0.1);
+  border: 1px solid rgba(192,154,80,0.25);
+  color: var(--gold-dk);
 }
 
-/* 左列（ラベル）: 中央揃え */
-.summary-table .label {
-  width: 36%;                    /* 左幅を固定的に確保 */
-  text-align: center;
-  font-weight: 600;
-  color: #5a4a2d;
-  white-space: nowrap;           /* ラベルで改行させない */
-  padding-right: 12px;
+/* ── Price Table ── */
+.rapa-table-wrap { overflow-x: auto; margin-top: 12px; }
+.rapa-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 0.75rem; min-width: 600px;
+}
+.rapa-table thead th {
+  background: var(--green-dk);
+  color: rgba(255,255,255,0.75);
+  font-size: 0.62rem; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 8px 8px; text-align: center;
+  white-space: nowrap;
+}
+.rapa-table tbody tr:nth-child(even) { background: rgba(247,243,235,0.5); }
+.rapa-table tbody tr:hover { background: rgba(192,154,80,0.06); }
+.rapa-table tbody td {
+  padding: 6px 8px; text-align: right;
+  font-feature-settings: "tnum";
+  white-space: nowrap;
+}
+.rapa-table tbody td:first-child { text-align: left; font-weight: 600; color: var(--green); }
+.rapa-table tbody td.highlight {
+  background: rgba(192,154,80,0.18) !important;
+  color: var(--green); font-weight: 700;
+  border: 1px solid rgba(192,154,80,0.35);
 }
 
-/* 右列（値）: 左揃え、数値と単位を改行させない */
-.summary-table .value {
-  width: 64%;
-  text-align: right;
-  color: #2f2f2f;
+/* ── Graph section ── */
+.graph-controls {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.graph-controls select, .graph-controls input { height: 32px; }
+.graph-controls label { font-size: 0.75rem; color: var(--ink-soft); }
+
+.chart-container {
+  position: relative;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 20px;
+  margin-bottom: 14px;
+}
+.chart-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 0.85rem; font-weight: 600;
+  color: var(--ink); margin-bottom: 14px;
+  letter-spacing: 0.06em;
+  display: flex; align-items: center; gap: 8px;
+}
+.chart-empty {
+  text-align: center; padding: 40px 20px;
+  color: var(--ink-soft); font-size: 0.82rem;
 }
 
-.summary-table tr.rate-divider td {
-  border-top: 1px solid rgba(0,0,0,0.2); /* 線の色 */
-  height: 10px;        /* 線行全体の高さ */
-  padding: 0;          /* 線行に余白は不要 */
-  vertical-align: middle; /* 線を中央に */
+/* Change badges */
+.change-up {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 0.7rem; font-weight: 600;
+  color: var(--up); background: rgba(181,41,41,0.08);
+  padding: 2px 8px; border-radius: 100px;
+}
+.change-dn {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 0.7rem; font-weight: 600;
+  color: var(--dn); background: rgba(26,90,154,0.08);
+  padding: 2px 8px; border-radius: 100px;
+}
+.change-flat {
+  font-size: 0.7rem; color: var(--ink-soft);
+  padding: 2px 8px;
 }
 
-/* 数値＋単位を同じ行にする */
-.value-inline {
-  display: inline-block;
-  white-space: nowrap;           /* ← ここが重要：数値と単位を改行させない */
-  font-size: 0.98rem;
+/* Change table */
+.change-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; margin-top: 10px; }
+.change-table th {
+  background: var(--green-dk);
+  color: rgba(255,255,255,0.7);
+  font-size: 0.63rem; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 8px 10px; text-align: center;
 }
-
-/* 単位の見た目 */
-.unit {
-  color: #555;
-  font-weight: 500;
-  margin-left: 0.1rem;
+.change-table td {
+  padding: 7px 10px; text-align: center;
+  border-bottom: 1px solid rgba(192,154,80,0.08);
+  font-feature-settings: "tnum";
 }
+.change-table tr:hover td { background: rgba(192,154,80,0.05); }
 
-/* select の見た目を揃える */
-#rateSelect {
-  padding: 0.5rem 2rem;
-  border-radius: 6px;
-  border: 1px solid #d0b880;
-  background: #fff;
-  font-weight: 600;
-}
-
-/* 買取価格行（強調）*/
-.total-label {
-  font-size: 1rem;
-}
-.total-value .value-inline strong,
-.total-value .value-inline .unit {
-  font-size: 1.05rem;
-  color: #8b6e3c;
-  font-weight: 700;
-}
-
-/* =======================
-   ローディングスピナー
-======================= */
-.spinner {
-  width:32px;
-  height:32px;
-  border:3px solid #ddd;
-  border-top:3px solid #bfa14a;
-  border-radius:50%;
-  animation: spin 1s linear infinite;
-  margin:auto;
-}
-@keyframes spin {
-  0% { transform:rotate(0deg); }
-  100% { transform:rotate(360deg); }
-}
-
-/* =======================
-   件数表示・ページネーション
-======================= */
-.stylish-count {
-  font-size:1.05rem;
-  font-weight:600;
-  color:#333;
-  padding:6px 0 10px 4px;
-  display:inline-block;
-  margin:6px 0 12px 2px;
-  letter-spacing:0.3px;
-  position:relative;
-}
-.stylish-count::before {
-  content:"";
-  position:absolute;
-  left:0;
-  bottom:0;
-  width:80px;
-  height:2px;
-  background:linear-gradient(90deg,#bfa14a,transparent);
-  border-radius:2px;
-}
-
-.stylish-pagination {
-  margin:22px 0 8px;
-  text-align:center;
-}
-.stylish-pagination button {
-  background:linear-gradient(135deg,#ffffff,#f6f6f4);
-  color:#333;
-  border:1px solid #ccc;
-  padding:6px 12px;
-  margin:0 4px;
-  border-radius:6px;
-  cursor:pointer;
-  font-weight:500;
-  transition:all 0.25s ease;
-}
-.stylish-pagination button:hover:not(:disabled) {
-  background:linear-gradient(135deg,#f9f7ed,#fff);
-  border-color:#bfa14a;
-  color:#bfa14a;
-  transform:translateY(-1px);
-  box-shadow:0 2px 6px rgba(191,161,74,0.2);
-}
-.stylish-pagination button:disabled {
-  color:#aaa;
-  border-color:#eee;
-  cursor:not-allowed;
-}
-.stylish-pagination span {
-  font-size:0.95rem;
-  color:#555;
-  margin:0 10px;
-}
-
-/* =======================
-   モバイル
-======================= */
-@media(max-width:480px){
-  /* 全体の行レイアウト */
-  .flex-row {
-    flex-direction: row;
-    align-items: center;
-    flex-wrap: nowrap; /* ← 折り返さない */
-  }
-
-  /* ラベル */
-  .flex-row label {
-    width: 105px;         /* ← 横幅少し縮める */
-    text-align: left;
-    margin-bottom: 0;
-    flex-shrink: 0;       /* ← ラベルが縮まらないように */
-  }
-
-  /* 入力欄やセレクトの共通設定 */
-  .flex-row input,
-  .flex-row select {
-    flex: 1;               /* ← 入力欄は残り幅を使う */
-    min-width: 0;          /* ← 折り返し防止 */
-  }
-
-  /* カラットセット行 */
-  #caratSetRow {
-    flex-wrap: wrap; /* ← カラットセット行は折り返しOK */
-  }
-
-  /* PC用inputを隠す */
-  #mainCarat {
-    display: none;
-  }
-
-  #caratSpinnerMobile {
-    display: flex;
-    align-items: center;
-  }
-
-  .spin {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
+/* Mobile */
+#caratSpinnerMobile { display: none; }
+@media (max-width: 600px) {
+  .page-wrap { padding: 12px 12px 0; }
+  .panel-body { padding: 14px 14px; }
+  .form-grid { grid-template-columns: 80px 1fr; row-gap: 8px; }
+  .form-label { font-size: 0.68rem; padding-right: 10px; }
+  #mainCarat { display: none; }
+  #caratSpinnerMobile { display: flex; align-items: center; gap: 4px; }
+  .spin { display: flex; align-items: center; gap: 3px; }
   .spin select {
-    width: 40px;              /* ← 横幅を極力小さく */
-    font-size: 1.1rem;
-    text-align: right;
-    padding: 14px 5px 14px 10px;
-    border-radius: 8px;
-    -webkit-appearance: none;
-    appearance: none;
-    background:
-      linear-gradient(180deg,#fff,#f3f3f3);
+    width: 46px; font-size: 0.82rem; padding: 5px 3px;
+    -webkit-appearance: none; appearance: none;
+    background-image: none; text-align: center; height: 32px;
   }
-
-  .spin .dot {
-    font-size: 1.2rem;
-    font-weight: 700;
-  }
-
-  /* カラット範囲（最小～最大）を横並び維持 */
-  #caratRange {
-    flex-direction: row;
-    align-items: center;
-    flex-wrap: nowrap;
-  }
-
-  #caratRange input {
-    width: 55px; /* ← モバイルで少し狭く */
-  }
-
-  /* カラー切替フォームの横並び調整 */
-  .colorForms {
-    display:flex;
-    flex-wrap:wrap;
-    gap:0.4rem;
-  }
-  .colorForms .alphaForm,
-  .colorForms .fancyForm {
-    display:flex;
-    flex-wrap:wrap;
-    gap:0.3rem;
-    flex:1 1 100%; /* 横幅が狭ければ改行される */
-  }
-  .colorForms select {
-    flex:1 1 60px; /* 幅を柔軟に */
-    min-width:50px;
-  }  
-
-  .table-wrapper {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch; /* iPhoneでのスムーズスクロール */
-  }
-
-  #resultTable {
-    min-width: 800px; /* スマホで潰れないように最低幅を確保 */
-    font-size: 0.85rem; /* 少し小さめにして見やすく */
-  }
-
-  #resultTable th, #resultTable td {
-    white-space: nowrap; /* 折り返さず横に並べる */
-    padding: 0.4rem 0.6rem;
-  }
+  .spin .dot { font-size: 1rem; font-weight: 700; color: var(--ink-soft); }
+  .summary-panel { max-width: 100%; }
+  .tab-btn { padding: 10px 12px; font-size: 0.75rem; }
 }
 </style>
 </head>
 <body>
-<!-- お知らせ -->
-<div class="notice">
-  <span class="notice-icon">📢</span>
-  <div class="notice-content">
-    <div class="notice-title">更新情報</div>
-    <div class="notice-text">2026年01月13日　NJ大会 1月前半分のデータを追加</div>  
-  </div>
-</div>
-<div class="container">
-  <!-- カラットセット + 最小～最大 -->
-  <div class="flex-row">
-    <label for="mainCarat">カラット（ct）</label>
-    <div id="caratSetRow">
-      <input type="text" id="mainCarat" placeholder="例：0.345" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">   
-      <!-- スマホ用カラットスピン（PCでは非表示） -->
-      <div id="caratSpinnerMobile">
-        <div class="spin">
-          <select id="spinInt"></select>
-          <span class="dot">.</span>
-          <select id="spinDec"></select>
-        </div>
-      </div> 
-      <button type="button" id="setCarat">セット</button>
-      <div id="caratRange">
-        <input type="text" id="minCarat" placeholder="最小ct" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
-        <span>～</span>
-        <input type="text" id="maxCarat" placeholder="最大ct" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
+
+<!-- ─── Page Header ─── -->
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="page-header-left">
+      <div class="page-header-icon">💎</div>
+      <div class="page-header-title">
+        ダイヤ相場検索
+        <span>Diamond Market Reference System</span>
       </div>
     </div>
+    <div class="page-header-badge">INTERNAL USE</div>
   </div>
+</div>
 
-  <!-- 検索フォーム（元コードと同じ） -->
-  <div class="flex-row" style="align-items:center;">
-    <label for="dateSelect">開催日</label>
-    <select id="dateSelect"><option value="">すべて</option></select>
-    <span style="margin-left:0.5rem; color:#555; font-size:0.5rem;">※選択日以降で検索</span>
-  </div>
+<!-- Notice -->
+<div class="notice-bar">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <span id="noticeText"><strong>更新情報</strong>　2026年02月20日　NJ大会 2月前半分のデータを追加</span>
+</div>
 
-  <!-- カラー選択 -->
-  <div class="flex-row">
-    <label>カラー</label>
-    <div class="colorSelector">
-      <div class="colorButtons">       
-        <button type="button" class="colorTypeBtn" data-type="alpha">AtoZ</button>
-        <button type="button" class="colorTypeBtn" data-type="fancy">FANCY</button>
-        <button type="button" class="colorTypeBtn active" data-type="all">全て</button>
-      </div>
-      <div class="colorForms">
-        <!-- アルファベットカラーフォーム -->
-        <div class="alphaForm">
-          <!-- 1段目：From ～ To -->
-          <div class="color-range">
-            <select id="fromColor"><option value="">From</option></select>
-            <span>〜</span>
-            <select id="toColor"><option value="">To</option></select>
+<!-- ─── Tab Nav ─── -->
+<div class="tab-nav">
+  <button class="tab-btn active" data-tab="njTab">
+    <span class="tab-icon">🏷️</span> NJ大会相場
+  </button>
+  <button class="tab-btn" data-tab="rapaTab">
+    <span class="tab-icon">📊</span> ラパポート相場
+  </button>
+</div>
+
+<div class="page-wrap">
+
+<!-- ══════════════════════════
+     TAB 1: NJ大会相場（既存）
+══════════════════════════ -->
+<div id="njTab" class="tab-panel active">
+
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-header-dot"></div>
+      <div class="panel-title">検索条件</div>
+    </div>
+    <div class="panel-body">
+      <div class="form-grid">
+        <div class="form-label">カラット（ct）</div>
+        <div class="form-control">
+          <div id="caratSetRow" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <input type="text" id="mainCarat" placeholder="例: 0.345" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
+            <div id="caratSpinnerMobile">
+              <div class="spin">
+                <select id="spinInt"></select>
+                <span class="dot">.</span>
+                <select id="spinDec"></select>
+              </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" id="setCarat">範囲をセット</button>
+            <input type="text" id="minCarat" placeholder="最小" inputmode="decimal">
+            <span class="range-sep">〜</span>
+            <input type="text" id="maxCarat" placeholder="最大" inputmode="decimal">
           </div>
         </div>
-        <!-- FANCY系フォーム -->
-        <div class="fancyForm" style="display:none;">
-          <select id="fancyGradeSelect"><option value="">すべて</option></select>
-          <select id="fancyToneSelect"><option value="">すべて</option></select>
+        <div class="form-label">開催日</div>
+        <div class="form-control">
+          <select id="dateSelect" style="min-width:160px;"><option value="">すべて</option></select>
+          <span class="field-hint">以降で検索</span>
         </div>
-        <!-- 2段目：TREATED / FAINT -->
-        <div class="color-options">
-          <label class="treated-check">
-            <input type="checkbox" id="treatedCheck"> TREATED
-          </label>
+        <div class="form-divider"></div>
+        <div class="form-label">カラー</div>
+        <div class="form-control" style="flex-direction:column;align-items:flex-start;">
+          <div class="color-toggle">
+            <button class="ctog-btn active" data-type="alpha">A to Z</button>
+            <button class="ctog-btn" data-type="fancy">FANCY</button>
+            <button class="ctog-btn" data-type="all">すべて</button>
+          </div>
+          <div class="color-forms-wrap">
+            <div class="alpha-form">
+              <select id="fromColor" style="min-width:86px;"><option value="">From</option></select>
+              <span class="range-sep">〜</span>
+              <select id="toColor" style="min-width:86px;"><option value="">To</option></select>
+              <label class="check-label"><input type="checkbox" id="faintCheck"> FAINT</label>
+            </div>
+            <div class="fancy-form" style="display:none;">
+              <select id="fancyGradeSelect" style="min-width:140px;"><option value="">Grade: すべて</option></select>
+              <select id="fancyToneSelect"  style="min-width:110px;"><option value="">Tone: すべて</option></select>
+              <label class="check-label"><input type="checkbox" id="treatedCheck"> TREATED</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-label">クラリティ</div>
+        <div class="form-control">
+          <select id="minClaritySelect" onchange="syncToValue('minClaritySelect','maxClaritySelect')" style="min-width:80px;">
+            <option value="">すべて</option>
+            <option value="FL">FL</option><option value="IF">IF</option>
+            <option value="VVS1">VVS1</option><option value="VVS2">VVS2</option>
+            <option value="VS1">VS1</option><option value="VS2">VS2</option>
+            <option value="SI1">SI1</option><option value="SI2">SI2</option>
+            <option value="I1">I1</option><option value="I2">I2</option><option value="I3">I3</option>
+          </select>
+          <span class="range-sep">〜</span>
+          <select id="maxClaritySelect" style="min-width:80px;">
+            <option value="">すべて</option>
+            <option value="FL">FL</option><option value="IF">IF</option>
+            <option value="VVS1">VVS1</option><option value="VVS2">VVS2</option>
+            <option value="VS1">VS1</option><option value="VS2">VS2</option>
+            <option value="SI1">SI1</option><option value="SI2">SI2</option>
+            <option value="I1">I1</option><option value="I2">I2</option><option value="I3">I3</option>
+          </select>
+        </div>
+        <div class="form-label">カット</div>
+        <div class="form-control">
+          <select id="minCutSelect" onchange="syncToValue('minCutSelect','maxCutSelect')" style="min-width:108px;">
+            <option value="">すべて</option>
+            <option value="EX">EXCELLENT</option><option value="VG">VERY GOOD</option>
+            <option value="GD">GOOD</option><option value="FR">FAIR</option><option value="PR">POOR</option>
+          </select>
+          <span class="range-sep">〜</span>
+          <select id="maxCutSelect" style="min-width:108px;">
+            <option value="">すべて</option>
+            <option value="EX">EXCELLENT</option><option value="VG">VERY GOOD</option>
+            <option value="GD">GOOD</option><option value="FR">FAIR</option><option value="PR">POOR</option>
+          </select>
+          <label class="check-label"><input type="checkbox" id="hcCheck"> H&amp;C</label>
+        </div>
+        <div class="form-label">蛍光性</div>
+        <div class="form-control">
+          <select id="minFluoSelect" onchange="syncToValue('minFluoSelect','maxFluoSelect')" style="min-width:78px;">
+            <option value="">すべて</option>
+            <option value="N">N</option><option value="F">F</option>
+            <option value="MB">MB</option><option value="SB">SB</option><option value="VSB">VSB</option>
+          </select>
+          <span class="range-sep">〜</span>
+          <select id="maxFluoSelect" style="min-width:78px;">
+            <option value="">すべて</option>
+            <option value="N">N</option><option value="F">F</option>
+            <option value="MB">MB</option><option value="SB">SB</option><option value="VSB">VSB</option>
+          </select>
+        </div>
+        <div class="form-label">形状</div>
+        <div class="form-control">
+          <select id="shapeSelect" style="min-width:200px;"><option value="">すべて</option></select>
+        </div>
+        <div class="form-divider"></div>
+        <div class="form-label">フリーワード</div>
+        <div class="form-control">
+          <input type="text" id="keyword" placeholder="例: D VS1 GD　スペース区切りでAND検索" style="min-width:0;flex:1;max-width:400px;">
+        </div>
+      </div>
+      <div class="action-row">
+        <button id="searchButton" class="btn btn-primary btn-search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          検　索
+        </button>
+        <button id="clearButton" class="btn btn-secondary">クリア</button>
+      </div>
+    </div>
+  </div>
 
-          <label class="faint-check">
-            <input type="checkbox" id="faintCheck"> FAINT
-          </label>
+  <div id="loadingSpinner" class="loading-wrap">
+    <div class="spinner"></div>
+    <span class="loading-text">検索中…</span>
+  </div>
+
+  <div class="summary-panel">
+    <div class="summary-header">
+      <span class="summary-header-icon">◆</span>
+      <span class="summary-header-title">買取参考価格</span>
+    </div>
+    <div class="summary-rows">
+      <div class="summary-row">
+        <span class="s-label">検索件数</span>
+        <span class="s-value"><strong id="summaryCount">0</strong><span class="s-unit">件</span></span>
+      </div>
+      <div class="summary-row">
+        <span class="s-label">平均ガイ単価</span>
+        <span class="s-value"><strong id="summaryAvgPrice">0</strong><span class="s-unit">円</span></span>
+      </div>
+      <div class="summary-row">
+        <span class="s-label">掛け率</span>
+        <span class="s-value">
+          <select id="rateSelect">
+            <option value="0.5">5掛け</option><option value="0.6">6掛け</option>
+            <option value="0.7">7掛け</option><option value="0.8" selected>8掛け</option>
+            <option value="0.9">9掛け</option>
+          </select>
+        </span>
+      </div>
+      <div class="summary-row" style="border-top:1px solid rgba(192,154,80,0.12); padding-top:10px;">
+        <span class="s-label">ガイ単価</span>
+        <span class="s-value"><strong id="summaryUnitPrice">0</strong><span class="s-unit">円</span></span>
+      </div>
+      <div class="summary-row">
+        <span class="s-label">カラット</span>
+        <span class="s-value"><strong id="summaryCarat">0.000</strong><span class="s-unit">ct</span></span>
+      </div>
+      <div class="summary-row total">
+        <span class="s-label">買取参考価格</span>
+        <span class="s-value"><strong id="summaryTotalPrice">0</strong><span class="s-unit">円</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="resultSection" style="display:none;">
+    <div class="result-bar">
+      <div id="resultCountTop" class="result-count"></div>
+      <div class="sort-hint">列ヘッダーをクリックして並び替え ▲▼</div>
+    </div>
+    <div class="table-wrapper">
+      <table id="resultTable">
+        <thead>
+          <tr>
+            <th>日付</th><th>カラー</th><th>クラリティ</th><th>カット</th>
+            <th>蛍光性</th><th>形状</th><th>カラット</th>
+            <th>ガイ単価</th><th>金額</th><th>備考</th><th>詳細</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+    </div>
+    <div id="resultCountBottom" class="count-bar"></div>
+    <div id="paginationArea" class="pagination-wrap"></div>
+  </div>
+
+</div><!-- /njTab -->
+
+
+<!-- ══════════════════════════
+     TAB 2: ラパポート相場
+══════════════════════════ -->
+<div id="rapaTab" class="tab-panel">
+
+  <!-- 為替レートバー -->
+  <div class="rate-info-bar" id="rateInfoBar">
+    <div>
+      <div class="rate-label">USD / JPY 為替レート</div>
+      <div class="rate-main" id="rateDisplay">—</div>
+      <div class="rate-date" id="rateDateDisplay">読み込み中…</div>
+    </div>
+    <div style="text-align:right;">
+      <div class="rate-label" style="margin-bottom:4px;">手動入力</div>
+      <div class="rate-input-row" style="justify-content:flex-end;">
+        <input type="text" id="manualRate" placeholder="例: 155.0" style="width:90px;background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:#fff;" inputmode="decimal">
+        <button class="btn btn-sm" id="applyRateBtn" style="background:rgba(192,154,80,0.3);color:var(--gold-lt);border:1px solid rgba(192,154,80,0.4);">適用</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="rapa-grid">
+    <!-- 相場検索パネル -->
+    <div class="panel" style="grid-column: 1 / -1;">
+      <div class="panel-header">
+        <div class="panel-header-dot"></div>
+        <div class="panel-title">ラパポート価格参照</div>
+      </div>
+      <div class="panel-body">
+        <div class="lookup-grid">
+          <select id="rShapeSelect">
+            <option value="BR">ラウンド (BR)</option>
+            <option value="PS">ペアシェイプ (PS)</option>
+          </select>
+          <select id="rColorSelect">
+            <option value="">カラー</option>
+            <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+            <option value="G">G</option><option value="H">H</option><option value="I">I</option>
+            <option value="J">J</option><option value="K">K</option><option value="L">L</option>
+            <option value="M">M</option>
+          </select>
+          <select id="rClaritySelect">
+            <option value="">クラリティ</option>
+            <option value="IF">IF</option><option value="VVS1">VVS1</option><option value="VVS2">VVS2</option>
+            <option value="VS1">VS1</option><option value="VS2">VS2</option>
+            <option value="SI1">SI1</option><option value="SI2">SI2</option><option value="SI3">SI3</option>
+            <option value="I1">I1</option><option value="I2">I2</option><option value="I3">I3</option>
+          </select>
+          <input type="text" id="rCaratInput" placeholder="カラット (例: 0.50)" inputmode="decimal" style="text-align:center;">
+          <select id="rRateSelectLookup">
+            <option value="1.0">掛け率なし</option>
+            <option value="0.5">5掛け</option><option value="0.6">6掛け</option>
+            <option value="0.7">7掛け</option><option value="0.8" selected>8掛け</option>
+            <option value="0.9">9掛け</option>
+          </select>
+          <button class="btn btn-primary" id="rLookupBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            検索
+          </button>
+        </div>
+
+        <div class="lookup-result-card" id="lookupResultCard">
+          <div class="lookup-result-row">
+            <span class="lr-label">グレード</span>
+            <span class="lr-val" id="lrGrade" style="font-family:'Shippori Mincho',serif;">—</span>
+          </div>
+          <div class="lookup-result-row">
+            <span class="lr-label">カラット範囲</span>
+            <span class="lr-val" id="lrCtRange">—</span>
+          </div>
+          <div class="lookup-result-row">
+            <span class="lr-label">ラパ価格</span>
+            <span class="lr-val usd" id="lrUsd">—</span>
+          </div>
+          <div class="lookup-result-row">
+            <span class="lr-label">円換算単価</span>
+            <span class="lr-val big" id="lrJpy">—<span class="lr-unit">円/ct</span></span>
+          </div>
+          <div class="lookup-result-row" id="lrTotalRow" style="display:none;">
+            <span class="lr-label">買取参考価格（<span id="lrRateLabel">8掛け</span>）</span>
+            <span class="lr-val big" id="lrTotal">—<span class="lr-unit">円</span></span>
+          </div>
+          <div class="lookup-result-row">
+            <span class="lr-label">データ日付</span>
+            <span class="lr-val" id="lrDate" style="color:var(--ink-soft);font-size:0.75rem;">—</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="flex-row">
-    <label>クラリティ</label>
-    <select id="minClaritySelect" onchange="syncToValue('minClaritySelect','maxClaritySelect')">
-      <option value="">すべて</option>
-      <option value="FL">FL</option>
-      <option value="IF">IF</option>
-      <option value="VVS1">VVS1</option>
-      <option value="VVS2">VVS2</option>
-      <option value="VS1">VS1</option>    
-      <option value="VS2">VS2</option>       
-      <option value="SI1">SI1</option>       
-      <option value="SI2">SI2</option>  
-      <option value="I1">I1</option>        
-      <option value="I2">I2</option> 
-      <option value="I3">I3</option>  
-    </select>
-    <span>～</span>
-    <select id="maxClaritySelect">
-      <option value="">すべて</option>
-      <option value="FL">FL</option>
-      <option value="IF">IF</option>
-      <option value="VVS1">VVS1</option>
-      <option value="VVS2">VVS2</option>
-      <option value="VS1">VS1</option>    
-      <option value="VS2">VS2</option>       
-      <option value="SI1">SI1</option>       
-      <option value="SI2">SI2</option>  
-      <option value="I1">I1</option>        
-      <option value="I2">I2</option> 
-      <option value="I3">I3</option>  
-    </select>
-  </div>
-
-  <div class="flex-row">
-    <label>カット</label>
-    <select id="minCutSelect" onchange="syncToValue('minCutSelect','maxCutSelect')">
-      <option value="">すべて</option>
-      <option value="EX">EXCELLENT</option>
-      <option value="VG">VERY GOOD</option>
-      <option value="GD">GOOD</option>
-      <option value="FR">FAIR</option>
-      <option value="PR">POOR</option>
-    </select>
-    <span>～</span>
-    <select id="maxCutSelect">
-      <option value="">すべて</option>
-      <option value="EX">EXCELLENT</option>
-      <option value="VG">VERY GOOD</option>
-      <option value="GD">GOOD</option>
-      <option value="FR">FAIR</option>
-      <option value="PR">POOR</option>
-    </select>
-
-    <!-- H&Cだけを別のラッパーにする -->
-    <div class="hc-wrapper">
-      <label style="margin-left:10px; font-weight:normal;">
-        <input type="checkbox" id="hcCheck"> H&C
-      </label>
+  <!-- 価格テーブルパネル -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-header-dot"></div>
+      <div class="panel-title">ラパポート価格表</div>
+    </div>
+    <div class="panel-body">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;">
+        <select id="tblShapeSelect" style="min-width:160px;">
+          <option value="BR">ラウンド (BR)</option>
+          <option value="PS">ペアシェイプ (PS)</option>
+        </select>
+        <select id="tblCtRangeSelect" style="min-width:160px;">
+          <option value="">カラット範囲を選択</option>
+        </select>
+        <select id="tblCurrencySelect">
+          <option value="usd">USD / ct</option>
+          <option value="jpy">JPY / ct（円換算）</option>
+        </select>
+        <button class="btn btn-primary btn-sm" id="showTableBtn">表示</button>
+      </div>
+      <div id="rapaTableWrap" class="rapa-table-wrap">
+        <div class="chart-empty">形状・カラット範囲を選択して「表示」を押してください</div>
+      </div>
     </div>
   </div>
 
-  <div class="flex-row">
-    <label for="fluorescenceSelect">蛍光性</label>
-    <select id="fluorescenceSelect">
-      <option value="">すべて</option>
-      <option value="N">N</option>
-      <option value="F">F</option>
-      <option value="MB">MB</option>
-      <option value="SB">SB</option>
-      <option value="VSB">VSB</option>
-    </select>
-  </div>
-  <div class="flex-row">
-    <label for="shapeSelect">形状</label>
-    <select id="shapeSelect"><option value="">すべて</option></select>
+  <!-- グラフ一覧パネル -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-header-dot"></div>
+      <div class="panel-title">価格変動グラフ</div>
+    </div>
+    <div class="panel-body">
+
+      <!-- ビュー切り替えタブ -->
+      <div style="display:flex;border-bottom:1px solid rgba(192,154,80,0.15);margin:-16px -18px 16px;padding:0 18px;">
+        <button class="graph-view-btn active" data-view="ct" style="background:none;border:none;border-bottom:2px solid var(--gold);color:var(--ink);font-family:'Shippori Mincho',serif;font-size:0.78rem;font-weight:600;padding:10px 16px;cursor:pointer;margin-bottom:-1px;letter-spacing:.05em;white-space:nowrap;">① カラット固定</button>
+        <button class="graph-view-btn" data-view="grade" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--ink-soft);font-family:'Shippori Mincho',serif;font-size:0.78rem;font-weight:600;padding:10px 16px;cursor:pointer;margin-bottom:-1px;letter-spacing:.05em;white-space:nowrap;">② グレード固定</button>
+        <button class="graph-view-btn" data-view="compare" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--ink-soft);font-family:'Shippori Mincho',serif;font-size:0.78rem;font-weight:600;padding:10px 16px;cursor:pointer;margin-bottom:-1px;letter-spacing:.05em;white-space:nowrap;">③ BR vs PS 比較</button>
+      </div>
+
+      <!-- ① カラット固定ビュー -->
+      <div id="viewCt" class="graph-view-panel">
+        <div style="font-size:0.72rem;color:var(--ink-soft);margin-bottom:10px;">カラット範囲を固定 → カラー×クラリティの全ラインを重ねて表示</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+          <div class="shape-toggle-wrap" data-target="gCtShape">
+            <button class="shape-tog-ct active" data-shape="BR">ラウンド</button>
+            <button class="shape-tog-ct" data-shape="PS">ペアシェイプ</button>
+          </div>
+          <select id="gCtRangeSelect" style="min-width:160px;">
+            <option value="">カラット範囲</option>
+          </select>
+          <select id="gCtFilterColor" style="min-width:90px;">
+            <option value="">色: すべて</option>
+            <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+            <option value="G">G</option><option value="H">H</option><option value="I">I</option>
+            <option value="J">J</option><option value="K">K</option>
+          </select>
+          <select id="gCtFilterClarity" style="min-width:100px;">
+            <option value="">クラリティ: すべて</option>
+            <option value="IF">IF</option><option value="VVS1">VVS1</option><option value="VVS2">VVS2</option>
+            <option value="VS1">VS1</option><option value="VS2">VS2</option>
+            <option value="SI1">SI1</option><option value="SI2">SI2</option>
+            <option value="I1">I1</option>
+          </select>
+          <button class="btn btn-primary btn-sm" id="plotCtBtn">グラフ表示</button>
+        </div>
+        <div class="graph-chart-wrap">
+          <canvas id="chartCt"></canvas>
+          <div class="chart-empty" id="emptyCtMsg">上の条件を選択してグラフを表示してください</div>
+        </div>
+      </div>
+
+      <!-- ② グレード固定ビュー -->
+      <div id="viewGrade" class="graph-view-panel" style="display:none;">
+        <div style="font-size:0.72rem;color:var(--ink-soft);margin-bottom:10px;">グレード（カラー+クラリティ）を固定 → カラット範囲ごとの価格変動を比較</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+          <div class="shape-toggle-wrap">
+            <button class="shape-tog-gr active" data-shape="BR">ラウンド</button>
+            <button class="shape-tog-gr" data-shape="PS">ペアシェイプ</button>
+          </div>
+          <select id="gGrColor" style="min-width:80px;">
+            <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+            <option value="G">G</option><option value="H">H</option><option value="I">I</option>
+            <option value="J">J</option><option value="K">K</option>
+          </select>
+          <select id="gGrClarity" style="min-width:90px;">
+            <option value="IF">IF</option><option value="VVS1">VVS1</option><option value="VVS2">VVS2</option>
+            <option value="VS1">VS1</option><option value="VS2">VS2</option>
+            <option value="SI1">SI1</option><option value="SI2">SI2</option>
+            <option value="I1">I1</option>
+          </select>
+          <button class="btn btn-primary btn-sm" id="plotGrBtn">グラフ表示</button>
+        </div>
+        <div class="graph-chart-wrap">
+          <canvas id="chartGr"></canvas>
+          <div class="chart-empty" id="emptyGrMsg">上の条件を選択してグラフを表示してください</div>
+        </div>
+      </div>
+
+      <!-- ③ BR vs PS 比較ビュー -->
+      <div id="viewCompare" class="graph-view-panel" style="display:none;">
+        <div style="font-size:0.72rem;color:var(--ink-soft);margin-bottom:10px;">同グレード・同カラット範囲でラウンドとペアシェイプの価格推移を比較</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+          <select id="gCmpColor" style="min-width:80px;">
+            <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+            <option value="G">G</option><option value="H">H</option><option value="I">I</option>
+            <option value="J">J</option><option value="K">K</option>
+          </select>
+          <select id="gCmpClarity" style="min-width:90px;">
+            <option value="IF">IF</option><option value="VVS1">VVS1</option><option value="VVS2">VVS2</option>
+            <option value="VS1">VS1</option><option value="VS2">VS2</option>
+            <option value="SI1">SI1</option><option value="SI2">SI2</option>
+            <option value="I1">I1</option>
+          </select>
+          <select id="gCmpCt" style="min-width:160px;">
+            <option value="">カラット範囲</option>
+          </select>
+          <button class="btn btn-primary btn-sm" id="plotCmpBtn">グラフ表示</button>
+        </div>
+        <div class="graph-chart-wrap">
+          <canvas id="chartCmp"></canvas>
+          <div class="chart-empty" id="emptyCmpMsg">上の条件を選択してグラフを表示してください</div>
+        </div>
+      </div>
+
+    </div>
   </div>
 
-  <div class="flex-row">
-    <label for="keyword">フリーワード</label>
-    <input type="text" id="keyword" placeholder="例：D VS1 GD">
-  </div>
+</div><!-- /rapaTab -->
 
-  <div class="flex-row" style="justify-content:center; gap:1rem;">
-    <button id="searchButton">検索</button>
-    <button id="clearButton">クリア</button>
-  </div>
-
-  <div id="loadingSpinner" style="display:none; justify-content:center; margin-top:1rem;">
-    <div class="spinner"></div>
-  </div>
-
-  <!-- 買取参考価格サマリー -->
-  <div id="summaryBox" class="summary-box">
-    <table class="summary-table" role="table" aria-label="買取参考価格サマリー">
-      <tbody>
-        <tr>
-          <td class="label">検索件数</td>
-          <td class="value"><span class="value-inline"><strong id="summaryCount">0</strong>&nbsp;<span class="unit">件</span></span></td>
-        </tr>
-        <tr>
-          <td class="label">平均ガイ単価</td>
-          <td class="value"><span class="value-inline"><strong id="summaryAvgPrice">0</strong>&nbsp;<span class="unit">円</span></span></td>
-        </tr>
-        <tr>
-          <td class="label">掛け率</td>
-          <td class="value">
-            <select id="rateSelect">
-              <option value="0.5">5掛け</option>
-              <option value="0.6">6掛け</option>
-              <option value="0.7">7掛け</option>
-              <option value="0.8" selected>8掛け</option>
-              <option value="0.9">9掛け</option>
-            </select>
-          </td>
-        </tr>
-        <tr class="rate-divider">
-          <td colspan="2"></td>
-        </tr>
-        <tr>
-          <td class="label">ガイ単価</td>
-          <td class="value"><strong id="summaryUnitPrice">0</strong>&nbsp;<span class="unit">円</span></td>
-        </tr>      
-        <tr>
-          <td class="label">カラット</td>
-          <td class="value"><span class="value-inline"><strong id="summaryCarat">0.000</strong>&nbsp;<span class="unit">ct</span></span></td>
-        </tr>
-        <tr>
-          <td class="label total-label">買取価格</td>
-          <td class="value total-value"><span class="value-inline"><strong id="summaryTotalPrice">0</strong>&nbsp;<span class="unit">円</span></span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- 結果テーブル -->
-  <div class="table-wrapper">
-    <table id="resultTable">
-      <thead>
-        <tr>
-          <th class="sortable">日付</th>
-          <th class="sortable">カラー</th>
-          <th class="sortable">クラリティ</th>
-          <th class="sortable">カット</th>
-          <th class="sortable">蛍光性</th>
-          <th class="sortable">形状</th>
-          <th class="sortable numeric">カラット</th>
-          <th class="sortable numeric">ガイ単価</th>
-          <th class="sortable numeric">金額</th>
-          <th class="sortable">備考</th>
-          <th>詳細</th> <!-- ← 詳細はソート対象外 -->
-        </tr>
-      </thead>
-      <tbody id="resultBody"></tbody>
-    </table>
-  </div>
-</div>
+</div><!-- /page-wrap -->
 
 <script>
-  // ---------------------
-  // 共通定義
-  // ---------------------
-  const ALPHA_COLOR_ZONES = [
-    { label: "D",        key: "D",        rank: 100 },
-    { label: "E",        key: "E",        rank: 101 },
-    { label: "F",        key: "F",        rank: 102 },
-    { label: "G",        key: "G",        rank: 103 },
-    { label: "H",        key: "H",        rank: 104 },
-    { label: "I",        key: "I",        rank: 105 },
-    { label: "J",        key: "J",        rank: 106 },
-    { label: "K",        key: "K",        rank: 107 },
-    { label: "L",        key: "L",        rank: 108 },
-    { label: "M",        key: "M",        rank: 109 },
-    { label: "N",        key: "N",        rank: 110 },
+/* ════════════════════════════════════════
+   CONSTANTS
+════════════════════════════════════════ */
+const ALPHA_COLOR_ZONES = [
+  { label:"D",       key:"D",       rank:100 },
+  { label:"E",       key:"E",       rank:101 },
+  { label:"F",       key:"F",       rank:102 },
+  { label:"G",       key:"G",       rank:103 },
+  { label:"H",       key:"H",       rank:104 },
+  { label:"I",       key:"I",       rank:105 },
+  { label:"J",       key:"J",       rank:106 },
+  { label:"K",       key:"K",       rank:107 },
+  { label:"L",       key:"L",       rank:108 },
+  { label:"M",       key:"M",       rank:109 },
+  { label:"N",       key:"N",       rank:110 },
+  { label:"UNDER N", key:"UNDER_N", rank:401 },
+  { label:"UNDER S", key:"UNDER_S", rank:402 },
+  { label:"O～T",    key:"O_T",     rank:500 },
+  { label:"U～Z",    key:"U_Z",     rank:600 }
+];
+const CLARITY_ORDER = ["FL","IF","VVS1","VVS2","VS1","VS2","SI1","SI2","I1","I2","I3"];
+const CLARITY_RAPA  = ["IF","VVS1","VVS2","VS1","VS2","SI1","SI2","SI3","I1","I2","I3"];
+const CUT_RANK      = { EX:1, VG:2, GD:3, FR:4, PR:5 };
+const FLUO_ORDER    = ["N","F","MB","SB","VSB"];
+const CARAT_THRESHOLDS = [0,0.1,0.2,0.25,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.5,2,3,5];
+const fancyGrades = ["FAINT","VERY LIGHT","LIGHT","FANCY LIGHT","FANCY","FANCY INTENSE","FANCY VIVID","FANCY DEEP","FANCY DARK"];
+const fancyTones  = ["YELLOW","PINK","BLUE","GREEN","BROWN","ORANGE","PURPLE","RED","GRAY","BLACK"];
+const shapeMap    = {
+  RD:"ラウンドブリリアント", PS:"ペアシェイプ", HS:"ハートシェイプ",
+  OV:"オーバル", EM:"エメラルド", MQ:"マーキス", SQ:"スクエア",
+  FS:"ファンシー", PRI:"プリンセス", BG:"バゲット", CUS:"クッション",
+  BUT:"バタフライ", TRI:"トリリアント", FA:"ファンシーカット", RCT:"レクタンギュラー"
+};
 
-    { label: "UNDER N",  key: "UNDER_N",  rank: 401 },
-    { label: "UNDER S",  key: "UNDER_S",  rank: 402 },
+const GITHUB_BASE   = "https://raw.githubusercontent.com/sgc-gold/sgc/main/data/";
+const RAPA_URL      = GITHUB_BASE + "rapaport.json";
+const RATE_URL      = GITHUB_BASE + "exchange_rate.json"; // { rate: 156.24, date: "2026-03-02T..." }
 
-    { label: "O～T",     key: "O_T",      rank: 500 },
-    { label: "U～Z",     key: "U_Z",      rank: 600 }
-  ];
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+let diamondData    = [];
+let rapaData       = [];   // flat array of rapaport records
+let usdJpy         = 150;  // default fallback
 
-  const CUT_ORDER = ["EX","VG","GD","FR","PR"];
-  const fancyGrades = ["FAINT","VERY LIGHT","LIGHT","FANCY LIGHT","FANCY","FANCY INTENSE","FANCY VIVID","FANCY DEEP","FANCY DARK"];
-  const fancyTones = ["YELLOW","PINK","BLUE","GREEN","BROWN","ORANGE","PURPLE","RED","GRAY","BLACK"];
-  const CLARITY_ORDER = ["FL","IF","VVS1","VVS2","VS1","VS2","SI1","SI2","I1","I2","I3"];
-  const caratThresholds = [0,0.1,0.2,0.25,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.5,2,3,5];
+/* ════════════════════════════════════════
+   HELPERS (shared)
+════════════════════════════════════════ */
+function syncToValue(fromId, toId) {
+  document.getElementById(toId).value = document.getElementById(fromId).value;
+}
+function getCutGrade(value) {
+  if (!value) return null;
+  const str = value.toUpperCase();
+  const parts = str.includes("/") ? str.split("/") : str.split(" ");
+  const grade = parts.find(p =>
+    p.includes("EX")||p.includes("VG")||p.includes("GD")||p==="G"||
+    p.includes("FR")||p==="FA"||p==="PO"||p.includes("PR")
+  );
+  if (!grade) return null;
+  let base;
+  if      (grade.includes("EX"))               base = "EX";
+  else if (grade.includes("VG"))               base = "VG";
+  else if (grade.includes("GD")||grade==="G")  base = "GD";
+  else if (grade.includes("FR")||grade==="FA") base = "FR";
+  else if (grade.includes("PR")||grade==="PO") base = "PR";
+  else base = null;
+  return { base, hasHC: /H&C|HEART/.test(str) };
+}
+function getAlphaZoneKey(colorText) {
+  if (!colorText) return null;
+  const u = colorText.toUpperCase().trim();
+  if (u.startsWith("UNDER N")) return "UNDER_N";
+  if (u.startsWith("UNDER S")) return "UNDER_S";
+  const m = u.match(/^[D-Z]/);
+  if (!m) return null;
+  const ch = m[0];
+  if ("DEFGHIJKLMN".includes(ch)) return ch;
+  if ("OPQRST".includes(ch)) return "O_T";
+  if ("UVWXYZ".includes(ch)) return "U_Z";
+  return null;
+}
+function setCountEl(el, count, page, totalPages) {
+  if (!el) return;
+  if (count === 0) { el.innerHTML = "該当するデータはありません"; return; }
+  el.innerHTML = `検索結果：<strong>${count.toLocaleString()}</strong> 件（${page} / ${totalPages} ページ）`;
+}
+function fmt(n) { return Math.round(n).toLocaleString(); }
 
-  function syncToValue(fromId, toId) {
-    const from = document.getElementById(fromId).value;
-    const to = document.getElementById(toId);
+/* ════════════════════════════════════════
+   TAB SWITCHING
+════════════════════════════════════════ */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    notifyHeight();
+  });
+});
 
-    if (from !== "") {
-      to.value = from;
-    } else {
-      to.value = ""; // すべてへ戻す
-    }
+/* ════════════════════════════════════════
+   DATA LOAD
+════════════════════════════════════════ */
+async function loadAll() {
+  await Promise.all([loadNJData(), loadRapaData(), loadRate()]);
+}
+
+async function loadNJData() {
+  try {
+    const resp = await fetch(GITHUB_BASE + "diamonds.json");
+    diamondData = await resp.json();
+    populateNJFilters();
+  } catch(e) { console.warn("NJデータ読み込み失敗", e); }
+}
+
+async function loadRapaData() {
+  try {
+    const resp = await fetch(RAPA_URL);
+    const json = await resp.json();
+    rapaData = json.data || [];
+    populateRapaFilters();
+  } catch(e) {
+    console.warn("ラパデータ読み込み失敗 — ローカルフォールバック不可", e);
+  }
+}
+
+async function loadRate() {
+  try {
+    const resp = await fetch(RATE_URL);
+    const json = await resp.json();
+    usdJpy = parseFloat(json.rate) || 150;
+    document.getElementById("rateDisplay").textContent = usdJpy.toFixed(2) + " 円";
+    const dateStr = json.date
+      ? new Date(json.date).toLocaleString("ja-JP", {year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}) + " 更新"
+      : "最新データ";
+    document.getElementById("rateDateDisplay").textContent = dateStr;
+    document.getElementById("manualRate").value = usdJpy.toFixed(2);
+  } catch(e) {
+    document.getElementById("rateDisplay").textContent = usdJpy.toFixed(2) + " 円（仮）";
+    document.getElementById("rateDateDisplay").textContent = "為替データ読み込み失敗";
+    document.getElementById("manualRate").value = usdJpy.toFixed(2);
+  }
+}
+
+document.getElementById("applyRateBtn").addEventListener("click", () => {
+  const v = parseFloat(document.getElementById("manualRate").value);
+  if (!isNaN(v) && v > 0) {
+    usdJpy = v;
+    document.getElementById("rateDisplay").textContent = v.toFixed(2) + " 円（手動）";
+    document.getElementById("rateDateDisplay").textContent = "手動入力値";
+  }
+});
+
+loadAll();
+
+/* ════════════════════════════════════════
+   NJ FILTER INIT
+════════════════════════════════════════ */
+function populateNJFilters() {
+  const dates = new Set(), shapes = new Set();
+  diamondData.forEach(d => {
+    if (d.date)  dates.add(d.date.split(" ")[0]);
+    if (d.shape) shapes.add(d.shape);
+  });
+  const addOpt = (sel, val, label) => sel.appendChild(new Option(label || val, val));
+  const dateSel = document.getElementById("dateSelect");
+  Array.from(dates).sort((a,b) => new Date(b)-new Date(a)).forEach(d => addOpt(dateSel, d));
+  dateSel.selectedIndex = 1;
+  const fromColorSel = document.getElementById("fromColor");
+  const toColorSel   = document.getElementById("toColor");
+  ALPHA_COLOR_ZONES.forEach(z => { addOpt(fromColorSel, z.key, z.label); addOpt(toColorSel, z.key, z.label); });
+  fancyGrades.forEach(g => addOpt(document.getElementById("fancyGradeSelect"), g));
+  fancyTones.forEach(t  => addOpt(document.getElementById("fancyToneSelect"),  t));
+  const sel = document.getElementById("shapeSelect");
+  sel.innerHTML = "";
+  sel.appendChild(new Option("すべて", ""));
+  sel.appendChild(new Option("↳ ラウンドブリリアント", "RD"));
+  sel.appendChild(new Option("↳ ラウンド以外", "NON_ROUND"));
+  [...new Set(Array.from(shapes).filter(s => s && s !== "RD"))].sort().forEach(code => {
+    sel.appendChild(new Option(`　↳ ${shapeMap[code] || code}`, code));
+  });
+}
+
+/* ════════════════════════════════════════
+   RAPA FILTER INIT
+════════════════════════════════════════ */
+function getCtRanges(shape) {
+  const ranges = new Map();
+  rapaData.filter(r => r.shape === shape).forEach(r => {
+    const key = `${r.ct_min}-${r.ct_max}`;
+    if (!ranges.has(key)) ranges.set(key, { min: r.ct_min, max: r.ct_max });
+  });
+  return Array.from(ranges.values()).sort((a,b) => a.min - b.min);
+}
+
+function populateCtRangeSelect(selId, shape) {
+  const sel = document.getElementById(selId);
+  sel.innerHTML = '<option value="">カラット範囲を選択</option>';
+  getCtRanges(shape).forEach(r => {
+    sel.appendChild(new Option(`${r.min.toFixed(2)} 〜 ${r.max.toFixed(2)} ct`, `${r.min}-${r.max}`));
+  });
+}
+
+function populateRapaFilters() {
+  document.getElementById("tblShapeSelect").addEventListener("change", function() {
+    populateCtRangeSelect("tblCtRangeSelect", this.value);
+  });
+  populateCtRangeSelect("tblCtRangeSelect", "BR");
+  populateCtRangeSelect("gCtRangeSelect",   "BR");
+}
+
+/* ════════════════════════════════════════
+   RAPA LOOKUP
+════════════════════════════════════════ */
+function rapaLookup(shape, color, clarity, carat) {
+  if (!rapaData.length) return null;
+  const ct = parseFloat(carat);
+  return rapaData.find(r =>
+    r.shape === shape &&
+    r.color === color &&
+    r.clarity === clarity &&
+    ct >= r.ct_min && ct <= r.ct_max
+  ) || null;
+}
+
+document.getElementById("rLookupBtn").addEventListener("click", () => {
+  const shape   = document.getElementById("rShapeSelect").value;
+  const color   = document.getElementById("rColorSelect").value;
+  const clarity = document.getElementById("rClaritySelect").value;
+  const carat   = document.getElementById("rCaratInput").value;
+  const rate    = parseFloat(document.getElementById("rRateSelectLookup").value) || 1;
+
+  if (!color || !clarity || !carat) {
+    alert("カラー・クラリティ・カラットを選択/入力してください");
+    return;
   }
 
-  // ---------------------
-  // カラットセット機能
-  // ---------------------
+  const rec = rapaLookup(shape, color, clarity, carat);
+  const card = document.getElementById("lookupResultCard");
+
+  if (!rec) {
+    card.classList.add("visible");
+    document.getElementById("lrGrade").textContent = `${color} ${clarity} (${shape})`;
+    document.getElementById("lrCtRange").textContent = "該当データなし";
+    document.getElementById("lrUsd").textContent = "—";
+    document.getElementById("lrJpy").innerHTML = "—<span class='lr-unit'>円/ct</span>";
+    document.getElementById("lrTotalRow").style.display = "none";
+    document.getElementById("lrDate").textContent = "—";
+    return;
+  }
+
+  const jpyPerCt = rec.price_usd * usdJpy;
+  const ct = parseFloat(carat) || 0;
+  const total = Math.round(jpyPerCt * rate * ct);
+  const rateLabels = {"1.0":"掛け率なし","0.5":"5掛け","0.6":"6掛け","0.7":"7掛け","0.8":"8掛け","0.9":"9掛け"};
+
+  card.classList.add("visible");
+  document.getElementById("lrGrade").textContent    = `${color} / ${clarity} / ${shape}`;
+  document.getElementById("lrCtRange").textContent  = `${rec.ct_min.toFixed(2)} 〜 ${rec.ct_max.toFixed(2)} ct`;
+  document.getElementById("lrUsd").innerHTML        = `$${rec.price_usd.toLocaleString()} <span style="font-size:0.72rem;color:var(--ink-soft)">USD/ct</span>`;
+  document.getElementById("lrJpy").innerHTML        = `${fmt(jpyPerCt)}<span class="lr-unit">円/ct</span>`;
+  document.getElementById("lrRateLabel").textContent = rateLabels[String(rate)] || `${rate*100}%`;
+  document.getElementById("lrDate").textContent     = rec.date;
+  if (ct > 0) {
+    document.getElementById("lrTotalRow").style.display = "flex";
+    document.getElementById("lrTotal").innerHTML = `${fmt(total)}<span class="lr-unit">円</span>`;
+  } else {
+    document.getElementById("lrTotalRow").style.display = "none";
+  }
+});
+
+/* ════════════════════════════════════════
+   RAPA PRICE TABLE
+════════════════════════════════════════ */
+document.getElementById("showTableBtn").addEventListener("click", () => {
+  const shape    = document.getElementById("tblShapeSelect").value;
+  const ctVal    = document.getElementById("tblCtRangeSelect").value;
+  const currency = document.getElementById("tblCurrencySelect").value;
+
+  if (!ctVal) { alert("カラット範囲を選択してください"); return; }
+  const [ctMin, ctMax] = ctVal.split("-").map(Number);
+
+  const rows = rapaData.filter(r =>
+    r.shape === shape && r.ct_min === ctMin && r.ct_max === ctMax
+  );
+
+  if (!rows.length) {
+    document.getElementById("rapaTableWrap").innerHTML =
+      '<div class="chart-empty">該当データがありません</div>';
+    return;
+  }
+
+  // colors × clarities
+  const colors    = [...new Set(rows.map(r => r.color))].sort((a,b) => a.charCodeAt(0)-b.charCodeAt(0));
+  const clarities = CLARITY_RAPA.filter(c => rows.some(r => r.clarity === c));
+
+  let html = `<table class="rapa-table"><thead><tr><th>COLOR</th>`;
+  clarities.forEach(c => html += `<th>${c}</th>`);
+  html += `</tr></thead><tbody>`;
+
+  colors.forEach(color => {
+    html += `<tr><td>${color}</td>`;
+    clarities.forEach(cl => {
+      const rec = rows.find(r => r.color === color && r.clarity === cl);
+      if (!rec) { html += `<td>—</td>`; return; }
+      const val = currency === "jpy"
+        ? fmt(rec.price_usd * usdJpy) + "円"
+        : "$" + rec.price_usd.toLocaleString();
+      html += `<td>${val}</td>`;
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table>`;
+
+  document.getElementById("rapaTableWrap").innerHTML =
+    `<div style="font-size:0.72rem;color:var(--ink-soft);margin-bottom:6px;">
+      ${shape === "BR" ? "ラウンド" : "ペアシェイプ"} ／
+      ${ctMin.toFixed(2)}〜${ctMax.toFixed(2)} ct ／
+      ${currency === "jpy" ? "JPY/ct（レート: " + usdJpy.toFixed(2) + "）" : "USD/ct"}
+      ／ ラパポート ${rows[0]?.date || ""}
+    </div>` + html;
+});
+
+/* ════════════════════════════════════════
+   RAPA GRAPH  — 3ビュー
+════════════════════════════════════════ */
+const GRAPH_COLORS    = ["D","E","F","G","H","I","J","K","L","M"];
+const GRAPH_CLARITIES = ["IF","VVS1","VVS2","VS1","VS2","SI1","SI2","SI3","I1","I2","I3"];
+
+// カラー毎の色（10色）
+const C_PAL = {
+  D:"#3B6EA5", E:"#2E8B74", F:"#5A8A2B",
+  G:"#B08020", H:"#A05030", I:"#7B5B9B",
+  J:"#A03030", K:"#455A64", L:"#6D4C41", M:"#546E7A"
+};
+// クラリティ毎の線スタイル（ダッシュパターン）
+const CL_DASH = {
+  IF:[], VVS1:[4,2], VVS2:[4,2,1,2], VS1:[8,3],
+  VS2:[8,3,2,3], SI1:[5,5], SI2:[5,5,2,5],
+  SI3:[2,4], I1:[2,2], I2:[1,3], I3:[1,5]
+};
+
+let activeView = "ct";
+let gCtShape = "BR";
+let gGrShape = "BR";
+const charts = { ct: null, gr: null, cmp: null };
+
+// デモ用：1件データから参考過去3点を生成
+function demoPoints(real) {
+  const offsets = [-0.13, -0.07, -0.02, 0];
+  return offsets.map((o, i) => {
+    const d = new Date(real.date.replace(/(\d+)\/(\d+)\/(\d+)/, "$3-$1-$2"));
+    d.setMonth(d.getMonth() - (3 - i) * 3);
+    return {
+      date: `${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")}/${d.getFullYear()}`,
+      price_usd: Math.round(real.price_usd * (1 + o)),
+      isDemo: i < 3
+    };
+  });
+}
+
+function makeChart(canvasId, emptyId, data, title) {
+  const canvas = document.getElementById(canvasId);
+  const emptyEl = document.getElementById(emptyId);
+  if (!canvas) return;
+  if (charts[canvasId.replace("chart","").toLowerCase()]) {
+    charts[canvasId.replace("chart","").toLowerCase()].destroy();
+  }
+  if (!data || !data.datasets || data.datasets.length === 0) {
+    emptyEl.style.display = "flex";
+    canvas.style.display  = "none";
+    emptyEl.textContent   = "該当データがありません（データ蓄積後に表示されます）";
+    return;
+  }
+  emptyEl.style.display = "none";
+  canvas.style.display  = "block";
+
+  const key = canvasId.replace("chart","").toLowerCase();
+  charts[key] = new Chart(canvas, {
+    type: "line",
+    data: data,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: {
+          display: true,
+          position: "bottom",
+          labels: {
+            boxWidth: 16, boxHeight: 2,
+            font: { size: 10, family: "DM Sans" },
+            color: "#5A5448",
+            padding: 10,
+            usePointStyle: true,
+            pointStyle: "line"
+          }
+        },
+        title: {
+          display: !!title,
+          text: title || "",
+          font: { size: 12, family: "Shippori Mincho", weight: "600" },
+          color: "#1A3628",
+          padding: { bottom: 12 }
+        },
+        tooltip: {
+          backgroundColor: "rgba(14,31,23,0.92)",
+          titleFont: { size: 11 }, bodyFont: { size: 11 },
+          callbacks: {
+            label: ctx => {
+              const v = ctx.raw;
+              const isDemoPoint = ctx.dataset.demoFlags?.[ctx.dataIndex];
+              const suffix = isDemoPoint ? "（参考）" : "";
+              return ` ${ctx.dataset.label}: $${v?.toLocaleString()}  ≈ ${Math.round(v * usdJpy).toLocaleString()}円${suffix}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: {
+            callback: v => "$" + v.toLocaleString(),
+            font: { size: 10 }, color: "#5A5448"
+          },
+          grid: { color: "rgba(192,154,80,0.1)" }
+        },
+        x: {
+          ticks: { font: { size: 10 }, color: "#5A5448", maxRotation: 30 },
+          grid: { color: "rgba(192,154,80,0.08)" }
+        }
+      }
+    }
+  });
+}
+
+// ── ビュー切り替え ──
+document.querySelectorAll(".graph-view-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".graph-view-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeView = btn.dataset.view;
+    document.querySelectorAll(".graph-view-panel").forEach(p => p.style.display = "none");
+    const map = { ct:"viewCt", grade:"viewGrade", compare:"viewCompare" };
+    document.getElementById(map[activeView]).style.display = "block";
+    notifyHeight();
+  });
+});
+
+// ── 形状トグル共通処理 ──
+document.querySelectorAll(".shape-tog-ct").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".shape-tog-ct").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    gCtShape = btn.dataset.shape;
+    populateCtRangeSelect("gCtRangeSelect", gCtShape);
+  });
+});
+document.querySelectorAll(".shape-tog-gr").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".shape-tog-gr").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    gGrShape = btn.dataset.shape;
+  });
+});
+
+// ── ① カラット固定ビュー ──
+document.getElementById("plotCtBtn").addEventListener("click", () => {
+  const ctVal    = document.getElementById("gCtRangeSelect").value;
+  const fColor   = document.getElementById("gCtFilterColor").value;
+  const fClarity = document.getElementById("gCtFilterClarity").value;
+  if (!ctVal) { alert("カラット範囲を選択してください"); return; }
+  const [ctMin, ctMax] = ctVal.split("-").map(Number);
+
+  const colors    = fColor   ? [fColor]   : GRAPH_COLORS;
+  const clarities = fClarity ? [fClarity] : GRAPH_CLARITIES;
+
+  // 全ラインを収集（カラー×クラリティ）
+  const datasets = [];
+  let allDates = new Set();
+
+  colors.forEach(color => {
+    clarities.forEach(clarity => {
+      const pts = rapaData.filter(r =>
+        r.shape === gCtShape && r.color === color &&
+        r.clarity === clarity && r.ct_min === ctMin && r.ct_max === ctMax
+      ).sort((a,b) => new Date(a.date) - new Date(b.date));
+
+      if (!pts.length) return;
+      const displayPts = pts.length === 1 ? demoPoints(pts[0]) : pts;
+      displayPts.forEach(p => allDates.add(p.date));
+
+      datasets.push({
+        label: `${color}/${clarity}`,
+        data: displayPts.map(p => p.price_usd),
+        demoFlags: displayPts.map(p => p.isDemo || false),
+        borderColor: C_PAL[color] || "#888",
+        backgroundColor: "transparent",
+        borderDash: CL_DASH[clarity] || [],
+        borderWidth: 1.8,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        tension: 0.35,
+      });
+    });
+  });
+
+  const sortedDates = [...allDates].sort((a,b) => new Date(a.replace(/(\d+)\/(\d+)\/(\d+)/,"$3-$1-$2")) - new Date(b.replace(/(\d+)\/(\d+)\/(\d+)/,"$3-$1-$2")));
+  const shapeLabel = gCtShape === "BR" ? "ラウンド" : "ペアシェイプ";
+  const title = `${shapeLabel} ／ ${ctMin.toFixed(2)}〜${ctMax.toFixed(2)} ct`;
+
+  makeChart("chartCt", "emptyCtMsg",
+    datasets.length ? { labels: sortedDates, datasets } : null,
+    title
+  );
+  notifyHeight();
+});
+
+// ── ② グレード固定ビュー ──
+document.getElementById("plotGrBtn").addEventListener("click", () => {
+  const color   = document.getElementById("gGrColor").value;
+  const clarity = document.getElementById("gGrClarity").value;
+
+  const ctRanges = [...new Map(
+    rapaData.filter(r => r.shape === gGrShape && r.color === color && r.clarity === clarity)
+      .map(r => [`${r.ct_min}-${r.ct_max}`, { min: r.ct_min, max: r.ct_max }])
+  ).values()].sort((a,b) => a.min - b.min);
+
+  const datasets = [];
+  const palette = ["#3B6EA5","#2E8B74","#B08020","#A03030","#7B5B9B","#A05030","#5A8A2B","#455A64","#6D4C41","#546E7A"];
+  let allDates = new Set();
+
+  ctRanges.forEach((range, i) => {
+    const pts = rapaData.filter(r =>
+      r.shape === gGrShape && r.color === color &&
+      r.clarity === clarity && r.ct_min === range.min && r.ct_max === range.max
+    ).sort((a,b) => new Date(a.date) - new Date(b.date));
+
+    if (!pts.length) return;
+    const displayPts = pts.length === 1 ? demoPoints(pts[0]) : pts;
+    displayPts.forEach(p => allDates.add(p.date));
+
+    datasets.push({
+      label: `${range.min.toFixed(2)}〜${range.max.toFixed(2)} ct`,
+      data: displayPts.map(p => p.price_usd),
+      demoFlags: displayPts.map(p => p.isDemo || false),
+      borderColor: palette[i % palette.length],
+      backgroundColor: "transparent",
+      borderWidth: 2,
+      pointRadius: 3,
+      pointHoverRadius: 5,
+      tension: 0.35,
+    });
+  });
+
+  const sortedDates = [...allDates].sort((a,b) => new Date(a.replace(/(\d+)\/(\d+)\/(\d+)/,"$3-$1-$2")) - new Date(b.replace(/(\d+)\/(\d+)\/(\d+)/,"$3-$1-$2")));
+  const shapeLabel = gGrShape === "BR" ? "ラウンド" : "ペアシェイプ";
+
+  makeChart("chartGr", "emptyGrMsg",
+    datasets.length ? { labels: sortedDates, datasets } : null,
+    `${shapeLabel} ${color} / ${clarity} — カラット別推移`
+  );
+  notifyHeight();
+});
+
+// ── ③ BR vs PS 比較ビュー ──
+// カラット範囲セレクトを共通から生成
+function populateCmpCtSelect() {
+  const color   = document.getElementById("gCmpColor").value;
+  const clarity = document.getElementById("gCmpClarity").value;
+  const sel     = document.getElementById("gCmpCt");
+  sel.innerHTML = '<option value="">カラット範囲</option>';
+  const ranges = new Set();
+  rapaData.filter(r => r.color === color && r.clarity === clarity)
+    .forEach(r => ranges.add(`${r.ct_min}-${r.ct_max}`));
+  [...ranges].sort((a,b) => parseFloat(a) - parseFloat(b)).forEach(v => {
+    const [mn, mx] = v.split("-").map(Number);
+    sel.appendChild(new Option(`${mn.toFixed(2)}〜${mx.toFixed(2)} ct`, v));
+  });
+}
+["gCmpColor","gCmpClarity"].forEach(id => {
+  document.getElementById(id).addEventListener("change", populateCmpCtSelect);
+});
+populateCmpCtSelect();
+
+document.getElementById("plotCmpBtn").addEventListener("click", () => {
+  const color   = document.getElementById("gCmpColor").value;
+  const clarity = document.getElementById("gCmpClarity").value;
+  const ctVal   = document.getElementById("gCmpCt").value;
+  if (!ctVal) { alert("カラット範囲を選択してください"); return; }
+  const [ctMin, ctMax] = ctVal.split("-").map(Number);
+
+  const shapes = [
+    { shape:"BR", label:"ラウンド (BR)", color:"#1A3628", dash:[] },
+    { shape:"PS", label:"ペアシェイプ (PS)", color:"#C09A50", dash:[6,3] }
+  ];
+
+  const datasets = [];
+  let allDates = new Set();
+
+  shapes.forEach(s => {
+    const pts = rapaData.filter(r =>
+      r.shape === s.shape && r.color === color &&
+      r.clarity === clarity && r.ct_min === ctMin && r.ct_max === ctMax
+    ).sort((a,b) => new Date(a.date) - new Date(b.date));
+
+    if (!pts.length) return;
+    const displayPts = pts.length === 1 ? demoPoints(pts[0]) : pts;
+    displayPts.forEach(p => allDates.add(p.date));
+
+    datasets.push({
+      label: s.label,
+      data: displayPts.map(p => p.price_usd),
+      demoFlags: displayPts.map(p => p.isDemo || false),
+      borderColor: s.color,
+      backgroundColor: s.color + "18",
+      borderDash: s.dash,
+      borderWidth: 2.5,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      fill: true,
+      tension: 0.35,
+    });
+  });
+
+  const sortedDates = [...allDates].sort((a,b) => new Date(a.replace(/(\d+)\/(\d+)\/(\d+)/,"$3-$1-$2")) - new Date(b.replace(/(\d+)\/(\d+)\/(\d+)/,"$3-$1-$2")));
+
+  makeChart("chartCmp", "emptyCmpMsg",
+    datasets.length ? { labels: sortedDates, datasets } : null,
+    `${color} / ${clarity} / ${ctMin.toFixed(2)}〜${ctMax.toFixed(2)} ct — BR vs PS`
+  );
+  notifyHeight();
+});
+
+/* ════════════════════════════════════════
+   COLOR TOGGLE (NJ Tab)
+════════════════════════════════════════ */
+document.querySelectorAll('.ctog-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.ctog-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const type = btn.dataset.type;
+    document.querySelector('.alpha-form').style.display = type === 'alpha' ? 'flex' : 'none';
+    document.querySelector('.fancy-form').style.display = type === 'fancy' ? 'flex' : 'none';
+    document.getElementById('treatedCheck').checked = false;
+    document.getElementById('faintCheck').checked   = false;
+  });
+});
+window.addEventListener("DOMContentLoaded", () => {
+  document.querySelector('.alpha-form').style.display = 'flex';
+  document.querySelector('.fancy-form').style.display = 'none';
+});
+document.getElementById('fromColor').addEventListener('change', function() {
+  document.getElementById('toColor').value = this.value;
+});
+
+/* ════════════════════════════════════════
+   CARAT SET (NJ Tab)
+════════════════════════════════════════ */
 document.getElementById("setCarat").addEventListener("click", () => {
   const c = parseFloat(document.getElementById("mainCarat").value);
   if (isNaN(c)) return alert("数値を入力してください");
-
   let min = 0, max = null;
-
-  // 入力値がcaratThresholdsの範囲に入るか判定
-  for (let i = 0; i < caratThresholds.length - 1; i++) {
-    if (c >= caratThresholds[i] && c < caratThresholds[i + 1]) {
-      min = caratThresholds[i];
-      max = caratThresholds[i + 1] - 0.001;
-      break;
+  for (let i = 0; i < CARAT_THRESHOLDS.length - 1; i++) {
+    if (c >= CARAT_THRESHOLDS[i] && c < CARAT_THRESHOLDS[i+1]) {
+      min = CARAT_THRESHOLDS[i]; max = CARAT_THRESHOLDS[i+1] - 0.001; break;
     }
   }
-
-  // 最後の範囲（5.000以上）の場合は上限なし
-  if (c >= caratThresholds[caratThresholds.length - 1]) {
-    min = caratThresholds[caratThresholds.length - 1];
-    max = null; // 上限なし
+  if (c >= CARAT_THRESHOLDS[CARAT_THRESHOLDS.length - 1]) {
+    min = CARAT_THRESHOLDS[CARAT_THRESHOLDS.length - 1]; max = null;
   }
-
   document.getElementById("minCarat").value = min.toFixed(3);
   document.getElementById("maxCarat").value = max !== null ? max.toFixed(3) : "";
 });
 
-  // ---------------------
-  // カラー切り替え
-  // ---------------------
-  const colorBtns = document.querySelectorAll('.colorTypeBtn');
+/* ════════════════════════════════════════
+   NJ SEARCH
+════════════════════════════════════════ */
+document.getElementById("searchButton").addEventListener("click", runSearch);
 
-  colorBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      // ボタンのアクティブ切替
-      colorBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+function runSearch() {
+  document.getElementById("loadingSpinner").style.display = "flex";
+  setTimeout(() => {
+    const minC     = parseFloat(document.getElementById("minCarat").value) || 0;
+    const maxC     = parseFloat(document.getElementById("maxCarat").value) || 999;
+    const dateVal  = document.getElementById("dateSelect").value;
+    const shapeVal = document.getElementById("shapeSelect").value;
+    const keyword  = document.getElementById("keyword").value.trim().toLowerCase();
+    const fromColorVal = document.getElementById("fromColor").value;
+    const toColorVal   = document.getElementById("toColor").value;
+    const fancyGrade   = document.getElementById("fancyGradeSelect").value;
+    const fancyTone    = document.getElementById("fancyToneSelect").value;
+    const treatedOnly  = document.getElementById("treatedCheck").checked;
+    const faintOnly    = document.getElementById("faintCheck").checked;
+    const hcChecked    = document.getElementById("hcCheck").checked;
+    const minClarity   = document.getElementById("minClaritySelect").value;
+    const maxClarity   = document.getElementById("maxClaritySelect").value;
+    const minCut       = document.getElementById("minCutSelect").value;
+    const maxCut       = document.getElementById("maxCutSelect").value;
+    const minFluo      = document.getElementById("minFluoSelect").value;
+    const maxFluo      = document.getElementById("maxFluoSelect").value;
+    const activeColorType = document.querySelector('.ctog-btn.active')?.dataset.type || "all";
 
-      const type = btn.dataset.type;
-
-      // フォーム切替
-      document.querySelector('.alphaForm').style.display = type === 'alpha' ? 'flex' : 'none';
-      document.querySelector('.fancyForm').style.display = type === 'fancy' ? 'flex' : 'none';
-
-      // ---------------------
-      // TREATED / FAINT 表示制御
-      // ---------------------
-      const treatedLabel = document.querySelector('.treated-check');
-      const faintLabel   = document.querySelector('.faint-check');
-
-      // 一旦すべて非表示 & チェック解除
-      treatedLabel.style.display = 'none';
-      faintLabel.style.display   = 'none';
-      document.getElementById('treatedCheck').checked = false;
-      document.getElementById('faintCheck').checked   = false;
-
-      // FANCY → TREATEDのみ表示
-      if (type === 'fancy') {
-        treatedLabel.style.display = 'inline-flex';
+    const results = diamondData.filter(d => {
+      const c = parseFloat(d.carat) || 0;
+      if (c < minC || c > maxC) return false;
+      if (dateVal && d.date.split(" ")[0] < dateVal) return false;
+      if (shapeVal) {
+        if (shapeVal === "NON_ROUND") { if (d.shape === "RD") return false; }
+        else { if (d.shape !== shapeVal) return false; }
       }
-
-      // AtoZ → FAINTのみ表示
-      if (type === 'alpha') {
-        faintLabel.style.display = 'inline-flex';
+      if (minClarity || maxClarity) {
+        const ci = CLARITY_ORDER.indexOf(d.clarity);
+        const lo = minClarity ? CLARITY_ORDER.indexOf(minClarity) : -1;
+        const hi = maxClarity ? CLARITY_ORDER.indexOf(maxClarity) : CLARITY_ORDER.length;
+        if (lo !== -1 && ci < lo) return false;
+        if (hi !== CLARITY_ORDER.length && ci > hi) return false;
       }
-
-      // 「すべて」など（念のため）
-      // → どちらも表示しない（初期状態）
-    });
-  });
-
-  // ---------------------
-  // 初期状態：AtoZを選択
-  // ---------------------
-  window.addEventListener("DOMContentLoaded", () => {
-    const defaultBtn = document.querySelector('.colorTypeBtn[data-type="alpha"]');
-    if (defaultBtn) {
-      defaultBtn.click(); // ← クリックと同じ処理を実行
-    }
-  });
-
-  // ---------------------
-  // AtoZ入力規則
-  // ---------------------  
-  const fromColor = document.getElementById('fromColor');
-  const toColor = document.getElementById('toColor');
-
-  // Fromを変更したらToにコピー
-  fromColor.addEventListener('change', () => {
-    toColor.value = fromColor.value;
-  });
-
-  // Toを変更してもFromは変えない
-  toColor.addEventListener('change', () => {
-    // 特に処理は不要、Fromに影響させない
-  });
-
-  // ---------------------
-  // クラリティ From → To 自動反映
-  // ---------------------
-  document.getElementById("minClaritySelect")?.addEventListener("change", () => {
-    syncToValue("minClaritySelect", "maxClaritySelect");
-  });
-
-  // ---------------------
-  // カット From → To 自動反映
-  // ---------------------
-  document.getElementById("minCutSelect")?.addEventListener("change", () => {
-    syncToValue("minCutSelect", "maxCutSelect");
-  });
-
-  // ---------------------
-  // JSON取得＆フィルター作成
-  // ---------------------
-  let diamondData = [];
-  async function populateFilters() {
-    const resp = await fetch("https://raw.githubusercontent.com/sgc-gold/sgc/main/data/diamonds.json");
-    diamondData = await resp.json();
-
-    const sets = { dates:new Set(), clarities:new Set(), cuts:new Set(), fluos:new Set(), shapes:new Set() };
-    diamondData.forEach(d => {
-      if(d.date) sets.dates.add(d.date.split(" ")[0]);
-      if(d.clarity) sets.clarities.add(d.clarity);
-      if(d.cut) sets.cuts.add(d.cut);
-      if(d.fluorescence) sets.fluos.add(d.fluorescence);
-      if(d.shape) sets.shapes.add(d.shape);
+      if (minCut || maxCut) {
+        const res = getCutGrade(d.cut);
+        if (!res || !res.base) return false;
+        if (minCut && CUT_RANK[res.base] < CUT_RANK[minCut]) return false;
+        if (maxCut && CUT_RANK[res.base] > CUT_RANK[maxCut]) return false;
+      }
+      if (minFluo || maxFluo) {
+        const fi = FLUO_ORDER.indexOf(d.fluorescence);
+        const lo = minFluo ? FLUO_ORDER.indexOf(minFluo) : -1;
+        const hi = maxFluo ? FLUO_ORDER.indexOf(maxFluo) : FLUO_ORDER.length;
+        if (fi === -1) return false;
+        if (lo !== -1 && fi < lo) return false;
+        if (hi !== FLUO_ORDER.length && fi > hi) return false;
+      }
+      if (keyword) {
+        const fields = [d.carat,d.color,d.clarity,d.cut,d.fluorescence,d.notes].join(" ").toLowerCase();
+        if (!keyword.split(" ").every(k => fields.includes(k))) return false;
+      }
+      const colorUpper = (d.color || "").toUpperCase();
+      const isFancy = d.colorType === "FANCY";
+      const isAlpha = d.colorType === "ALPHA";
+      if (activeColorType === "alpha" && !isAlpha) return false;
+      if (activeColorType === "fancy" && !isFancy) return false;
+      if (isAlpha && (fromColorVal || toColorVal)) {
+        const itemKey = getAlphaZoneKey(colorUpper);
+        const order   = ALPHA_COLOR_ZONES.map(z => z.key);
+        const fromIdx = fromColorVal ? order.indexOf(fromColorVal) : 0;
+        const toIdx   = toColorVal   ? order.indexOf(toColorVal)   : order.length - 1;
+        const itemIdx = order.indexOf(itemKey);
+        if (itemIdx === -1 || itemIdx < fromIdx || itemIdx > toIdx) return false;
+      }
+      if (isFancy) {
+        if (fancyGrade && !colorUpper.includes(fancyGrade.toUpperCase())) return false;
+        if (fancyTone  && !colorUpper.includes(fancyTone.toUpperCase()))  return false;
+      }
+      if (treatedOnly && !colorUpper.includes("TREATED")) return false;
+      if (faintOnly   && !colorUpper.includes("FAINT"))   return false;
+      if (hcChecked) {
+        const cu = (d.cut || "").toUpperCase();
+        if (!(cu.includes("H&C") || cu.includes("HC"))) return false;
+      }
+      return true;
     });
 
-    const addOption = (sel,val)=>sel.appendChild(new Option(val,val));
+    results.sort((a,b) => (Number(a.NO)||0) - (Number(b.NO)||0));
+    window.lastSearchResults = results;
 
-    
-    Array.from(sets.dates).sort((a,b)=>new Date(b)-new Date(a)).forEach(d=>addOption(document.getElementById("dateSelect"),d));
-    document.getElementById("dateSelect").selectedIndex = 1;
-    Array.from(sets.shapes).sort().forEach(s=>addOption(document.getElementById("shapeSelect"),s));
+    document.getElementById("resultSection").style.display = "block";
+    document.getElementById("resultTable").style.display   = "table";
 
-    const fromColorSel = document.getElementById("fromColor");
-    const toColorSel = document.getElementById("toColor");
-    ALPHA_COLOR_ZONES.forEach(z => {
-      fromColorSel.appendChild(new Option(z.label, z.key));
-      toColorSel.appendChild(new Option(z.label, z.key));
-    });
+    const perPage    = 100;
+    let currentPage  = 1;
+    const totalPages = Math.ceil(results.length / perPage) || 1;
 
-    const fancyGradeSel = document.getElementById("fancyGradeSelect");
-    const fancyToneSel = document.getElementById("fancyToneSelect");
-    fancyGrades.forEach(g=>addOption(fancyGradeSel,g));
-    fancyTones.forEach(t=>addOption(fancyToneSel,t));
-
-    // ---------------------
-    // 形状セレクトの生成を追加
-    // ---------------------
-    const shapeCodesFromData = Array.from(sets.shapes);
-    populateShapeSelect(shapeCodesFromData);    
-  }
-  populateFilters();
-
-  // ---------------------
-  // スコアリング関数
-  // ---------------------
-  function getColorScore(color){
-    const baseMap={D:100,E:95,F:90,G:85,H:80,I:75,J:70,K:65,L:60,M:55,N:50,O:45,P:40,Q:35,R:30,S:25,T:20,U:15,V:10,W:5,X:3,Y:2,Z:1};
-    const fancyGradeMap={"FANCY VIVID":20,"FANCY INTENSE":18,"FANCY DEEP":16,"FANCY DARK":14,"FANCY":12,"FANCY LIGHT":10,"LIGHT":8,"VERY LIGHT":6,"FAINT":4};
-    const fancyColorMap={RED:30,BLUE:25,PINK:20,GREEN:18,ORANGE:15,PURPLE:12,VIOLET:10,YELLOW:8,BROWN:5,GRAY:3,BLACK:2,WHITE:1};
-    const ishMap={PINKISH:1,PURPLISH:1,BLUISH:0,GREENISH:0,BROWNISH:-2,GRAYISH:-3,YELLOWISH:-1,ORANGY:-1,VIOLETISH:0,BLACKISH:-3};
-    if(!color) return 0;
-    const upper=color.toUpperCase();
-    let score=0;
-    for(const key in baseMap) if(upper.startsWith(key)||upper.includes("UNDER "+key)){score=baseMap[key];break;}
-    for(const grade in fancyGradeMap) if(upper.includes(grade)) score+=fancyGradeMap[grade];
-    for(const tone in fancyColorMap) if(upper.includes(tone)) score+=fancyColorMap[tone];
-    for(const ish in ishMap) if(upper.includes(ish)) score+=ishMap[ish];
-    if(score<1) score+=1000;
-    return score;
-  }
-
-  function matchAlphaZone(colorText, zoneKey) {
-    if (!colorText || !zoneKey) return false;
-
-    const upper = colorText.toUpperCase();
-
-    switch (zoneKey) {
-      case "UNDER_N":
-        return upper.includes("UNDER N");
-      case "UNDER_S":
-        return upper.includes("UNDER S");
-      case "O_T":
-        return /[OPQRST]/.test(upper) &&
-               !upper.includes("UNDER N") &&
-               !upper.includes("UNDER S");
-      case "U_Z":
-        return /[UVWXYZ]/.test(upper) &&
-               !upper.includes("UNDER N") &&
-               !upper.includes("UNDER S");
-      default:
-        // D〜N 等
-        return upper.startsWith(zoneKey);
-    }
-  }
-
-  function getAlphaZoneKey(colorText) {
-    if (!colorText) return null;
-
-    const upper = colorText.toUpperCase().trim();
-
-    if (upper.startsWith("UNDER N")) return "UNDER_N";
-    if (upper.startsWith("UNDER S")) return "UNDER_S";
-
-    const m = upper.match(/^[D-Z]/);
-    if (!m) return null;
-
-    const ch = m[0];
-
-    if ("DEFGHIJKLMN".includes(ch)) return ch;
-    if ("OPQRST".includes(ch)) return "O_T";
-    if ("UVWXYZ".includes(ch)) return "U_Z";
-
-    return null;
-  }
-
-  // ---------------------
-  // カット評価抽出関数（新規追加）
-  // ---------------------
-  function getCutGrade(value) {
-    if (!value) return null;
-    const str = value.toUpperCase();
-
-    // H&C判定
-    const hasHC = /H&C|HEART/.test(str);
-
-    // カット基本ランクを抽出
-    let parts;
-    if (str.includes("/")) {
-      parts = str.split("/");
-    } else {
-      parts = str.split(" ");
-    }
-
-    const grade = parts.find(p =>
-      p.includes("EX") || p.includes("VG") ||
-      p.includes("GD") || p === "G" ||
-      p.includes("FR") || p === "FA" ||
-      p === "PO" || p.includes("PR")
-    );
-
-    // ★ ここが重要（バグ修正）
-    if (!grade) return null;
-
-    let base;
-    if (grade.includes("EX")) base = "EX";
-    else if (grade.includes("VG")) base = "VG";
-    else if (grade.includes("GD") || grade === "G") base = "GD";
-    else if (grade.includes("FR") || grade === "FA") base = "FR";
-    else if (grade.includes("PR") || grade === "PO") base = "PR";
-    else base = null;
-
-    return { base, hasHC };
-  }
-
-  // カットの順位比較用
-  const cutRank = { EX:1, VG:2, GD:3, FR:4, PR:5 };
-
-  function getCutScore(cutStr){
-    if(!cutStr) return 0;
-    const rankMap={ "3EX":100, EX:90, VG:70, GD:50, FR:30, FA:29, PR:10, PO:9 };
-    let score=0;
-    if(cutStr.includes("H&C")||cutStr.includes("HC")) score+=5;
-    if(cutStr.includes("HEART")||cutStr.includes("H&A")) score+=3;
-    const parts=cutStr.split("/");
-    const main=parts[0].replace(/[^A-Z]/g,"");
-    score+=rankMap[main]||0;
-    if(parts.length===3){ score+=(rankMap[parts[2]]||0)*0.1; score+=(rankMap[parts[1]]||0)*0.05; }
-    else if(parts.length===2){ score+=(rankMap[parts[1]]||0)*0.05; }
-    return score;
-  }
-
-  function getFluorescenceScore(fluo){
-    if(!fluo) return 0;
-    const intensityMap={N:0,NONE:0,F:1,FAINT:1,M:2,MEDIUM:2,S:3,STRONG:3,VS:4,"VERY STRONG":4};
-    const colorBonusMap={BLUE:0.5,BL:0.5,FB:0.5,MB:0.5,VSB:0.5,YELLOW:-0.5,FtY:-0.5,MY:-0.5,SY:-0.5,VSY:-0.5,GREEN:0,FtYGn:0,MYGn:0,SYGn:0,VSYGn:0,WHITE:0,WB:0,MBW:0,VSBW:0,GRAY:-1,SWG:-1,WYG:-1,INERT:0};
-    const upper=fluo.toUpperCase();
-    let score=0;
-    for(const key in intensityMap) if(upper.includes(key)){score+=intensityMap[key];break;}
-    for(const key in colorBonusMap) if(upper.includes(key)){score+=colorBonusMap[key];break;}
-    return score;
-  }
-
-  // ---------------------
-  // 形状セレクトの生成
-  // ---------------------
-
-  // 形状コードと日本語名の対応表
-  const shapeMap = {
-    RD: "ラウンドブリリアント",
-    PS: "ペアシェイプ",
-    HS: "ハートシェイプ",
-    OV: "オーバル",
-    EM: "エメラルド",
-    MQ: "マーキス",
-    SQ: "スクエア",
-    FS: "ファンシー",
-    PRI: "プリンセス",
-    BG: "バゲット",
-    CUS: "クッション",
-    BUT: "バタフライ",
-    TRI: "トリリアント",
-    FA: "ファンシーカット",
-    RCT:"レクタンギュラー"
-  };
-
-  // 形状セレクトを生成する関数
-  function populateShapeSelect(shapeCodes) {
-    const shapeSelect = document.getElementById("shapeSelect");
-    shapeSelect.innerHTML = "";
-
-    // すべて
-    shapeSelect.appendChild(new Option("すべて", ""));
-
-    // ラウンド
-    shapeSelect.appendChild(
-      new Option("↳ ラウンドブリリアント", "RD")
-    );
-
-    // ラウンド以外（まとめ）
-    shapeSelect.appendChild(
-      new Option("↳ ラウンド以外", "NON_ROUND")
-    );
-
-    // 個別形状（RD以外）
-    const uniqueShapes = [...new Set(shapeCodes.filter(s => s && s !== "RD"))];
-    uniqueShapes.forEach(code => {
-      const label = `　　↳ ${shapeMap[code] || code}`;
-      shapeSelect.appendChild(
-        new Option(label, code)
-      );
-    });
-
-    // 初期値
-    shapeSelect.value = "";
-  }
-
-  // 例：データ取得後に呼び出す
-  // populateShapeSelect(["RD","PS","OV","EM","BG"]);
-
-  // ---------------------
-  // 検索処理
-  // ---------------------
-  document.getElementById("searchButton").addEventListener("click", () => {
-    const spinner = document.getElementById("loadingSpinner");
-    spinner.style.display = "flex";
-
-    setTimeout(() => {
-      const hcChecked = document.getElementById("hcCheck").checked;
-
-      const minC = parseFloat(document.getElementById("minCarat").value) || 0;
-      const maxC = parseFloat(document.getElementById("maxCarat").value) || 999;
-      const dateVal = document.getElementById("dateSelect").value;
-      const fluVal = document.getElementById("fluorescenceSelect").value;
-      const shapeVal = document.getElementById("shapeSelect").value;
-      const keyword = document.getElementById("keyword").value.trim().toLowerCase();
-
-      const fromColor = document.getElementById("fromColor").value;
-      const toColor = document.getElementById("toColor").value;
-      const fancyGrade = document.getElementById("fancyGradeSelect").value;
-      const fancyTone = document.getElementById("fancyToneSelect").value;
-      const treatedOnly = document.getElementById("treatedCheck").checked;
-      const faintOnly   = document.getElementById("faintCheck").checked;
-
-      // ★クラリティ・カットの範囲取得
-      const minClarity = document.getElementById("minClaritySelect").value;
-      const maxClarity = document.getElementById("maxClaritySelect").value;
-      const minCut = document.getElementById("minCutSelect").value;
-      const maxCut = document.getElementById("maxCutSelect").value;
-
+    function renderPage(page) {
       const tbody = document.getElementById("resultBody");
       tbody.innerHTML = "";
-      document.getElementById("resultTable").style.display = "table"; 
-
-      let countTop = document.getElementById("resultCountTop");
-      let countBottom = document.getElementById("resultCountBottom");
-      if(!countTop){
-        countTop = document.createElement("div");
-        countTop.id = "resultCountTop";
-        countTop.className = "result-count stylish-count";
-        tbody.parentElement.insertAdjacentElement("beforebegin",countTop);
-      }
-      if(!countBottom){
-        countBottom = document.createElement("div");
-        countBottom.id = "resultCountBottom";
-        countBottom.className = "result-count stylish-count";
-        tbody.parentElement.insertAdjacentElement("afterend",countBottom);
-      }
-
-      // ======================
-      // 絞り込みロジック
-      // ======================
-
-      const activeColorType =
-        document.querySelector('.colorTypeBtn.active')?.dataset.type || "all";
-      
-      const results = diamondData.filter(d => {
-        const c = parseFloat(d.carat) || 0;
-        if(c < minC || c > maxC) return false;
-        if(dateVal && d.date.split(" ")[0] < dateVal) return false;
-        if(fluVal && d.fluorescence != fluVal) return false;
-        // ★ 形状判定
-        if (shapeVal) {
-          if (shapeVal === "NON_ROUND") {
-            if (d.shape === "RD") return false;
-          } else {
-            if (d.shape !== shapeVal) return false;
-          }
+      const start = (page - 1) * perPage;
+      window.lastSearchResults.slice(start, start + perPage).forEach(d => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${d.date.split(" ")[0]||""}</td>
+          <td>${d.color||""}</td>
+          <td>${d.clarity||""}</td>
+          <td>${d.cut||""}</td>
+          <td>${d.fluorescence||""}</td>
+          <td>${d.shape||""}</td>
+          <td>${(+d.carat).toFixed(3)||""}</td>
+          <td class="priceCell">${(+d.pricePerCarat).toLocaleString()||""}</td>
+          <td class="priceCell">${Math.floor((+d.pricePerCarat)*(+d.carat)).toLocaleString()||""}</td>
+          <td>${d.notes||""}</td>
+          <td><span class="detail-toggle">詳細</span></td>
+        `;
+        tbody.appendChild(row);
+        const detailRow = document.createElement("tr");
+        detailRow.classList.add("detailsRow");
+        let unevenRate = "", heightRatio = "";
+        if (d.diameterMin && d.diameterMax) {
+          const mn = parseFloat(d.diameterMin), mx = parseFloat(d.diameterMax);
+          const avg = (mn + mx) / 2;
+          unevenRate = (((mx - mn) / avg) * 100).toFixed(2) + "%";
+          if (d.height) heightRatio = ((parseFloat(d.height) / avg) * 100).toFixed(2) + "%";
         }
-
-        // ★クラリティ範囲判定
-        if(minClarity || maxClarity){
-          const clarityIndex = CLARITY_ORDER.indexOf(d.clarity);
-          const minIndex = minClarity ? CLARITY_ORDER.indexOf(minClarity) : -1;
-          const maxIndex = maxClarity ? CLARITY_ORDER.indexOf(maxClarity) : CLARITY_ORDER.length;
-          if(minIndex !== -1 && clarityIndex < minIndex) return false;
-          if(maxIndex !== CLARITY_ORDER.length && clarityIndex > maxIndex) return false;
-        }
-
-        // カット判定
-        if (minCut || maxCut) {
-
-          const result = getCutGrade(d.cut);
-
-          // カット該当なし → 除外（★ここが重要）
-          if (!result) return false;
-
-          const { base, hasHC } = result;
-
-          if (!base) return false;
-
-          if (minCut && cutRank[base] < cutRank[minCut]) return false;
-          if (maxCut && cutRank[base] > cutRank[maxCut]) return false;
-        }
-
-        // キーワード
-        if(keyword){
-          const fields=[d.carat,d.color,d.clarity,d.cut,d.fluorescence,d.notes].join(" ").toLowerCase();
-          if(!keyword.split(" ").every(k=>fields.includes(k))) return false;
-        }
-
-        // ======================
-        // STEP1：前処理
-        // ======================
-        const colorUpper = (d.color || "").toUpperCase();
-        const isFancy = d.colorType === "FANCY";
-        const isAlpha = d.colorType === "ALPHA";
-
-        // ======================
-        // STEP2：カラー条件判定
-        // ======================
-
-        // ★ colorType による絞り込み
-        if (activeColorType === "alpha" && !isAlpha) return false;
-        if (activeColorType === "fancy" && !isFancy) return false;
-        // all の場合は何もしない
-
-        // ---- ALPHA（AtoZ） ----
-        if (isAlpha) {
-          if (fancyGrade || fancyTone) return false;
-
-          if (fromColor && toColor) {
-
-            const fromKey = fromColor;
-            const toKey   = toColor;
-            const itemKey = getAlphaZoneKey(colorUpper);
-
-            // 単独指定
-            if (fromKey && !toKey) {
-              if (itemKey !== fromKey) return false;
-            }
-
-            // 範囲指定
-            if (fromKey && toKey) {
-              const order = ALPHA_COLOR_ZONES.map(z => z.key);
-              const fromIdx = order.indexOf(fromKey);
-              const toIdx   = order.indexOf(toKey);
-              const itemIdx = order.indexOf(itemKey);
-
-              if (itemIdx === -1) return false;
-              if (itemIdx < fromIdx || itemIdx > toIdx) return false;
-            }
-          }
-        }
-
-        // ---- FANCY ----
-        if (isFancy) {
-          if (fromColor || toColor) return false;
-          if (fancyGrade && !colorUpper.includes(fancyGrade.toUpperCase())) return false;
-          if (fancyTone && !colorUpper.includes(fancyTone.toUpperCase())) return false;
-        }
-
-        // ======================
-        // STEP3：付加条件
-        // ======================
-
-        // TREATED
-        if (treatedOnly) {
-          if (!colorUpper.includes("TREATED")) return false;
-        }
-
-        // FAINT
-        if (faintOnly) {
-          if (!colorUpper.includes("FAINT")) return false;
-        }
-        
-        // H&C
-        if (hcChecked) {
-          const cutUpper = (d.cut || "").toUpperCase();
-          if (!(cutUpper.includes("H&C") || cutUpper.includes("HC"))) return false;
-        }
-
-        return true;
+        detailRow.innerHTML = `<td colspan="11">直径：${d.diameterMin||"—"}–${d.diameterMax||"—"} mm（不正円率：${unevenRate||"—"}）　高さ：${d.height||"—"} mm（全高比：${heightRatio||"—"}）</td>`;
+        tbody.appendChild(detailRow);
+        row.querySelector(".detail-toggle").addEventListener("click", () => {
+          detailRow.style.display = detailRow.style.display === "table-row" ? "none" : "table-row";
+        });
       });
+      setCountEl(document.getElementById("resultCountTop"),    results.length, page, totalPages);
+      setCountEl(document.getElementById("resultCountBottom"), results.length, page, totalPages);
+      notifyHeight();
+    }
 
-      // ★ 初期表示は NO 昇順（紙データ順）
-      results.sort((a, b) => {
-        const noA = Number(a.NO) || 0;
-        const noB = Number(b.NO) || 0;
-        return noA - noB;
-      });
+    function updatePagination() {
+      const wrap = document.getElementById("paginationArea");
+      wrap.innerHTML = "";
+      if (totalPages <= 1) return;
+      const prev = document.createElement("button");
+      prev.textContent = "← 前へ"; prev.disabled = currentPage === 1;
+      prev.onclick = () => { currentPage--; renderPage(currentPage); updatePagination(); };
+      const next = document.createElement("button");
+      next.textContent = "次へ →"; next.disabled = currentPage === totalPages;
+      next.onclick = () => { currentPage++; renderPage(currentPage); updatePagination(); };
+      const info = document.createElement("span");
+      info.className = "page-info";
+      info.textContent = `${currentPage} / ${totalPages}`;
+      wrap.append(prev, info, next);
+    }
 
-      // ページネーション
-      const perPage=100;
-      let currentPage=1;
-      const totalPages=Math.ceil(results.length/perPage);
-      const pagination=document.getElementById("paginationArea")||document.createElement("div");
-      pagination.id="paginationArea";
-      pagination.className="pagination stylish-pagination";
-      countBottom.insertAdjacentElement("afterend",pagination);
-
-      function renderPage(page){
-        tbody.innerHTML="";
-        const start=(page-1)*perPage;
-        const end=start+perPage;
-        results.slice(start,end).forEach(d=>{
-          const row=document.createElement("tr");
-          row.innerHTML=`
-            <td>${d.date.split(" ")[0]||""}</td>
-            <td>${d.color||""}</td>
-            <td>${d.clarity||""}</td>
-            <td>${d.cut||""}</td>
-            <td>${d.fluorescence||""}</td>
-            <td>${d.shape||""}</td>
-            <td>${parseFloat(d.carat)?.toFixed(3)||""}</td>
-            <td class="priceCell">${parseFloat(d.pricePerCarat)?.toLocaleString()||""}</td>
-            <td class="priceCell">${Math.floor(parseFloat(d.pricePerCarat)*parseFloat(d.carat))?.toLocaleString()||""}</td>
-            <td>${d.notes||""}</td>
-            <td><span class="detailToggle">詳細</span></td>
-          `;
-          tbody.appendChild(row);
-
-          const detailRow=document.createElement("tr");
-          detailRow.classList.add("detailsRow");
-          let unevenRate="", heightRatio="";
-          if(d.diameterMin && d.diameterMax){
-            const min=parseFloat(d.diameterMin), max=parseFloat(d.diameterMax);
-            const avg=(min+max)/2;
-            unevenRate=(((max-min)/avg)*100).toFixed(2)+"%";
-            if(d.height) heightRatio=((parseFloat(d.height)/avg)*100).toFixed(2)+"%";
-          }
-          detailRow.innerHTML=`
-            <td colspan="11">
-              直径：${d.diameterMin||""}-${d.diameterMax||""}mm（不正円率：${unevenRate}）　高さ：${d.height||""}mm（全高比：${heightRatio}）
-            </td>
-          `;
-          tbody.appendChild(detailRow);
-
-          row.querySelector(".detailToggle").addEventListener("click",()=>{
-            detailRow.style.display=detailRow.style.display==="table-row"?"none":"table-row";
+    let sortState = {};
+    function enableSort() {
+      document.querySelectorAll("#resultTable thead th").forEach((th, idx) => {
+        if (idx === 10) return;
+        th.addEventListener("click", () => {
+          const dir = sortState[idx] === "asc" ? "desc" : "asc";
+          sortState = { [idx]: dir };
+          window.lastSearchResults.sort((a, b) => {
+            let r = 0;
+            if (idx === 0) { r = (Number(a.NO)||0) - (Number(b.NO)||0); }
+            else {
+              const va = colVal(a, idx), vb = colVal(b, idx);
+              if (va == null) return 1; if (vb == null) return -1;
+              r = (!isNaN(va) && !isNaN(vb)) ? va - vb : String(va).localeCompare(String(vb), "ja");
+            }
+            return dir === "desc" ? -r : r;
+          });
+          currentPage = 1; renderPage(currentPage); updatePagination();
+          document.querySelectorAll("#resultTable thead th").forEach((h, i) => {
+            h.textContent = h.textContent.replace(/ [▲▼]$/, "");
+            if (i === idx) h.textContent += dir === "asc" ? " ▲" : " ▼";
           });
         });
+      });
+    }
 
-        const msg=results.length
-          ? `🔹検索結果：<strong>${results.length.toLocaleString()}</strong> 件（${page}/${totalPages}ページ）`
-          : `⚠ 該当するデータはありません。`;
-        countTop.innerHTML=msg;
-        countBottom.innerHTML=msg;
+    function colVal(row, idx) {
+      switch (idx) {
+        case 0: return row.date;
+        case 1: return row.color || "";
+        case 2: return CLARITY_ORDER.indexOf(row.clarity);
+        case 3: { const b = getCutGrade(row.cut)?.base; return b ? CUT_RANK[b] : 999; }
+        case 4: { const fi = FLUO_ORDER.indexOf(row.fluorescence); return fi === -1 ? 999 : fi; }
+        case 5: return row.shape || "";
+        case 6: return parseFloat(row.carat) || 0;
+        case 7: return parseFloat(row.pricePerCarat) || 0;
+        case 8: return (parseFloat(row.pricePerCarat)||0) * (parseFloat(row.carat)||0);
+        case 9: return row.notes || "";
+        default: return "";
       }
+    }
 
-      function updatePagination(){
-        pagination.innerHTML="";
-        if(totalPages<=1) return;
-        const prev=document.createElement("button");
-        prev.textContent="← 前へ";
-        prev.disabled=currentPage===1;
-        prev.onclick=()=>{currentPage--; renderPage(currentPage); updatePagination();};
-        const next=document.createElement("button");
-        next.textContent="次へ →";
-        next.disabled=currentPage===totalPages;
-        next.onclick=()=>{currentPage++; renderPage(currentPage); updatePagination();};
-        const info=document.createElement("span");
-        info.innerHTML=`ページ ${currentPage} / ${totalPages}`;
-        pagination.append(prev,info,next);
-      }
-
-      renderPage(1);
-      updatePagination();
-
-      // ---------------------
-      // テーブルソート機能（詳細行除外・数値対応）
-      // ---------------------
-      function enableSort() {
-        const headers = document.querySelectorAll("#resultTable thead th");
-        headers.forEach((th, index) => {
-
-          // ⭐詳細列（最後の列）はソート対象外
-          if (index === 10) return;
-
-          th.style.cursor = "pointer";
-          th.addEventListener("click", () => sortColumn(index));
-        });
-      }
-
-      let sortState = {}; // { columnIndex: 'asc' | 'desc' }
-
-      function sortColumn(colIndex) {
-        if (!window.lastSearchResults) return;
-
-        const direction = sortState[colIndex] === "asc" ? "desc" : "asc";
-        sortState = { [colIndex]: direction };
-
-        window.lastSearchResults.sort((a, b) => {
-          let result = 0;
-
-          // ★ 日付列（colIndex === 0）は NO でソートする
-          if (colIndex === 0) {
-            const noA = Number(a.NO) || 0;
-            const noB = Number(b.NO) || 0;
-            result = noA - noB;
-          }
-          // 数値
-          else {
-            let keyA = getValueByColumn(a, colIndex);
-            let keyB = getValueByColumn(b, colIndex);
-
-            if (keyA == null) return 1;
-            if (keyB == null) return -1;
-
-            if (!isNaN(keyA) && !isNaN(keyB)) {
-              result = keyA - keyB;
-            }
-            // 文字列
-            else {
-              result = String(keyA).localeCompare(String(keyB), "ja");
-            }
-          }
-
-          // 昇順・降順
-          if (direction === "desc") result *= -1;
-
-          return result;
-        });
-
-        renderPage(1);
-        updatePagination();
-        updateSortIcons(colIndex, direction);
-      }
-
-      // ---------------------
-      // 列ごとの値を返す関数（クラリティ・カットのランク対応）
-      // ---------------------
-      function getValueByColumn(row, colIndex) {
-        switch (colIndex) {
-          case 0: // 日付
-            return row.date;
-          case 1: // カラー
-            return row.color || "";
-          case 2: // クラリティ
-            return CLARITY_ORDER.indexOf(row.clarity);
-          case 3: // カット
-            {
-              const base = getCutGrade(row.cut)?.base;
-              return base ? cutRank[base] : 999;
-            }
-          case 4: // 蛍光性
-            return row.fluorescence || "";
-          case 5: // 形状
-            return row.shape || "";
-          case 6: // カラット
-            return parseFloat(row.carat) || 0;
-          case 7: // ガイ単価
-            return parseFloat(row.pricePerCarat) || 0;
-          case 8: // 金額
-            return (parseFloat(row.pricePerCarat) || 0) * (parseFloat(row.carat) || 0);
-          case 9: // 備考
-            return row.notes || "";
-          default:
-            return "";
-        }
-      }
-
-      function updateSortIcons(colIndex, direction) {
-        const headers = document.querySelectorAll("#resultTable thead th");
-        headers.forEach((th, idx) => {
-          th.innerHTML = th.innerHTML.replace(/ ▲| ▼/g, "");
-          if (idx === colIndex) {
-            th.innerHTML += direction === "asc" ? " ▲" : " ▼";
-          }
-        });
-      }
-
-      function showSortHint() {
-        if (localStorage.getItem("sortHintShown")) return;
-
-        const hint = document.createElement("div");
-        hint.id = "sortHint";
-        hint.textContent = "🔹列をタップすると並び替えできます";
-        hint.style.cssText = `
-          text-align:center;
-          background:#fffae6;
-          color:#8a6d3b;
-          padding:6px 0;
-          font-size:0.75rem;
-          border-radius:6px;
-          margin-bottom:0.5rem;
-          box-shadow:0 1px 4px rgba(0,0,0,0.1);
-        `;
-        const table = document.getElementById("resultTable");
-        table.parentNode.insertBefore(hint, table);
-
-        // 3秒後に自動でフェードアウト
-        setTimeout(() => {
-          hint.style.transition = "opacity 0.5s";
-          hint.style.opacity = 0;
-          setTimeout(() => hint.remove(), 500);
-        }, 3000);
-
-        localStorage.setItem("sortHintShown", "true");
-      }      
-
-      enableSort();
-      showSortHint();
-
-      window.lastSearchResults = results; // 後で掛け率変更時に再利用
-      updateSummary(results);             // 買取参考価格を更新
-      spinner.style.display="none";
-    },100);
-  });
-
-  // ---------------------
-  // クリアボタン
-  // ---------------------
-  document.getElementById("clearButton").addEventListener("click", () => {
-    // 各入力フォームをリセット
-    ["minCarat","maxCarat","mainCarat","fromColor","toColor","fancyGradeSelect","fancyToneSelect",
-    "minCutSelect","maxCutSelect","minClaritySelect","maxClaritySelect","fluorescenceSelect","shapeSelect","keyword"].forEach(id => {
-      document.getElementById(id).value = "";
-    });
-
-    // 🔹 カラットスピンを初期値（0.50）に戻す
-    const spinInt = document.getElementById("spinInt");
-    const spinDec = document.getElementById("spinDec");
-
-    if (spinInt && spinDec) {
-      spinInt.value = "0";
-      spinDec.value = "50";
-    }  
-
-    // H&C チェックボックスをリセット
-    document.getElementById("hcCheck").checked = false;
-
-    // TREATED チェックボックスをリセット
-    document.getElementById("treatedCheck").checked = false;
-
-    // 結果テーブル本体を非表示かつクリア
-    document.getElementById("resultBody").innerHTML = "";
-    document.getElementById("resultTable").style.display = "none";
-
-    // 件数表示も削除
-    const countTop = document.getElementById("resultCountTop");
-    const countBottom = document.getElementById("resultCountBottom");
-    if(countTop) countTop.remove();
-    if(countBottom) countBottom.remove();
-
-    // ページネーションも削除
-    const pagination = document.getElementById("paginationArea");
-    if(pagination) pagination.remove();
-
-    // ✅ サマリーリセット処理
-    document.getElementById("summaryCount").textContent = "0";
-    document.getElementById("summaryAvgPrice").textContent = "0";
-    document.getElementById("summaryUnitPrice").textContent = "0";
-    document.getElementById("summaryCarat").textContent = "0.000";
-    document.getElementById("summaryTotalPrice").textContent = "0";
-
-    // 掛け率も初期値（8掛け）に戻す
-    document.getElementById("rateSelect").value = "0.8";
-
-    // 検索結果キャッシュをリセット
-    window.lastSearchResults = [];
-  });  
-
-  // ---------------------
-  // 買取価格計算
-  // ---------------------  
-  function updateSummary(results) {
-    const carat = parseFloat(document.getElementById("mainCarat").value) || 0;
-    const rate = parseFloat(document.getElementById("rateSelect").value) || 1;
-
-    const count = results.length;
-
-    // 平均価格の計算（pricePerCarat を使用）
-    const avgPrice = count > 0 
-      ? Math.round(results.reduce((sum, d) => sum + (parseFloat(d.pricePerCarat) || 0), 0) / count)
-      : 0;
-
-    const unitPrice = Math.round(avgPrice * rate);
-    const totalPrice = Math.round(unitPrice * carat);
-
-    document.getElementById("summaryCount").textContent = count.toLocaleString();
-    document.getElementById("summaryAvgPrice").textContent = avgPrice.toLocaleString();
-    document.getElementById("summaryUnitPrice").textContent = unitPrice.toLocaleString();
-    document.getElementById("summaryCarat").textContent = carat.toFixed(3);
-    document.getElementById("summaryTotalPrice").textContent = totalPrice.toLocaleString();
-  }
-
-  // 掛け率変更時にも更新
-  document.getElementById("rateSelect").addEventListener("change", () => {
-    // 検索済み結果があれば再計算
-    const results = window.lastSearchResults || [];
+    renderPage(1); updatePagination(); enableSort();
     updateSummary(results);
-  });
+    document.getElementById("loadingSpinner").style.display = "none";
+  }, 80);
+}
 
-    /* ============================
-     スマホ用カラットスピン 初期化
-     ============================ */
-  (function(){
-    const spinInt = document.getElementById("spinInt");
-    const spinDec = document.getElementById("spinDec");
-    const mainCarat = document.getElementById("mainCarat");
+/* ── Clear ── */
+document.getElementById("clearButton").addEventListener("click", () => {
+  ["minCarat","maxCarat","mainCarat","fromColor","toColor",
+   "fancyGradeSelect","fancyToneSelect","minCutSelect","maxCutSelect",
+   "minClaritySelect","maxClaritySelect","minFluoSelect","maxFluoSelect",
+   "shapeSelect","keyword"
+  ].forEach(id => { document.getElementById(id).value = ""; });
+  const si = document.getElementById("spinInt"), sd = document.getElementById("spinDec");
+  if (si && sd) { si.value = "0"; sd.value = "50"; document.getElementById("mainCarat").value = "0.50"; }
+  ["hcCheck","treatedCheck","faintCheck"].forEach(id => { document.getElementById(id).checked = false; });
+  document.getElementById("resultSection").style.display  = "none";
+  document.getElementById("resultTable").style.display    = "none";
+  document.getElementById("resultBody").innerHTML         = "";
+  document.getElementById("paginationArea").innerHTML     = "";
+  document.getElementById("summaryCount").textContent      = "0";
+  document.getElementById("summaryAvgPrice").textContent   = "0";
+  document.getElementById("summaryUnitPrice").textContent  = "0";
+  document.getElementById("summaryCarat").textContent      = "0.000";
+  document.getElementById("summaryTotalPrice").textContent = "0";
+  document.getElementById("rateSelect").value              = "0.8";
+  window.lastSearchResults = [];
+  notifyHeight();
+});
 
-    if(!spinInt || !spinDec || !mainCarat) return;
+/* ── Summary ── */
+function updateSummary(results) {
+  const carat = parseFloat(document.getElementById("mainCarat").value) || 0;
+  const rate  = parseFloat(document.getElementById("rateSelect").value) || 1;
+  const count = results.length;
+  const avg   = count > 0 ? Math.round(results.reduce((s,d) => s + (parseFloat(d.pricePerCarat)||0), 0) / count) : 0;
+  const unit  = Math.round(avg * rate);
+  const total = Math.round(unit * carat);
+  document.getElementById("summaryCount").textContent      = count.toLocaleString();
+  document.getElementById("summaryAvgPrice").textContent   = avg.toLocaleString();
+  document.getElementById("summaryUnitPrice").textContent  = unit.toLocaleString();
+  document.getElementById("summaryCarat").textContent      = carat.toFixed(3);
+  document.getElementById("summaryTotalPrice").textContent = total.toLocaleString();
+}
+document.getElementById("rateSelect").addEventListener("change", () => {
+  updateSummary(window.lastSearchResults || []);
+});
 
-    // 整数部：0〜10
-    for(let i=0;i<=10;i++){
-      spinInt.appendChild(new Option(i,i));
-    }
+/* ── Mobile spinner ── */
+(function() {
+  const si = document.getElementById("spinInt"), sd = document.getElementById("spinDec"), mc = document.getElementById("mainCarat");
+  if (!si || !sd || !mc) return;
+  for (let i = 0; i <= 10; i++) si.appendChild(new Option(i, i));
+  for (let i = 1; i <= 99; i++) { const v = String(i).padStart(2,"0"); sd.appendChild(new Option(v,v)); }
+  si.value = "0"; sd.value = "50"; mc.value = "0.50";
+  const sync = () => { mc.value = si.value + "." + sd.value; };
+  si.addEventListener("change", sync); sd.addEventListener("change", sync);
+})();
 
-    // 小数部：01〜99
-    for(let i=1;i<=99;i++){
-      const v = i.toString().padStart(2,"0");
-      spinDec.appendChild(new Option(v,v));
-    }
-
-    // 初期値
-    spinInt.value = "0";
-    spinDec.value = "50";
-    mainCarat.value = "0.50";
-
-    function syncCarat(){
-      mainCarat.value = spinInt.value + "." + spinDec.value;
-    }
-
-    spinInt.addEventListener("change", syncCarat);
-    spinDec.addEventListener("change", syncCarat);
-  })();
-
+/* ── iframe height ── */
+function notifyHeight() {
+  parent.postMessage({ type: 'resize-iframe', height: document.body.scrollHeight }, '*');
+}
+window.addEventListener('load', notifyHeight);
+window.addEventListener('resize', notifyHeight);
 </script>
 </body>
 </html>
