@@ -1412,7 +1412,8 @@ function populateRapaFilters() {
     populateCtRangeSelect("tblCtRangeSelect", this.value);
   });
   populateCtRangeSelect("tblCtRangeSelect", "BR");
-  populateCtRangeSelect("gCtRangeSelect",   "BR");
+  populateCtRangeSelect("hmCtRange",        "BR");
+  populateCtRangeSelect("trCtRange",        "BR");
 }
 
 /* ════════════════════════════════════════
@@ -1793,6 +1794,7 @@ document.getElementById("drawTrend").addEventListener("click", () => {
   notifyHeight();
 });
 
+/* ════════════════════════════════════════
    COLOR TOGGLE (NJ Tab)
 ════════════════════════════════════════ */
 document.querySelectorAll('.ctog-btn').forEach(btn => {
