@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ダイヤ相場検索</title>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,7 +32,6 @@
   --dn:        #1A5A9A;
 }
 
-/* ── Base ── */
 html { background: var(--cream); height: 100%; }
 body {
   font-family: 'DM Sans', sans-serif;
@@ -43,8 +43,6 @@ body {
   line-height: 1.6;
   padding-bottom: 60px;
 }
-
-/* Grain overlay */
 body::before {
   content: ''; position: fixed; inset: 0;
   pointer-events: none; z-index: 0;
@@ -64,47 +62,36 @@ body::before {
   bottom: -1px; left: 0; right: 0; height: 1px;
   background: linear-gradient(90deg, transparent, var(--gold-dk) 20%, var(--gold) 50%, var(--gold-dk) 80%, transparent);
 }
-.page-header-inner {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-}
-.page-header-left { display: flex; align-items: center; gap: 12px; }
+.page-header-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.page-header-left  { display: flex; align-items: center; gap: 12px; }
 .page-header-icon {
   width: 40px; height: 40px;
   background: rgba(192,154,80,0.12);
   border: 1px solid rgba(192,154,80,0.25);
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.1rem;
-  flex-shrink: 0;
+  font-size: 1.1rem; flex-shrink: 0;
 }
 .page-header-title {
   font-family: 'Shippori Mincho', serif;
   font-size: clamp(1rem, 3vw, 1.4rem);
-  font-weight: 700;
-  color: var(--white);
-  letter-spacing: 0.08em;
-  line-height: 1.2;
+  font-weight: 700; color: var(--white);
+  letter-spacing: 0.08em; line-height: 1.2;
 }
 .page-header-title span {
   display: block;
   font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-weight: 400;
-  font-size: 0.68rem;
-  color: var(--gold);
-  letter-spacing: 0.22em;
-  margin-top: 3px;
+  font-style: italic; font-weight: 400;
+  font-size: 0.68rem; color: var(--gold);
+  letter-spacing: 0.22em; margin-top: 3px;
 }
 .page-header-badge {
-  font-size: 0.6rem;
-  font-weight: 600;
+  font-size: 0.6rem; font-weight: 600;
   letter-spacing: 0.1em;
   background: rgba(192,154,80,0.12);
   border: 1px solid rgba(192,154,80,0.25);
   color: rgba(232,212,154,0.7);
-  padding: 4px 10px;
-  border-radius: 100px;
-  white-space: nowrap;
+  padding: 4px 10px; border-radius: 100px; white-space: nowrap;
 }
 
 /* Notice bar */
@@ -114,10 +101,35 @@ body::before {
   border-bottom: 1px solid rgba(192,154,80,0.15);
   padding: 8px 20px;
   display: flex; align-items: center; gap: 8px;
-  font-size: 0.75rem;
-  color: var(--gold-dk);
+  font-size: 0.75rem; color: var(--gold-dk);
 }
 .notice-bar svg { flex-shrink: 0; opacity: 0.7; }
+
+/* ── Tab Navigation ── */
+.tab-nav {
+  position: relative; z-index: 1;
+  background: var(--green-dk);
+  display: flex;
+  border-bottom: 2px solid rgba(192,154,80,0.25);
+  padding: 0 16px;
+}
+.tab-btn {
+  background: none; border: none;
+  color: rgba(255,255,255,0.5);
+  font-family: 'Shippori Mincho', serif;
+  font-size: 0.82rem; font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 12px 20px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+  display: flex; align-items: center; gap: 6px;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: rgba(255,255,255,0.8); }
+.tab-btn.active { color: var(--gold-lt); border-bottom-color: var(--gold); }
+.tab-btn .tab-icon { font-size: 0.9rem; }
 
 /* ── Page wrap ── */
 .page-wrap {
@@ -126,6 +138,10 @@ body::before {
   margin: 0 auto;
   padding: 18px 16px 0;
 }
+
+/* Tab panels */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
 
 /* ── Panel (card) ── */
 .panel {
@@ -142,18 +158,11 @@ body::before {
   background: linear-gradient(135deg, rgba(247,243,235,0.9) 0%, var(--white) 100%);
   border-bottom: 1px solid rgba(192,154,80,0.12);
 }
-.panel-header-dot {
-  width: 4px; height: 16px;
-  background: var(--gold);
-  border-radius: 2px;
-  flex-shrink: 0;
-}
+.panel-header-dot { width: 4px; height: 16px; background: var(--gold); border-radius: 2px; flex-shrink: 0; }
 .panel-title {
   font-family: 'Shippori Mincho', serif;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--ink);
-  letter-spacing: 0.08em;
+  font-size: 0.82rem; font-weight: 600;
+  color: var(--ink); letter-spacing: 0.08em;
 }
 .panel-body { padding: 16px 18px; }
 
@@ -161,36 +170,19 @@ body::before {
 .form-grid {
   display: grid;
   grid-template-columns: 100px 1fr;
-  row-gap: 9px;
-  column-gap: 0;
+  row-gap: 9px; column-gap: 0;
   align-items: center;
 }
 .form-label {
-  font-size: 0.71rem;
-  font-weight: 500;
-  color: var(--ink-soft);
-  text-align: right;
-  padding-right: 14px;
-  white-space: nowrap;
-  line-height: 1.4;
-  letter-spacing: 0.02em;
+  font-size: 0.71rem; font-weight: 500;
+  color: var(--ink-soft); text-align: right;
+  padding-right: 14px; white-space: nowrap;
+  line-height: 1.4; letter-spacing: 0.02em;
 }
-.form-control {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.form-divider {
-  grid-column: 1 / -1;
-  height: 1px;
-  background: rgba(192,154,80,0.1);
-  margin: 3px 0;
-}
+.form-control { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.form-divider { grid-column: 1 / -1; height: 1px; background: rgba(192,154,80,0.1); margin: 3px 0; }
 
-/* ── Inputs & Selects ── */
-input[type="text"],
-select {
+input[type="text"], select {
   background: var(--cream);
   border: 1px solid var(--border-ui);
   border-radius: 8px;
@@ -201,12 +193,10 @@ select {
   height: 32px;
   outline: none;
   transition: border-color 0.16s, box-shadow 0.16s;
-  appearance: none;
-  -webkit-appearance: none;
+  appearance: none; -webkit-appearance: none;
 }
 input[type="text"]::placeholder { color: rgba(90,84,72,0.4); }
-input[type="text"]:focus,
-select:focus {
+input[type="text"]:focus, select:focus {
   border-color: var(--gold);
   box-shadow: 0 0 0 3px var(--focus);
   background: var(--white);
@@ -215,94 +205,59 @@ select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238A6A28'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 9px center;
-  padding-right: 26px;
-  cursor: pointer;
+  padding-right: 26px; cursor: pointer;
 }
-.range-sep {
-  font-size: 0.75rem;
-  color: var(--ink-soft);
-  flex-shrink: 0;
-}
-.field-hint {
-  font-size: 0.68rem;
-  color: rgba(90,84,72,0.55);
-  letter-spacing: 0.02em;
-}
+.range-sep { font-size: 0.75rem; color: var(--ink-soft); flex-shrink: 0; }
+.field-hint { font-size: 0.68rem; color: rgba(90,84,72,0.55); letter-spacing: 0.02em; }
 
 #mainCarat { width: 90px; text-align: center; }
 #minCarat, #maxCarat { width: 76px; text-align: center; }
 
-/* ── Color toggle ── */
 .color-toggle {
   display: inline-flex;
   border: 1px solid var(--border-ui);
-  border-radius: 8px;
-  overflow: hidden;
+  border-radius: 8px; overflow: hidden;
   margin-bottom: 8px;
 }
 .ctog-btn {
-  background: var(--cream);
-  border: none;
+  background: var(--cream); border: none;
   border-right: 1px solid var(--border-ui);
   color: var(--ink-soft);
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.72rem;
-  font-weight: 400;
-  padding: 5px 14px;
-  cursor: pointer;
+  font-size: 0.72rem; font-weight: 400;
+  padding: 5px 14px; cursor: pointer;
   transition: background 0.14s, color 0.14s;
-  outline: none;
-  height: 28px;
+  outline: none; height: 28px;
 }
 .ctog-btn:last-child { border-right: none; }
 .ctog-btn:hover { background: var(--cream-dk); color: var(--ink); }
-.ctog-btn.active {
-  background: var(--green);
-  color: var(--white);
-}
+.ctog-btn.active { background: var(--green); color: var(--white); }
 .color-forms-wrap { display: flex; flex-direction: column; gap: 5px; }
-.alpha-form, .fancy-form {
-  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-}
+.alpha-form, .fancy-form { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 
-/* ── Checkboxes ── */
 .check-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.72rem;
-  color: var(--ink-soft);
-  cursor: pointer;
-  user-select: none;
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 0.72rem; color: var(--ink-soft);
+  cursor: pointer; user-select: none;
   padding: 3px 10px;
-  border: 1px solid var(--border-ui);
-  border-radius: 100px;
-  background: var(--cream);
-  height: 28px;
-  transition: all 0.14s;
-  white-space: nowrap;
+  border: 1px solid var(--border-ui); border-radius: 100px;
+  background: var(--cream); height: 28px;
+  transition: all 0.14s; white-space: nowrap;
 }
 .check-label:hover { border-color: var(--gold); color: var(--gold-dk); }
 .check-label input[type="checkbox"] {
   width: 12px; height: 12px;
-  accent-color: var(--gold-dk);
-  cursor: pointer; flex-shrink: 0;
+  accent-color: var(--gold-dk); cursor: pointer; flex-shrink: 0;
 }
 
-/* ── Buttons ── */
 .btn {
-  border: none;
-  border-radius: 9px;
-  cursor: pointer;
+  border: none; border-radius: 9px; cursor: pointer;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.82rem;
-  font-weight: 500;
-  padding: 6px 16px;
-  height: 32px;
+  font-size: 0.82rem; font-weight: 500;
+  padding: 6px 16px; height: 32px;
   transition: opacity 0.14s, transform 0.1s, box-shadow 0.14s;
   display: inline-flex; align-items: center; gap: 5px;
-  white-space: nowrap;
-  outline: none;
+  white-space: nowrap; outline: none;
 }
 .btn:active { transform: scale(0.96); }
 .btn-primary {
@@ -312,8 +267,7 @@ select {
 }
 .btn-primary:hover { opacity: 0.88; }
 .btn-secondary {
-  background: var(--cream-dk);
-  color: var(--ink-soft);
+  background: var(--cream-dk); color: var(--ink-soft);
   border: 1px solid var(--border-ui);
 }
 .btn-secondary:hover { background: #ddd7ca; color: var(--ink); }
@@ -327,7 +281,6 @@ select {
 }
 .btn-search { min-width: 130px; height: 38px; font-size: 0.9rem; letter-spacing: 0.06em; }
 
-/* ── Loading ── */
 .loading-wrap {
   display: none;
   justify-content: center; align-items: center; gap: 10px;
@@ -349,11 +302,8 @@ select {
   border: 1px solid var(--border);
   border-radius: 14px;
   box-shadow: var(--shadow);
-  overflow: hidden;
-  margin-bottom: 14px;
-  max-width: 480px;
-  margin-left: auto;
-  margin-right: auto;
+  overflow: hidden; margin-bottom: 14px;
+  max-width: 480px; margin-left: auto; margin-right: auto;
 }
 .summary-panel::before {
   content: ''; display: block; height: 3px;
@@ -368,10 +318,8 @@ select {
 .summary-header-icon { font-size: 0.9rem; }
 .summary-header-title {
   font-family: 'Shippori Mincho', serif;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--ink);
-  letter-spacing: 0.08em;
+  font-size: 0.82rem; font-weight: 600;
+  color: var(--ink); letter-spacing: 0.08em;
 }
 .summary-rows { padding: 4px 0; }
 .summary-row {
@@ -391,10 +339,7 @@ select {
 .s-value strong { font-size: 1.05rem; }
 .summary-row.total .s-value strong { font-size: 1.3rem; color: var(--green); }
 .s-unit { font-size: 0.68rem; color: var(--ink-soft); margin-left: 3px; }
-#rateSelect {
-  height: 26px; font-size: 0.72rem;
-  padding: 0 22px 0 8px; border-color: var(--border-ui);
-}
+#rateSelect { height: 26px; font-size: 0.72rem; padding: 0 22px 0 8px; border-color: var(--border-ui); }
 
 /* ── Results ── */
 .result-bar {
@@ -405,102 +350,72 @@ select {
 .result-count strong { color: var(--green); font-size: 0.95rem; }
 .sort-hint { font-size: 0.68rem; color: rgba(90,84,72,0.5); letter-spacing: 0.03em; }
 
-/* Table */
 .table-wrapper {
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: 12px;
   box-shadow: var(--shadow);
-  overflow: hidden;
-  overflow-x: auto;
+  overflow: hidden; overflow-x: auto;
 }
 .table-wrapper::-webkit-scrollbar { height: 5px; }
 .table-wrapper::-webkit-scrollbar-track { background: var(--cream); }
 .table-wrapper::-webkit-scrollbar-thumb { background: var(--border-ui); border-radius: 3px; }
 
 #resultTable {
-  width: 100%;
-  border-collapse: collapse;
-  display: none;
-  min-width: 760px;
-  font-size: 0.78rem;
+  width: 100%; border-collapse: collapse;
+  display: none; min-width: 760px; font-size: 0.78rem;
 }
 #resultTable thead th {
   background: var(--green-dk);
   color: rgba(255,255,255,0.7);
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 10px 10px;
-  text-align: center;
-  white-space: nowrap;
-  cursor: pointer;
-  user-select: none;
+  font-size: 0.65rem; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 10px 10px; text-align: center;
+  white-space: nowrap; cursor: pointer; user-select: none;
   transition: background 0.12s, color 0.12s;
   position: sticky; top: 0; z-index: 2;
   border-right: 1px solid rgba(255,255,255,0.05);
 }
 #resultTable thead th:hover { background: var(--green-lt); color: var(--white); }
-#resultTable thead th:first-child { border-radius: 0; }
 #resultTable thead th:last-child { cursor: default; border-right: none; }
 #resultTable thead th:last-child:hover { background: var(--green-dk); color: rgba(255,255,255,0.7); }
-
 #resultTable tbody tr { border-bottom: 1px solid rgba(192,154,80,0.08); }
 #resultTable tbody tr:nth-child(4n+3),
 #resultTable tbody tr:nth-child(4n+4) { background: rgba(247,243,235,0.5); }
 #resultTable tbody tr:hover { background: rgba(192,154,80,0.06); }
 #resultTable tbody td {
-  padding: 8px 10px;
-  text-align: center;
-  color: var(--ink);
-  white-space: nowrap;
+  padding: 8px 10px; text-align: center;
+  color: var(--ink); white-space: nowrap;
 }
 #resultTable tbody td.priceCell {
-  text-align: right;
-  font-feature-settings: "tnum";
-  color: var(--ink-soft);
-  font-weight: 500;
+  text-align: right; font-feature-settings: "tnum";
+  color: var(--ink-soft); font-weight: 500;
 }
-
-/* detail row */
 .detailsRow { display: none; background: rgba(247,243,235,0.8) !important; }
 .detailsRow td {
-  font-size: 0.72rem !important;
-  color: var(--ink-soft) !important;
-  text-align: left !important;
-  padding: 7px 18px !important;
+  font-size: 0.72rem !important; color: var(--ink-soft) !important;
+  text-align: left !important; padding: 7px 18px !important;
   white-space: normal !important;
   border-top: 1px dashed rgba(192,154,80,0.2) !important;
 }
 .detail-toggle {
-  font-size: 0.68rem;
-  color: var(--gold-dk);
-  cursor: pointer;
+  font-size: 0.68rem; color: var(--gold-dk); cursor: pointer;
   padding: 2px 9px;
-  border: 1px solid rgba(192,154,80,0.3);
-  border-radius: 100px;
-  background: rgba(192,154,80,0.07);
-  transition: background 0.12s;
+  border: 1px solid rgba(192,154,80,0.3); border-radius: 100px;
+  background: rgba(192,154,80,0.07); transition: background 0.12s;
   display: inline-block;
 }
 .detail-toggle:hover { background: rgba(192,154,80,0.15); }
 
-/* Pagination */
 .pagination-wrap {
   display: flex; justify-content: center; align-items: center; gap: 6px;
   padding: 14px 0 4px;
 }
 .pagination-wrap button {
-  background: var(--white);
-  border: 1px solid var(--border-ui);
-  color: var(--ink-soft);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.72rem;
-  padding: 5px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: border-color 0.12s, color 0.12s;
+  background: var(--white); border: 1px solid var(--border-ui);
+  color: var(--ink-soft); font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem; padding: 5px 14px; border-radius: 8px;
+  cursor: pointer; transition: border-color 0.12s, color 0.12s;
 }
 .pagination-wrap button:hover:not(:disabled) { border-color: var(--gold); color: var(--gold-dk); }
 .pagination-wrap button:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -508,14 +423,196 @@ select {
 
 .count-bar {
   font-size: 0.72rem; color: var(--ink-soft);
-  padding: 6px 0;
-  border-top: 1px solid rgba(192,154,80,0.1);
+  padding: 6px 0; border-top: 1px solid rgba(192,154,80,0.1);
 }
 .count-bar strong { color: var(--green); }
 
-/* ── Mobile ── */
-#caratSpinnerMobile { display: none; }
+/* ══════════════════════════════════
+   RAPAPORT TAB STYLES
+══════════════════════════════════ */
+.rapa-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+@media (max-width: 700px) { .rapa-grid { grid-template-columns: 1fr; } }
 
+/* Rate info bar */
+.rate-info-bar {
+  background: linear-gradient(135deg, var(--green-dk), var(--green));
+  border-radius: 12px;
+  padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 10px;
+  margin-bottom: 14px;
+  color: var(--white);
+}
+.rate-info-bar .rate-main {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem; font-weight: 400;
+  color: var(--gold-lt);
+  letter-spacing: 0.04em;
+}
+.rate-info-bar .rate-label {
+  font-size: 0.68rem; color: rgba(255,255,255,0.6);
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.rate-info-bar .rate-date {
+  font-size: 0.72rem; color: rgba(255,255,255,0.5);
+}
+
+/* Lookup form */
+.lookup-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.lookup-grid select {
+  width: 100%; font-size: 0.82rem;
+}
+.lookup-result-card {
+  background: linear-gradient(135deg, rgba(26,54,40,0.03) 0%, rgba(192,154,80,0.05) 100%);
+  border: 1px solid rgba(192,154,80,0.2);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-top: 12px;
+  display: none;
+}
+.lookup-result-card.visible { display: block; }
+.lookup-result-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(192,154,80,0.1);
+  font-size: 0.82rem;
+}
+.lookup-result-row:last-child { border-bottom: none; }
+.lookup-result-row .lr-label { color: var(--ink-soft); }
+.lookup-result-row .lr-val {
+  font-weight: 600; color: var(--ink);
+  font-feature-settings: "tnum";
+}
+.lookup-result-row .lr-val.big {
+  font-size: 1.4rem;
+  color: var(--green);
+  font-family: 'Cormorant Garamond', serif;
+}
+.lookup-result-row .lr-val.usd {
+  font-size: 1.1rem; color: var(--gold-dk);
+}
+.lookup-result-row .lr-unit {
+  font-size: 0.68rem; color: var(--ink-soft); margin-left: 4px;
+}
+
+/* Rate input section */
+.rate-input-row {
+  display: flex; align-items: center; gap: 8px;
+  flex-wrap: wrap; margin-top: 10px;
+}
+.rate-input-row input[type="text"] { width: 80px; text-align: center; }
+.rate-badge {
+  display: inline-flex; align-items: center;
+  gap: 4px; font-size: 0.72rem;
+  padding: 3px 10px; border-radius: 100px;
+  background: rgba(192,154,80,0.1);
+  border: 1px solid rgba(192,154,80,0.25);
+  color: var(--gold-dk);
+}
+
+/* ── Price Table ── */
+.rapa-table-wrap { overflow-x: auto; margin-top: 12px; }
+.rapa-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 0.75rem; min-width: 600px;
+}
+.rapa-table thead th {
+  background: var(--green-dk);
+  color: rgba(255,255,255,0.75);
+  font-size: 0.62rem; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 8px 8px; text-align: center;
+  white-space: nowrap;
+}
+.rapa-table tbody tr:nth-child(even) { background: rgba(247,243,235,0.5); }
+.rapa-table tbody tr:hover { background: rgba(192,154,80,0.06); }
+.rapa-table tbody td {
+  padding: 6px 8px; text-align: right;
+  font-feature-settings: "tnum";
+  white-space: nowrap;
+}
+.rapa-table tbody td:first-child { text-align: left; font-weight: 600; color: var(--green); }
+.rapa-table tbody td.highlight {
+  background: rgba(192,154,80,0.18) !important;
+  color: var(--green); font-weight: 700;
+  border: 1px solid rgba(192,154,80,0.35);
+}
+
+/* ── Graph section ── */
+.graph-controls {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.graph-controls select, .graph-controls input { height: 32px; }
+.graph-controls label { font-size: 0.75rem; color: var(--ink-soft); }
+
+.chart-container {
+  position: relative;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 20px;
+  margin-bottom: 14px;
+}
+.chart-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 0.85rem; font-weight: 600;
+  color: var(--ink); margin-bottom: 14px;
+  letter-spacing: 0.06em;
+  display: flex; align-items: center; gap: 8px;
+}
+.chart-empty {
+  text-align: center; padding: 40px 20px;
+  color: var(--ink-soft); font-size: 0.82rem;
+}
+
+/* Change badges */
+.change-up {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 0.7rem; font-weight: 600;
+  color: var(--up); background: rgba(181,41,41,0.08);
+  padding: 2px 8px; border-radius: 100px;
+}
+.change-dn {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 0.7rem; font-weight: 600;
+  color: var(--dn); background: rgba(26,90,154,0.08);
+  padding: 2px 8px; border-radius: 100px;
+}
+.change-flat {
+  font-size: 0.7rem; color: var(--ink-soft);
+  padding: 2px 8px;
+}
+
+/* Change table */
+.change-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; margin-top: 10px; }
+.change-table th {
+  background: var(--green-dk);
+  color: rgba(255,255,255,0.7);
+  font-size: 0.63rem; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 8px 10px; text-align: center;
+}
+.change-table td {
+  padding: 7px 10px; text-align: center;
+  border-bottom: 1px solid rgba(192,154,80,0.08);
+  font-feature-settings: "tnum";
+}
+.change-table tr:hover td { background: rgba(192,154,80,0.05); }
+
+/* Mobile */
+#caratSpinnerMobile { display: none; }
 @media (max-width: 600px) {
   .page-wrap { padding: 12px 12px 0; }
   .panel-body { padding: 14px 14px; }
@@ -526,11 +623,12 @@ select {
   .spin { display: flex; align-items: center; gap: 3px; }
   .spin select {
     width: 46px; font-size: 0.82rem; padding: 5px 3px;
-    -webkit-appearance: none; appearance: none; background-image: none;
-    text-align: center; height: 32px;
+    -webkit-appearance: none; appearance: none;
+    background-image: none; text-align: center; height: 32px;
   }
   .spin .dot { font-size: 1rem; font-weight: 700; color: var(--ink-soft); }
   .summary-panel { max-width: 100%; }
+  .tab-btn { padding: 10px 12px; font-size: 0.75rem; }
 }
 </style>
 </head>
@@ -553,12 +651,26 @@ select {
 <!-- Notice -->
 <div class="notice-bar">
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-  <span><strong>更新情報</strong>　2026年02月20日　NJ大会 2月前半分のデータを追加</span>
+  <span id="noticeText"><strong>更新情報</strong>　2026年02月20日　NJ大会 2月前半分のデータを追加</span>
+</div>
+
+<!-- ─── Tab Nav ─── -->
+<div class="tab-nav">
+  <button class="tab-btn active" data-tab="njTab">
+    <span class="tab-icon">🏷️</span> NJ大会相場
+  </button>
+  <button class="tab-btn" data-tab="rapaTab">
+    <span class="tab-icon">📊</span> ラパポート相場
+  </button>
 </div>
 
 <div class="page-wrap">
 
-  <!-- ─── Search Panel ─── -->
+<!-- ══════════════════════════
+     TAB 1: NJ大会相場（既存）
+══════════════════════════ -->
+<div id="njTab" class="tab-panel active">
+
   <div class="panel">
     <div class="panel-header">
       <div class="panel-header-dot"></div>
@@ -566,8 +678,6 @@ select {
     </div>
     <div class="panel-body">
       <div class="form-grid">
-
-        <!-- Carat -->
         <div class="form-label">カラット（ct）</div>
         <div class="form-control">
           <div id="caratSetRow" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
@@ -585,17 +695,12 @@ select {
             <input type="text" id="maxCarat" placeholder="最大" inputmode="decimal">
           </div>
         </div>
-
-        <!-- Date -->
         <div class="form-label">開催日</div>
         <div class="form-control">
           <select id="dateSelect" style="min-width:160px;"><option value="">すべて</option></select>
           <span class="field-hint">以降で検索</span>
         </div>
-
         <div class="form-divider"></div>
-
-        <!-- Color -->
         <div class="form-label">カラー</div>
         <div class="form-control" style="flex-direction:column;align-items:flex-start;">
           <div class="color-toggle">
@@ -608,21 +713,15 @@ select {
               <select id="fromColor" style="min-width:86px;"><option value="">From</option></select>
               <span class="range-sep">〜</span>
               <select id="toColor" style="min-width:86px;"><option value="">To</option></select>
-              <label class="check-label">
-                <input type="checkbox" id="faintCheck"> FAINT
-              </label>
+              <label class="check-label"><input type="checkbox" id="faintCheck"> FAINT</label>
             </div>
             <div class="fancy-form" style="display:none;">
               <select id="fancyGradeSelect" style="min-width:140px;"><option value="">Grade: すべて</option></select>
               <select id="fancyToneSelect"  style="min-width:110px;"><option value="">Tone: すべて</option></select>
-              <label class="check-label">
-                <input type="checkbox" id="treatedCheck"> TREATED
-              </label>
+              <label class="check-label"><input type="checkbox" id="treatedCheck"> TREATED</label>
             </div>
           </div>
         </div>
-
-        <!-- Clarity -->
         <div class="form-label">クラリティ</div>
         <div class="form-control">
           <select id="minClaritySelect" onchange="syncToValue('minClaritySelect','maxClaritySelect')" style="min-width:80px;">
@@ -643,8 +742,6 @@ select {
             <option value="I1">I1</option><option value="I2">I2</option><option value="I3">I3</option>
           </select>
         </div>
-
-        <!-- Cut -->
         <div class="form-label">カット</div>
         <div class="form-control">
           <select id="minCutSelect" onchange="syncToValue('minCutSelect','maxCutSelect')" style="min-width:108px;">
@@ -658,12 +755,8 @@ select {
             <option value="EX">EXCELLENT</option><option value="VG">VERY GOOD</option>
             <option value="GD">GOOD</option><option value="FR">FAIR</option><option value="PR">POOR</option>
           </select>
-          <label class="check-label">
-            <input type="checkbox" id="hcCheck"> H&amp;C
-          </label>
+          <label class="check-label"><input type="checkbox" id="hcCheck"> H&amp;C</label>
         </div>
-
-        <!-- Fluorescence -->
         <div class="form-label">蛍光性</div>
         <div class="form-control">
           <select id="minFluoSelect" onchange="syncToValue('minFluoSelect','maxFluoSelect')" style="min-width:78px;">
@@ -678,23 +771,16 @@ select {
             <option value="MB">MB</option><option value="SB">SB</option><option value="VSB">VSB</option>
           </select>
         </div>
-
-        <!-- Shape -->
         <div class="form-label">形状</div>
         <div class="form-control">
           <select id="shapeSelect" style="min-width:200px;"><option value="">すべて</option></select>
         </div>
-
         <div class="form-divider"></div>
-
-        <!-- Keyword -->
         <div class="form-label">フリーワード</div>
         <div class="form-control">
           <input type="text" id="keyword" placeholder="例: D VS1 GD　スペース区切りでAND検索" style="min-width:0;flex:1;max-width:400px;">
         </div>
-
       </div>
-
       <div class="action-row">
         <button id="searchButton" class="btn btn-primary btn-search">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -705,13 +791,11 @@ select {
     </div>
   </div>
 
-  <!-- Loading -->
   <div id="loadingSpinner" class="loading-wrap">
     <div class="spinner"></div>
     <span class="loading-text">検索中…</span>
   </div>
 
-  <!-- ─── Summary Panel ─── -->
   <div class="summary-panel">
     <div class="summary-header">
       <span class="summary-header-icon">◆</span>
@@ -730,10 +814,8 @@ select {
         <span class="s-label">掛け率</span>
         <span class="s-value">
           <select id="rateSelect">
-            <option value="0.5">5掛け</option>
-            <option value="0.6">6掛け</option>
-            <option value="0.7">7掛け</option>
-            <option value="0.8" selected>8掛け</option>
+            <option value="0.5">5掛け</option><option value="0.6">6掛け</option>
+            <option value="0.7">7掛け</option><option value="0.8" selected>8掛け</option>
             <option value="0.9">9掛け</option>
           </select>
         </span>
@@ -753,7 +835,6 @@ select {
     </div>
   </div>
 
-  <!-- ─── Results ─── -->
   <div id="resultSection" style="display:none;">
     <div class="result-bar">
       <div id="resultCountTop" class="result-count"></div>
@@ -763,17 +844,9 @@ select {
       <table id="resultTable">
         <thead>
           <tr>
-            <th>日付</th>
-            <th>カラー</th>
-            <th>クラリティ</th>
-            <th>カット</th>
-            <th>蛍光性</th>
-            <th>形状</th>
-            <th>カラット</th>
-            <th>ガイ単価</th>
-            <th>金額</th>
-            <th>備考</th>
-            <th>詳細</th>
+            <th>日付</th><th>カラー</th><th>クラリティ</th><th>カット</th>
+            <th>蛍光性</th><th>形状</th><th>カラット</th>
+            <th>ガイ単価</th><th>金額</th><th>備考</th><th>詳細</th>
           </tr>
         </thead>
         <tbody id="resultBody"></tbody>
@@ -783,10 +856,196 @@ select {
     <div id="paginationArea" class="pagination-wrap"></div>
   </div>
 
+</div><!-- /njTab -->
+
+
+<!-- ══════════════════════════
+     TAB 2: ラパポート相場
+══════════════════════════ -->
+<div id="rapaTab" class="tab-panel">
+
+  <!-- 為替レートバー -->
+  <div class="rate-info-bar" id="rateInfoBar">
+    <div>
+      <div class="rate-label">USD / JPY 為替レート</div>
+      <div class="rate-main" id="rateDisplay">—</div>
+      <div class="rate-date" id="rateDateDisplay">読み込み中…</div>
+    </div>
+    <div style="text-align:right;">
+      <div class="rate-label" style="margin-bottom:4px;">手動入力</div>
+      <div class="rate-input-row" style="justify-content:flex-end;">
+        <input type="text" id="manualRate" placeholder="例: 155.0" style="width:90px;background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:#fff;" inputmode="decimal">
+        <button class="btn btn-sm" id="applyRateBtn" style="background:rgba(192,154,80,0.3);color:var(--gold-lt);border:1px solid rgba(192,154,80,0.4);">適用</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="rapa-grid">
+    <!-- 相場検索パネル -->
+    <div class="panel" style="grid-column: 1 / -1;">
+      <div class="panel-header">
+        <div class="panel-header-dot"></div>
+        <div class="panel-title">ラパポート価格参照</div>
+      </div>
+      <div class="panel-body">
+        <div class="lookup-grid">
+          <select id="rShapeSelect">
+            <option value="BR">ラウンド (BR)</option>
+            <option value="PS">ペアシェイプ (PS)</option>
+          </select>
+          <select id="rColorSelect">
+            <option value="">カラー</option>
+            <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+            <option value="G">G</option><option value="H">H</option><option value="I">I</option>
+            <option value="J">J</option><option value="K">K</option><option value="L">L</option>
+            <option value="M">M</option>
+          </select>
+          <select id="rClaritySelect">
+            <option value="">クラリティ</option>
+            <option value="IF">IF</option><option value="VVS1">VVS1</option><option value="VVS2">VVS2</option>
+            <option value="VS1">VS1</option><option value="VS2">VS2</option>
+            <option value="SI1">SI1</option><option value="SI2">SI2</option><option value="SI3">SI3</option>
+            <option value="I1">I1</option><option value="I2">I2</option><option value="I3">I3</option>
+          </select>
+          <input type="text" id="rCaratInput" placeholder="カラット (例: 0.50)" inputmode="decimal" style="text-align:center;">
+          <select id="rRateSelectLookup">
+            <option value="1.0">掛け率なし</option>
+            <option value="0.5">5掛け</option><option value="0.6">6掛け</option>
+            <option value="0.7">7掛け</option><option value="0.8" selected>8掛け</option>
+            <option value="0.9">9掛け</option>
+          </select>
+          <button class="btn btn-primary" id="rLookupBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            検索
+          </button>
+        </div>
+
+        <div class="lookup-result-card" id="lookupResultCard">
+          <div class="lookup-result-row">
+            <span class="lr-label">グレード</span>
+            <span class="lr-val" id="lrGrade" style="font-family:'Shippori Mincho',serif;">—</span>
+          </div>
+          <div class="lookup-result-row">
+            <span class="lr-label">カラット範囲</span>
+            <span class="lr-val" id="lrCtRange">—</span>
+          </div>
+          <div class="lookup-result-row">
+            <span class="lr-label">ラパ価格</span>
+            <span class="lr-val usd" id="lrUsd">—</span>
+          </div>
+          <div class="lookup-result-row">
+            <span class="lr-label">円換算単価</span>
+            <span class="lr-val big" id="lrJpy">—<span class="lr-unit">円/ct</span></span>
+          </div>
+          <div class="lookup-result-row" id="lrTotalRow" style="display:none;">
+            <span class="lr-label">買取参考価格（<span id="lrRateLabel">8掛け</span>）</span>
+            <span class="lr-val big" id="lrTotal">—<span class="lr-unit">円</span></span>
+          </div>
+          <div class="lookup-result-row">
+            <span class="lr-label">データ日付</span>
+            <span class="lr-val" id="lrDate" style="color:var(--ink-soft);font-size:0.75rem;">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 価格テーブルパネル -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-header-dot"></div>
+      <div class="panel-title">ラパポート価格表</div>
+    </div>
+    <div class="panel-body">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;">
+        <select id="tblShapeSelect" style="min-width:160px;">
+          <option value="BR">ラウンド (BR)</option>
+          <option value="PS">ペアシェイプ (PS)</option>
+        </select>
+        <select id="tblCtRangeSelect" style="min-width:160px;">
+          <option value="">カラット範囲を選択</option>
+        </select>
+        <select id="tblCurrencySelect">
+          <option value="usd">USD / ct</option>
+          <option value="jpy">JPY / ct（円換算）</option>
+        </select>
+        <button class="btn btn-primary btn-sm" id="showTableBtn">表示</button>
+      </div>
+      <div id="rapaTableWrap" class="rapa-table-wrap">
+        <div class="chart-empty">形状・カラット範囲を選択して「表示」を押してください</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- グラフパネル -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-header-dot"></div>
+      <div class="panel-title">価格変動グラフ</div>
+    </div>
+    <div class="panel-body">
+      <div class="graph-controls">
+        <select id="gShapeSelect">
+          <option value="BR">ラウンド (BR)</option>
+          <option value="PS">ペアシェイプ (PS)</option>
+        </select>
+        <select id="gColorSelect">
+          <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+          <option value="G">G</option><option value="H">H</option><option value="I">I</option>
+          <option value="J">J</option><option value="K">K</option>
+        </select>
+        <select id="gClaritySelect">
+          <option value="IF">IF</option><option value="VVS1">VVS1</option><option value="VVS2">VVS2</option>
+          <option value="VS1">VS1</option><option value="VS2">VS2</option>
+          <option value="SI1">SI1</option><option value="SI2">SI2</option>
+          <option value="I1">I1</option><option value="I2">I2</option>
+        </select>
+        <select id="gCtRangeSelect" style="min-width:140px;">
+          <option value="">カラット範囲</option>
+        </select>
+        <button class="btn btn-primary btn-sm" id="plotGraphBtn">グラフ表示</button>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-title" id="graphTitle">
+          <span>💹</span>
+          <span id="graphTitleText">グレードを選択してグラフを表示</span>
+        </div>
+        <div id="chartWrap" style="position:relative;height:280px;">
+          <div class="chart-empty" id="chartEmpty">左のフォームでグレードを選択し「グラフ表示」を押してください</div>
+          <canvas id="priceChart" style="display:none;"></canvas>
+        </div>
+      </div>
+
+      <!-- 変化率テーブル -->
+      <div id="changeTableWrap" style="display:none;">
+        <div class="panel-header" style="margin: 0 -18px; border-radius:0;">
+          <div class="panel-header-dot"></div>
+          <div class="panel-title">前回比 変化率</div>
+        </div>
+        <div style="overflow-x:auto;margin-top:8px;">
+          <table class="change-table" id="changeTable">
+            <thead>
+              <tr>
+                <th>日付</th><th>ラパ価格 (USD/ct)</th>
+                <th>前回比</th><th>変化率</th>
+              </tr>
+            </thead>
+            <tbody id="changeTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /rapaTab -->
+
 </div><!-- /page-wrap -->
 
 <script>
-/* ── Constants ── */
+/* ════════════════════════════════════════
+   CONSTANTS
+════════════════════════════════════════ */
 const ALPHA_COLOR_ZONES = [
   { label:"D",       key:"D",       rank:100 },
   { label:"E",       key:"E",       rank:101 },
@@ -805,6 +1064,7 @@ const ALPHA_COLOR_ZONES = [
   { label:"U～Z",    key:"U_Z",     rank:600 }
 ];
 const CLARITY_ORDER = ["FL","IF","VVS1","VVS2","VS1","VS2","SI1","SI2","I1","I2","I3"];
+const CLARITY_RAPA  = ["IF","VVS1","VVS2","VS1","VS2","SI1","SI2","SI3","I1","I2","I3"];
 const CUT_RANK      = { EX:1, VG:2, GD:3, FR:4, PR:5 };
 const FLUO_ORDER    = ["N","F","MB","SB","VSB"];
 const CARAT_THRESHOLDS = [0,0.1,0.2,0.25,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.5,2,3,5];
@@ -817,15 +1077,27 @@ const shapeMap    = {
   BUT:"バタフライ", TRI:"トリリアント", FA:"ファンシーカット", RCT:"レクタンギュラー"
 };
 
-/* ── Helpers ── */
+const GITHUB_BASE   = "https://raw.githubusercontent.com/sgc-gold/sgc/main/data/";
+const RAPA_URL      = GITHUB_BASE + "rapaport.json";
+const RATE_URL      = GITHUB_BASE + "exchange_rate.json"; // { rate: 156.24, date: "2026-03-02T..." }
+
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+let diamondData    = [];
+let rapaData       = [];   // flat array of rapaport records
+let usdJpy         = 150;  // default fallback
+let priceChart     = null;
+
+/* ════════════════════════════════════════
+   HELPERS (shared)
+════════════════════════════════════════ */
 function syncToValue(fromId, toId) {
   document.getElementById(toId).value = document.getElementById(fromId).value;
 }
-
 function getCutGrade(value) {
   if (!value) return null;
   const str = value.toUpperCase();
-  const hasHC = /H&C|HEART/.test(str);
   const parts = str.includes("/") ? str.split("/") : str.split(" ");
   const grade = parts.find(p =>
     p.includes("EX")||p.includes("VG")||p.includes("GD")||p==="G"||
@@ -833,15 +1105,14 @@ function getCutGrade(value) {
   );
   if (!grade) return null;
   let base;
-  if      (grade.includes("EX"))              base = "EX";
-  else if (grade.includes("VG"))              base = "VG";
-  else if (grade.includes("GD")||grade==="G") base = "GD";
+  if      (grade.includes("EX"))               base = "EX";
+  else if (grade.includes("VG"))               base = "VG";
+  else if (grade.includes("GD")||grade==="G")  base = "GD";
   else if (grade.includes("FR")||grade==="FA") base = "FR";
   else if (grade.includes("PR")||grade==="PO") base = "PR";
   else base = null;
-  return { base, hasHC };
+  return { base, hasHC: /H&C|HEART/.test(str) };
 }
-
 function getAlphaZoneKey(colorText) {
   if (!colorText) return null;
   const u = colorText.toUpperCase().trim();
@@ -855,56 +1126,387 @@ function getAlphaZoneKey(colorText) {
   if ("UVWXYZ".includes(ch)) return "U_Z";
   return null;
 }
-
 function setCountEl(el, count, page, totalPages) {
   if (!el) return;
   if (count === 0) { el.innerHTML = "該当するデータはありません"; return; }
   el.innerHTML = `検索結果：<strong>${count.toLocaleString()}</strong> 件（${page} / ${totalPages} ページ）`;
 }
+function fmt(n) { return Math.round(n).toLocaleString(); }
 
-/* ── Data load & filter init ── */
-let diamondData = [];
+/* ════════════════════════════════════════
+   TAB SWITCHING
+════════════════════════════════════════ */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    notifyHeight();
+  });
+});
 
-async function populateFilters() {
-  const resp = await fetch("https://raw.githubusercontent.com/sgc-gold/sgc/main/data/diamonds.json");
-  diamondData = await resp.json();
+/* ════════════════════════════════════════
+   DATA LOAD
+════════════════════════════════════════ */
+async function loadAll() {
+  await Promise.all([loadNJData(), loadRapaData(), loadRate()]);
+}
 
+async function loadNJData() {
+  try {
+    const resp = await fetch(GITHUB_BASE + "diamonds.json");
+    diamondData = await resp.json();
+    populateNJFilters();
+  } catch(e) { console.warn("NJデータ読み込み失敗", e); }
+}
+
+async function loadRapaData() {
+  try {
+    const resp = await fetch(RAPA_URL);
+    const json = await resp.json();
+    rapaData = json.data || [];
+    populateRapaFilters();
+  } catch(e) {
+    console.warn("ラパデータ読み込み失敗 — ローカルフォールバック不可", e);
+  }
+}
+
+async function loadRate() {
+  try {
+    const resp = await fetch(RATE_URL);
+    const json = await resp.json();
+    usdJpy = parseFloat(json.rate) || 150;
+    document.getElementById("rateDisplay").textContent = usdJpy.toFixed(2) + " 円";
+    const dateStr = json.date
+      ? new Date(json.date).toLocaleString("ja-JP", {year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}) + " 更新"
+      : "最新データ";
+    document.getElementById("rateDateDisplay").textContent = dateStr;
+    document.getElementById("manualRate").value = usdJpy.toFixed(2);
+  } catch(e) {
+    document.getElementById("rateDisplay").textContent = usdJpy.toFixed(2) + " 円（仮）";
+    document.getElementById("rateDateDisplay").textContent = "為替データ読み込み失敗";
+    document.getElementById("manualRate").value = usdJpy.toFixed(2);
+  }
+}
+
+document.getElementById("applyRateBtn").addEventListener("click", () => {
+  const v = parseFloat(document.getElementById("manualRate").value);
+  if (!isNaN(v) && v > 0) {
+    usdJpy = v;
+    document.getElementById("rateDisplay").textContent = v.toFixed(2) + " 円（手動）";
+    document.getElementById("rateDateDisplay").textContent = "手動入力値";
+  }
+});
+
+loadAll();
+
+/* ════════════════════════════════════════
+   NJ FILTER INIT
+════════════════════════════════════════ */
+function populateNJFilters() {
   const dates = new Set(), shapes = new Set();
   diamondData.forEach(d => {
     if (d.date)  dates.add(d.date.split(" ")[0]);
     if (d.shape) shapes.add(d.shape);
   });
-
   const addOpt = (sel, val, label) => sel.appendChild(new Option(label || val, val));
-
   const dateSel = document.getElementById("dateSelect");
   Array.from(dates).sort((a,b) => new Date(b)-new Date(a)).forEach(d => addOpt(dateSel, d));
   dateSel.selectedIndex = 1;
-
   const fromColorSel = document.getElementById("fromColor");
   const toColorSel   = document.getElementById("toColor");
   ALPHA_COLOR_ZONES.forEach(z => { addOpt(fromColorSel, z.key, z.label); addOpt(toColorSel, z.key, z.label); });
-
   fancyGrades.forEach(g => addOpt(document.getElementById("fancyGradeSelect"), g));
   fancyTones.forEach(t  => addOpt(document.getElementById("fancyToneSelect"),  t));
-
-  populateShapeSelect(Array.from(shapes));
-}
-populateFilters();
-
-function populateShapeSelect(shapeCodes) {
   const sel = document.getElementById("shapeSelect");
   sel.innerHTML = "";
   sel.appendChild(new Option("すべて", ""));
   sel.appendChild(new Option("↳ ラウンドブリリアント", "RD"));
   sel.appendChild(new Option("↳ ラウンド以外", "NON_ROUND"));
-  [...new Set(shapeCodes.filter(s => s && s !== "RD"))].sort().forEach(code => {
+  [...new Set(Array.from(shapes).filter(s => s && s !== "RD"))].sort().forEach(code => {
     sel.appendChild(new Option(`　↳ ${shapeMap[code] || code}`, code));
   });
-  sel.value = "";
 }
 
-/* ── Color toggle ── */
+/* ════════════════════════════════════════
+   RAPA FILTER INIT
+════════════════════════════════════════ */
+function getCtRanges(shape) {
+  const ranges = new Map();
+  rapaData.filter(r => r.shape === shape).forEach(r => {
+    const key = `${r.ct_min}-${r.ct_max}`;
+    if (!ranges.has(key)) ranges.set(key, { min: r.ct_min, max: r.ct_max });
+  });
+  return Array.from(ranges.values()).sort((a,b) => a.min - b.min);
+}
+
+function populateCtRangeSelect(selId, shape) {
+  const sel = document.getElementById(selId);
+  sel.innerHTML = '<option value="">カラット範囲を選択</option>';
+  getCtRanges(shape).forEach(r => {
+    sel.appendChild(new Option(`${r.min.toFixed(2)} 〜 ${r.max.toFixed(2)} ct`, `${r.min}-${r.max}`));
+  });
+}
+
+function populateRapaFilters() {
+  ["tblShapeSelect","gShapeSelect"].forEach(id => {
+    document.getElementById(id).addEventListener("change", function() {
+      const targetMap = { tblShapeSelect:"tblCtRangeSelect", gShapeSelect:"gCtRangeSelect" };
+      populateCtRangeSelect(targetMap[id], this.value);
+    });
+  });
+  populateCtRangeSelect("tblCtRangeSelect", "BR");
+  populateCtRangeSelect("gCtRangeSelect",   "BR");
+}
+
+/* ════════════════════════════════════════
+   RAPA LOOKUP
+════════════════════════════════════════ */
+function rapaLookup(shape, color, clarity, carat) {
+  if (!rapaData.length) return null;
+  const ct = parseFloat(carat);
+  return rapaData.find(r =>
+    r.shape === shape &&
+    r.color === color &&
+    r.clarity === clarity &&
+    ct >= r.ct_min && ct <= r.ct_max
+  ) || null;
+}
+
+document.getElementById("rLookupBtn").addEventListener("click", () => {
+  const shape   = document.getElementById("rShapeSelect").value;
+  const color   = document.getElementById("rColorSelect").value;
+  const clarity = document.getElementById("rClaritySelect").value;
+  const carat   = document.getElementById("rCaratInput").value;
+  const rate    = parseFloat(document.getElementById("rRateSelectLookup").value) || 1;
+
+  if (!color || !clarity || !carat) {
+    alert("カラー・クラリティ・カラットを選択/入力してください");
+    return;
+  }
+
+  const rec = rapaLookup(shape, color, clarity, carat);
+  const card = document.getElementById("lookupResultCard");
+
+  if (!rec) {
+    card.classList.add("visible");
+    document.getElementById("lrGrade").textContent = `${color} ${clarity} (${shape})`;
+    document.getElementById("lrCtRange").textContent = "該当データなし";
+    document.getElementById("lrUsd").textContent = "—";
+    document.getElementById("lrJpy").innerHTML = "—<span class='lr-unit'>円/ct</span>";
+    document.getElementById("lrTotalRow").style.display = "none";
+    document.getElementById("lrDate").textContent = "—";
+    return;
+  }
+
+  const jpyPerCt = rec.price_usd * usdJpy;
+  const ct = parseFloat(carat) || 0;
+  const total = Math.round(jpyPerCt * rate * ct);
+  const rateLabels = {"1.0":"掛け率なし","0.5":"5掛け","0.6":"6掛け","0.7":"7掛け","0.8":"8掛け","0.9":"9掛け"};
+
+  card.classList.add("visible");
+  document.getElementById("lrGrade").textContent    = `${color} / ${clarity} / ${shape}`;
+  document.getElementById("lrCtRange").textContent  = `${rec.ct_min.toFixed(2)} 〜 ${rec.ct_max.toFixed(2)} ct`;
+  document.getElementById("lrUsd").innerHTML        = `$${rec.price_usd.toLocaleString()} <span style="font-size:0.72rem;color:var(--ink-soft)">USD/ct</span>`;
+  document.getElementById("lrJpy").innerHTML        = `${fmt(jpyPerCt)}<span class="lr-unit">円/ct</span>`;
+  document.getElementById("lrRateLabel").textContent = rateLabels[String(rate)] || `${rate*100}%`;
+  document.getElementById("lrDate").textContent     = rec.date;
+  if (ct > 0) {
+    document.getElementById("lrTotalRow").style.display = "flex";
+    document.getElementById("lrTotal").innerHTML = `${fmt(total)}<span class="lr-unit">円</span>`;
+  } else {
+    document.getElementById("lrTotalRow").style.display = "none";
+  }
+});
+
+/* ════════════════════════════════════════
+   RAPA PRICE TABLE
+════════════════════════════════════════ */
+document.getElementById("showTableBtn").addEventListener("click", () => {
+  const shape    = document.getElementById("tblShapeSelect").value;
+  const ctVal    = document.getElementById("tblCtRangeSelect").value;
+  const currency = document.getElementById("tblCurrencySelect").value;
+
+  if (!ctVal) { alert("カラット範囲を選択してください"); return; }
+  const [ctMin, ctMax] = ctVal.split("-").map(Number);
+
+  const rows = rapaData.filter(r =>
+    r.shape === shape && r.ct_min === ctMin && r.ct_max === ctMax
+  );
+
+  if (!rows.length) {
+    document.getElementById("rapaTableWrap").innerHTML =
+      '<div class="chart-empty">該当データがありません</div>';
+    return;
+  }
+
+  // colors × clarities
+  const colors    = [...new Set(rows.map(r => r.color))].sort((a,b) => a.charCodeAt(0)-b.charCodeAt(0));
+  const clarities = CLARITY_RAPA.filter(c => rows.some(r => r.clarity === c));
+
+  let html = `<table class="rapa-table"><thead><tr><th>COLOR</th>`;
+  clarities.forEach(c => html += `<th>${c}</th>`);
+  html += `</tr></thead><tbody>`;
+
+  colors.forEach(color => {
+    html += `<tr><td>${color}</td>`;
+    clarities.forEach(cl => {
+      const rec = rows.find(r => r.color === color && r.clarity === cl);
+      if (!rec) { html += `<td>—</td>`; return; }
+      const val = currency === "jpy"
+        ? fmt(rec.price_usd * usdJpy) + "円"
+        : "$" + rec.price_usd.toLocaleString();
+      html += `<td>${val}</td>`;
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table>`;
+
+  document.getElementById("rapaTableWrap").innerHTML =
+    `<div style="font-size:0.72rem;color:var(--ink-soft);margin-bottom:6px;">
+      ${shape === "BR" ? "ラウンド" : "ペアシェイプ"} ／
+      ${ctMin.toFixed(2)}〜${ctMax.toFixed(2)} ct ／
+      ${currency === "jpy" ? "JPY/ct（レート: " + usdJpy.toFixed(2) + "）" : "USD/ct"}
+      ／ ラパポート ${rows[0]?.date || ""}
+    </div>` + html;
+});
+
+/* ════════════════════════════════════════
+   RAPA GRAPH
+════════════════════════════════════════ */
+document.getElementById("plotGraphBtn").addEventListener("click", () => {
+  const shape   = document.getElementById("gShapeSelect").value;
+  const color   = document.getElementById("gColorSelect").value;
+  const clarity = document.getElementById("gClaritySelect").value;
+  const ctVal   = document.getElementById("gCtRangeSelect").value;
+
+  if (!ctVal) { alert("カラット範囲を選択してください"); return; }
+  const [ctMin, ctMax] = ctVal.split("-").map(Number);
+
+  const points = rapaData
+    .filter(r =>
+      r.shape === shape && r.color === color &&
+      r.clarity === clarity && r.ct_min === ctMin && r.ct_max === ctMax
+    )
+    .sort((a,b) => new Date(a.date) - new Date(b.date));
+
+  const titleText = `${shape === "BR" ? "ラウンド" : "ペアシェイプ"} ${color} / ${clarity} / ${ctMin.toFixed(2)}〜${ctMax.toFixed(2)} ct`;
+  document.getElementById("graphTitleText").textContent = titleText;
+
+  const empty = document.getElementById("chartEmpty");
+  const canvas = document.getElementById("priceChart");
+
+  if (!points.length) {
+    empty.textContent = "該当データがありません（データ蓄積後にグラフが表示されます）";
+    empty.style.display = "block";
+    canvas.style.display = "none";
+    document.getElementById("changeTableWrap").style.display = "none";
+    return;
+  }
+
+  if (points.length === 1) {
+    empty.textContent = `データは1件のみ（${points[0].date}: $${points[0].price_usd}）。変動グラフは2回分以上のデータが必要です。`;
+    empty.style.display = "block";
+    canvas.style.display = "none";
+    renderChangeTable(points);
+    return;
+  }
+
+  empty.style.display = "none";
+  canvas.style.display = "block";
+
+  const labels = points.map(p => p.date);
+  const usdPrices = points.map(p => p.price_usd);
+
+  if (priceChart) priceChart.destroy();
+
+  priceChart = new Chart(canvas, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "ラパ価格 (USD/ct)",
+        data: usdPrices,
+        borderColor: "#C09A50",
+        backgroundColor: "rgba(192,154,80,0.08)",
+        pointBackgroundColor: "#1A3628",
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        tension: 0.3,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` $${ctx.raw.toLocaleString()} USD/ct  ≈ ${fmt(ctx.raw * usdJpy)} 円`
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: {
+            callback: v => "$" + v.toLocaleString(),
+            font: { size: 10 }
+          },
+          grid: { color: "rgba(192,154,80,0.1)" }
+        },
+        x: {
+          ticks: { font: { size: 10 } },
+          grid: { color: "rgba(192,154,80,0.1)" }
+        }
+      }
+    }
+  });
+
+  renderChangeTable(points);
+  notifyHeight();
+});
+
+function renderChangeTable(points) {
+  const wrap = document.getElementById("changeTableWrap");
+  const tbody = document.getElementById("changeTableBody");
+  tbody.innerHTML = "";
+
+  points.forEach((p, i) => {
+    const tr = document.createElement("tr");
+    let changeBadge = '<span class="change-flat">—</span>';
+    let rateBadge   = '<span class="change-flat">初回</span>';
+    if (i > 0) {
+      const prev = points[i-1].price_usd;
+      const diff = p.price_usd - prev;
+      const pct  = ((diff / prev) * 100).toFixed(2);
+      if (diff > 0) {
+        changeBadge = `<span class="change-up">▲ +$${diff.toFixed(0)}</span>`;
+        rateBadge   = `<span class="change-up">+${pct}%</span>`;
+      } else if (diff < 0) {
+        changeBadge = `<span class="change-dn">▼ -$${Math.abs(diff).toFixed(0)}</span>`;
+        rateBadge   = `<span class="change-dn">${pct}%</span>`;
+      } else {
+        changeBadge = `<span class="change-flat">± $0</span>`;
+        rateBadge   = `<span class="change-flat">0.00%</span>`;
+      }
+    }
+    tr.innerHTML = `
+      <td>${p.date}</td>
+      <td>$${p.price_usd.toLocaleString()}</td>
+      <td>${changeBadge}</td>
+      <td>${rateBadge}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  wrap.style.display = "block";
+}
+
+/* ════════════════════════════════════════
+   COLOR TOGGLE (NJ Tab)
+════════════════════════════════════════ */
 document.querySelectorAll('.ctog-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.ctog-btn').forEach(b => b.classList.remove('active'));
@@ -924,7 +1526,9 @@ document.getElementById('fromColor').addEventListener('change', function() {
   document.getElementById('toColor').value = this.value;
 });
 
-/* ── Carat set ── */
+/* ════════════════════════════════════════
+   CARAT SET (NJ Tab)
+════════════════════════════════════════ */
 document.getElementById("setCarat").addEventListener("click", () => {
   const c = parseFloat(document.getElementById("mainCarat").value);
   if (isNaN(c)) return alert("数値を入力してください");
@@ -941,7 +1545,9 @@ document.getElementById("setCarat").addEventListener("click", () => {
   document.getElementById("maxCarat").value = max !== null ? max.toFixed(3) : "";
 });
 
-/* ── Search ── */
+/* ════════════════════════════════════════
+   NJ SEARCH
+════════════════════════════════════════ */
 document.getElementById("searchButton").addEventListener("click", runSearch);
 
 function runSearch() {
@@ -1056,7 +1662,6 @@ function runSearch() {
           <td><span class="detail-toggle">詳細</span></td>
         `;
         tbody.appendChild(row);
-
         const detailRow = document.createElement("tr");
         detailRow.classList.add("detailsRow");
         let unevenRate = "", heightRatio = "";
@@ -1068,7 +1673,6 @@ function runSearch() {
         }
         detailRow.innerHTML = `<td colspan="11">直径：${d.diameterMin||"—"}–${d.diameterMax||"—"} mm（不正円率：${unevenRate||"—"}）　高さ：${d.height||"—"} mm（全高比：${heightRatio||"—"}）</td>`;
         tbody.appendChild(detailRow);
-
         row.querySelector(".detail-toggle").addEventListener("click", () => {
           detailRow.style.display = detailRow.style.display === "table-row" ? "none" : "table-row";
         });
