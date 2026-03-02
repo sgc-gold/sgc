@@ -52,12 +52,15 @@ def main():
     print(f"🕒 現在時刻: {current_time}")
     print(f"📅 取得データの公表時刻: {update_text}")
 
+    # ※ スキップ判定を削除
+    # check_tanaka_update.py がハッシュ変化を確認済みのためここでの重複チェックは不要。
+    # ただしサーバーのキャッシュ等で古いデータが返ってくる場合があるため、
+    # 既存データと同じ公表時刻の場合は警告を出しつつも処理を継続する。
     existing_data = load_json(PATH_MAIN)
     last_update_time = existing_data["update_time"] if existing_data else None
 
     if not is_workflow_dispatch and update_text == last_update_time:
-        print("⏸ 公表時刻に変化なし → 更新スキップ")
-        sys.exit(0)
+        print("⚠ 取得した公表時刻が既存データと同じです（サーバーキャッシュの可能性）。処理を継続します。")
 
     # === 9:30更新処理 ===
     if "09:30" in update_text:
