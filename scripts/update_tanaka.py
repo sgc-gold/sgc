@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import json
+import re
 from datetime import datetime
 import os
 import sys
@@ -43,6 +44,33 @@ def load_json(path):
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
     return None
+
+def append_to_history(data, update_text):
+    """日付別の履歴ファイルにスナップショットを追記する"""
+    match = re.search(r"(\d{4})年(\d{2})月(\d{2})日", update_text)
+    if not match:
+        print("⚠ 履歴保存スキップ: 日付を公表時刻から取得できませんでした")
+        return
+
+    date_str = f"{match.group(1)}-{match.group(2)}-{match.group(3)}"
+    path = f"data/history/{date_str}.json"
+
+    existing = load_json(path) or {"date": date_str, "snapshots": []}
+
+    # 同じ公表時刻のスナップショットは上書き（重複防止）
+    existing["snapshots"] = [
+        s for s in existing["snapshots"] if s["update_time"] != update_text
+    ]
+    existing["snapshots"].append({
+        "update_time": update_text,
+        "prices": data["prices"]
+    })
+
+    # 時系列順に並べる（念のため）
+    existing["snapshots"].sort(key=lambda s: s["update_time"])
+
+    save_json(path, existing)
+    print(f"📚 履歴保存完了: {path}（スナップショット数: {len(existing['snapshots'])}）")
 
 def main():
     prices, update_text = fetch_tanaka_prices()
@@ -93,6 +121,9 @@ def main():
         print(f"✅ {update_text} データ保存完了（9:30比込み）")
 
     print("💾 保存完了:", PATH_MAIN)
+
+    # === 履歴ファイルへの追記（常に実行） ===
+    append_to_history(data, update_text)
 
 if __name__ == "__main__":
     main()
