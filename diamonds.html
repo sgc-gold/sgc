@@ -428,25 +428,57 @@ select {
 .count-bar strong { color: var(--green); }
 
 /* ── Graph view panels ── */
-.graph-view-btn { transition: color .15s, border-color .15s; }
-.graph-view-btn.active { color: var(--ink) !important; border-bottom-color: var(--gold) !important; }
-.graph-view-btn:hover:not(.active) { color: var(--ink-soft) !important; }
 .graph-chart-wrap {
   position: relative;
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 16px;
-  min-height: 340px;
+  min-height: 280px;
 }
-.graph-chart-wrap canvas { max-height: 380px; }
+.graph-chart-wrap .chart-empty {
+  display: flex; align-items: center; justify-content: center;
+  height: 200px;
+}
+.graph-chart-wrap canvas { max-height: 360px; }
+
+/* Graph view tabs */
+.gv-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(192,154,80,0.15);
+  margin: -16px -18px 16px;
+  padding: 0 18px;
+  overflow-x: auto;
+}
+.gv-tab {
+  background: none; border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--ink-soft);
+  font-family: 'Shippori Mincho', serif;
+  font-size: 0.78rem; font-weight: 600;
+  padding: 10px 18px; cursor: pointer;
+  margin-bottom: -1px; letter-spacing: .04em;
+  white-space: nowrap; transition: color .15s, border-color .15s;
+}
+.gv-tab.active { color: var(--ink); border-bottom-color: var(--gold); }
+.gv-tab:hover:not(.active) { color: var(--ink); }
+
+.gv-desc {
+  font-size: 0.72rem; color: var(--ink-soft);
+  margin-bottom: 12px; line-height: 1.6;
+}
+.gv-controls {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+/* Shape toggle（共通） */
 .shape-toggle-wrap {
   display: inline-flex;
   border: 1px solid var(--border-ui);
-  border-radius: 8px;
-  overflow: hidden;
+  border-radius: 8px; overflow: hidden;
 }
-.shape-tog-ct, .shape-tog-gr {
+.htog, .ttog {
   background: var(--cream); border: none;
   font-family: 'DM Sans', sans-serif;
   font-size: 0.75rem; padding: 5px 14px;
@@ -454,12 +486,93 @@ select {
   color: var(--ink-soft);
   transition: background .14s, color .14s;
 }
-.shape-tog-ct:not(:first-child), .shape-tog-gr:not(:first-child) {
+.htog:not(:first-child), .ttog:not(:first-child) {
   border-left: 1px solid var(--border-ui);
 }
-.shape-tog-ct.active, .shape-tog-gr.active {
-  background: var(--green); color: #fff;
+.htog.active, .ttog.active { background: var(--green); color: #fff; }
+
+/* ── Heatmap table ── */
+.hm-table {
+  border-collapse: collapse;
+  font-size: 0.72rem;
+  width: 100%;
+  min-width: 620px;
 }
+.hm-head-corner {
+  background: var(--green-dk);
+  color: rgba(255,255,255,0.6);
+  font-size: 0.6rem; font-weight: 500;
+  letter-spacing: .08em;
+  padding: 7px 10px; text-align: center;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  white-space: nowrap;
+}
+.hm-head {
+  background: var(--green-dk);
+  color: rgba(255,255,255,0.75);
+  font-size: 0.65rem; font-weight: 500;
+  letter-spacing: .08em; text-transform: uppercase;
+  padding: 7px 6px; text-align: center;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  white-space: nowrap; min-width: 60px;
+}
+.hm-row-head {
+  background: var(--green-dk);
+  color: rgba(255,255,255,0.85);
+  font-family: 'Shippori Mincho', serif;
+  font-size: 0.72rem; font-weight: 600;
+  padding: 7px 12px; text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  white-space: nowrap; letter-spacing: .06em;
+}
+.hm-cell {
+  padding: 6px 8px; text-align: right;
+  font-feature-settings: "tnum";
+  font-size: 0.71rem; font-weight: 500;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: opacity .12s, outline .1s;
+  white-space: nowrap;
+}
+.hm-cell:hover { opacity: 0.82; outline: 2px solid var(--gold); outline-offset: -2px; }
+.hm-cell.selected { outline: 2.5px solid var(--gold) !important; outline-offset: -2px; }
+.hm-empty { background: rgba(247,243,235,0.4) !important; color: var(--ink-soft) !important; cursor: default; font-size: 0.65rem; text-align: center; }
+
+/* ── Detail card ── */
+.hm-detail-card {
+  margin-top: 14px;
+  background: linear-gradient(135deg, rgba(26,54,40,0.04), rgba(192,154,80,0.06));
+  border: 1px solid rgba(192,154,80,0.25);
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+.hm-dc-title {
+  display: flex; align-items: baseline; gap: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(192,154,80,0.15);
+  padding-bottom: 8px;
+}
+.hm-dc-grade {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 1rem; font-weight: 700;
+  color: var(--green); letter-spacing: .06em;
+}
+.hm-dc-shape { font-size: 0.72rem; color: var(--ink-soft); }
+.hm-dc-prices { display: flex; flex-direction: column; gap: 2px; }
+.hm-dc-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 5px 0; border-bottom: 1px solid rgba(192,154,80,0.07);
+  font-size: 0.82rem;
+}
+.hm-dc-row.small { font-size: 0.75rem; opacity: .85; }
+.hm-dc-row:last-child { border-bottom: none; }
+.hm-dc-label { color: var(--ink-soft); }
+.hm-dc-val { font-weight: 600; color: var(--ink); font-feature-settings: "tnum"; }
+.hm-dc-val.usd { font-size: 1.05rem; color: var(--gold-dk); }
+.hm-dc-val.jpy { font-size: 1.2rem; color: var(--green); font-family: 'Cormorant Garamond', serif; }
+.hm-dc-unit { font-size: 0.65rem; color: var(--ink-soft); margin-left: 4px; font-family: 'DM Sans', sans-serif; }
+.hm-dc-sep { height: 1px; background: rgba(192,154,80,0.15); margin: 6px 0; }
+.hm-dc-note { font-size: 0.65rem; color: var(--ink-soft); opacity:.7; margin-top: 8px; text-align: right; }
 
 /* ══════════════════════════════════
    RAPAPORT TAB STYLES
@@ -1011,103 +1124,73 @@ select {
     </div>
   </div>
 
-  <!-- グラフ一覧パネル -->
+  <!-- 価格ヒートマップ＋変動グラフパネル -->
   <div class="panel">
     <div class="panel-header">
       <div class="panel-header-dot"></div>
-      <div class="panel-title">価格変動グラフ</div>
+      <div class="panel-title">価格マップ・変動グラフ</div>
     </div>
     <div class="panel-body">
 
-      <!-- ビュー切り替えタブ -->
-      <div style="display:flex;border-bottom:1px solid rgba(192,154,80,0.15);margin:-16px -18px 16px;padding:0 18px;">
-        <button class="graph-view-btn active" data-view="ct" style="background:none;border:none;border-bottom:2px solid var(--gold);color:var(--ink);font-family:'Shippori Mincho',serif;font-size:0.78rem;font-weight:600;padding:10px 16px;cursor:pointer;margin-bottom:-1px;letter-spacing:.05em;white-space:nowrap;">① カラット固定</button>
-        <button class="graph-view-btn" data-view="grade" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--ink-soft);font-family:'Shippori Mincho',serif;font-size:0.78rem;font-weight:600;padding:10px 16px;cursor:pointer;margin-bottom:-1px;letter-spacing:.05em;white-space:nowrap;">② グレード固定</button>
-        <button class="graph-view-btn" data-view="compare" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--ink-soft);font-family:'Shippori Mincho',serif;font-size:0.78rem;font-weight:600;padding:10px 16px;cursor:pointer;margin-bottom:-1px;letter-spacing:.05em;white-space:nowrap;">③ BR vs PS 比較</button>
+      <!-- タブ -->
+      <div class="gv-tabs">
+        <button class="gv-tab active" data-gv="heatmap">🟩 価格ヒートマップ</button>
+        <button class="gv-tab" data-gv="trend">📈 変動グラフ</button>
       </div>
 
-      <!-- ① カラット固定ビュー -->
-      <div id="viewCt" class="graph-view-panel">
-        <div style="font-size:0.72rem;color:var(--ink-soft);margin-bottom:10px;">カラット範囲を固定 → カラー×クラリティの全ラインを重ねて表示</div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-          <div class="shape-toggle-wrap" data-target="gCtShape">
-            <button class="shape-tog-ct active" data-shape="BR">ラウンド</button>
-            <button class="shape-tog-ct" data-shape="PS">ペアシェイプ</button>
-          </div>
-          <select id="gCtRangeSelect" style="min-width:160px;">
-            <option value="">カラット範囲</option>
-          </select>
-          <select id="gCtFilterColor" style="min-width:90px;">
-            <option value="">色: すべて</option>
-            <option value="D">D</option><option value="E">E</option><option value="F">F</option>
-            <option value="G">G</option><option value="H">H</option><option value="I">I</option>
-            <option value="J">J</option><option value="K">K</option>
-          </select>
-          <select id="gCtFilterClarity" style="min-width:100px;">
-            <option value="">クラリティ: すべて</option>
-            <option value="IF">IF</option><option value="VVS1">VVS1</option><option value="VVS2">VVS2</option>
-            <option value="VS1">VS1</option><option value="VS2">VS2</option>
-            <option value="SI1">SI1</option><option value="SI2">SI2</option>
-            <option value="I1">I1</option>
-          </select>
-          <button class="btn btn-primary btn-sm" id="plotCtBtn">グラフ表示</button>
-        </div>
-        <div class="graph-chart-wrap">
-          <canvas id="chartCt"></canvas>
-          <div class="chart-empty" id="emptyCtMsg">上の条件を選択してグラフを表示してください</div>
-        </div>
-      </div>
-
-      <!-- ② グレード固定ビュー -->
-      <div id="viewGrade" class="graph-view-panel" style="display:none;">
-        <div style="font-size:0.72rem;color:var(--ink-soft);margin-bottom:10px;">グレード（カラー+クラリティ）を固定 → カラット範囲ごとの価格変動を比較</div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+      <!-- ① ヒートマップビュー -->
+      <div id="gvHeatmap" class="gv-panel">
+        <div class="gv-desc">カラット範囲を固定して、カラー（行）× クラリティ（列）の全価格を色で表示。セルをクリックで詳細。</div>
+        <div class="gv-controls">
           <div class="shape-toggle-wrap">
-            <button class="shape-tog-gr active" data-shape="BR">ラウンド</button>
-            <button class="shape-tog-gr" data-shape="PS">ペアシェイプ</button>
+            <button class="htog active" data-shape="BR">ラウンド</button>
+            <button class="htog" data-shape="PS">ペアシェイプ</button>
           </div>
-          <select id="gGrColor" style="min-width:80px;">
-            <option value="D">D</option><option value="E">E</option><option value="F">F</option>
-            <option value="G">G</option><option value="H">H</option><option value="I">I</option>
-            <option value="J">J</option><option value="K">K</option>
+          <select id="hmCtRange" style="min-width:170px;">
+            <option value="">カラット範囲を選択</option>
           </select>
-          <select id="gGrClarity" style="min-width:90px;">
-            <option value="IF">IF</option><option value="VVS1">VVS1</option><option value="VVS2">VVS2</option>
-            <option value="VS1">VS1</option><option value="VS2">VS2</option>
-            <option value="SI1">SI1</option><option value="SI2">SI2</option>
-            <option value="I1">I1</option>
+          <select id="hmCurrency">
+            <option value="usd">USD/ct</option>
+            <option value="jpy">JPY/ct</option>
           </select>
-          <button class="btn btn-primary btn-sm" id="plotGrBtn">グラフ表示</button>
+          <button class="btn btn-primary btn-sm" id="drawHeatmap">表示</button>
         </div>
-        <div class="graph-chart-wrap">
-          <canvas id="chartGr"></canvas>
-          <div class="chart-empty" id="emptyGrMsg">上の条件を選択してグラフを表示してください</div>
+        <div id="hmWrap">
+          <div class="chart-empty">形状とカラット範囲を選んで「表示」を押してください</div>
         </div>
+        <!-- クリック時の詳細カード -->
+        <div id="hmDetail" style="display:none;"></div>
       </div>
 
-      <!-- ③ BR vs PS 比較ビュー -->
-      <div id="viewCompare" class="graph-view-panel" style="display:none;">
-        <div style="font-size:0.72rem;color:var(--ink-soft);margin-bottom:10px;">同グレード・同カラット範囲でラウンドとペアシェイプの価格推移を比較</div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-          <select id="gCmpColor" style="min-width:80px;">
+      <!-- ② 変動グラフビュー（データ蓄積後に意味を持つ） -->
+      <div id="gvTrend" class="gv-panel" style="display:none;">
+        <div class="gv-desc">データが2時点以上になると折れ線が表示されます。現在は <strong>1時点（10/31/2025）</strong> のみ。</div>
+        <div class="gv-controls">
+          <div class="shape-toggle-wrap">
+            <button class="ttog active" data-shape="BR">ラウンド</button>
+            <button class="ttog" data-shape="PS">ペアシェイプ</button>
+          </div>
+          <select id="trCtRange" style="min-width:170px;">
+            <option value="">カラット範囲</option>
+          </select>
+          <select id="trColor" style="min-width:70px;">
+            <option value="">色: 全</option>
             <option value="D">D</option><option value="E">E</option><option value="F">F</option>
             <option value="G">G</option><option value="H">H</option><option value="I">I</option>
             <option value="J">J</option><option value="K">K</option>
           </select>
-          <select id="gCmpClarity" style="min-width:90px;">
+          <select id="trClarity" style="min-width:90px;">
+            <option value="">CL: 全</option>
             <option value="IF">IF</option><option value="VVS1">VVS1</option><option value="VVS2">VVS2</option>
             <option value="VS1">VS1</option><option value="VS2">VS2</option>
             <option value="SI1">SI1</option><option value="SI2">SI2</option>
             <option value="I1">I1</option>
           </select>
-          <select id="gCmpCt" style="min-width:160px;">
-            <option value="">カラット範囲</option>
-          </select>
-          <button class="btn btn-primary btn-sm" id="plotCmpBtn">グラフ表示</button>
+          <button class="btn btn-primary btn-sm" id="drawTrend">表示</button>
         </div>
-        <div class="graph-chart-wrap">
-          <canvas id="chartCmp"></canvas>
-          <div class="chart-empty" id="emptyCmpMsg">上の条件を選択してグラフを表示してください</div>
+        <div class="graph-chart-wrap" style="min-height:320px;">
+          <canvas id="chartTrend" style="max-height:360px;"></canvas>
+          <div class="chart-empty" id="emptyTrend">カラット範囲を選んで「表示」を押してください</div>
         </div>
       </div>
 
@@ -1445,316 +1528,271 @@ document.getElementById("showTableBtn").addEventListener("click", () => {
 });
 
 /* ════════════════════════════════════════
-   RAPA GRAPH  — 3ビュー
+   RAPA GRAPH — ヒートマップ＋変動グラフ
 ════════════════════════════════════════ */
-const GRAPH_COLORS    = ["D","E","F","G","H","I","J","K","L","M"];
-const GRAPH_CLARITIES = ["IF","VVS1","VVS2","VS1","VS2","SI1","SI2","SI3","I1","I2","I3"];
+const HM_COLORS    = ["D","E","F","G","H","I","J","K","L","M"];
+const HM_CLARITIES = ["IF","VVS1","VVS2","VS1","VS2","SI1","SI2","SI3","I1","I2","I3"];
 
-// カラー毎の色（10色）
-const C_PAL = {
-  D:"#3B6EA5", E:"#2E8B74", F:"#5A8A2B",
-  G:"#B08020", H:"#A05030", I:"#7B5B9B",
-  J:"#A03030", K:"#455A64", L:"#6D4C41", M:"#546E7A"
-};
-// クラリティ毎の線スタイル（ダッシュパターン）
-const CL_DASH = {
-  IF:[], VVS1:[4,2], VVS2:[4,2,1,2], VS1:[8,3],
-  VS2:[8,3,2,3], SI1:[5,5], SI2:[5,5,2,5],
-  SI3:[2,4], I1:[2,2], I2:[1,3], I3:[1,5]
-};
-
-let activeView = "ct";
-let gCtShape = "BR";
-let gGrShape = "BR";
-const charts = { ct: null, gr: null, cmp: null };
-
-// デモ用：1件データから参考過去3点を生成
-function demoPoints(real) {
-  const offsets = [-0.13, -0.07, -0.02, 0];
-  return offsets.map((o, i) => {
-    const d = new Date(real.date.replace(/(\d+)\/(\d+)\/(\d+)/, "$3-$1-$2"));
-    d.setMonth(d.getMonth() - (3 - i) * 3);
-    return {
-      date: `${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")}/${d.getFullYear()}`,
-      price_usd: Math.round(real.price_usd * (1 + o)),
-      isDemo: i < 3
-    };
-  });
+// 価格 → 緑グラデーション（低:薄クリーム → 高:濃グリーン）
+function priceToColor(val, min, max) {
+  if (val == null) return "#F0EDE8";
+  const t = max === min ? 0.5 : (val - min) / (max - min);
+  // 低: #F7F3EB（クリーム）→ 高: #0E1F17（ダークグリーン）
+  const r = Math.round(247 - t * (247 - 14));
+  const g = Math.round(243 - t * (243 - 31));
+  const b = Math.round(235 - t * (235 - 23));
+  return `rgb(${r},${g},${b})`;
+}
+function textColor(t) {
+  // t（0-1）が0.5超えたら白文字
+  return t > 0.5 ? "#fff" : "#1C1A16";
 }
 
-function makeChart(canvasId, emptyId, data, title) {
-  const canvas = document.getElementById(canvasId);
-  const emptyEl = document.getElementById(emptyId);
-  if (!canvas) return;
-  if (charts[canvasId.replace("chart","").toLowerCase()]) {
-    charts[canvasId.replace("chart","").toLowerCase()].destroy();
-  }
-  if (!data || !data.datasets || data.datasets.length === 0) {
-    emptyEl.style.display = "flex";
-    canvas.style.display  = "none";
-    emptyEl.textContent   = "該当データがありません（データ蓄積後に表示されます）";
-    return;
-  }
-  emptyEl.style.display = "none";
-  canvas.style.display  = "block";
+let hmShape   = "BR";
+let trendShape = "BR";
+let trendChart = null;
 
-  const key = canvasId.replace("chart","").toLowerCase();
-  charts[key] = new Chart(canvas, {
-    type: "line",
-    data: data,
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: "index", intersect: false },
-      plugins: {
-        legend: {
-          display: true,
-          position: "bottom",
-          labels: {
-            boxWidth: 16, boxHeight: 2,
-            font: { size: 10, family: "DM Sans" },
-            color: "#5A5448",
-            padding: 10,
-            usePointStyle: true,
-            pointStyle: "line"
-          }
-        },
-        title: {
-          display: !!title,
-          text: title || "",
-          font: { size: 12, family: "Shippori Mincho", weight: "600" },
-          color: "#1A3628",
-          padding: { bottom: 12 }
-        },
-        tooltip: {
-          backgroundColor: "rgba(14,31,23,0.92)",
-          titleFont: { size: 11 }, bodyFont: { size: 11 },
-          callbacks: {
-            label: ctx => {
-              const v = ctx.raw;
-              const isDemoPoint = ctx.dataset.demoFlags?.[ctx.dataIndex];
-              const suffix = isDemoPoint ? "（参考）" : "";
-              return ` ${ctx.dataset.label}: $${v?.toLocaleString()}  ≈ ${Math.round(v * usdJpy).toLocaleString()}円${suffix}`;
-            }
-          }
-        }
-      },
-      scales: {
-        y: {
-          ticks: {
-            callback: v => "$" + v.toLocaleString(),
-            font: { size: 10 }, color: "#5A5448"
-          },
-          grid: { color: "rgba(192,154,80,0.1)" }
-        },
-        x: {
-          ticks: { font: { size: 10 }, color: "#5A5448", maxRotation: 30 },
-          grid: { color: "rgba(192,154,80,0.08)" }
-        }
-      }
-    }
-  });
-}
-
-// ── ビュー切り替え ──
-document.querySelectorAll(".graph-view-btn").forEach(btn => {
+// ── タブ切り替え ──
+document.querySelectorAll(".gv-tab").forEach(btn => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".graph-view-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".gv-tab").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".gv-panel").forEach(p => p.style.display = "none");
     btn.classList.add("active");
-    activeView = btn.dataset.view;
-    document.querySelectorAll(".graph-view-panel").forEach(p => p.style.display = "none");
-    const map = { ct:"viewCt", grade:"viewGrade", compare:"viewCompare" };
-    document.getElementById(map[activeView]).style.display = "block";
+    const map = { heatmap:"gvHeatmap", trend:"gvTrend" };
+    document.getElementById(map[btn.dataset.gv]).style.display = "block";
     notifyHeight();
   });
 });
 
-// ── 形状トグル共通処理 ──
-document.querySelectorAll(".shape-tog-ct").forEach(btn => {
+// ── 形状トグル ──
+document.querySelectorAll(".htog").forEach(btn => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".shape-tog-ct").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".htog").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-    gCtShape = btn.dataset.shape;
-    populateCtRangeSelect("gCtRangeSelect", gCtShape);
+    hmShape = btn.dataset.shape;
+    populateCtRangeSelect("hmCtRange", hmShape);
   });
 });
-document.querySelectorAll(".shape-tog-gr").forEach(btn => {
+document.querySelectorAll(".ttog").forEach(btn => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".shape-tog-gr").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".ttog").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-    gGrShape = btn.dataset.shape;
+    trendShape = btn.dataset.shape;
+    populateCtRangeSelect("trCtRange", trendShape);
   });
 });
 
-// ── ① カラット固定ビュー ──
-document.getElementById("plotCtBtn").addEventListener("click", () => {
-  const ctVal    = document.getElementById("gCtRangeSelect").value;
-  const fColor   = document.getElementById("gCtFilterColor").value;
-  const fClarity = document.getElementById("gCtFilterClarity").value;
+// ── ① ヒートマップ描画 ──
+document.getElementById("drawHeatmap").addEventListener("click", drawHeatmap);
+
+function drawHeatmap() {
+  const ctVal    = document.getElementById("hmCtRange").value;
+  const currency = document.getElementById("hmCurrency").value;
+  const wrap     = document.getElementById("hmWrap");
+  document.getElementById("hmDetail").style.display = "none";
+
   if (!ctVal) { alert("カラット範囲を選択してください"); return; }
   const [ctMin, ctMax] = ctVal.split("-").map(Number);
 
-  const colors    = fColor   ? [fColor]   : GRAPH_COLORS;
-  const clarities = fClarity ? [fClarity] : GRAPH_CLARITIES;
+  // データ収集
+  const cell = {}; // cell[color][clarity] = price_usd
+  let allVals = [];
+  HM_COLORS.forEach(col => {
+    cell[col] = {};
+    HM_CLARITIES.forEach(cl => {
+      const rec = rapaData.find(r =>
+        r.shape === hmShape && r.color === col &&
+        r.clarity === cl && r.ct_min === ctMin && r.ct_max === ctMax
+      );
+      if (rec) {
+        cell[col][cl] = rec.price_usd;
+        allVals.push(rec.price_usd);
+      }
+    });
+  });
 
-  // 全ラインを収集（カラー×クラリティ）
+  if (!allVals.length) {
+    wrap.innerHTML = '<div class="chart-empty">該当データがありません</div>';
+    return;
+  }
+
+  const minVal = Math.min(...allVals);
+  const maxVal = Math.max(...allVals);
+  const usedColors    = HM_COLORS.filter(c => Object.keys(cell[c]).length > 0);
+  const usedClarities = HM_CLARITIES.filter(cl => usedColors.some(c => cell[c][cl] != null));
+  const shapeLabel = hmShape === "BR" ? "ラウンド" : "ペアシェイプ";
+  const currLabel  = currency === "jpy" ? `JPY/ct（×${usdJpy.toFixed(0)}）` : "USD/ct";
+
+  // テーブルHTML構築
+  let html = `
+    <div style="font-size:0.7rem;color:var(--ink-soft);margin-bottom:8px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;">
+      <span><strong>${shapeLabel}</strong> ／ ${ctMin.toFixed(2)}〜${ctMax.toFixed(2)} ct ／ ${currLabel}</span>
+      <span>最安: <strong>$${minVal.toLocaleString()}</strong>　最高: <strong>$${maxVal.toLocaleString()}</strong></span>
+    </div>
+    <div style="overflow-x:auto;">
+    <table class="hm-table" id="hmTable">
+      <thead><tr>
+        <th class="hm-head-corner">COLOR ＼ CL</th>`;
+  usedClarities.forEach(cl => { html += `<th class="hm-head">${cl}</th>`; });
+  html += `</tr></thead><tbody>`;
+
+  usedColors.forEach(col => {
+    html += `<tr><td class="hm-row-head">${col}</td>`;
+    usedClarities.forEach(cl => {
+      const v = cell[col][cl];
+      if (v == null) { html += `<td class="hm-cell hm-empty">—</td>`; return; }
+      const displayVal = currency === "jpy" ? Math.round(v * usdJpy).toLocaleString() + "円" : "$" + v.toLocaleString();
+      const t   = (v - minVal) / (maxVal - minVal);
+      const bg  = priceToColor(v, minVal, maxVal);
+      const fg  = textColor(t);
+      // data属性でクリック時のデータを渡す
+      html += `<td class="hm-cell" style="background:${bg};color:${fg};"
+        data-col="${col}" data-cl="${cl}" data-v="${v}"
+        data-ctmin="${ctMin}" data-ctmax="${ctMax}" data-shape="${hmShape}"
+        onclick="showHmDetail(this)">${displayVal}</td>`;
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table></div>`;
+
+  // 凡例グラデーションバー
+  html += `
+    <div style="margin-top:12px;display:flex;align-items:center;gap:8px;font-size:0.68rem;color:var(--ink-soft);">
+      <span>低価格</span>
+      <div style="flex:1;height:8px;border-radius:4px;
+        background:linear-gradient(to right,#F7F3EB,#3A8060,#0E1F17);
+        border:1px solid rgba(192,154,80,0.2);"></div>
+      <span>高価格</span>
+    </div>`;
+
+  wrap.innerHTML = html;
+  notifyHeight();
+}
+
+// ── ヒートマップ セル詳細 ──
+function showHmDetail(td) {
+  const col   = td.dataset.col;
+  const cl    = td.dataset.cl;
+  const v     = parseFloat(td.dataset.v);
+  const ctMin = parseFloat(td.dataset.ctmin);
+  const ctMax = parseFloat(td.dataset.ctmax);
+  const shape = td.dataset.shape;
+  const jpyUnit = Math.round(v * usdJpy);
+  const shapeLabel = shape === "BR" ? "ラウンド" : "ペアシェイプ";
+
+  // ハイライト解除→再ハイライト
+  document.querySelectorAll(".hm-cell.selected").forEach(c => c.classList.remove("selected"));
+  td.classList.add("selected");
+
+  const detail = document.getElementById("hmDetail");
+  detail.style.display = "block";
+  detail.innerHTML = `
+    <div class="hm-detail-card">
+      <div class="hm-dc-title">
+        <span class="hm-dc-grade">${col} / ${cl}</span>
+        <span class="hm-dc-shape">${shapeLabel} ／ ${ctMin.toFixed(2)}〜${ctMax.toFixed(2)} ct</span>
+      </div>
+      <div class="hm-dc-prices">
+        <div class="hm-dc-row">
+          <span class="hm-dc-label">ラパ価格</span>
+          <span class="hm-dc-val usd">$${v.toLocaleString()}<span class="hm-dc-unit">USD/ct</span></span>
+        </div>
+        <div class="hm-dc-row">
+          <span class="hm-dc-label">円換算（単価）</span>
+          <span class="hm-dc-val jpy">${jpyUnit.toLocaleString()}<span class="hm-dc-unit">円/ct</span></span>
+        </div>
+        <div class="hm-dc-sep"></div>
+        <div class="hm-dc-row small">
+          <span class="hm-dc-label">8掛け</span>
+          <span class="hm-dc-val">${Math.round(jpyUnit * 0.8).toLocaleString()} 円/ct</span>
+        </div>
+        <div class="hm-dc-row small">
+          <span class="hm-dc-label">7掛け</span>
+          <span class="hm-dc-val">${Math.round(jpyUnit * 0.7).toLocaleString()} 円/ct</span>
+        </div>
+      </div>
+      <div class="hm-dc-note">データ日付: ${rapaData.find(r=>r.shape===shape&&r.color===col&&r.clarity===cl&&r.ct_min===ctMin&&r.ct_max===ctMax)?.date || "—"}</div>
+    </div>`;
+  notifyHeight();
+}
+
+// ── ② 変動グラフ ──
+document.getElementById("drawTrend").addEventListener("click", () => {
+  const ctVal    = document.getElementById("trCtRange").value;
+  const fColor   = document.getElementById("trColor").value;
+  const fClarity = document.getElementById("trClarity").value;
+  const emptyEl  = document.getElementById("emptyTrend");
+  const canvas   = document.getElementById("chartTrend");
+
+  if (!ctVal) { alert("カラット範囲を選択してください"); return; }
+  const [ctMin, ctMax] = ctVal.split("-").map(Number);
+
+  const colors    = fColor   ? [fColor]   : ["D","E","F","G","H","I","J","K"];
+  const clarities = fClarity ? [fClarity] : ["IF","VVS1","VVS2","VS1","VS2","SI1","SI2","I1"];
+  const pal = ["#3B6EA5","#2E8B74","#B08020","#A03030","#7B5B9B","#A05030","#5A8A2B","#455A64","#6D4C41","#546E7A","#2E7D6A","#8B4513"];
+
   const datasets = [];
   let allDates = new Set();
+  let idx = 0;
 
-  colors.forEach(color => {
-    clarities.forEach(clarity => {
+  colors.forEach(col => {
+    clarities.forEach(cl => {
       const pts = rapaData.filter(r =>
-        r.shape === gCtShape && r.color === color &&
-        r.clarity === clarity && r.ct_min === ctMin && r.ct_max === ctMax
-      ).sort((a,b) => new Date(a.date) - new Date(b.date));
-
+        r.shape === trendShape && r.color === col && r.clarity === cl &&
+        r.ct_min === ctMin && r.ct_max === ctMax
+      ).sort((a,b) => new Date(a.date.replace(/(\d+)\/(\d+)\/(\d+)/,"$3-$1-$2")) - new Date(b.date.replace(/(\d+)\/(\d+)\/(\d+)/,"$3-$1-$2")));
       if (!pts.length) return;
-      const displayPts = pts.length === 1 ? demoPoints(pts[0]) : pts;
-      displayPts.forEach(p => allDates.add(p.date));
-
+      pts.forEach(p => allDates.add(p.date));
       datasets.push({
-        label: `${color}/${clarity}`,
-        data: displayPts.map(p => p.price_usd),
-        demoFlags: displayPts.map(p => p.isDemo || false),
-        borderColor: C_PAL[color] || "#888",
+        label: `${col}/${cl}`,
+        data: pts.map(p => p.price_usd),
+        borderColor: pal[idx % pal.length],
         backgroundColor: "transparent",
-        borderDash: CL_DASH[clarity] || [],
         borderWidth: 1.8,
         pointRadius: 3,
-        pointHoverRadius: 5,
-        tension: 0.35,
+        tension: 0.3,
       });
+      idx++;
     });
   });
 
-  const sortedDates = [...allDates].sort((a,b) => new Date(a.replace(/(\d+)\/(\d+)\/(\d+)/,"$3-$1-$2")) - new Date(b.replace(/(\d+)\/(\d+)\/(\d+)/,"$3-$1-$2")));
-  const shapeLabel = gCtShape === "BR" ? "ラウンド" : "ペアシェイプ";
-  const title = `${shapeLabel} ／ ${ctMin.toFixed(2)}〜${ctMax.toFixed(2)} ct`;
-
-  makeChart("chartCt", "emptyCtMsg",
-    datasets.length ? { labels: sortedDates, datasets } : null,
-    title
+  const sortedDates = [...allDates].sort((a,b) =>
+    new Date(a.replace(/(\d+)\/(\d+)\/(\d+)/,"$3-$1-$2")) -
+    new Date(b.replace(/(\d+)\/(\d+)\/(\d+)/,"$3-$1-$2"))
   );
+
+  if (!datasets.length || sortedDates.length < 2) {
+    emptyEl.style.display = "flex";
+    canvas.style.display  = "none";
+    emptyEl.textContent   = sortedDates.length < 2
+      ? `現在データは1時点のみ（${[...allDates][0] || "—"}）。次回ラパデータ追加後に折れ線グラフが表示されます。`
+      : "該当データがありません";
+    return;
+  }
+
+  emptyEl.style.display = "none";
+  canvas.style.display  = "block";
+  if (trendChart) trendChart.destroy();
+
+  trendChart = new Chart(canvas, {
+    type: "line",
+    data: { labels: sortedDates, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { position: "bottom", labels: { boxWidth:14, boxHeight:2, font:{size:10}, usePointStyle:true, pointStyle:"line" } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: $${ctx.raw?.toLocaleString()}  ≈ ${Math.round(ctx.raw * usdJpy).toLocaleString()}円` } }
+      },
+      scales: {
+        y: { ticks: { callback: v => "$"+v.toLocaleString(), font:{size:10} }, grid:{color:"rgba(192,154,80,0.1)"} },
+        x: { ticks: { font:{size:10} }, grid:{color:"rgba(192,154,80,0.08)"} }
+      }
+    }
+  });
   notifyHeight();
 });
 
-// ── ② グレード固定ビュー ──
-document.getElementById("plotGrBtn").addEventListener("click", () => {
-  const color   = document.getElementById("gGrColor").value;
-  const clarity = document.getElementById("gGrClarity").value;
-
-  const ctRanges = [...new Map(
-    rapaData.filter(r => r.shape === gGrShape && r.color === color && r.clarity === clarity)
-      .map(r => [`${r.ct_min}-${r.ct_max}`, { min: r.ct_min, max: r.ct_max }])
-  ).values()].sort((a,b) => a.min - b.min);
-
-  const datasets = [];
-  const palette = ["#3B6EA5","#2E8B74","#B08020","#A03030","#7B5B9B","#A05030","#5A8A2B","#455A64","#6D4C41","#546E7A"];
-  let allDates = new Set();
-
-  ctRanges.forEach((range, i) => {
-    const pts = rapaData.filter(r =>
-      r.shape === gGrShape && r.color === color &&
-      r.clarity === clarity && r.ct_min === range.min && r.ct_max === range.max
-    ).sort((a,b) => new Date(a.date) - new Date(b.date));
-
-    if (!pts.length) return;
-    const displayPts = pts.length === 1 ? demoPoints(pts[0]) : pts;
-    displayPts.forEach(p => allDates.add(p.date));
-
-    datasets.push({
-      label: `${range.min.toFixed(2)}〜${range.max.toFixed(2)} ct`,
-      data: displayPts.map(p => p.price_usd),
-      demoFlags: displayPts.map(p => p.isDemo || false),
-      borderColor: palette[i % palette.length],
-      backgroundColor: "transparent",
-      borderWidth: 2,
-      pointRadius: 3,
-      pointHoverRadius: 5,
-      tension: 0.35,
-    });
-  });
-
-  const sortedDates = [...allDates].sort((a,b) => new Date(a.replace(/(\d+)\/(\d+)\/(\d+)/,"$3-$1-$2")) - new Date(b.replace(/(\d+)\/(\d+)\/(\d+)/,"$3-$1-$2")));
-  const shapeLabel = gGrShape === "BR" ? "ラウンド" : "ペアシェイプ";
-
-  makeChart("chartGr", "emptyGrMsg",
-    datasets.length ? { labels: sortedDates, datasets } : null,
-    `${shapeLabel} ${color} / ${clarity} — カラット別推移`
-  );
-  notifyHeight();
-});
-
-// ── ③ BR vs PS 比較ビュー ──
-// カラット範囲セレクトを共通から生成
-function populateCmpCtSelect() {
-  const color   = document.getElementById("gCmpColor").value;
-  const clarity = document.getElementById("gCmpClarity").value;
-  const sel     = document.getElementById("gCmpCt");
-  sel.innerHTML = '<option value="">カラット範囲</option>';
-  const ranges = new Set();
-  rapaData.filter(r => r.color === color && r.clarity === clarity)
-    .forEach(r => ranges.add(`${r.ct_min}-${r.ct_max}`));
-  [...ranges].sort((a,b) => parseFloat(a) - parseFloat(b)).forEach(v => {
-    const [mn, mx] = v.split("-").map(Number);
-    sel.appendChild(new Option(`${mn.toFixed(2)}〜${mx.toFixed(2)} ct`, v));
-  });
-}
-["gCmpColor","gCmpClarity"].forEach(id => {
-  document.getElementById(id).addEventListener("change", populateCmpCtSelect);
-});
-populateCmpCtSelect();
-
-document.getElementById("plotCmpBtn").addEventListener("click", () => {
-  const color   = document.getElementById("gCmpColor").value;
-  const clarity = document.getElementById("gCmpClarity").value;
-  const ctVal   = document.getElementById("gCmpCt").value;
-  if (!ctVal) { alert("カラット範囲を選択してください"); return; }
-  const [ctMin, ctMax] = ctVal.split("-").map(Number);
-
-  const shapes = [
-    { shape:"BR", label:"ラウンド (BR)", color:"#1A3628", dash:[] },
-    { shape:"PS", label:"ペアシェイプ (PS)", color:"#C09A50", dash:[6,3] }
-  ];
-
-  const datasets = [];
-  let allDates = new Set();
-
-  shapes.forEach(s => {
-    const pts = rapaData.filter(r =>
-      r.shape === s.shape && r.color === color &&
-      r.clarity === clarity && r.ct_min === ctMin && r.ct_max === ctMax
-    ).sort((a,b) => new Date(a.date) - new Date(b.date));
-
-    if (!pts.length) return;
-    const displayPts = pts.length === 1 ? demoPoints(pts[0]) : pts;
-    displayPts.forEach(p => allDates.add(p.date));
-
-    datasets.push({
-      label: s.label,
-      data: displayPts.map(p => p.price_usd),
-      demoFlags: displayPts.map(p => p.isDemo || false),
-      borderColor: s.color,
-      backgroundColor: s.color + "18",
-      borderDash: s.dash,
-      borderWidth: 2.5,
-      pointRadius: 4,
-      pointHoverRadius: 6,
-      fill: true,
-      tension: 0.35,
-    });
-  });
-
-  const sortedDates = [...allDates].sort((a,b) => new Date(a.replace(/(\d+)\/(\d+)\/(\d+)/,"$3-$1-$2")) - new Date(b.replace(/(\d+)\/(\d+)\/(\d+)/,"$3-$1-$2")));
-
-  makeChart("chartCmp", "emptyCmpMsg",
-    datasets.length ? { labels: sortedDates, datasets } : null,
-    `${color} / ${clarity} / ${ctMin.toFixed(2)}〜${ctMax.toFixed(2)} ct — BR vs PS`
-  );
-  notifyHeight();
-});
-
-/* ════════════════════════════════════════
    COLOR TOGGLE (NJ Tab)
 ════════════════════════════════════════ */
 document.querySelectorAll('.ctog-btn').forEach(btn => {
