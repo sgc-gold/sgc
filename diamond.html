@@ -442,54 +442,32 @@ select {
 }
 .graph-chart-wrap canvas { max-height: 360px; }
 
-/* Graph view tabs */
-.gv-tabs {
+/* ラパポートタブ内サブタブ */
+.rapa-subtab-nav {
   display: flex;
-  border-bottom: 1px solid rgba(192,154,80,0.15);
-  margin: -16px -18px 16px;
-  padding: 0 18px;
-  overflow-x: auto;
+  border-bottom: 2px solid rgba(192,154,80,0.2);
+  margin-bottom: 18px;
+  gap: 0;
 }
-.gv-tab {
+.rapa-stab {
   background: none; border: none;
   border-bottom: 2px solid transparent;
   color: var(--ink-soft);
   font-family: 'Shippori Mincho', serif;
-  font-size: 0.78rem; font-weight: 600;
-  padding: 10px 18px; cursor: pointer;
-  margin-bottom: -1px; letter-spacing: .04em;
-  white-space: nowrap; transition: color .15s, border-color .15s;
+  font-size: 0.82rem; font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 10px 22px;
+  cursor: pointer;
+  margin-bottom: -2px;
+  transition: color .15s, border-color .15s;
+  display: flex; align-items: center; gap: 6px;
+  white-space: nowrap;
 }
-.gv-tab.active { color: var(--ink); border-bottom-color: var(--gold); }
-.gv-tab:hover:not(.active) { color: var(--ink); }
+.rapa-stab:hover { color: var(--ink); }
+.rapa-stab.active { color: var(--green); border-bottom-color: var(--gold); }
 
-.gv-desc {
-  font-size: 0.72rem; color: var(--ink-soft);
-  margin-bottom: 12px; line-height: 1.6;
-}
-.gv-controls {
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  margin-bottom: 14px;
-}
-
-/* Shape toggle（共通） */
-.shape-toggle-wrap {
-  display: inline-flex;
-  border: 1px solid var(--border-ui);
-  border-radius: 8px; overflow: hidden;
-}
-.htog, .ttog {
-  background: var(--cream); border: none;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.75rem; padding: 5px 14px;
-  cursor: pointer; height: 30px;
-  color: var(--ink-soft);
-  transition: background .14s, color .14s;
-}
-.htog:not(:first-child), .ttog:not(:first-child) {
-  border-left: 1px solid var(--border-ui);
-}
-.htog.active, .ttog.active { background: var(--green); color: #fff; }
+.rapa-section { display: none; }
+.rapa-section.active { display: block; }
 
 /* ── Heatmap table ── */
 .hm-table {
@@ -577,13 +555,6 @@ select {
 /* ══════════════════════════════════
    RAPAPORT TAB STYLES
 ══════════════════════════════════ */
-.rapa-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-bottom: 14px;
-}
-@media (max-width: 700px) { .rapa-grid { grid-template-columns: 1fr; } }
 
 /* Rate info bar */
 .rate-info-bar {
@@ -658,50 +629,35 @@ select {
   flex-wrap: wrap; margin-top: 10px;
 }
 .rate-input-row input[type="text"] { width: 80px; text-align: center; }
-.rate-badge {
-  display: inline-flex; align-items: center;
-  gap: 4px; font-size: 0.72rem;
-  padding: 3px 10px; border-radius: 100px;
-  background: rgba(192,154,80,0.1);
-  border: 1px solid rgba(192,154,80,0.25);
-  color: var(--gold-dk);
-}
 
-/* ── Price Table ── */
-.rapa-table-wrap { overflow-x: auto; margin-top: 12px; }
-.rapa-table {
-  width: 100%; border-collapse: collapse;
-  font-size: 0.75rem; min-width: 600px;
+/* Shape toggle（共通） */
+.shape-toggle-wrap {
+  display: inline-flex;
+  border: 1px solid var(--border-ui);
+  border-radius: 8px; overflow: hidden;
 }
-.rapa-table thead th {
-  background: var(--green-dk);
-  color: rgba(255,255,255,0.75);
-  font-size: 0.62rem; font-weight: 500;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  padding: 8px 8px; text-align: center;
-  white-space: nowrap;
+.htog, .ttog {
+  background: var(--cream); border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem; padding: 5px 14px;
+  cursor: pointer; height: 30px;
+  color: var(--ink-soft);
+  transition: background .14s, color .14s;
 }
-.rapa-table tbody tr:nth-child(even) { background: rgba(247,243,235,0.5); }
-.rapa-table tbody tr:hover { background: rgba(192,154,80,0.06); }
-.rapa-table tbody td {
-  padding: 6px 8px; text-align: right;
-  font-feature-settings: "tnum";
-  white-space: nowrap;
+.htog:not(:first-child), .ttog:not(:first-child) {
+  border-left: 1px solid var(--border-ui);
 }
-.rapa-table tbody td:first-child { text-align: left; font-weight: 600; color: var(--green); }
-.rapa-table tbody td.highlight {
-  background: rgba(192,154,80,0.18) !important;
-  color: var(--green); font-weight: 700;
-  border: 1px solid rgba(192,154,80,0.35);
-}
+.htog.active, .ttog.active { background: var(--green); color: #fff; }
 
 /* ── Graph section ── */
-.graph-controls {
+.gv-desc {
+  font-size: 0.72rem; color: var(--ink-soft);
+  margin-bottom: 12px; line-height: 1.6;
+}
+.gv-controls {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
   margin-bottom: 14px;
 }
-.graph-controls select, .graph-controls input { height: 32px; }
-.graph-controls label { font-size: 0.75rem; color: var(--ink-soft); }
 
 .chart-container {
   position: relative;
@@ -712,51 +668,10 @@ select {
   padding: 20px;
   margin-bottom: 14px;
 }
-.chart-title {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 0.85rem; font-weight: 600;
-  color: var(--ink); margin-bottom: 14px;
-  letter-spacing: 0.06em;
-  display: flex; align-items: center; gap: 8px;
-}
 .chart-empty {
   text-align: center; padding: 40px 20px;
   color: var(--ink-soft); font-size: 0.82rem;
 }
-
-/* Change badges */
-.change-up {
-  display: inline-flex; align-items: center; gap: 3px;
-  font-size: 0.7rem; font-weight: 600;
-  color: var(--up); background: rgba(181,41,41,0.08);
-  padding: 2px 8px; border-radius: 100px;
-}
-.change-dn {
-  display: inline-flex; align-items: center; gap: 3px;
-  font-size: 0.7rem; font-weight: 600;
-  color: var(--dn); background: rgba(26,90,154,0.08);
-  padding: 2px 8px; border-radius: 100px;
-}
-.change-flat {
-  font-size: 0.7rem; color: var(--ink-soft);
-  padding: 2px 8px;
-}
-
-/* Change table */
-.change-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; margin-top: 10px; }
-.change-table th {
-  background: var(--green-dk);
-  color: rgba(255,255,255,0.7);
-  font-size: 0.63rem; font-weight: 500;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  padding: 8px 10px; text-align: center;
-}
-.change-table td {
-  padding: 7px 10px; text-align: center;
-  border-bottom: 1px solid rgba(192,154,80,0.08);
-  font-feature-settings: "tnum";
-}
-.change-table tr:hover td { background: rgba(192,154,80,0.05); }
 
 /* Mobile */
 #caratSpinnerMobile { display: none; }
@@ -776,6 +691,7 @@ select {
   .spin .dot { font-size: 1rem; font-weight: 700; color: var(--ink-soft); }
   .summary-panel { max-width: 100%; }
   .tab-btn { padding: 10px 12px; font-size: 0.75rem; }
+  .rapa-stab { padding: 10px 14px; font-size: 0.75rem; }
 }
 </style>
 </head>
@@ -804,7 +720,7 @@ select {
 <!-- ─── Tab Nav ─── -->
 <div class="tab-nav">
   <button class="tab-btn active" data-tab="njTab">
-    <span class="tab-icon">🏷️</span> NJ競売相場
+    <span class="tab-icon">🏷️</span> NJ大会相場
   </button>
   <button class="tab-btn" data-tab="rapaTab">
     <span class="tab-icon">📊</span> ラパポート相場
@@ -814,7 +730,7 @@ select {
 <div class="page-wrap">
 
 <!-- ══════════════════════════
-     TAB 1: NJ競売相場（既存）
+     TAB 1: NJ大会相場
 ══════════════════════════ -->
 <div id="njTab" class="tab-panel active">
 
@@ -1027,9 +943,22 @@ select {
     </div>
   </div>
 
-  <div class="rapa-grid">
-    <!-- 相場検索パネル -->
-    <div class="panel" style="grid-column: 1 / -1;">
+  <!-- ラパポートタブ内サブタブナビ -->
+  <div class="rapa-subtab-nav">
+    <button class="rapa-stab active" data-section="rapa-lookup">
+      🔍 ラパポート価格参照
+    </button>
+    <button class="rapa-stab" data-section="rapa-heatmap">
+      🟩 ラパポート価格表
+    </button>
+    <button class="rapa-stab" data-section="rapa-trend">
+      📈 変動グラフ
+    </button>
+  </div>
+
+  <!-- ① ラパポート価格参照 -->
+  <div id="rapa-lookup" class="rapa-section active">
+    <div class="panel">
       <div class="panel-header">
         <div class="panel-header-dot"></div>
         <div class="panel-title">ラパポート価格参照</div>
@@ -1097,49 +1026,14 @@ select {
     </div>
   </div>
 
-  <!-- 価格テーブルパネル -->
-  <div class="panel">
-    <div class="panel-header">
-      <div class="panel-header-dot"></div>
-      <div class="panel-title">ラパポート価格表</div>
-    </div>
-    <div class="panel-body">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;">
-        <select id="tblShapeSelect" style="min-width:160px;">
-          <option value="BR">ラウンド (BR)</option>
-          <option value="PS">ペアシェイプ (PS)</option>
-        </select>
-        <select id="tblCtRangeSelect" style="min-width:160px;">
-          <option value="">カラット範囲を選択</option>
-        </select>
-        <select id="tblCurrencySelect">
-          <option value="usd">USD / ct</option>
-          <option value="jpy">JPY / ct（円換算）</option>
-        </select>
-        <button class="btn btn-primary btn-sm" id="showTableBtn">表示</button>
+  <!-- ② ラパポート価格表（ヒートマップ） -->
+  <div id="rapa-heatmap" class="rapa-section">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-header-dot"></div>
+        <div class="panel-title">ラパポート価格表</div>
       </div>
-      <div id="rapaTableWrap" class="rapa-table-wrap">
-        <div class="chart-empty">形状・カラット範囲を選択して「表示」を押してください</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 価格ヒートマップ＋変動グラフパネル -->
-  <div class="panel">
-    <div class="panel-header">
-      <div class="panel-header-dot"></div>
-      <div class="panel-title">価格マップ・変動グラフ</div>
-    </div>
-    <div class="panel-body">
-
-      <!-- タブ -->
-      <div class="gv-tabs">
-        <button class="gv-tab active" data-gv="heatmap">🟩 価格ヒートマップ</button>
-        <button class="gv-tab" data-gv="trend">📈 変動グラフ</button>
-      </div>
-
-      <!-- ① ヒートマップビュー -->
-      <div id="gvHeatmap" class="gv-panel">
+      <div class="panel-body">
         <div class="gv-desc">カラット範囲を固定して、カラー（行）× クラリティ（列）の全価格を色で表示。セルをクリックで詳細。</div>
         <div class="gv-controls">
           <div class="shape-toggle-wrap">
@@ -1158,12 +1052,19 @@ select {
         <div id="hmWrap">
           <div class="chart-empty">形状とカラット範囲を選んで「表示」を押してください</div>
         </div>
-        <!-- クリック時の詳細カード -->
         <div id="hmDetail" style="display:none;"></div>
       </div>
+    </div>
+  </div>
 
-      <!-- ② 変動グラフビュー（データ蓄積後に意味を持つ） -->
-      <div id="gvTrend" class="gv-panel" style="display:none;">
+  <!-- ③ 変動グラフ -->
+  <div id="rapa-trend" class="rapa-section">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-header-dot"></div>
+        <div class="panel-title">変動グラフ</div>
+      </div>
+      <div class="panel-body">
         <div class="gv-desc">データが2時点以上になると折れ線が表示されます。現在は <strong>1時点（10/31/2025）</strong> のみ。</div>
         <div class="gv-controls">
           <div class="shape-toggle-wrap">
@@ -1193,7 +1094,6 @@ select {
           <div class="chart-empty" id="emptyTrend">カラット範囲を選んで「表示」を押してください</div>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -1238,17 +1138,17 @@ const shapeMap    = {
 
 const GITHUB_BASE   = "https://raw.githubusercontent.com/sgc-gold/sgc/main/data/";
 const RAPA_URL      = GITHUB_BASE + "rapaport.json";
-const RATE_URL      = GITHUB_BASE + "exchange_rate.json"; // { rate: 156.24, date: "2026-03-02T..." }
+const RATE_URL      = GITHUB_BASE + "exchange_rate.json";
 
 /* ════════════════════════════════════════
    STATE
 ════════════════════════════════════════ */
 let diamondData    = [];
-let rapaData       = [];   // flat array of rapaport records
-let usdJpy         = 150;  // default fallback
+let rapaData       = [];
+let usdJpy         = 150;
 
 /* ════════════════════════════════════════
-   HELPERS (shared)
+   HELPERS
 ════════════════════════════════════════ */
 function syncToValue(fromId, toId) {
   document.getElementById(toId).value = document.getElementById(fromId).value;
@@ -1292,7 +1192,7 @@ function setCountEl(el, count, page, totalPages) {
 function fmt(n) { return Math.round(n).toLocaleString(); }
 
 /* ════════════════════════════════════════
-   TAB SWITCHING
+   TAB SWITCHING（メインタブ）
 ════════════════════════════════════════ */
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -1300,6 +1200,19 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById(btn.dataset.tab).classList.add('active');
+    notifyHeight();
+  });
+});
+
+/* ════════════════════════════════════════
+   サブタブ切り替え（ラパポートタブ内）
+════════════════════════════════════════ */
+document.querySelectorAll('.rapa-stab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.rapa-stab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.rapa-section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.section).classList.add('active');
     notifyHeight();
   });
 });
@@ -1326,7 +1239,7 @@ async function loadRapaData() {
     rapaData = json.data || [];
     populateRapaFilters();
   } catch(e) {
-    console.warn("ラパデータ読み込み失敗 — ローカルフォールバック不可", e);
+    console.warn("ラパデータ読み込み失敗", e);
   }
 }
 
@@ -1408,12 +1321,8 @@ function populateCtRangeSelect(selId, shape) {
 }
 
 function populateRapaFilters() {
-  document.getElementById("tblShapeSelect").addEventListener("change", function() {
-    populateCtRangeSelect("tblCtRangeSelect", this.value);
-  });
-  populateCtRangeSelect("tblCtRangeSelect", "BR");
-  populateCtRangeSelect("hmCtRange",        "BR");
-  populateCtRangeSelect("trCtRange",        "BR");
+  populateCtRangeSelect("hmCtRange", "BR");
+  populateCtRangeSelect("trCtRange", "BR");
 }
 
 /* ════════════════════════════════════════
@@ -1477,95 +1386,26 @@ document.getElementById("rLookupBtn").addEventListener("click", () => {
 });
 
 /* ════════════════════════════════════════
-   RAPA PRICE TABLE
-════════════════════════════════════════ */
-document.getElementById("showTableBtn").addEventListener("click", () => {
-  const shape    = document.getElementById("tblShapeSelect").value;
-  const ctVal    = document.getElementById("tblCtRangeSelect").value;
-  const currency = document.getElementById("tblCurrencySelect").value;
-
-  if (!ctVal) { alert("カラット範囲を選択してください"); return; }
-  const [ctMin, ctMax] = ctVal.split("-").map(Number);
-
-  const rows = rapaData.filter(r =>
-    r.shape === shape && r.ct_min === ctMin && r.ct_max === ctMax
-  );
-
-  if (!rows.length) {
-    document.getElementById("rapaTableWrap").innerHTML =
-      '<div class="chart-empty">該当データがありません</div>';
-    return;
-  }
-
-  // colors × clarities
-  const colors    = [...new Set(rows.map(r => r.color))].sort((a,b) => a.charCodeAt(0)-b.charCodeAt(0));
-  const clarities = CLARITY_RAPA.filter(c => rows.some(r => r.clarity === c));
-
-  let html = `<table class="rapa-table"><thead><tr><th>COLOR</th>`;
-  clarities.forEach(c => html += `<th>${c}</th>`);
-  html += `</tr></thead><tbody>`;
-
-  colors.forEach(color => {
-    html += `<tr><td>${color}</td>`;
-    clarities.forEach(cl => {
-      const rec = rows.find(r => r.color === color && r.clarity === cl);
-      if (!rec) { html += `<td>—</td>`; return; }
-      const val = currency === "jpy"
-        ? fmt(rec.price_usd * usdJpy) + "円"
-        : "$" + rec.price_usd.toLocaleString();
-      html += `<td>${val}</td>`;
-    });
-    html += `</tr>`;
-  });
-  html += `</tbody></table>`;
-
-  document.getElementById("rapaTableWrap").innerHTML =
-    `<div style="font-size:0.72rem;color:var(--ink-soft);margin-bottom:6px;">
-      ${shape === "BR" ? "ラウンド" : "ペアシェイプ"} ／
-      ${ctMin.toFixed(2)}〜${ctMax.toFixed(2)} ct ／
-      ${currency === "jpy" ? "JPY/ct（レート: " + usdJpy.toFixed(2) + "）" : "USD/ct"}
-      ／ ラパポート ${rows[0]?.date || ""}
-    </div>` + html;
-});
-
-/* ════════════════════════════════════════
-   RAPA GRAPH — ヒートマップ＋変動グラフ
+   HEATMAP
 ════════════════════════════════════════ */
 const HM_COLORS    = ["D","E","F","G","H","I","J","K","L","M"];
 const HM_CLARITIES = ["IF","VVS1","VVS2","VS1","VS2","SI1","SI2","SI3","I1","I2","I3"];
 
-// 価格 → 緑グラデーション（低:薄クリーム → 高:濃グリーン）
+let hmShape = "BR";
+
 function priceToColor(val, min, max) {
   if (val == null) return "#F0EDE8";
   const t = max === min ? 0.5 : (val - min) / (max - min);
-  // 低: #F7F3EB（クリーム）→ 高: #0E1F17（ダークグリーン）
   const r = Math.round(247 - t * (247 - 14));
   const g = Math.round(243 - t * (243 - 31));
   const b = Math.round(235 - t * (235 - 23));
   return `rgb(${r},${g},${b})`;
 }
 function textColor(t) {
-  // t（0-1）が0.5超えたら白文字
   return t > 0.5 ? "#fff" : "#1C1A16";
 }
 
-let hmShape   = "BR";
-let trendShape = "BR";
-let trendChart = null;
-
-// ── タブ切り替え ──
-document.querySelectorAll(".gv-tab").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".gv-tab").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".gv-panel").forEach(p => p.style.display = "none");
-    btn.classList.add("active");
-    const map = { heatmap:"gvHeatmap", trend:"gvTrend" };
-    document.getElementById(map[btn.dataset.gv]).style.display = "block";
-    notifyHeight();
-  });
-});
-
-// ── 形状トグル ──
+// 形状トグル（ヒートマップ）
 document.querySelectorAll(".htog").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".htog").forEach(b => b.classList.remove("active"));
@@ -1574,16 +1414,7 @@ document.querySelectorAll(".htog").forEach(btn => {
     populateCtRangeSelect("hmCtRange", hmShape);
   });
 });
-document.querySelectorAll(".ttog").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".ttog").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    trendShape = btn.dataset.shape;
-    populateCtRangeSelect("trCtRange", trendShape);
-  });
-});
 
-// ── ① ヒートマップ描画 ──
 document.getElementById("drawHeatmap").addEventListener("click", drawHeatmap);
 
 function drawHeatmap() {
@@ -1595,8 +1426,7 @@ function drawHeatmap() {
   if (!ctVal) { alert("カラット範囲を選択してください"); return; }
   const [ctMin, ctMax] = ctVal.split("-").map(Number);
 
-  // データ収集
-  const cell = {}; // cell[color][clarity] = price_usd
+  const cell = {};
   let allVals = [];
   HM_COLORS.forEach(col => {
     cell[col] = {};
@@ -1624,7 +1454,6 @@ function drawHeatmap() {
   const shapeLabel = hmShape === "BR" ? "ラウンド" : "ペアシェイプ";
   const currLabel  = currency === "jpy" ? `JPY/ct（×${usdJpy.toFixed(0)}）` : "USD/ct";
 
-  // テーブルHTML構築
   let html = `
     <div style="font-size:0.7rem;color:var(--ink-soft);margin-bottom:8px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;">
       <span><strong>${shapeLabel}</strong> ／ ${ctMin.toFixed(2)}〜${ctMax.toFixed(2)} ct ／ ${currLabel}</span>
@@ -1646,7 +1475,6 @@ function drawHeatmap() {
       const t   = (v - minVal) / (maxVal - minVal);
       const bg  = priceToColor(v, minVal, maxVal);
       const fg  = textColor(t);
-      // data属性でクリック時のデータを渡す
       html += `<td class="hm-cell" style="background:${bg};color:${fg};"
         data-col="${col}" data-cl="${cl}" data-v="${v}"
         data-ctmin="${ctMin}" data-ctmax="${ctMax}" data-shape="${hmShape}"
@@ -1656,7 +1484,6 @@ function drawHeatmap() {
   });
   html += `</tbody></table></div>`;
 
-  // 凡例グラデーションバー
   html += `
     <div style="margin-top:12px;display:flex;align-items:center;gap:8px;font-size:0.68rem;color:var(--ink-soft);">
       <span>低価格</span>
@@ -1670,7 +1497,6 @@ function drawHeatmap() {
   notifyHeight();
 }
 
-// ── ヒートマップ セル詳細 ──
 function showHmDetail(td) {
   const col   = td.dataset.col;
   const cl    = td.dataset.cl;
@@ -1681,7 +1507,6 @@ function showHmDetail(td) {
   const jpyUnit = Math.round(v * usdJpy);
   const shapeLabel = shape === "BR" ? "ラウンド" : "ペアシェイプ";
 
-  // ハイライト解除→再ハイライト
   document.querySelectorAll(".hm-cell.selected").forEach(c => c.classList.remove("selected"));
   td.classList.add("selected");
 
@@ -1717,7 +1542,21 @@ function showHmDetail(td) {
   notifyHeight();
 }
 
-// ── ② 変動グラフ ──
+/* ════════════════════════════════════════
+   変動グラフ
+════════════════════════════════════════ */
+let trendShape = "BR";
+let trendChart = null;
+
+document.querySelectorAll(".ttog").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".ttog").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    trendShape = btn.dataset.shape;
+    populateCtRangeSelect("trCtRange", trendShape);
+  });
+});
+
 document.getElementById("drawTrend").addEventListener("click", () => {
   const ctVal    = document.getElementById("trCtRange").value;
   const fColor   = document.getElementById("trColor").value;
