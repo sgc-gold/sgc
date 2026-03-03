@@ -675,6 +675,7 @@ select {
 
 /* Mobile */
 #caratSpinnerMobile { display: none; }
+#rCaratSpinnerMobile { display: none; }
 @media (max-width: 600px) {
   .page-wrap { padding: 12px 12px 0; }
   .panel-body { padding: 14px 14px; }
@@ -980,10 +981,10 @@ select {
           <!-- カラット -->
           <div class="form-label">カラット（ct）</div>
           <div class="form-control">
-            <!-- PC: テキスト入力 -->
-            <input type="text" id="rCaratMain" placeholder="例: 0.345" inputmode="decimal" style="width:90px;text-align:center;">
-            <!-- スマホ: スピナー（#rCaratSpinnerMobile） -->
-            <div id="rCaratSpinnerMobile" style="display:none;">
+            <!-- PC: テキスト入力（スマホでは非表示） -->
+            <input type="text" id="rCaratMain" placeholder="例: 0.345" inputmode="decimal" style="width:90px;text-align:center;" class="rCaratPcOnly">
+            <!-- スマホ: スピナー（PCでは非表示） -->
+            <div id="rCaratSpinnerMobile">
               <div class="spin">
                 <select id="rSpinInt"></select>
                 <span class="dot">.</span>
@@ -1490,10 +1491,26 @@ function runRapaLookup() {
     return true;
   });
 
+  // 各カラー×クラリティの組み合わせで最新日付のレコードのみ残す
+  const latestMap = new Map();
+  results.forEach(r => {
+    const key = `${r.color}|${r.clarity}|${r.ct_min}|${r.ct_max}`;
+    const existing = latestMap.get(key);
+    if (!existing || r.date > existing.date) latestMap.set(key, r);
+  });
+  const filteredResults = Array.from(latestMap.values());
+  // カラー→クラリティ順でソート
+  const RAPA_COLORS_SORT = ["D","E","F","G","H","I","J","K","L","M"];
+  filteredResults.sort((a, b) => {
+    const ci = RAPA_COLORS_SORT.indexOf(a.color) - RAPA_COLORS_SORT.indexOf(b.color);
+    if (ci !== 0) return ci;
+    return CLARITY_RAPA.indexOf(a.clarity) - CLARITY_RAPA.indexOf(b.clarity);
+  });
+
   const area = document.getElementById("lookupResultArea");
   area.style.display = "block";
 
-  if (!results.length) {
+  if (!filteredResults.length) {
     document.getElementById("lrCount").textContent  = "0件（該当なし）";
     document.getElementById("lrAvgUsd").textContent = "—";
     document.getElementById("lrAvgJpy").innerHTML   = "<span class='lr-unit'>円/ct</span>";
@@ -1504,17 +1521,17 @@ function runRapaLookup() {
     return;
   }
 
-  const avgUsd  = results.reduce((s, r) => s + r.price_usd, 0) / results.length;
+  const avgUsd  = filteredResults.reduce((s, r) => s + r.price_usd, 0) / filteredResults.length;
   const avgJpy  = avgUsd * usdJpy;
   const refCt   = !isNaN(caratVal) ? caratVal : 0;
   const avgTotal = Math.round(avgJpy * rate * refCt);
-  const dates   = [...new Set(results.map(r => r.date))].join(" / ");
+  const latestDate = filteredResults.map(r => r.date).sort().reverse()[0] || "—";
 
-  document.getElementById("lrCount").textContent   = `${results.length} 件`;
+  document.getElementById("lrCount").textContent   = `${filteredResults.length} 件`;
   document.getElementById("lrAvgUsd").innerHTML    = `$${avgUsd.toLocaleString(undefined,{maximumFractionDigits:0})} <span style="font-size:0.72rem;color:var(--ink-soft)">USD/ct（平均）</span>`;
   document.getElementById("lrAvgJpy").innerHTML    = `${fmt(avgJpy)}<span class="lr-unit">円/ct</span>`;
   document.getElementById("lrRateLabel").textContent = rateLabels[String(rate)] || `${Math.round(rate*100)}%`;
-  document.getElementById("lrDate").textContent    = dates;
+  document.getElementById("lrDate").textContent    = latestDate;
 
   if (refCt > 0) {
     document.getElementById("lrAvgTotalRow").style.display = "flex";
@@ -1531,7 +1548,7 @@ function runRapaLookup() {
   const tbody = document.getElementById("lookupTableBody");
   tbody.innerHTML = "";
   const TD = "padding:7px 10px;border-bottom:1px solid rgba(192,154,80,0.08);font-feature-settings:'tnum';white-space:nowrap;";
-  results.forEach((r, idx) => {
+  filteredResults.forEach((r, idx) => {
     const jpy   = Math.round(r.price_usd * usdJpy);
     const total = refCt > 0 ? fmt(Math.round(jpy * rate * refCt)) + "円" : "—";
     const tr    = document.createElement("tr");
@@ -1547,7 +1564,7 @@ function runRapaLookup() {
     tbody.appendChild(tr);
   });
 
-  document.getElementById("lookupTableWrap").style.display = results.length > 1 ? "block" : "none";
+  document.getElementById("lookupTableWrap").style.display = filteredResults.length > 1 ? "block" : "none";
   notifyHeight();
 }
 
