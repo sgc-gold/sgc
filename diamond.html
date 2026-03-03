@@ -682,6 +682,8 @@ select {
   .form-label { font-size: 0.68rem; padding-right: 10px; }
   #mainCarat { display: none; }
   #caratSpinnerMobile { display: flex; align-items: center; gap: 4px; }
+  .rCaratPcOnly { display: none; }
+  #rCaratSpinnerMobile { display: flex !important; align-items: center; gap: 4px; }
   .spin { display: flex; align-items: center; gap: 3px; }
   .spin select {
     width: 46px; font-size: 0.82rem; padding: 5px 3px;
@@ -703,7 +705,7 @@ select {
     <div class="page-header-left">
       <div class="page-header-icon">💎</div>
       <div class="page-header-title">
-        ダイヤ相場検索
+        ダイヤ相場検索（編集中）
         <span>Diamond Market Reference System</span>
       </div>
     </div>
@@ -964,64 +966,138 @@ select {
         <div class="panel-title">ラパポート価格参照</div>
       </div>
       <div class="panel-body">
-        <div class="lookup-grid">
-          <select id="rShapeSelect">
-            <option value="BR">ラウンド (BR)</option>
-            <option value="PS">ペアシェイプ (PS)</option>
-          </select>
-          <select id="rColorSelect">
-            <option value="">カラー</option>
-            <option value="D">D</option><option value="E">E</option><option value="F">F</option>
-            <option value="G">G</option><option value="H">H</option><option value="I">I</option>
-            <option value="J">J</option><option value="K">K</option><option value="L">L</option>
-            <option value="M">M</option>
-          </select>
-          <select id="rClaritySelect">
-            <option value="">クラリティ</option>
-            <option value="IF">IF</option><option value="VVS1">VVS1</option><option value="VVS2">VVS2</option>
-            <option value="VS1">VS1</option><option value="VS2">VS2</option>
-            <option value="SI1">SI1</option><option value="SI2">SI2</option><option value="SI3">SI3</option>
-            <option value="I1">I1</option><option value="I2">I2</option><option value="I3">I3</option>
-          </select>
-          <input type="text" id="rCaratInput" placeholder="カラット (例: 0.50)" inputmode="decimal" style="text-align:center;">
-          <select id="rRateSelectLookup">
-            <option value="1.0">掛け率なし</option>
-            <option value="0.5">5掛け</option><option value="0.6">6掛け</option>
-            <option value="0.7">7掛け</option><option value="0.8" selected>8掛け</option>
-            <option value="0.9">9掛け</option>
-          </select>
-          <button class="btn btn-primary" id="rLookupBtn">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            検索
-          </button>
+        <div class="form-grid" style="max-width:720px;">
+
+          <!-- 形状 -->
+          <div class="form-label">形状</div>
+          <div class="form-control">
+            <select id="rShapeSelect" style="min-width:160px;">
+              <option value="BR">ラウンド (BR)</option>
+              <option value="PS">ペアシェイプ (PS)</option>
+            </select>
+          </div>
+
+          <!-- カラット -->
+          <div class="form-label">カラット（ct）</div>
+          <div class="form-control">
+            <!-- PC: テキスト入力 -->
+            <input type="text" id="rCaratMain" placeholder="例: 0.345" inputmode="decimal" style="width:90px;text-align:center;">
+            <!-- スマホ: スピナー（#rCaratSpinnerMobile） -->
+            <div id="rCaratSpinnerMobile" style="display:none;">
+              <div class="spin">
+                <select id="rSpinInt"></select>
+                <span class="dot">.</span>
+                <select id="rSpinDec"></select>
+              </div>
+            </div>
+          </div>
+
+          <!-- カラー -->
+          <div class="form-label">カラー</div>
+          <div class="form-control">
+            <select id="rColorFrom" style="min-width:80px;">
+              <option value="">すべて</option>
+              <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+              <option value="G">G</option><option value="H">H</option><option value="I">I</option>
+              <option value="J">J</option><option value="K">K</option><option value="L">L</option>
+              <option value="M">M</option>
+            </select>
+            <span class="range-sep">〜</span>
+            <select id="rColorTo" style="min-width:80px;">
+              <option value="">すべて</option>
+              <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+              <option value="G">G</option><option value="H">H</option><option value="I">I</option>
+              <option value="J">J</option><option value="K">K</option><option value="L">L</option>
+              <option value="M">M</option>
+            </select>
+          </div>
+
+          <!-- クラリティ -->
+          <div class="form-label">クラリティ</div>
+          <div class="form-control">
+            <select id="rClarityFrom" style="min-width:80px;">
+              <option value="">すべて</option>
+              <option value="IF">IF</option><option value="VVS1">VVS1</option><option value="VVS2">VVS2</option>
+              <option value="VS1">VS1</option><option value="VS2">VS2</option>
+              <option value="SI1">SI1</option><option value="SI2">SI2</option><option value="SI3">SI3</option>
+              <option value="I1">I1</option><option value="I2">I2</option><option value="I3">I3</option>
+            </select>
+            <span class="range-sep">〜</span>
+            <select id="rClarityTo" style="min-width:80px;">
+              <option value="">すべて</option>
+              <option value="IF">IF</option><option value="VVS1">VVS1</option><option value="VVS2">VVS2</option>
+              <option value="VS1">VS1</option><option value="VS2">VS2</option>
+              <option value="SI1">SI1</option><option value="SI2">SI2</option><option value="SI3">SI3</option>
+              <option value="I1">I1</option><option value="I2">I2</option><option value="I3">I3</option>
+            </select>
+          </div>
+
+          <!-- 掛け率 -->
+          <div class="form-label">掛け率</div>
+          <div class="form-control">
+            <select id="rRateSelectLookup" style="min-width:110px;">
+              <option value="1.0">掛け率なし</option>
+              <option value="0.5">5掛け</option><option value="0.6">6掛け</option>
+              <option value="0.7">7掛け</option><option value="0.8" selected>8掛け</option>
+              <option value="0.9">9掛け</option>
+            </select>
+          </div>
+
         </div>
 
-        <div class="lookup-result-card" id="lookupResultCard">
-          <div class="lookup-result-row">
-            <span class="lr-label">グレード</span>
-            <span class="lr-val" id="lrGrade" style="font-family:'Shippori Mincho',serif;">—</span>
+        <!-- 検索ボタン -->
+        <div class="action-row" style="margin-top:14px;">
+          <button class="btn btn-primary btn-search" id="rLookupBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            検　索
+          </button>
+          <button class="btn btn-secondary" id="rLookupClear">クリア</button>
+        </div>
+
+        <!-- 結果エリア -->
+        <div id="lookupResultArea" style="display:none; margin-top:16px;">
+          <!-- 1件 or 範囲内平均の概要カード -->
+          <div id="lookupSummaryCard" class="lookup-result-card visible" style="margin-bottom:12px;">
+            <div class="lookup-result-row">
+              <span class="lr-label">検索件数</span>
+              <span class="lr-val" id="lrCount">—</span>
+            </div>
+            <div class="lookup-result-row">
+              <span class="lr-label">平均ラパ価格</span>
+              <span class="lr-val usd" id="lrAvgUsd">—</span>
+            </div>
+            <div class="lookup-result-row">
+              <span class="lr-label">平均円換算単価</span>
+              <span class="lr-val big" id="lrAvgJpy">—<span class="lr-unit">円/ct</span></span>
+            </div>
+            <div class="lookup-result-row" id="lrAvgTotalRow" style="display:none;">
+              <span class="lr-label">買取参考価格（平均 × <span id="lrRateLabel">8掛け</span>）</span>
+              <span class="lr-val big" id="lrAvgTotal">—<span class="lr-unit">円</span></span>
+            </div>
+            <div class="lookup-result-row">
+              <span class="lr-label">データ日付</span>
+              <span class="lr-val" id="lrDate" style="color:var(--ink-soft);font-size:0.75rem;">—</span>
+            </div>
           </div>
-          <div class="lookup-result-row">
-            <span class="lr-label">カラット範囲</span>
-            <span class="lr-val" id="lrCtRange">—</span>
-          </div>
-          <div class="lookup-result-row">
-            <span class="lr-label">ラパ価格</span>
-            <span class="lr-val usd" id="lrUsd">—</span>
-          </div>
-          <div class="lookup-result-row">
-            <span class="lr-label">円換算単価</span>
-            <span class="lr-val big" id="lrJpy">—<span class="lr-unit">円/ct</span></span>
-          </div>
-          <div class="lookup-result-row" id="lrTotalRow" style="display:none;">
-            <span class="lr-label">買取参考価格（<span id="lrRateLabel">8掛け</span>）</span>
-            <span class="lr-val big" id="lrTotal">—<span class="lr-unit">円</span></span>
-          </div>
-          <div class="lookup-result-row">
-            <span class="lr-label">データ日付</span>
-            <span class="lr-val" id="lrDate" style="color:var(--ink-soft);font-size:0.75rem;">—</span>
+
+          <!-- 一覧テーブル（複数件） -->
+          <div id="lookupTableWrap" style="overflow-x:auto; display:none;">
+            <table id="lookupTable" style="width:100%;border-collapse:collapse;font-size:0.78rem;min-width:560px;">
+              <thead>
+                <tr>
+                  <th style="background:var(--green-dk);color:rgba(255,255,255,0.75);font-size:0.65rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:8px 10px;text-align:center;white-space:nowrap;">カラー</th>
+                  <th style="background:var(--green-dk);color:rgba(255,255,255,0.75);font-size:0.65rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:8px 10px;text-align:center;white-space:nowrap;">クラリティ</th>
+                  <th style="background:var(--green-dk);color:rgba(255,255,255,0.75);font-size:0.65rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:8px 10px;text-align:center;white-space:nowrap;">カラット範囲</th>
+                  <th style="background:var(--green-dk);color:rgba(255,255,255,0.75);font-size:0.65rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:8px 10px;text-align:right;white-space:nowrap;">ラパ価格 USD/ct</th>
+                  <th style="background:var(--green-dk);color:rgba(255,255,255,0.75);font-size:0.65rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:8px 10px;text-align:right;white-space:nowrap;">円換算 円/ct</th>
+                  <th style="background:var(--green-dk);color:rgba(255,255,255,0.75);font-size:0.65rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:8px 10px;text-align:right;white-space:nowrap;" id="lrTotalHeader">買取参考価格 円</th>
+                </tr>
+              </thead>
+              <tbody id="lookupTableBody"></tbody>
+            </table>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -1339,51 +1415,141 @@ function rapaLookup(shape, color, clarity, carat) {
   ) || null;
 }
 
-document.getElementById("rLookupBtn").addEventListener("click", () => {
-  const shape   = document.getElementById("rShapeSelect").value;
-  const color   = document.getElementById("rColorSelect").value;
-  const clarity = document.getElementById("rClaritySelect").value;
-  const carat   = document.getElementById("rCaratInput").value;
-  const rate    = parseFloat(document.getElementById("rRateSelectLookup").value) || 1;
+/* ── ラパポート参照：スマホスピナー初期化 ── */
+(function() {
+  const si = document.getElementById("rSpinInt");
+  const sd = document.getElementById("rSpinDec");
+  const mc = document.getElementById("rCaratMain");
+  if (!si || !sd || !mc) return;
+  for (let i = 0; i <= 10; i++) si.appendChild(new Option(i, i));
+  for (let i = 1; i <= 99; i++) { const v = String(i).padStart(2,"0"); sd.appendChild(new Option(v,v)); }
+  si.value = "0"; sd.value = "50"; mc.value = "0.50";
+  const sync = () => { mc.value = si.value + "." + sd.value; };
+  si.addEventListener("change", sync);
+  sd.addEventListener("change", sync);
+})();
 
-  if (!color || !clarity || !carat) {
-    alert("カラー・クラリティ・カラットを選択/入力してください");
-    return;
-  }
-
-  const rec = rapaLookup(shape, color, clarity, carat);
-  const card = document.getElementById("lookupResultCard");
-
-  if (!rec) {
-    card.classList.add("visible");
-    document.getElementById("lrGrade").textContent = `${color} ${clarity} (${shape})`;
-    document.getElementById("lrCtRange").textContent = "該当データなし";
-    document.getElementById("lrUsd").textContent = "—";
-    document.getElementById("lrJpy").innerHTML = "—<span class='lr-unit'>円/ct</span>";
-    document.getElementById("lrTotalRow").style.display = "none";
-    document.getElementById("lrDate").textContent = "—";
-    return;
-  }
-
-  const jpyPerCt = rec.price_usd * usdJpy;
-  const ct = parseFloat(carat) || 0;
-  const total = Math.round(jpyPerCt * rate * ct);
-  const rateLabels = {"1.0":"掛け率なし","0.5":"5掛け","0.6":"6掛け","0.7":"7掛け","0.8":"8掛け","0.9":"9掛け"};
-
-  card.classList.add("visible");
-  document.getElementById("lrGrade").textContent    = `${color} / ${clarity} / ${shape}`;
-  document.getElementById("lrCtRange").textContent  = `${rec.ct_min.toFixed(2)} 〜 ${rec.ct_max.toFixed(2)} ct`;
-  document.getElementById("lrUsd").innerHTML        = `$${rec.price_usd.toLocaleString()} <span style="font-size:0.72rem;color:var(--ink-soft)">USD/ct</span>`;
-  document.getElementById("lrJpy").innerHTML        = `${fmt(jpyPerCt)}<span class="lr-unit">円/ct</span>`;
-  document.getElementById("lrRateLabel").textContent = rateLabels[String(rate)] || `${rate*100}%`;
-  document.getElementById("lrDate").textContent     = rec.date;
-  if (ct > 0) {
-    document.getElementById("lrTotalRow").style.display = "flex";
-    document.getElementById("lrTotal").innerHTML = `${fmt(total)}<span class="lr-unit">円</span>`;
-  } else {
-    document.getElementById("lrTotalRow").style.display = "none";
-  }
+/* カラーFrom → To 連動 */
+document.getElementById("rColorFrom").addEventListener("change", function() {
+  const RAPA_COLORS = ["D","E","F","G","H","I","J","K","L","M"];
+  const toSel = document.getElementById("rColorTo");
+  const fromIdx = RAPA_COLORS.indexOf(this.value);
+  const toIdx   = RAPA_COLORS.indexOf(toSel.value);
+  if (this.value && (toSel.value === "" || toIdx < fromIdx)) toSel.value = this.value;
 });
+
+/* クラリティFrom → To 連動 */
+document.getElementById("rClarityFrom").addEventListener("change", function() {
+  const toSel  = document.getElementById("rClarityTo");
+  const fromIdx = CLARITY_RAPA.indexOf(this.value);
+  const toIdx   = CLARITY_RAPA.indexOf(toSel.value);
+  if (this.value && (toSel.value === "" || toIdx < fromIdx)) toSel.value = this.value;
+});
+
+/* クリアボタン */
+document.getElementById("rLookupClear").addEventListener("click", () => {
+  ["rColorFrom","rColorTo","rClarityFrom","rClarityTo"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+  document.getElementById("rCaratMain").value = "0.50";
+  const si = document.getElementById("rSpinInt"), sd = document.getElementById("rSpinDec");
+  if (si && sd) { si.value = "0"; sd.value = "50"; }
+  document.getElementById("lookupResultArea").style.display = "none";
+  notifyHeight();
+});
+
+/* ── ルックアップ検索（範囲対応） ── */
+document.getElementById("rLookupBtn").addEventListener("click", runRapaLookup);
+
+function runRapaLookup() {
+  const RAPA_COLORS = ["D","E","F","G","H","I","J","K","L","M"];
+  const rateLabels  = {"1.0":"掛け率なし","0.5":"5掛け","0.6":"6掛け","0.7":"7掛け","0.8":"8掛け","0.9":"9掛け"};
+
+  const shape     = document.getElementById("rShapeSelect").value;
+  const colorFrom = document.getElementById("rColorFrom").value;
+  const colorTo   = document.getElementById("rColorTo").value;
+  const clarFrom  = document.getElementById("rClarityFrom").value;
+  const clarTo    = document.getElementById("rClarityTo").value;
+  const caratVal  = parseFloat(document.getElementById("rCaratMain").value);
+  const rate      = parseFloat(document.getElementById("rRateSelectLookup").value) || 1;
+
+  const colorFromIdx = colorFrom ? RAPA_COLORS.indexOf(colorFrom) : 0;
+  const colorToIdx   = colorTo   ? RAPA_COLORS.indexOf(colorTo)   : RAPA_COLORS.length - 1;
+  const clarFromIdx  = clarFrom  ? CLARITY_RAPA.indexOf(clarFrom)  : 0;
+  const clarToIdx    = clarTo    ? CLARITY_RAPA.indexOf(clarTo)    : CLARITY_RAPA.length - 1;
+
+  const results = rapaData.filter(r => {
+    if (r.shape !== shape) return false;
+    const ci = RAPA_COLORS.indexOf(r.color);
+    if (ci < 0 || ci < colorFromIdx || ci > colorToIdx) return false;
+    const li = CLARITY_RAPA.indexOf(r.clarity);
+    if (li < 0 || li < clarFromIdx || li > clarToIdx) return false;
+    if (!isNaN(caratVal)) {
+      if (caratVal < r.ct_min || caratVal > r.ct_max) return false;
+    }
+    return true;
+  });
+
+  const area = document.getElementById("lookupResultArea");
+  area.style.display = "block";
+
+  if (!results.length) {
+    document.getElementById("lrCount").textContent  = "0件（該当なし）";
+    document.getElementById("lrAvgUsd").textContent = "—";
+    document.getElementById("lrAvgJpy").innerHTML   = "<span class='lr-unit'>円/ct</span>";
+    document.getElementById("lrAvgTotalRow").style.display = "none";
+    document.getElementById("lrDate").textContent   = "—";
+    document.getElementById("lookupTableWrap").style.display = "none";
+    notifyHeight();
+    return;
+  }
+
+  const avgUsd  = results.reduce((s, r) => s + r.price_usd, 0) / results.length;
+  const avgJpy  = avgUsd * usdJpy;
+  const refCt   = !isNaN(caratVal) ? caratVal : 0;
+  const avgTotal = Math.round(avgJpy * rate * refCt);
+  const dates   = [...new Set(results.map(r => r.date))].join(" / ");
+
+  document.getElementById("lrCount").textContent   = `${results.length} 件`;
+  document.getElementById("lrAvgUsd").innerHTML    = `$${avgUsd.toLocaleString(undefined,{maximumFractionDigits:0})} <span style="font-size:0.72rem;color:var(--ink-soft)">USD/ct（平均）</span>`;
+  document.getElementById("lrAvgJpy").innerHTML    = `${fmt(avgJpy)}<span class="lr-unit">円/ct</span>`;
+  document.getElementById("lrRateLabel").textContent = rateLabels[String(rate)] || `${Math.round(rate*100)}%`;
+  document.getElementById("lrDate").textContent    = dates;
+
+  if (refCt > 0) {
+    document.getElementById("lrAvgTotalRow").style.display = "flex";
+    document.getElementById("lrAvgTotal").innerHTML = `${fmt(avgTotal)}<span class="lr-unit">円</span>`;
+  } else {
+    document.getElementById("lrAvgTotalRow").style.display = "none";
+  }
+
+  const thTotal = document.getElementById("lrTotalHeader");
+  thTotal.textContent = refCt > 0
+    ? `買取参考価格（${rateLabels[String(rate)] || Math.round(rate*100)+"%"}）`
+    : "買取参考価格";
+
+  const tbody = document.getElementById("lookupTableBody");
+  tbody.innerHTML = "";
+  const TD = "padding:7px 10px;border-bottom:1px solid rgba(192,154,80,0.08);font-feature-settings:'tnum';white-space:nowrap;";
+  results.forEach((r, idx) => {
+    const jpy   = Math.round(r.price_usd * usdJpy);
+    const total = refCt > 0 ? fmt(Math.round(jpy * rate * refCt)) + "円" : "—";
+    const tr    = document.createElement("tr");
+    if (idx % 2 === 1) tr.style.background = "rgba(247,243,235,0.5)";
+    tr.innerHTML = `
+      <td style="${TD}text-align:center;font-weight:600;color:var(--green);">${r.color}</td>
+      <td style="${TD}text-align:center;">${r.clarity}</td>
+      <td style="${TD}text-align:center;color:var(--ink-soft);font-size:0.72rem;">${r.ct_min.toFixed(2)}〜${r.ct_max.toFixed(2)} ct</td>
+      <td style="${TD}text-align:right;">$${r.price_usd.toLocaleString()}</td>
+      <td style="${TD}text-align:right;">${fmt(jpy)}円</td>
+      <td style="${TD}text-align:right;font-weight:600;color:var(--green);">${total}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById("lookupTableWrap").style.display = results.length > 1 ? "block" : "none";
+  notifyHeight();
+}
 
 /* ════════════════════════════════════════
    HEATMAP
