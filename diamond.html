@@ -1037,10 +1037,16 @@ select {
           <div class="form-label">掛け率</div>
           <div class="form-control">
             <select id="rRateSelectLookup" style="min-width:110px;">
-              <option value="1.0">掛け率なし</option>
-              <option value="0.5">5掛け</option><option value="0.6">6掛け</option>
-              <option value="0.7">7掛け</option><option value="0.8" selected>8掛け</option>
+              <option value="0.1">1掛け</option>
+              <option value="0.2">2掛け</option>
+              <option value="0.3">3掛け</option>
+              <option value="0.4" selected>4掛け</option>
+              <option value="0.5">5掛け</option>
+              <option value="0.6">6掛け</option>
+              <option value="0.7">7掛け</option>
+              <option value="0.8">8掛け</option>
               <option value="0.9">9掛け</option>
+              <option value="1.0">10掛け（掛け率なし）</option>
             </select>
           </div>
 
@@ -1464,7 +1470,7 @@ document.getElementById("rLookupBtn").addEventListener("click", runRapaLookup);
 
 function runRapaLookup() {
   const RAPA_COLORS = ["D","E","F","G","H","I","J","K","L","M"];
-  const rateLabels  = {"1.0":"掛け率なし","0.5":"5掛け","0.6":"6掛け","0.7":"7掛け","0.8":"8掛け","0.9":"9掛け"};
+  const rateLabels  = {"0.1":"1掛け","0.2":"2掛け","0.3":"3掛け","0.4":"4掛け","0.5":"5掛け","0.6":"6掛け","0.7":"7掛け","0.8":"8掛け","0.9":"9掛け","1.0":"10掛け"};
 
   const shape     = document.getElementById("rShapeSelect").value;
   const colorFrom = document.getElementById("rColorFrom").value;
