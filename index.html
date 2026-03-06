@@ -2,15 +2,58 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <!-- ══════════════════════════════════════════
+       iPhone / iOS PWA 完全対応メタタグ
+  ══════════════════════════════════════════ -->
+
+  <!-- viewport: safe-area 対応 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+
+  <!-- PWA基本 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="SGC ポータル">
-  <meta name="mobile-web-app-capable" content="yes">
-  <link rel="icon" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png" type="image/png">
+
+  <!-- テーマカラー（Android Chrome + Safari UI） -->
+  <meta name="theme-color" content="#0E1F17">
+  <meta name="msapplication-TileColor" content="#0E1F17">
+
+  <!-- アイコン: apple-touch-icon（iOS ホーム画面アイコン） -->
   <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+
+  <!-- favicon -->
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+  <link rel="shortcut icon" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+
+  <!-- Web App Manifest（PWAとして正式登録） -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- iOS スプラッシュ画面（iPhone各サイズ対応） -->
+  <!-- iPhone 14 Pro Max -->
+  <link rel="apple-touch-startup-image"
+    media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+  <!-- iPhone 14 Pro -->
+  <link rel="apple-touch-startup-image"
+    media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+  <!-- iPhone 14 / 13 / 12 -->
+  <link rel="apple-touch-startup-image"
+    media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+  <!-- iPhone SE (3rd gen) / 8 -->
+  <link rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+
   <title>SGC 社内ポータル</title>
   <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
   <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -32,15 +75,39 @@
     --safe-right:  env(safe-area-inset-right,  0px);
   }
 
-  html { height: 100vh; height: 100svh; height: 100dvh; background: var(--green-dk); }
-  body { height: 100vh; height: 100svh; height: 100dvh; overflow: hidden; background: var(--green-dk); font-family: 'DM Sans', sans-serif; }
+  /* スクロール禁止（PWA全画面維持） */
+  html {
+    height: 100%;
+    height: -webkit-fill-available;
+    background: var(--green-dk);
+    /* iOS overscroll bounce 防止 */
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: auto;
+  }
+  body {
+    height: 100%;
+    height: -webkit-fill-available;
+    overflow: hidden;
+    background: var(--green-dk);
+    font-family: 'DM Sans', sans-serif;
+    /* タップハイライト全体無効化 */
+    -webkit-tap-highlight-color: transparent;
+    /* テキスト選択防止（UIボタン等） */
+    -webkit-touch-callout: none;
+    /* iOS バウンススクロール抑制 */
+    overscroll-behavior: none;
+    position: fixed;
+    width: 100%;
+  }
 
   #shell {
     display: grid;
     grid-template-columns: var(--nav-w) 1fr;
     grid-template-rows: calc(var(--header-h) + var(--safe-top)) 1fr;
     grid-template-areas: "hdr hdr" "side main";
-    width: 100%; height: 100vh; height: 100svh; height: 100dvh; overflow: hidden;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
   }
 
   /* ─── Header ─── */
@@ -102,7 +169,10 @@
   .sidebar-footer { padding: 10px 14px; border-top: 1px solid rgba(192,154,80,0.08); font-size: 0.6rem; color: rgba(255,255,255,0.18); letter-spacing: 0.06em; font-family: 'Cormorant Garamond', serif; font-style: italic; text-align: center; }
 
   /* ─── Content ─── */
-  #content-area { grid-area: main; overflow: hidden; background: #F7F3EB; display: flex; flex-direction: column; padding-left: var(--safe-left); padding-right: var(--safe-right); }
+  #content-area {
+    grid-area: main; overflow: hidden; background: #F7F3EB; display: flex; flex-direction: column;
+    padding-left: var(--safe-left); padding-right: var(--safe-right);
+  }
   #main-frame { flex: 1; width: 100%; border: none; display: block; min-height: 0; }
 
   /* ─── Overlay ─── */
@@ -113,12 +183,38 @@
      MOBILE
   ══════════════════ */
   @media (max-width: 899px) {
-    #shell { grid-template-columns: 1fr; grid-template-rows: calc(var(--header-h) + env(safe-area-inset-top, 0px)) 1fr auto; grid-template-areas: "hdr" "main" "bnav"; }
+    #shell {
+      grid-template-columns: 1fr;
+      grid-template-rows: calc(var(--header-h) + env(safe-area-inset-top, 0px)) 1fr auto;
+      grid-template-areas: "hdr" "main" "bnav";
+    }
     .hamburger { display: flex; }
-    #sidebar { grid-area: unset; position: fixed; top: calc(var(--header-h) + env(safe-area-inset-top, 0px)); left: 0; width: var(--nav-w); bottom: 0; z-index: 260; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); box-shadow: 4px 0 24px rgba(0,0,0,0.55); }
+    #sidebar {
+      grid-area: unset; position: fixed;
+      top: calc(var(--header-h) + env(safe-area-inset-top, 0px));
+      left: 0; width: var(--nav-w); bottom: 0; z-index: 260;
+      transform: translateX(-100%);
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 4px 0 24px rgba(0,0,0,0.55);
+    }
     #sidebar.open { transform: translateX(0); }
-    #bottom-nav { grid-area: bnav; background: var(--green-dk); border-top: 1px solid rgba(192,154,80,0.14); display: flex; align-items: stretch; padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); position: relative; z-index: 100; min-height: var(--bottom-content-h); }
-    .bnav-item { flex: 1; display: flex !important; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: rgba(255,255,255,0.38); font-size: 0.58rem; letter-spacing: 0.03em; cursor: pointer; border: none; background: none; padding: 8px 2px; min-height: var(--bottom-content-h); text-decoration: none; transition: color 0.15s; -webkit-tap-highlight-color: transparent; }
+    #bottom-nav {
+      grid-area: bnav; background: var(--green-dk);
+      border-top: 1px solid rgba(192,154,80,0.14);
+      display: flex; align-items: stretch;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      padding-left:  env(safe-area-inset-left,   0px);
+      padding-right: env(safe-area-inset-right,  0px);
+      position: relative; z-index: 100;
+      min-height: var(--bottom-content-h);
+    }
+    .bnav-item {
+      flex: 1; display: flex !important; flex-direction: column; align-items: center; justify-content: center;
+      gap: 3px; color: rgba(255,255,255,0.38); font-size: 0.58rem; letter-spacing: 0.03em;
+      cursor: pointer; border: none; background: none; padding: 8px 2px;
+      min-height: var(--bottom-content-h); text-decoration: none; transition: color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
     .bnav-item.active { color: var(--gold); }
     .bnav-item svg { width: 20px; height: 20px; flex-shrink: 0; display: block; }
     .bnav-item span { display: block; line-height: 1; }
@@ -158,8 +254,7 @@
 
   .pw-top {
     background: linear-gradient(160deg, #091510 0%, #142214 100%);
-    padding: 30px 24px 22px;
-    text-align: center;
+    padding: 30px 24px 22px; text-align: center;
     border-bottom: 1px solid rgba(192,154,80,0.12);
     position: relative;
   }
@@ -167,11 +262,7 @@
     content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px;
     background: linear-gradient(90deg, transparent, var(--gold-dk) 25%, var(--gold) 50%, var(--gold-dk) 75%, transparent);
   }
-  .pw-icon {
-    width: 56px; height: 56px; margin: 0 auto 14px;
-    background: rgba(192,154,80,0.1); border: 1px solid rgba(192,154,80,0.22);
-    border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;
-  }
+  .pw-icon { width: 56px; height: 56px; margin: 0 auto 14px; background: rgba(192,154,80,0.1); border: 1px solid rgba(192,154,80,0.22); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; }
   .pw-title { font-family: 'Shippori Mincho', serif; font-size: 1.15rem; font-weight: 700; color: #fff; letter-spacing: 0.1em; }
   .pw-sub { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 0.7rem; color: rgba(192,154,80,0.5); letter-spacing: 0.22em; margin-top: 6px; }
 
@@ -185,6 +276,8 @@
     font-family: 'DM Sans', sans-serif; font-size: 1rem; letter-spacing: 0.18em;
     padding: 0 46px 0 14px; outline: none;
     transition: border-color 0.18s, box-shadow 0.18s;
+    /* iOS zoom防止: font-size 16px以上にする */
+    font-size: 16px;
   }
   #pw-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(192,154,80,0.18); }
   #pw-input::placeholder { color: rgba(255,255,255,0.18); letter-spacing: 0.06em; }
@@ -210,7 +303,7 @@
   .pw-cancel:hover { color: rgba(255,255,255,0.6); }
 
   /* ══════════════════════════════════════════
-     iOS PWA インストールバナー
+     iOS PWA インストールバナー（完全版）
   ══════════════════════════════════════════ */
   #pwa-banner {
     display: none;
@@ -227,9 +320,10 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* モバイル底部ナビがある場合に被らないよう調整 */
   @media (max-width: 899px) {
-    #pwa-banner { padding-bottom: calc(var(--bottom-content-h) + env(safe-area-inset-bottom, 0px) + 12px); }
+    #pwa-banner {
+      padding-bottom: calc(var(--bottom-content-h) + env(safe-area-inset-bottom, 0px) + 12px);
+    }
   }
 
   .pwa-card {
@@ -249,23 +343,12 @@
   }
 
   .pwa-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-  .pwa-app-icon {
-    width: 44px; height: 44px; border-radius: 11px;
-    background: rgba(192,154,80,0.1); border: 1px solid rgba(192,154,80,0.2);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; overflow: hidden;
-  }
+  .pwa-app-icon { width: 44px; height: 44px; border-radius: 11px; background: rgba(192,154,80,0.1); border: 1px solid rgba(192,154,80,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
   .pwa-app-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
   .pwa-text { flex: 1; min-width: 0; }
   .pwa-title { font-family: 'Shippori Mincho', serif; font-size: 0.92rem; font-weight: 700; color: #fff; letter-spacing: 0.06em; }
   .pwa-desc { font-size: 0.72rem; color: rgba(192,154,80,0.65); margin-top: 2px; letter-spacing: 0.02em; line-height: 1.4; }
-  .pwa-close {
-    background: none; border: none; color: rgba(255,255,255,0.3);
-    font-size: 1.1rem; cursor: pointer; padding: 4px; line-height: 1;
-    flex-shrink: 0; align-self: flex-start;
-    transition: color 0.15s;
-    -webkit-tap-highlight-color: transparent;
-  }
+  .pwa-close { background: none; border: none; color: rgba(255,255,255,0.3); font-size: 1.1rem; cursor: pointer; padding: 4px; line-height: 1; flex-shrink: 0; align-self: flex-start; transition: color 0.15s; -webkit-tap-highlight-color: transparent; }
   .pwa-close:hover { color: rgba(255,255,255,0.7); }
 
   .pwa-actions { display: flex; gap: 8px; }
@@ -280,18 +363,10 @@
     -webkit-tap-highlight-color: transparent;
   }
   .pwa-btn-primary:active { transform: scale(0.97); opacity: 0.88; }
-  .pwa-btn-skip {
-    height: 40px; padding: 0 14px;
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px; color: rgba(255,255,255,0.4);
-    font-family: 'DM Sans', sans-serif; font-size: 0.78rem;
-    cursor: pointer; white-space: nowrap;
-    transition: background 0.15s, color 0.15s;
-    -webkit-tap-highlight-color: transparent;
-  }
+  .pwa-btn-skip { height: 40px; padding: 0 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: rgba(255,255,255,0.4); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; cursor: pointer; white-space: nowrap; transition: background 0.15s, color 0.15s; -webkit-tap-highlight-color: transparent; }
   .pwa-btn-skip:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.65); }
 
-  /* ── 手順モーダル（古いiOS向け） ── */
+  /* ── 手順ガイドモーダル ── */
   #pwa-guide-backdrop {
     display: none; position: fixed; inset: 0; z-index: 850;
     background: rgba(8,14,11,0.82);
@@ -310,54 +385,34 @@
     overflow: hidden;
     animation: pwIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
   }
-  .pwa-guide-top {
-    background: linear-gradient(160deg, #091510 0%, #142214 100%);
-    padding: 24px 20px 18px; text-align: center;
-    border-bottom: 1px solid rgba(192,154,80,0.12);
-    position: relative;
-  }
-  .pwa-guide-top::after {
-    content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, var(--gold-dk) 25%, var(--gold) 50%, var(--gold-dk) 75%, transparent);
-  }
+  .pwa-guide-top { background: linear-gradient(160deg, #091510 0%, #142214 100%); padding: 24px 20px 18px; text-align: center; border-bottom: 1px solid rgba(192,154,80,0.12); position: relative; }
+  .pwa-guide-top::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-dk) 25%, var(--gold) 50%, var(--gold-dk) 75%, transparent); }
   .pwa-guide-title { font-family: 'Shippori Mincho', serif; font-size: 1.05rem; font-weight: 700; color: #fff; letter-spacing: 0.1em; }
   .pwa-guide-sub { font-size: 0.68rem; color: rgba(192,154,80,0.5); letter-spacing: 0.12em; margin-top: 4px; }
 
   .pwa-guide-body { padding: 20px; }
   .pwa-step { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
   .pwa-step:last-child { margin-bottom: 0; }
-  .pwa-step-num {
-    width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
-    background: rgba(192,154,80,0.12); border: 1px solid rgba(192,154,80,0.2);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; font-weight: 700; color: var(--gold);
-  }
+  .pwa-step-num { width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0; background: rgba(192,154,80,0.12); border: 1px solid rgba(192,154,80,0.2); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; font-weight: 700; color: var(--gold); }
   .pwa-step-text { flex: 1; }
   .pwa-step-title { font-size: 0.8rem; color: #fff; font-weight: 500; letter-spacing: 0.02em; line-height: 1.4; }
   .pwa-step-note { font-size: 0.68rem; color: rgba(255,255,255,0.4); margin-top: 2px; line-height: 1.4; }
-  .pwa-step-icon { display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; margin: 0 2px; }
 
   .pwa-guide-footer { padding: 0 20px 20px; }
-  .pwa-guide-close {
-    width: 100%; height: 42px;
-    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 11px; color: rgba(255,255,255,0.5);
-    font-family: 'DM Sans', sans-serif; font-size: 0.82rem; letter-spacing: 0.04em;
-    cursor: pointer; transition: background 0.15s, color 0.15s;
-    -webkit-tap-highlight-color: transparent;
-  }
+  .pwa-guide-close { width: 100%; height: 42px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 11px; color: rgba(255,255,255,0.5); font-family: 'DM Sans', sans-serif; font-size: 0.82rem; letter-spacing: 0.04em; cursor: pointer; transition: background 0.15s, color 0.15s; -webkit-tap-highlight-color: transparent; }
   .pwa-guide-close:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.75); }
 
-  /* 矢印アニメーション（バナーの下向き矢印） */
-  .pwa-arrow-down {
-    display: block; text-align: center; margin-top: 8px;
-    font-size: 1.2rem; animation: arrowBounce 1.4s ease-in-out infinite;
-    color: var(--gold); opacity: 0.7;
+  /* ── アップデート通知バナー（Service Worker用） ── */
+  #sw-update-bar {
+    display: none; position: fixed; top: calc(var(--header-h) + var(--safe-top) + 8px); left: 50%; transform: translateX(-50%);
+    z-index: 500; background: var(--green-lt); border: 1px solid rgba(192,154,80,0.35);
+    border-radius: 12px; padding: 10px 16px; gap: 12px;
+    align-items: center; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    font-size: 0.78rem; color: var(--gold-lt); white-space: nowrap;
+    max-width: calc(100vw - 32px);
   }
-  @keyframes arrowBounce {
-    0%,100% { transform: translateY(0); }
-    50% { transform: translateY(5px); }
-  }
+  #sw-update-bar.show { display: flex; }
+  #sw-update-bar button { background: var(--gold); border: none; border-radius: 8px; padding: 5px 12px; color: var(--green-dk); font-size: 0.72rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
   </style>
 </head>
 <body>
@@ -491,6 +546,12 @@
 
 <div id="overlay" onclick="closeSidebar()"></div>
 
+<!-- Service Worker アップデートバー -->
+<div id="sw-update-bar">
+  🔄 新しいバージョンが利用可能です
+  <button onclick="applyUpdate()">更新する</button>
+</div>
+
 <!-- ══════════════════════════════════
      パスワードモーダル
 ══════════════════════════════════ -->
@@ -504,7 +565,7 @@
     <div class="pw-body">
       <label class="pw-label" for="pw-input">パスワード</label>
       <div class="pw-field">
-        <input type="password" id="pw-input" placeholder="Password" autocomplete="current-password">
+        <input type="password" id="pw-input" placeholder="Password" autocomplete="current-password" inputmode="text">
         <button class="pw-eye-btn" id="pw-eye" type="button" onclick="toggleEye()" aria-label="パスワード表示切替">👁</button>
       </div>
       <div class="pw-err" id="pw-err"></div>
@@ -515,7 +576,7 @@
 </div>
 
 <!-- ══════════════════════════════════
-     PWA インストールバナー（iOS Safari用）
+     PWA インストールバナー（iOS Safari）
 ══════════════════════════════════ -->
 <div id="pwa-banner">
   <div class="pwa-card">
@@ -539,7 +600,7 @@
   </div>
 </div>
 
-<!-- ── 手順ガイドモーダル（古いiOS向け Share未対応） ── -->
+<!-- ── 手順ガイドモーダル ── -->
 <div id="pwa-guide-backdrop">
   <div id="pwa-guide-modal" role="dialog" aria-modal="true">
     <div class="pwa-guide-top">
@@ -550,10 +611,10 @@
       <div class="pwa-step">
         <div class="pwa-step-num">1</div>
         <div class="pwa-step-text">
-          <div class="pwa-step-title">下部の「共有」ボタンをタップ</div>
-          <div class="pwa-step-note">画面下中央の
+          <div class="pwa-step-title">Safari 下部の「共有」ボタンをタップ</div>
+          <div class="pwa-step-note">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;display:inline-block"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-            アイコンです
+            画面下中央の上矢印アイコンです
           </div>
         </div>
       </div>
@@ -568,7 +629,7 @@
         <div class="pwa-step-num">3</div>
         <div class="pwa-step-text">
           <div class="pwa-step-title">右上の「追加」をタップ</div>
-          <div class="pwa-step-note">アプリとしてホーム画面に追加されます</div>
+          <div class="pwa-step-note">アプリとしてホーム画面に追加されます 🎉</div>
         </div>
       </div>
     </div>
@@ -581,14 +642,12 @@
 <script>
 // ══════════════════════════════════════════════
 //  ★ パスワード設定 ★
-//  このファイルを編集できる管理者だけが変更可能です。
-//  GitHubリポジトリを非公開にしておいてください。
 // ══════════════════════════════════════════════
-var GINZA_PW     = 'melmelsa';     // ← ここを任意のパスワードに変更
-var STORAGE_KEY  = 'sgc_ginza_ok';  // localStorageのキー
+var GINZA_PW    = 'melmelsa';
+var STORAGE_KEY = 'sgc_ginza_ok';
 
 // ────────────────────────────────────
-//  HEIGHT FIX
+//  HEIGHT FIX（iOS viewport 100vh バグ対応）
 // ────────────────────────────────────
 function getVH() {
   return window.visualViewport ? window.visualViewport.height : window.innerHeight;
@@ -596,6 +655,7 @@ function getVH() {
 function setHeight() {
   var h = getVH();
   document.getElementById('shell').style.height = h + 'px';
+  document.body.style.height = h + 'px';
   sizeFrame();
 }
 function sizeFrame() {
@@ -616,6 +676,22 @@ window.addEventListener('orientationchange', function() {
   setTimeout(setHeight, 100); setTimeout(setHeight, 350); setTimeout(setHeight, 700);
 });
 window.addEventListener('load', function() { setHeight(); setTimeout(setHeight, 300); });
+
+// ────────────────────────────────────
+//  iOS スクロールバウンス防止
+// ────────────────────────────────────
+document.addEventListener('touchmove', function(e) {
+  // sidebar-scroll と iframe 内はスクロール許可
+  var el = e.target;
+  var allow = false;
+  while (el) {
+    if (el.classList && (el.classList.contains('sidebar-scroll') || el.tagName === 'IFRAME')) {
+      allow = true; break;
+    }
+    el = el.parentElement;
+  }
+  if (!allow) e.preventDefault();
+}, { passive: false });
 
 // ────────────────────────────────────
 //  NAVIGATION
@@ -651,17 +727,14 @@ function closeSidebar() {
 // ────────────────────────────────────
 //  GINZA AUTH
 // ────────────────────────────────────
-function isAuthed() {
-  return localStorage.getItem(STORAGE_KEY) === '1';
-}
+function isAuthed() { return localStorage.getItem(STORAGE_KEY) === '1'; }
 function refreshBadge() {
   var badge = document.getElementById('ginza-badge');
   var link  = document.getElementById('ginza-link');
   if (isAuthed()) {
     badge.textContent = '銀座店';
     badge.style.background = 'rgba(192,154,80,0.28)';
-    link.querySelector('svg').innerHTML =
-      '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>';
+    link.querySelector('svg').innerHTML = '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>';
   } else {
     badge.textContent = '🔒 限定';
     badge.style.background = '';
@@ -675,38 +748,32 @@ function ginzaClick(el) {
     el.classList.add('active');
     frame.src = 'https://script.google.com/macros/s/AKfycbyf2YPwoPW7dM6OMrK9OyxCJkGXeAa883HcQe6Atz982MHyqF8iobXqGSGFjULebLRp/exec';
     if (window.innerWidth < 900) closeSidebar();
-  } else {
-    openPw();
-  }
+  } else { openPw(); }
 }
 
 // ────────────────────────────────────
 //  PASSWORD MODAL
 // ────────────────────────────────────
 var backdrop = document.getElementById('pw-backdrop');
-
 function openPw() {
   document.getElementById('pw-input').value = '';
   document.getElementById('pw-err').textContent = '';
   backdrop.classList.add('show');
   setTimeout(function() { document.getElementById('pw-input').focus(); }, 160);
 }
-function closePw() {
-  backdrop.classList.remove('show');
-}
+function closePw() { backdrop.classList.remove('show'); }
 function toggleEye() {
   var inp = document.getElementById('pw-input');
   var eye = document.getElementById('pw-eye');
-  if (inp.type === 'password') { inp.type = 'text';     eye.textContent = '🙈'; }
-  else                          { inp.type = 'password'; eye.textContent = '👁'; }
+  if (inp.type === 'password') { inp.type = 'text'; eye.textContent = '🙈'; }
+  else { inp.type = 'password'; eye.textContent = '👁'; }
 }
 function submitPw() {
   var val = document.getElementById('pw-input').value;
   var err = document.getElementById('pw-err');
   if (val === GINZA_PW) {
     localStorage.setItem(STORAGE_KEY, '1');
-    refreshBadge();
-    closePw();
+    refreshBadge(); closePw();
     var link = document.getElementById('ginza-link');
     document.querySelectorAll('#sidebar .nav-link').forEach(function(l) { l.classList.remove('active'); });
     link.classList.add('active');
@@ -717,81 +784,102 @@ function submitPw() {
     document.getElementById('pw-input').value = '';
     document.getElementById('pw-input').focus();
     var modal = document.getElementById('pw-modal');
-    modal.style.animation = 'none';
-    void modal.offsetWidth;
+    modal.style.animation = 'none'; void modal.offsetWidth;
     modal.style.animation = 'shake 0.38s ease';
   }
 }
 document.getElementById('pw-input').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter')  submitPw();
+  if (e.key === 'Enter') submitPw();
   if (e.key === 'Escape') closePw();
 });
-backdrop.addEventListener('click', function(e) {
-  if (e.target === backdrop) closePw();
-});
+backdrop.addEventListener('click', function(e) { if (e.target === backdrop) closePw(); });
 
 // ══════════════════════════════════════════════
-//  PWA インストールバナー
+//  Service Worker 登録（PWA必須）
+// ══════════════════════════════════════════════
+var swRegistration = null;
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('sw.js')
+      .then(function(reg) {
+        swRegistration = reg;
+        // アップデート検知
+        reg.addEventListener('updatefound', function() {
+          var newWorker = reg.installing;
+          if (!newWorker) return;
+          newWorker.addEventListener('statechange', function() {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              document.getElementById('sw-update-bar').classList.add('show');
+            }
+          });
+        });
+        // 定期的にアップデート確認（30分ごと）
+        setInterval(function() { reg.update(); }, 30 * 60 * 1000);
+      })
+      .catch(function(err) { console.log('SW registration failed:', err); });
+    // SW更新後のリロード
+    navigator.serviceWorker.addEventListener('controllerchange', function() {
+      window.location.reload();
+    });
+  });
+}
+function applyUpdate() {
+  document.getElementById('sw-update-bar').classList.remove('show');
+  if (swRegistration && swRegistration.waiting) {
+    swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+  }
+}
+
+// ══════════════════════════════════════════════
+//  PWA インストールバナー（iOS Safari 完全版）
 // ══════════════════════════════════════════════
 (function() {
-  var BANNER_DISMISS_KEY  = 'sgc_pwa_banner_dismissed';
-  var DISMISS_DAYS        = 7; // 何日間バナーを非表示にするか
+  var BANNER_DISMISS_KEY = 'sgc_pwa_banner_dismissed';
+  var DISMISS_DAYS = 7;
 
-  // ① スタンドアロン（PWA）起動中は表示しない
+  // ① スタンドアロン（PWA起動中）は表示しない
   var isStandalone = (
     window.navigator.standalone === true ||
     window.matchMedia('(display-mode: standalone)').matches
   );
   if (isStandalone) return;
 
-  // ② iOS Safari のみ対象
+  // ② iOS Safari のみ
   var ua = navigator.userAgent;
   var isIOS = /iP(hone|ad|od)/.test(ua);
-  var isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|OPiOS|EdgiOS/.test(ua);
+  var isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|OPiOS|EdgiOS|GSA/.test(ua);
   if (!isIOS || !isSafari) return;
 
-  // ③ 最近 dismiss した場合はスキップ
+  // ③ 直近 dismiss済み はスキップ
   var dismissed = localStorage.getItem(BANNER_DISMISS_KEY);
   if (dismissed) {
-    var since = Date.now() - parseInt(dismissed, 10);
-    if (since < DISMISS_DAYS * 24 * 60 * 60 * 1000) return;
+    if (Date.now() - parseInt(dismissed, 10) < DISMISS_DAYS * 86400000) return;
   }
 
-  // ④ iOSバージョンを取得
+  // ④ iOSバージョン
   var iosMatch = ua.match(/OS (\d+)_(\d+)/);
   var iosMajor = iosMatch ? parseInt(iosMatch[1], 10) : 0;
 
-  // ⑤ バナーを表示（少し遅延させてページロード後に）
+  // ⑤ バナー表示
   var banner = document.getElementById('pwa-banner');
-  setTimeout(function() {
-    banner.classList.add('show');
-  }, 1800);
+  setTimeout(function() { banner.classList.add('show'); }, 2000);
 
-  // ⑥ 「ホーム画面に追加」ボタン処理
+  // ⑥ インストールボタン処理
   window.triggerInstall = function() {
-    // iOS 16.4+ : Web Share API の shareURL を使ってシェアシートを開く
-    // → シェアシートから「ホーム画面に追加」が選べる
     if (iosMajor >= 16 && navigator.share) {
-      navigator.share({
-        title: 'SGC 社内ポータル',
-        url: location.href
-      }).catch(function() {
-        // share がキャンセルされた or 失敗 → ガイドを表示
-        showGuide();
-      });
+      navigator.share({ title: 'SGC 社内ポータル', url: location.href })
+        .catch(function() { showGuide(); });
     } else {
-      // 古いiOS → 手順ガイドモーダル
       showGuide();
     }
   };
 
-  // ⑦ バナーを閉じる
   window.dismissBanner = function() {
     banner.classList.remove('show');
     localStorage.setItem(BANNER_DISMISS_KEY, Date.now().toString());
   };
 
-  // ⑧ 手順ガイド
+  // ⑦ 手順ガイド
   var guideBackdrop = document.getElementById('pwa-guide-backdrop');
   function showGuide() {
     banner.classList.remove('show');
@@ -804,26 +892,21 @@ backdrop.addEventListener('click', function(e) {
   guideBackdrop.addEventListener('click', function(e) {
     if (e.target === guideBackdrop) window.closeGuide();
   });
-
 })();
 
+// ────────────────────────────────────
+//  iframe メッセージ処理
+// ────────────────────────────────────
 window.addEventListener('message', function(e) {
   if (!e.data || !e.data.type) return;
   var BASE = 'https://script.google.com/macros/s/AKfycbyf2YPwoPW7dM6OMrK9OyxCJkGXeAa883HcQe6Atz982MHyqF8iobXqGSGFjULebLRp/exec';
-  
-  if (e.data.type === 'go-page') {
-    // ginza.htmlからサブページへ
-    frame.src = BASE + '?page=' + e.data.page;
-  }
-  if (e.data.type === 'go-back') {
-    // ginza_shift.htmlからginza.htmlへ戻る
-    frame.src = BASE + '?page=ginza';
-  }
+  if (e.data.type === 'go-page') { frame.src = BASE + '?page=' + e.data.page; }
+  if (e.data.type === 'go-back') { frame.src = BASE + '?page=ginza'; }
   if (e.data.type === 'logout') {
     localStorage.removeItem(STORAGE_KEY);
     refreshBadge();
     frame.src = 'main.html';
-  }  
+  }
 });
 </script>
 </body>
