@@ -77,26 +77,21 @@
 
   /* スクロール禁止（PWA全画面維持） */
   html {
-    height: 100%;
-    height: -webkit-fill-available;
+    /* dvh: Dynamic Viewport Height = アドレスバー込みの実際の高さ */
+    height: 100dvh;
     background: var(--green-dk);
-    /* iOS overscroll bounce 防止 */
     overscroll-behavior: none;
     -webkit-overflow-scrolling: auto;
   }
   body {
-    height: 100%;
-    height: -webkit-fill-available;
+    height: 100dvh;
     overflow: hidden;
     background: var(--green-dk);
     font-family: 'DM Sans', sans-serif;
-    /* タップハイライト全体無効化 */
     -webkit-tap-highlight-color: transparent;
-    /* テキスト選択防止（UIボタン等） */
     -webkit-touch-callout: none;
-    /* iOS バウンススクロール抑制 */
     overscroll-behavior: none;
-    position: fixed;
+    /* position:fixed は使わない → safe-area が正しく効かなくなるため */
     width: 100%;
   }
 
@@ -106,7 +101,8 @@
     grid-template-rows: calc(var(--header-h) + var(--safe-top)) 1fr;
     grid-template-areas: "hdr hdr" "side main";
     width: 100%;
-    height: 100%;
+    /* shellはbodyと同じ高さ。dvhが使えない古いiOSはJSで上書き */
+    height: 100dvh;
     overflow: hidden;
   }
 
@@ -185,7 +181,11 @@
   @media (max-width: 899px) {
     #shell {
       grid-template-columns: 1fr;
-      grid-template-rows: calc(var(--header-h) + env(safe-area-inset-top, 0px)) 1fr auto;
+      /* bnav行: アイコン部分 + ホームバー(safe-area-inset-bottom) を丸ごと含む */
+      grid-template-rows:
+        calc(var(--header-h) + env(safe-area-inset-top, 0px))
+        1fr
+        calc(var(--bottom-content-h) + env(safe-area-inset-bottom, 0px));
       grid-template-areas: "hdr" "main" "bnav";
     }
     .hamburger { display: flex; }
@@ -201,18 +201,20 @@
     #bottom-nav {
       grid-area: bnav; background: var(--green-dk);
       border-top: 1px solid rgba(192,154,80,0.14);
-      display: flex; align-items: stretch;
-      padding-bottom: env(safe-area-inset-bottom, 0px);
+      display: flex; align-items: flex-start; /* アイコンは上詰め、余白はpaddingで吸収 */
+      /* 左右のnotchにも対応 */
       padding-left:  env(safe-area-inset-left,   0px);
       padding-right: env(safe-area-inset-right,  0px);
+      /* 下のホームバー分を背景色で塗りつぶして"透けない"ようにする */
+      padding-bottom: env(safe-area-inset-bottom, 0px);
       position: relative; z-index: 100;
-      min-height: var(--bottom-content-h);
     }
     .bnav-item {
       flex: 1; display: flex !important; flex-direction: column; align-items: center; justify-content: center;
       gap: 3px; color: rgba(255,255,255,0.38); font-size: 0.58rem; letter-spacing: 0.03em;
       cursor: pointer; border: none; background: none; padding: 8px 2px;
-      min-height: var(--bottom-content-h); text-decoration: none; transition: color 0.15s;
+      height: var(--bottom-content-h); /* 固定高さ：safe-area分はpaddingで対処 */
+      text-decoration: none; transition: color 0.15s;
       -webkit-tap-highlight-color: transparent;
     }
     .bnav-item.active { color: var(--gold); }
@@ -647,15 +649,17 @@ var GINZA_PW    = 'melmelsa';
 var STORAGE_KEY = 'sgc_ginza_ok';
 
 // ────────────────────────────────────
-//  HEIGHT FIX（iOS viewport 100vh バグ対応）
+//  HEIGHT FIX（iOS dvh非対応の古い端末向けフォールバック）
 // ────────────────────────────────────
 function getVH() {
+  // visualViewport が使える場合はそちらを優先（キーボード展開時も正確）
   return window.visualViewport ? window.visualViewport.height : window.innerHeight;
 }
 function setHeight() {
   var h = getVH();
-  document.getElementById('shell').style.height = h + 'px';
-  document.body.style.height = h + 'px';
+  // dvh未対応のiOSのみ明示的にheightをセット（dvh対応ブラウザはCSSで完結）
+  var shell = document.getElementById('shell');
+  if (shell) shell.style.height = h + 'px';
   sizeFrame();
 }
 function sizeFrame() {
