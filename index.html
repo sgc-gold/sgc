@@ -76,23 +76,17 @@
   }
 
   /* スクロール禁止（PWA全画面維持） */
-  html {
-    /* dvh: Dynamic Viewport Height = アドレスバー込みの実際の高さ */
-    height: 100dvh;
-    background: var(--green-dk);
-    overscroll-behavior: none;
-    -webkit-overflow-scrolling: auto;
-  }
-  body {
-    height: 100dvh;
+  html, body {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
     overflow: hidden;
     background: var(--green-dk);
+    overscroll-behavior: none;
+  }
+  body {
     font-family: 'DM Sans', sans-serif;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
-    overscroll-behavior: none;
-    /* position:fixed は使わない → safe-area が正しく効かなくなるため */
-    width: 100%;
   }
 
   #shell {
@@ -101,8 +95,7 @@
     grid-template-rows: calc(var(--header-h) + var(--safe-top)) 1fr;
     grid-template-areas: "hdr hdr" "side main";
     width: 100%;
-    /* shellはbodyと同じ高さ。dvhが使えない古いiOSはJSで上書き */
-    height: 100dvh;
+    height: 100%; /* JSで正確な値に上書き */
     overflow: hidden;
   }
 
@@ -181,11 +174,8 @@
   @media (max-width: 899px) {
     #shell {
       grid-template-columns: 1fr;
-      /* bnav行: アイコン部分 + ホームバー(safe-area-inset-bottom) を丸ごと含む */
-      grid-template-rows:
-        calc(var(--header-h) + env(safe-area-inset-top, 0px))
-        1fr
-        calc(var(--bottom-content-h) + env(safe-area-inset-bottom, 0px));
+      /* bnav行はauto（コンテンツ高さ＝bottom-nav実サイズ）に任せる */
+      grid-template-rows: calc(var(--header-h) + env(safe-area-inset-top, 0px)) 1fr auto;
       grid-template-areas: "hdr" "main" "bnav";
     }
     .hamburger { display: flex; }
@@ -199,21 +189,22 @@
     }
     #sidebar.open { transform: translateX(0); }
     #bottom-nav {
-      grid-area: bnav; background: var(--green-dk);
+      grid-area: bnav;
+      background: var(--green-dk);
       border-top: 1px solid rgba(192,154,80,0.14);
-      display: flex; align-items: flex-start; /* アイコンは上詰め、余白はpaddingで吸収 */
-      /* 左右のnotchにも対応 */
+      display: flex;
+      align-items: center; /* アイコンを中央揃え */
+      /* safe-area-inset-bottom を padding-bottom で吸収 → 背景色が塗られ余白なし */
+      padding-bottom: env(safe-area-inset-bottom, 0px);
       padding-left:  env(safe-area-inset-left,   0px);
       padding-right: env(safe-area-inset-right,  0px);
-      /* 下のホームバー分を背景色で塗りつぶして"透けない"ようにする */
-      padding-bottom: env(safe-area-inset-bottom, 0px);
       position: relative; z-index: 100;
     }
     .bnav-item {
       flex: 1; display: flex !important; flex-direction: column; align-items: center; justify-content: center;
       gap: 3px; color: rgba(255,255,255,0.38); font-size: 0.58rem; letter-spacing: 0.03em;
       cursor: pointer; border: none; background: none; padding: 8px 2px;
-      height: var(--bottom-content-h); /* 固定高さ：safe-area分はpaddingで対処 */
+      height: var(--bottom-content-h); /* コンテンツ高さは固定、余白はpadding-bottomで処理 */
       text-decoration: none; transition: color 0.15s;
       -webkit-tap-highlight-color: transparent;
     }
@@ -649,17 +640,18 @@ var GINZA_PW    = 'melmelsa';
 var STORAGE_KEY = 'sgc_ginza_ok';
 
 // ────────────────────────────────────
-//  HEIGHT FIX（iOS dvh非対応の古い端末向けフォールバック）
+//  HEIGHT FIX
+//  iOSはwindow.innerHeightがアドレスバー分を含まないことがある。
+//  visualViewport.height が最も正確な実表示高さ。
 // ────────────────────────────────────
-function getVH() {
-  // visualViewport が使える場合はそちらを優先（キーボード展開時も正確）
-  return window.visualViewport ? window.visualViewport.height : window.innerHeight;
-}
 function setHeight() {
-  var h = getVH();
-  // dvh未対応のiOSのみ明示的にheightをセット（dvh対応ブラウザはCSSで完結）
+  // visualViewport があればそれを使う（iOS Safari 13+）
+  var h = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
   var shell = document.getElementById('shell');
-  if (shell) shell.style.height = h + 'px';
+  if (shell) {
+    shell.style.height = h + 'px';
+    shell.style.maxHeight = h + 'px';
+  }
   sizeFrame();
 }
 function sizeFrame() {
@@ -669,17 +661,29 @@ function sizeFrame() {
   var rect = content.getBoundingClientRect();
   if (rect.height > 0) frame.style.height = rect.height + 'px';
 }
+
+// 初回
 setHeight();
+
+// visualViewport のリサイズ（キーボード展開・アドレスバー変化）
 if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', setHeight);
-  window.visualViewport.addEventListener('scroll', setHeight);
 } else {
   window.addEventListener('resize', setHeight);
 }
+
+// 回転対応
 window.addEventListener('orientationchange', function() {
-  setTimeout(setHeight, 100); setTimeout(setHeight, 350); setTimeout(setHeight, 700);
+  setTimeout(setHeight, 50);
+  setTimeout(setHeight, 300);
+  setTimeout(setHeight, 600);
 });
-window.addEventListener('load', function() { setHeight(); setTimeout(setHeight, 300); });
+
+window.addEventListener('load', function() {
+  setHeight();
+  setTimeout(setHeight, 200);
+  setTimeout(setHeight, 500);
+});
 
 // ────────────────────────────────────
 //  iOS スクロールバウンス防止
