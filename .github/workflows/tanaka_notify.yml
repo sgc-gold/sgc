@@ -1,0 +1,73 @@
+name: Tanaka Price Notify
+
+on:
+  repository_dispatch:
+    types: [tanaka_update]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. リポジトリをチェックアウト ──────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Python セットアップ ─────────────────────────────
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # ── 3. Chrome + ChromeDriver インストール ──────────────
+      - name: Install Chrome
+        run: |
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update -q
+          sudo apt-get install -y google-chrome-stable
+
+      # ── 4. Python ライブラリインストール ───────────────────
+      - name: Install Python dependencies
+        run: |
+          pip install \
+            selenium \
+            webdriver-manager \
+            pillow \
+            requests \
+            beautifulsoup4
+
+      # ── 5. update_time を環境変数に展開 ────────────────────
+      #       GASから送られる payload.client_payload.update_time を使用
+      #       値は "930" または "1400"
+      - name: Set update_time env
+        run: |
+          echo "UPDATE_TIME=${{ github.event.client_payload.update_time }}" >> $GITHUB_ENV
+
+      # ── 6. コメント取得（update_time で AM/PM 切り替え） ───
+      - name: Fetch comment
+        run: |
+          if [ "$UPDATE_TIME" = "930" ]; then
+            python scripts/comment.py
+          elif [ "$UPDATE_TIME" = "1400" ]; then
+            python scripts/comment_pm.py
+          else
+            echo "⚠ UPDATE_TIME が不明です: $UPDATE_TIME"
+          fi
+
+      # ── 7. チャート画像取得（BullionVault） ───────────────
+      - name: Capture BullionVault charts
+        run: python scripts/BullionVault.py
+        env:
+          UPDATE_TIME: ${{ env.UPDATE_TIME }}
+
+      # ── 8. チャート画像取得（ドル円） ─────────────────────
+      - name: Capture USDJPY chart
+        run: python scripts/gaitame_usdjpy.py
+
+      # ── 9. メール＋LINE WORKS 送信 ─────────────────────────
+      - name: Send email and LINE WORKS
+        run: python scripts/tanaka.py
+        env:
+          SMTP_PASSWORD:          ${{ secrets.SMTP_PASSWORD }}
+          LINEWORKS_WEBHOOK_URL:  ${{ secrets.LINEWORKS_WEBHOOK_URL }}
