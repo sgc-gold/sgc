@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://gold.bullionvault.jp/chart/bullionvaultchart.js?v=1" ></script>
+    <script type="text/javascript" >
+      var options = {
+        bullion: 'gold',
+        currency: 'JPY',
+        timeframe: '6h',
+        chartType: 'line',
+        miniChartModeAxis : 'kg',
+        referrerID: 'MYUSERNAME',
+        containerDefinedSize: true,
+        miniChartMode: false,
+        displayLatestPriceLine: true,
+        switchBullion: false,
+        switchCurrency: false,
+        switchTimeframe: false,
+        switchChartType: false,
+        exportButton: false
+      };
+      var chartBV = new BullionVaultChart(options, 'embed');
+    </script>
+  </head>
+  <body>
+    <div id="embed" style="height: 400px; width: 660px; "></div>
+  </body>
+</html>
