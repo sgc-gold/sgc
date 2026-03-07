@@ -1,7 +1,9 @@
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.image import MIMEImage
+import base64
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import (
+    Mail, To, From, Subject, HtmlContent,
+    Attachment, FileContent, FileName, FileType, Disposition, ContentId
+)
 from datetime import datetime
 from bs4 import BeautifulSoup
 import requests
@@ -11,14 +13,12 @@ import json
 import os
 
 # ==================================================
-# メール設定（パスワードはGitHub Secretsから取得）
+# メール設定（SendGrid経由）
 # ==================================================
-SMTP_SERVER   = "mail.blue.shared-server.net"
-SMTP_PORT     = 465
-FROM_EMAIL    = "yokomori@sgc-gold.co.jp"
-FROM_PASSWORD = os.environ["SMTP_PASSWORD"]   # GitHub Secret: SMTP_PASSWORD
-TO_EMAIL      = "yokomori@sgc-gold.co.jp"    # ★ テスト：自分だけに送信
-BCC_EMAILS    = []                            # ★ テスト：BCCなし
+SENDGRID_API_KEY = os.environ["SENDGRID_API_KEY"]  # GitHub Secret: SENDGRID_API_KEY
+FROM_EMAIL       = "yokomori@sgc-gold.co.jp"
+TO_EMAIL         = "yokomori@sgc-gold.co.jp"    # ★ テスト：自分だけに送信
+BCC_EMAILS       = []                            # ★ テスト：BCCなし
 
 DEFAULT_SPREAD = {
     "金":     325,
@@ -350,27 +350,30 @@ body = f"""
 </p>
 """
 
-msg = MIMEMultipart()
-msg["From"]    = FROM_EMAIL
-msg["To"]      = TO_EMAIL
-msg["Bcc"]     = ", ".join(BCC_EMAILS)
-msg["Subject"] = subject
-msg.attach(MIMEText(body, "html", "utf-8"))
+msg = Mail(
+    from_email=From(FROM_EMAIL, "（株）SGC 横森俊一"),
+    to_emails=To(TO_EMAIL),
+    subject=Subject(subject),
+    html_content=HtmlContent(body)
+)
 
+# チャート画像を添付（インライン埋め込み）
 for key, path in CHART_FILES.items():
     if os.path.exists(path):
         with open(path, "rb") as img_file:
-            img_data = img_file.read()
-        image = MIMEImage(img_data)
-        image.add_header("Content-ID",          f"<{key}>")
-        image.add_header("Content-Disposition", "inline", filename=os.path.basename(path))
-        msg.attach(image)
+            encoded = base64.b64encode(img_file.read()).decode()
+        attachment = Attachment(
+            FileContent(encoded),
+            FileName(os.path.basename(path)),
+            FileType("image/png"),
+            Disposition("inline"),
+            ContentId(key)
+        )
+        msg.attachment = attachment
 
-with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
-    server.login(FROM_EMAIL, FROM_PASSWORD)
-    server.sendmail(FROM_EMAIL, [TO_EMAIL] + BCC_EMAILS, msg.as_string())
-
-print("✅ メール送信完了")
+sg = SendGridAPIClient(SENDGRID_API_KEY)
+response = sg.send(msg)
+print(f"✅ メール送信完了 (status: {response.status_code})")
 
 # ★ テスト：LINE WORKSはスキップ
 print("⏭ LINE WORKS送信はテストのためスキップ")
