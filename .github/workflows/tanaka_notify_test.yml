@@ -39,7 +39,8 @@ jobs:
             webdriver-manager \
             pillow \
             requests \
-            beautifulsoup4
+            beautifulsoup4 \
+            sendgrid
 
       - name: Set update_time env
         run: |
@@ -65,6 +66,6 @@ jobs:
       - name: Send email (TEST - to yokomori only)
         run: python scripts/tanaka_test.py
         env:
-          SMTP_PASSWORD:          ${{ secrets.SMTP_PASSWORD }}
+          SENDGRID_API_KEY:       ${{ secrets.SENDGRID_API_KEY }}
           LINEWORKS_WEBHOOK_URL:  ${{ secrets.LINEWORKS_WEBHOOK_URL }}
           UPDATE_TIME:            ${{ env.UPDATE_TIME }}
