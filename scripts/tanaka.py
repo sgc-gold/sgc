@@ -286,6 +286,15 @@ def build_lineworks_message(date_info, prices, nine_thirty_diff, spread, comment
 # メイン処理
 # ==================================================
 date_info, new_prices = get_commodity_prices()
+
+# 17:00以降の更新はスキップ
+m_time = re.search(r'(\d{1,2}):(\d{2})公表', date_info)
+if m_time:
+    update_hour = int(m_time.group(1))
+    if update_hour >= 17:
+        print(f"⏭ 17:00以降の更新のためスキップ（{date_info}）")
+        exit(0)
+
 spread       = calculate_spread(new_prices)
 spread_report = check_spread_change(spread)
 
