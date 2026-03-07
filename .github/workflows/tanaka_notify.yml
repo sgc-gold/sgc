@@ -2,7 +2,7 @@ name: Tanaka Price Notify
 
 on:
   repository_dispatch:
-    types: [tanaka_update]
+    types: [Check and Update Tanaka]
 
 jobs:
   notify:
