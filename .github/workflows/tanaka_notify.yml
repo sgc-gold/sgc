@@ -35,7 +35,8 @@ jobs:
             webdriver-manager \
             pillow \
             requests \
-            beautifulsoup4
+            beautifulsoup4 \
+            sendgrid
 
       # ── 5. update_time を環境変数に展開 ────────────────────
       #       GASから送られる payload.client_payload.update_time を使用
@@ -69,5 +70,5 @@ jobs:
       - name: Send email and LINE WORKS
         run: python scripts/tanaka.py
         env:
-          SMTP_PASSWORD:          ${{ secrets.SMTP_PASSWORD }}
+          SENDGRID_API_KEY:       ${{ secrets.SENDGRID_API_KEY }}
           LINEWORKS_WEBHOOK_URL:  ${{ secrets.LINEWORKS_WEBHOOK_URL }}
