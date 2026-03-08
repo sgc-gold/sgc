@@ -645,8 +645,7 @@ var STORAGE_KEY = 'sgc_ginza_ok';
 //  visualViewport.height が最も正確な実表示高さ。
 // ────────────────────────────────────
 function setHeight() {
-  // visualViewport があればそれを使う（iOS Safari 13+）
-  var h = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+  var h = window.innerHeight;  // ← visualViewport ではなく innerHeight を使う
   var shell = document.getElementById('shell');
   if (shell) {
     shell.style.height = h + 'px';
