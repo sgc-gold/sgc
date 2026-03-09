@@ -45,7 +45,10 @@ jobs:
       #       repository_dispatch と workflow_dispatch の両方に対応
       - name: Set update_time env
         run: |
-          # repository_dispatch と workflow_dispatch の両方に対応
+          # github.event全体をJSON出力して確認
+          cat << 'EVENT_EOF'
+          ${{ toJson(github.event) }}
+          EVENT_EOF
           CLIENT_TIME="${{ github.event.client_payload.update_time }}"
           INPUT_TIME="${{ github.event.inputs.update_time }}"
           echo "デバッグ: CLIENT_TIME='$CLIENT_TIME'"
