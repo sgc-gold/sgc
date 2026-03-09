@@ -44,14 +44,8 @@ jobs:
       # ── 5. update_time を環境変数に展開 ────────────────────
       #       repository_dispatch と workflow_dispatch の両方に対応
       - name: Set update_time env
-        env:
-          GITHUB_EVENT_PATH: ${{ github.event_path }}
         run: |
-          # eventのJSONファイルから直接取得
-          echo "=== event.json の内容 ==="
-          cat "$GITHUB_EVENT_PATH" | python3 -c "import json,sys; d=json.load(sys.stdin); print(json.dumps(d.get('client_payload', {}), ensure_ascii=False))"
-          TIME=$(cat "$GITHUB_EVENT_PATH" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('client_payload', {}).get('update_time', ''))")
-          echo "取得した TIME='$TIME'"
+          TIME=$(cat "$GITHUB_EVENT_PATH" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('client_payload', {}).get('update_time', d.get('inputs', {}).get('update_time', '')))")
           echo "UPDATE_TIME=$TIME" >> $GITHUB_ENV
           echo "UPDATE_TIME に設定: $TIME"
       # ── 6. コメント取得（update_time で AM/PM 切り替え） ───
@@ -85,6 +79,7 @@ jobs:
         run: python scripts/gaitame_usdjpy.py
       # ── 9. メール＋LINE WORKS 送信 ─────────────────────────
       - name: Send email and LINE WORKS
-        run: python scripts/tanaka_test.py
+        run: python scripts/tanaka.py
         env:
-          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          SENDGRID_API_KEY:      ${{ secrets.SENDGRID_API_KEY }}
+          LINEWORKS_WEBHOOK_URL: ${{ secrets.LINEWORKS_WEBHOOK_URL }}
