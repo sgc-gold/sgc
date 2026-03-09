@@ -48,6 +48,9 @@ jobs:
           CLIENT_TIME: ${{ github.event.client_payload.update_time }}
           INPUT_TIME:  ${{ github.event.inputs.update_time }}
         run: |
+          echo "デバッグ: CLIENT_TIME='$CLIENT_TIME'"
+          echo "デバッグ: INPUT_TIME='$INPUT_TIME'"
+          echo "デバッグ: event_name='${{ github.event_name }}'"
           TIME="${CLIENT_TIME:-$INPUT_TIME}"
           echo "UPDATE_TIME=$TIME" >> $GITHUB_ENV
           echo "UPDATE_TIME に設定: $TIME"
