@@ -1,5 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
+import os
+
+# スクリプトのあるディレクトリを基準にパスを解決
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 keyword_priority = [
     ("今夜のシナリオ金", "comment_pm.txt", True),
@@ -79,7 +83,7 @@ def main():
     if not result:
         message = "❌ 該当記事は見つかりませんでした。"
         print(message)
-        with open(filename, "w", encoding="utf-8") as f:
+        with open(os.path.join(BASE_DIR, filename), "w", encoding="utf-8") as f:
             f.write(message + "\n")
         return
 
@@ -87,7 +91,7 @@ def main():
     content = get_article_content(url, remove_last)
 
     print(f"💾 「{title}」を {filename} に保存中（最後の行削除: {remove_last}）")
-    with open(filename, "w", encoding="utf-8") as f:
+    with open(os.path.join(BASE_DIR, filename), "w", encoding="utf-8") as f:
         f.write(content + "\n")
 
 if __name__ == "__main__":
