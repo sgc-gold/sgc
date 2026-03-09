@@ -1,0 +1,48 @@
+name: Run Comment Scripts
+
+on:
+  workflow_dispatch:
+    inputs:
+      script:
+        description: '実行するスクリプトを選択'
+        required: true
+        type: choice
+        options:
+          - comment.py
+          - comment_pm.py
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Asia/Tokyo
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Pythonのセットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 依存パッケージのインストール
+        run: pip install requests beautifulsoup4
+
+      - name: スクリプトを実行
+        run: python scripts/${{ github.event.inputs.script }}
+
+      - name: 出力ファイルを確認
+        run: |
+          echo "=== comment.txt ==="
+          cat scripts/comment.txt 2>/dev/null || echo "（ファイルなし）"
+          echo "=== comment_pm.txt ==="
+          cat scripts/comment_pm.txt 2>/dev/null || echo "（ファイルなし）"
+          echo "=== comment_log.txt ==="
+          cat scripts/comment_log.txt 2>/dev/null || echo "（ファイルなし）"
+
+      - name: 生成されたtxtをアーティファクトとして保存
+        uses: actions/upload-artifact@v4
+        with:
+          name: output-txt
+          path: scripts/*.txt
