@@ -4,14 +4,12 @@ from datetime import datetime
 import re
 import os
 
-# スクリプトのあるディレクトリを基準にパスを解決
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ログ書き込み用関数
 def log(message):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    log_path = os.path.join(BASE_DIR, "comment_log.txt")
-    with open(log_path, "a", encoding="utf-8") as log_file:
+    with open(os.path.join(BASE_DIR, "comment_log.txt"), "a", encoding="utf-8") as log_file:
         log_file.write(f"[{timestamp}] {message}\n")
 
 url = "https://nanboya.com/gold-kaitori/souba/"
@@ -53,8 +51,7 @@ if time_tag:
             sentences = comment_text.split("。")
             formatted_text = "\n".join(s + "。" for s in sentences if s.strip())
 
-            comment_path = os.path.join(BASE_DIR, "comment.txt")
-            with open(comment_path, "w", encoding="utf-8") as f:
+            with open(os.path.join(BASE_DIR, "comment.txt"), "w", encoding="utf-8") as f:
                 f.write(formatted_text)
 
             log("コメントを保存しました。")

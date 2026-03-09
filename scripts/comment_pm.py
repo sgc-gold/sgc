@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 import os
 
-# スクリプトのあるディレクトリを基準にパスを解決
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 keyword_priority = [
