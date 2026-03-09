@@ -11,6 +11,8 @@ jobs:
       # ── 1. リポジトリをチェックアウト ──────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       # ── 2. Python セットアップ ─────────────────────────────
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -34,8 +36,6 @@ jobs:
             beautifulsoup4 \
             sendgrid
       # ── 5. update_time を環境変数に展開 ────────────────────
-      #       GASから送られる payload.client_payload.update_time を使用
-      #       値は "930" または "1400"
       - name: Set update_time env
         run: |
           echo "UPDATE_TIME=${{ github.event.client_payload.update_time }}" >> $GITHUB_ENV
@@ -54,9 +54,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
           git add scripts/*.txt
           git diff --cached --quiet || git commit -m "Update txt files [skip ci]"
-          git pull --rebase origin main
           git push
       # ── 7. チャート画像取得（BullionVault） ───────────────
       - name: Capture BullionVault charts
