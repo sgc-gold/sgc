@@ -63,15 +63,18 @@ def get_commodity_prices():
     else:
         date_info_jp = ""
 
+    # PC用テーブル（#metal_price）のみを対象にする
+    pc_table = soup.find("table", {"id": "metal_price"})
+
     def parse_price(class_name, index):
-        td = soup.find_all("td", {"class": class_name})[index]
+        td = pc_table.find_all("td", {"class": class_name})[index]
         return float(
             td.text.strip().split("\n")[0]
             .replace("円", "").replace(",", "").strip()
         )
 
     def parse_diff(class_name, index):
-        td = soup.find_all("td", {"class": class_name})[index]
+        td = pc_table.find_all("td", {"class": class_name})[index]
         return td.text.strip().split("\n")[0].strip()
 
     prices = {
