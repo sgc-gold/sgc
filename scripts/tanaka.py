@@ -15,7 +15,7 @@ import os
 # ==================================================
 # メール設定（SendGrid経由）
 # ==================================================
-SENDGRID_API_KEY = os.environ["SENDGRID_API_KEY"]  # GitHub Secret: SENDGRID_API_KEY
+SENDGRID_API_KEY = os.environ["SENDGRID_API_KEY"]
 FROM_EMAIL       = "yokomori@sgc-gold.co.jp"
 TO_EMAIL         = "yokomori@sgc-gold.co.jp"
 BCC_EMAILS       = [
@@ -35,70 +35,63 @@ DEFAULT_SPREAD = {
     "銀":      15.5
 }
 
-# LINE WORKSのWebhook URLもSecretsから取得
-LINEWORKS_WEBHOOK_URL = os.environ["LINEWORKS_WEBHOOK_URL"]  # GitHub Secret: LINEWORKS_WEBHOOK_URL
+LINEWORKS_WEBHOOK_URL = os.environ["LINEWORKS_WEBHOOK_URL"]
 
-# スクリプトと同じディレクトリ（scripts/）にファイルを置く
-SCRIPT_DIR    = os.path.dirname(os.path.abspath(__file__))
+SCRIPT_DIR       = os.path.dirname(os.path.abspath(__file__))
 NINE_THIRTY_FILE = os.path.join(SCRIPT_DIR, "930_prices.json")
-CHART_FILES   = {
+CHART_FILES      = {
     "xaujpy": os.path.join(SCRIPT_DIR, "chart_xaujpy.png"),
     "xauusd": os.path.join(SCRIPT_DIR, "chart_xauusd.png"),
     "usdjpy": os.path.join(SCRIPT_DIR, "chart_usdjpy.png"),
 }
 
 
+# ==================================================
+# ★ 修正箇所: 日本語ページに対応
+# ==================================================
 def get_commodity_prices():
-    url = "https://gold.tanaka.co.jp/commodity/souba/english/index.php"
+    url = "https://gold.tanaka.co.jp/commodity/souba/index.php"
     response = requests.get(url)
+    response.encoding = response.apparent_encoding
     soup = BeautifulSoup(response.text, "html.parser")
 
-    date_info = soup.find("h3").find("span").text.strip()
-    match = re.search(
-        r"As of at (\d{1,2}:\d{2}) on ([A-Za-z]+) (\d{1,2})(st|nd|rd|th), (\d{4})",
-        date_info
-    )
-    if match:
-        time_str  = match.group(1)
-        month_str = match.group(2)
-        day       = int(match.group(3))
-        year      = match.group(5)
-        months = {
-            "January": "1月", "February": "2月", "March": "3月",
-            "April": "4月", "May": "5月", "June": "6月",
-            "July": "7月", "August": "8月", "September": "9月",
-            "October": "10月", "November": "11月", "December": "12月"
-        }
-        month_jp     = months.get(month_str, month_str)
-        date_info_jp = f"{year}年{month_jp}{day}日 {time_str}公表（日本時間）"
+    # 日付・時刻を取得: <h3>地金価格<span>2026年03月09日 09:30公表（日本時間）</span></h3>
+    h3_tag = soup.find("h3", string=lambda t: t and "地金価格" in t)
+    if h3_tag:
+        span = h3_tag.find("span")
+        date_info_jp = span.text.strip() if span else ""
     else:
-        date_info_jp = date_info
+        date_info_jp = ""
 
-    def parse_price_list(tag, index):
-        return (
-            soup.find_all("td", {"class": tag})[index]
-            .text.strip().split(" ")[0]
-            .replace("yen", "").replace(",", "")
+    def parse_price(class_name, index):
+        td = soup.find_all("td", {"class": class_name})[index]
+        return float(
+            td.text.strip().split("\n")[0]
+            .replace("円", "").replace(",", "").strip()
         )
+
+    def parse_diff(class_name, index):
+        td = soup.find_all("td", {"class": class_name})[index]
+        return td.text.strip().split("\n")[0].strip()
 
     prices = {
         "金": {
-            "retail":        float(parse_price_list("retail_tax",    0)),
-            "purchase":      float(parse_price_list("purchase_tax",  0)),
-            "retail_diff":   soup.find("td", {"class": "retail_ratio"}).text.strip().replace("yen", "円"),
-            "purchase_diff": soup.find("td", {"class": "purchase_ratio"}).text.strip().replace("yen", "円"),
+            "retail":        parse_price("retail_tax",    0),
+            "purchase":      parse_price("purchase_tax",  0),
+            "retail_diff":   parse_diff("retail_ratio",   0),
+            "purchase_diff": parse_diff("purchase_ratio", 0),
         },
         "プラチナ": {
-            "retail":        float(parse_price_list("retail_tax",    1)),
-            "purchase":      float(parse_price_list("purchase_tax",  1)),
-            "retail_diff":   soup.find_all("td", {"class": "retail_ratio"})[1].text.strip().replace("yen", "円"),
-            "purchase_diff": soup.find_all("td", {"class": "purchase_ratio"})[1].text.strip().replace("yen", "円"),
+            "retail":        parse_price("retail_tax",    1),
+            "purchase":      parse_price("purchase_tax",  1),
+            "retail_diff":   parse_diff("retail_ratio",   1),
+            "purchase_diff": parse_diff("purchase_ratio", 1),
         },
         "銀": {
-            "retail":        float(parse_price_list("retail_tax",    2)),
-            "purchase":      float(parse_price_list("purchase_tax",  2)),
-            "retail_diff":   soup.find_all("td", {"class": "retail_ratio"})[2].text.strip().replace("yen", "円"),
-            "purchase_diff": soup.find_all("td", {"class": "purchase_ratio"})[2].text.strip().replace("yen", "円"),
+            "retail":        parse_price("retail_tax",    2),
+            "purchase":      parse_price("purchase_tax",  2),
+            "retail_diff":   parse_diff("retail_ratio",   2),
+            "purchase_diff": parse_diff("purchase_ratio", 2),
         },
     }
     return date_info_jp, prices
@@ -244,7 +237,7 @@ def build_lineworks_message(date_info, prices, nine_thirty_diff, spread, comment
         kinds = [("purchase", "買取"), ("retail", "小売")] if metal == "金" else [("purchase", "買取")]
 
         for kind, label in kinds:
-            price        = prices[metal][kind]
+            price         = prices[metal][kind]
             day_diff_text = prices[metal][f"{kind}_diff"]
 
             if metal == "銀":
@@ -253,7 +246,7 @@ def build_lineworks_message(date_info, prices, nine_thirty_diff, spread, comment
             else:
                 num      = re.sub(r"[^\d\-]", "", day_diff_text)
                 value    = int(num) if num else 0
-                day_diff = "変わらず" if value == 0 else day_diff_text.replace("yen", "").strip()
+                day_diff = "変わらず" if value == 0 else day_diff_text.strip()
 
             price_str = f"{price:.2f}円" if metal == "銀" else f"{int(price):,}円"
             line      = f"{label}：{price_str}（{day_diff}"
@@ -287,7 +280,7 @@ def build_lineworks_message(date_info, prices, nine_thirty_diff, spread, comment
 # ==================================================
 date_info, new_prices = get_commodity_prices()
 
-# 17:00以降の更新はスキップ
+# ★ 修正箇所: 日本語形式の時刻チェック（例: "17:00公表"）
 m_time = re.search(r'(\d{1,2}):(\d{2})公表', date_info)
 if m_time:
     update_hour = int(m_time.group(1))
@@ -295,7 +288,7 @@ if m_time:
         print(f"⏭ 17:00以降の更新のためスキップ（{date_info}）")
         exit(0)
 
-spread       = calculate_spread(new_prices)
+spread        = calculate_spread(new_prices)
 spread_report = check_spread_change(spread)
 
 subject = "【田中貴金属】 価格更新通知　(株)SGC横森"
