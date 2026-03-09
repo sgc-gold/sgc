@@ -2,6 +2,12 @@ name: Tanaka Price Notify
 on:
   repository_dispatch:
     types: [Check and Update Tanaka]
+  workflow_dispatch:
+    inputs:
+      update_time:
+        description: '930 または 1400'
+        required: true
+        default: '1400'
 jobs:
   notify:
     runs-on: ubuntu-latest
@@ -36,9 +42,14 @@ jobs:
             beautifulsoup4 \
             sendgrid
       # ── 5. update_time を環境変数に展開 ────────────────────
+      #       repository_dispatch と workflow_dispatch の両方に対応
       - name: Set update_time env
         run: |
-          echo "UPDATE_TIME=${{ github.event.client_payload.update_time }}" >> $GITHUB_ENV
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "UPDATE_TIME=${{ github.event.inputs.update_time }}" >> $GITHUB_ENV
+          else
+            echo "UPDATE_TIME=${{ github.event.client_payload.update_time }}" >> $GITHUB_ENV
+          fi
       # ── 6. コメント取得（update_time で AM/PM 切り替え） ───
       - name: Fetch comment
         run: |
@@ -55,7 +66,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin main
-          git add scripts/*.txt
+          git add -f scripts/comment.txt scripts/comment_pm.txt 2>/dev/null || git add scripts/*.txt 2>/dev/null || echo "追加するtxtファイルなし"
           git diff --cached --quiet || git commit -m "Update txt files [skip ci]"
           git push
       # ── 7. チャート画像取得（BullionVault） ───────────────
