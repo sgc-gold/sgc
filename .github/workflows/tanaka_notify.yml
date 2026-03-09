@@ -80,7 +80,6 @@ jobs:
         run: python scripts/gaitame_usdjpy.py
       # ── 9. メール＋LINE WORKS 送信 ─────────────────────────
       - name: Send email and LINE WORKS
-        run: python scripts/tanaka.py
+        run: python scripts/tanaka_test.py
         env:
-          SENDGRID_API_KEY:       ${{ secrets.SENDGRID_API_KEY }}
-          LINEWORKS_WEBHOOK_URL:  ${{ secrets.LINEWORKS_WEBHOOK_URL }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
