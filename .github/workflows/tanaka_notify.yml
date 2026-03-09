@@ -69,7 +69,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git stash
           git pull --rebase origin main
+          git stash pop || true
           git add -f scripts/comment.txt scripts/comment_pm.txt 2>/dev/null || git add scripts/*.txt 2>/dev/null || echo "追加するtxtファイルなし"
           git diff --cached --quiet || git commit -m "Update txt files [skip ci]"
           git push
