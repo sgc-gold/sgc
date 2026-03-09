@@ -56,12 +56,14 @@ def get_commodity_prices():
     soup = BeautifulSoup(response.text, "html.parser")
 
     # 日付・時刻を取得: <h3>地金価格<span>2026年03月09日 09:30公表（日本時間）</span></h3>
-    h3_tag = soup.find("h3", string=lambda t: t and "地金価格" in t)
-    if h3_tag:
-        span = h3_tag.find("span")
-        date_info_jp = span.text.strip() if span else ""
-    else:
-        date_info_jp = ""
+    # h3タグ内に子要素(span)があるためstring=では見つからない。find_all+テキスト検索で対応
+    date_info_jp = ""
+    for h3 in soup.find_all("h3"):
+        if "地金価格" in h3.get_text():
+            span = h3.find("span")
+            if span:
+                date_info_jp = span.text.strip()
+            break
 
     # PC用テーブル（#metal_price）のみを対象にする
     pc_table = soup.find("table", {"id": "metal_price"})
