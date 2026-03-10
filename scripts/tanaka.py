@@ -38,7 +38,7 @@ DEFAULT_SPREAD = {
 LINEWORKS_WEBHOOK_URL = os.environ["LINEWORKS_WEBHOOK_URL"]
 
 SCRIPT_DIR       = os.path.dirname(os.path.abspath(__file__))
-NINE_THIRTY_FILE = os.path.join(SCRIPT_DIR, "930_prices.json")
+NINE_THIRTY_FILE = os.path.join(SCRIPT_DIR, "..", "data", "tanaka_price_930.json")
 CHART_FILES      = {
     "xaujpy": os.path.join(SCRIPT_DIR, "chart_xaujpy.png"),
     "xauusd": os.path.join(SCRIPT_DIR, "chart_xauusd.png"),
@@ -314,20 +314,27 @@ if comment_file and os.path.exists(comment_file):
     with open(comment_file, "r", encoding="utf-8") as f:
         comment_text = f.read().strip()
 
-# 9:30価格の保存・読み込み
-if "09:30" in date_info:
-    with open(NINE_THIRTY_FILE, "w", encoding="utf-8") as f:
-        json.dump(new_prices, f, ensure_ascii=False, indent=2)
+# 9:30価格の読み込み（data/tanaka_price_930.jsonから）
+# キー変換マップ: GOLD→金, PLATINUM→プラチナ, SILVER→銀
+METAL_MAP = {"GOLD": "金", "PLATINUM": "プラチナ", "SILVER": "銀"}
 
 nine_thirty_diff = {}
 if "09:30" not in date_info and os.path.exists(NINE_THIRTY_FILE):
-    with open(NINE_THIRTY_FILE, "r", encoding="utf-8") as f:
-        prices_930 = json.load(f)
-    for metal in ["金", "プラチナ", "銀"]:
-        nine_thirty_diff[metal] = {
-            "purchase": new_prices[metal]["purchase"] - prices_930[metal]["purchase"],
-            "retail":   new_prices[metal]["retail"]   - prices_930[metal]["retail"],
-        }
+    try:
+        with open(NINE_THIRTY_FILE, "r", encoding="utf-8") as f:
+            data_930 = json.load(f)
+        prices_930 = data_930.get("prices", {})
+        for eng_key, jpn_key in METAL_MAP.items():
+            p = prices_930.get(eng_key, {})
+            def parse_price(v):
+                return float(str(v).replace(",", "").replace("+", "").replace("円", "").strip())
+            nine_thirty_diff[jpn_key] = {
+                "purchase": new_prices[jpn_key]["purchase"] - parse_price(p.get("buy", 0)),
+                "retail":   new_prices[jpn_key]["retail"]   - parse_price(p.get("retail", 0)),
+            }
+        print(f"✅ 9時半比を計算しました（{NINE_THIRTY_FILE}）")
+    except Exception as e:
+        print(f"⚠ 9時半価格の読み込みエラー: {e}")
 
 # メール本文 HTML 組み立て
 ny_comment_html = ""
