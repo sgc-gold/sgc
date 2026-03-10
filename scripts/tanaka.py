@@ -5,7 +5,6 @@ from sendgrid.helpers.mail import (
     Attachment, FileContent, FileName, FileType, Disposition, ContentId
 )
 from datetime import datetime
-from bs4 import BeautifulSoup
 import requests
 import math
 import re
@@ -38,7 +37,6 @@ DEFAULT_SPREAD = {
 LINEWORKS_WEBHOOK_URL = os.environ["LINEWORKS_WEBHOOK_URL"]
 
 SCRIPT_DIR       = os.path.dirname(os.path.abspath(__file__))
-NINE_THIRTY_FILE = os.path.join(SCRIPT_DIR, "..", "data", "tanaka_price_930.json")
 CHART_FILES      = {
     "xaujpy": os.path.join(SCRIPT_DIR, "chart_xaujpy.png"),
     "xauusd": os.path.join(SCRIPT_DIR, "chart_xauusd.png"),
@@ -47,59 +45,41 @@ CHART_FILES      = {
 
 
 # ==================================================
-# ★ 修正箇所: 日本語ページに対応
+# data/tanaka_price.json から価格を読み込む
+# （スクレイピングはupdate_tanaka.pyが担当）
 # ==================================================
+PRICE_FILE = os.path.join(SCRIPT_DIR, "..", "data", "tanaka_price.json")
+
+METAL_KEY_MAP = {
+    "GOLD":     ("金",     False),
+    "PLATINUM": ("プラチナ", False),
+    "SILVER":   ("銀",     True),   # True = 銀（小数点あり）
+}
+
 def get_commodity_prices():
-    url = "https://gold.tanaka.co.jp/commodity/souba/index.php"
-    response = requests.get(url)
-    response.encoding = response.apparent_encoding
-    soup = BeautifulSoup(response.text, "html.parser")
+    if not os.path.exists(PRICE_FILE):
+        raise FileNotFoundError(f"価格ファイルが見つかりません: {PRICE_FILE}")
 
-    # 日付・時刻を取得: <h3>地金価格<span>2026年03月09日 09:30公表（日本時間）</span></h3>
-    # h3タグ内に子要素(span)があるためstring=では見つからない。find_all+テキスト検索で対応
-    date_info_jp = ""
-    for h3 in soup.find_all("h3"):
-        if "地金価格" in h3.get_text():
-            span = h3.find("span")
-            if span:
-                date_info_jp = span.text.strip()
-            break
+    with open(PRICE_FILE, "r", encoding="utf-8") as f:
+        data = json.load(f)
 
-    # PC用テーブル（#metal_price）のみを対象にする
-    pc_table = soup.find("table", {"id": "metal_price"})
+    date_info = data["update_time"]
+    raw = data["prices"]
 
-    def parse_price(class_name, index):
-        td = pc_table.find_all("td", {"class": class_name})[index]
-        return float(
-            td.text.strip().split("\n")[0]
-            .replace("円", "").replace(",", "").strip()
-        )
+    def to_float(v):
+        return float(str(v).replace(",", "").replace("+", "").replace("円", "").strip())
 
-    def parse_diff(class_name, index):
-        td = pc_table.find_all("td", {"class": class_name})[index]
-        return td.text.strip().split("\n")[0].strip()
+    prices = {}
+    for eng_key, (jpn_key, is_silver) in METAL_KEY_MAP.items():
+        p = raw[eng_key]
+        prices[jpn_key] = {
+            "retail":        to_float(p["retail"]),
+            "purchase":      to_float(p["buy"]),
+            "retail_diff":   p["retail_diff"],
+            "purchase_diff": p["buy_diff"],
+        }
 
-    prices = {
-        "金": {
-            "retail":        parse_price("retail_tax",    0),
-            "purchase":      parse_price("purchase_tax",  0),
-            "retail_diff":   parse_diff("retail_ratio",   0),
-            "purchase_diff": parse_diff("purchase_ratio", 0),
-        },
-        "プラチナ": {
-            "retail":        parse_price("retail_tax",    1),
-            "purchase":      parse_price("purchase_tax",  1),
-            "retail_diff":   parse_diff("retail_ratio",   1),
-            "purchase_diff": parse_diff("purchase_ratio", 1),
-        },
-        "銀": {
-            "retail":        parse_price("retail_tax",    2),
-            "purchase":      parse_price("purchase_tax",  2),
-            "retail_diff":   parse_diff("retail_ratio",   2),
-            "purchase_diff": parse_diff("purchase_ratio", 2),
-        },
-    }
-    return date_info_jp, prices
+    return date_info, prices
 
 
 def calculate_spread(prices):
@@ -284,8 +264,9 @@ def build_lineworks_message(date_info, prices, nine_thirty_diff, spread, comment
 # メイン処理
 # ==================================================
 date_info, new_prices = get_commodity_prices()
+print(f"📅 価格ファイルの公表時刻: {date_info}")
 
-# ★ 修正箇所: 日本語形式の時刻チェック（例: "17:00公表"）
+# 17:00以降の更新はスキップ
 m_time = re.search(r'(\d{1,2}):(\d{2})公表', date_info)
 if m_time:
     update_hour = int(m_time.group(1))
@@ -314,27 +295,34 @@ if comment_file and os.path.exists(comment_file):
     with open(comment_file, "r", encoding="utf-8") as f:
         comment_text = f.read().strip()
 
-# 9:30価格の読み込み（data/tanaka_price_930.jsonから）
-# キー変換マップ: GOLD→金, PLATINUM→プラチナ, SILVER→銀
-METAL_MAP = {"GOLD": "金", "PLATINUM": "プラチナ", "SILVER": "銀"}
-
+# 9時半比はdata/tanaka_price.jsonに既に計算済みの値を使用
 nine_thirty_diff = {}
-if "09:30" not in date_info and os.path.exists(NINE_THIRTY_FILE):
-    try:
-        with open(NINE_THIRTY_FILE, "r", encoding="utf-8") as f:
-            data_930 = json.load(f)
-        prices_930 = data_930.get("prices", {})
-        for eng_key, jpn_key in METAL_MAP.items():
-            p = prices_930.get(eng_key, {})
-            def parse_price(v):
-                return float(str(v).replace(",", "").replace("+", "").replace("円", "").strip())
+if "09:30" not in date_info:
+    with open(PRICE_FILE, "r", encoding="utf-8") as f:
+        raw_data = json.load(f)
+    raw_prices = raw_data["prices"]
+
+    def to_float_diff(v):
+        try:
+            return float(str(v).replace(",", "").replace("+", "").strip())
+        except:
+            return 0.0
+
+    has_930diff = any(
+        "retail_930diff" in raw_prices[k]
+        for k in raw_prices
+        if raw_prices[k].get("retail_930diff", "") != ""
+    )
+    if has_930diff:
+        for eng_key, (jpn_key, _) in METAL_KEY_MAP.items():
+            p = raw_prices[eng_key]
             nine_thirty_diff[jpn_key] = {
-                "purchase": new_prices[jpn_key]["purchase"] - parse_price(p.get("buy", 0)),
-                "retail":   new_prices[jpn_key]["retail"]   - parse_price(p.get("retail", 0)),
+                "purchase": to_float_diff(p.get("buy_930diff", 0)),
+                "retail":   to_float_diff(p.get("retail_930diff", 0)),
             }
-        print(f"✅ 9時半比を計算しました（{NINE_THIRTY_FILE}）")
-    except Exception as e:
-        print(f"⚠ 9時半価格の読み込みエラー: {e}")
+        print("✅ 9時半比をtanaka_price.jsonから取得しました")
+    else:
+        print("⚠ 9時半比データなし（9時半の更新かデータ未取得）")
 
 # メール本文 HTML 組み立て
 ny_comment_html = ""
