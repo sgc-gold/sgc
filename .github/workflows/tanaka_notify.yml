@@ -1,7 +1,7 @@
 name: Tanaka Price Notify
 on:
   repository_dispatch:
-    types: [Check and Update Tanaka]
+    types: [Check Tanaka Notify]
   workflow_dispatch:
     inputs:
       update_time:
