@@ -134,12 +134,20 @@ def generate_price_table(prices, nine_thirty_diff=None):
 """
 
     def row_diff(title, kind):
+        def fmt_diff(metal, val):
+            v = str(val).strip()
+            if not v or v == "0":
+                return "変わらず"
+            # すでに「円」が含まれていればそのまま
+            if "円" in v:
+                return v
+            return v + " 円"
         return f"""
 <tr style="color:#666; font-size:14px;">
   <th style="padding:2px 12px; text-align:center; border-bottom:1px solid #eee; white-space:nowrap;">{title}</th>
-  <td style="padding:2px 12px; border-bottom:1px solid #eee; background:{colors['金']}; text-align:center; white-space:nowrap;">{prices['金'][f'{kind}_diff']}</td>
-  <td style="padding:2px 12px; border-bottom:1px solid #eee; background:{colors['プラチナ']}; text-align:center; white-space:nowrap;">{prices['プラチナ'][f'{kind}_diff']}</td>
-  <td style="padding:2px 12px; border-bottom:1px solid #eee; background:{colors['銀']}; text-align:center; white-space:nowrap;">{prices['銀'][f'{kind}_diff']}</td>
+  <td style="padding:2px 12px; border-bottom:1px solid #eee; background:{colors['金']}; text-align:center; white-space:nowrap;">{fmt_diff('金',     prices['金'][f'{kind}_diff'])}</td>
+  <td style="padding:2px 12px; border-bottom:1px solid #eee; background:{colors['プラチナ']}; text-align:center; white-space:nowrap;">{fmt_diff('プラチナ', prices['プラチナ'][f'{kind}_diff'])}</td>
+  <td style="padding:2px 12px; border-bottom:1px solid #eee; background:{colors['銀']}; text-align:center; white-space:nowrap;">{fmt_diff('銀',     prices['銀'][f'{kind}_diff'])}</td>
 </tr>
 """
 
