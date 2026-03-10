@@ -48,11 +48,6 @@ jobs:
           TIME=$(cat "$GITHUB_EVENT_PATH" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('client_payload', {}).get('update_time', d.get('inputs', {}).get('update_time', '')))")
           echo "UPDATE_TIME=$TIME" >> $GITHUB_ENV
           echo "UPDATE_TIME に設定: $TIME"
-      # ── 5.5. Check and Update Tanaka の完了を待機 ────────
-      - name: Wait for update_tanaka to complete
-        run: |
-          echo "⏳ Check and Update Tanaka の完了を60秒待機..."
-          sleep 60
       # ── 6. コメント取得（update_time で AM/PM 切り替え） ───
       - name: Fetch comment
         run: |
@@ -71,7 +66,7 @@ jobs:
           git stash
           git pull --rebase origin main
           git stash pop || true
-          git add -f scripts/comment.txt scripts/comment_pm.txt scripts/930_prices.json 2>/dev/null || true
+          git add -f scripts/comment.txt scripts/comment_pm.txt 2>/dev/null || true
           git diff --cached --quiet || git commit -m "Update txt/json files [skip ci]"
           git push
       # ── 7. チャート画像取得（BullionVault） ───────────────
