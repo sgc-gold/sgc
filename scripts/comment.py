@@ -35,14 +35,17 @@ if time_tag:
         log("年月日のパターンが抽出できませんでした。")
         comment_date_obj = None
 
-    # 今日の日付（オブジェクト）
-    today_date = datetime.now().date()
-    # ログには統一してゼロ埋め付きで出す
+    # 今日の日付（日本時間）
+    import zoneinfo
+    today_date = datetime.now(zoneinfo.ZoneInfo("Asia/Tokyo")).date()
     log(f"今日の日付: {today_date.strftime('%Y年%m月%d日')}")
 
     if comment_date_obj != today_date:
-        log("本日の日付ではないため、処理をスキップしました。")
+        log("本日の日付ではないため、comment.txtを空にしてスキップしました。")
         print("本日の日付ではないため、処理をスキップします。")
+        # ②コメントをブランクにする
+        with open(os.path.join(BASE_DIR, "comment.txt"), "w", encoding="utf-8") as f:
+            f.write("")
     else:
         comment_tag = soup.find("p", class_="expert-comment--comment")
         if comment_tag:
