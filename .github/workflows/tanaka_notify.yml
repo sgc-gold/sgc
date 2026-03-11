@@ -81,4 +81,3 @@ jobs:
         run: python scripts/tanaka.py
         env:
           SENDGRID_API_KEY:      ${{ secrets.SENDGRID_API_KEY }}
-          LINEWORKS_WEBHOOK_URL: ${{ secrets.LINEWORKS_WEBHOOK_URL }}
