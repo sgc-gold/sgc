@@ -19,13 +19,6 @@ FROM_EMAIL       = "yokomori@sgc-gold.co.jp"
 TO_EMAIL         = "yokomori@sgc-gold.co.jp"
 BCC_EMAILS       = [
     "s.forest.1127@gmail.com",
-    "junjunjunjun@docomo.ne.jp",
-    "hayakichibou@docomo.ne.jp",
-    "ishikawa@sgc-gold.co.jp",
-    "tomori@sgc-gold.co.jp",
-    "k-tsuchiya@sgc-gold.co.jp",
-    "tsuchiya@sgc-gold.co.jp",
-    "y-hosaka@sgc-gold.co.jp"
 ]
 
 DEFAULT_SPREAD = {
