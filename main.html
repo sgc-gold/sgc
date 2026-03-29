@@ -97,10 +97,21 @@ body::before {
 }
 .price-detail-link svg { width: 11px; height: 11px; }
 
+.sgc-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(192,154,80,0.3) 30%, rgba(192,154,80,0.3) 70%, transparent);
+  margin: 14px 0 12px;
+}
+.sgc-links-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
 .sgc-link {
+  flex: 1;
+  justify-content: center;
   border-color: rgba(192,154,80,0.5);
   color: var(--gold-lt);
-  margin-bottom: 14px;
 }
 
 .price-row {
@@ -316,11 +327,6 @@ body::before {
       </a>
     </div>
 
-    <a class="price-detail-link sgc-link" href="#" onclick="openFrame(event,'https://script.google.com/macros/s/AKfycbyoZvlzgcQrVdYI2JCgJBHaZ11BYASFME91VkWhc5sriiI8Sr2CqJpVV8mGzyXb6XCW/exec')">
-      💎 SGC 買取価格はこちら
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-    </a>
-
     <div class="price-row">
       <div class="price-item">
         <div class="price-item-left">
@@ -340,6 +346,17 @@ body::before {
     <div class="price-update">
       <span class="price-update-label">更新日時</span>
       <span class="price-update-time" id="update-time">—</span>
+    </div>
+    <div class="sgc-divider"></div>
+    <div class="sgc-links-row">
+      <a class="price-detail-link sgc-link" href="#" onclick="openFrame(event,'https://script.google.com/macros/s/AKfycbyoZvlzgcQrVdYI2JCgJBHaZ11BYASFME91VkWhc5sriiI8Sr2CqJpVV8mGzyXb6XCW/exec')">
+        💎 SGC 買取価格
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a class="price-detail-link sgc-link" href="#" onclick="openFrame(event,'貴金属売却価格シミュレーター')">
+        🪙 SGC 売却価格
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
     </div>
   </div>
 </div>
