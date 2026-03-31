@@ -39,7 +39,8 @@ jobs:
             webdriver-manager \
             pillow \
             requests \
-            sendgrid
+            sendgrid \
+            beautifulsoup4
       # ── 5. update_time を環境変数に展開 ────────────────────
       #       repository_dispatch と workflow_dispatch の両方に対応
       - name: Set update_time env
