@@ -1,4 +1,4 @@
-name: Check and Update Tanaka 
+name: Check and Update Tanaka
 on:
   workflow_dispatch:
   repository_dispatch:
@@ -10,34 +10,33 @@ jobs:
       # リポジトリをチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v4
+
       # Python をセットアップ
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: 3.11
+
       # 依存パッケージをインストール
       - name: Install dependencies
-        run: |
-          pip install requests beautifulsoup4
-      # check_tanaka_update.py を実行
-      - name: Run check script
-        id: check
-        continue-on-error: true
-        run: |
-          python scripts/check_tanaka_update.py
-      # ハッシュ変化があった場合のみ update_tanaka.py を実行
+        run: pip install requests beautifulsoup4
+
+      # update_tanaka.py を実行（GASが更新確認済みのためcheck不要）
       - name: Run update script
-        if: ${{ steps.check.outcome == 'success' }}
         run: python scripts/update_tanaka.py
-      # 変更があれば commit & push（PAT を使用）
+
+      # 変更があれば commit & push
       - name: Commit changes if any
-        if: ${{ steps.check.outcome == 'success' }}
         env:
           PAT_GITHUB: ${{ secrets.TANAKA_GITHUB_TOKEN }}
-        run: git config user.name "github-actions" && git config user.email "actions@github.com" && git add data/*.json tanaka_hash.txt && git diff --cached --quiet || (git commit -m "📈 Tanaka update detected at $(date '+%Y-%m-%d %H:%M JST')" && git push https://x-access-token:${PAT_GITHUB}@github.com/sgc-gold/sgc.git)
-      # ── 通知ワークフローを起動 ───────────────────────────
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add data/*.json
+          git diff --cached --quiet || (git commit -m "📈 Tanaka update at $(date '+%Y-%m-%d %H:%M JST')" && git push https://x-access-token:${PAT_GITHUB}@github.com/sgc-gold/sgc.git)
+
+      # 通知ワークフローを起動（UPDATE_TIMEをGASから正しく引き継ぐ）
       - name: Trigger Tanaka Notify
-        if: ${{ steps.check.outcome == 'success' }}
         env:
           GITHUB_TOKEN: ${{ secrets.TANAKA_GITHUB_TOKEN }}
           UPDATE_TIME: ${{ github.event.client_payload.update_time }}
@@ -46,5 +45,5 @@ jobs:
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/sgc-gold/sgc/dispatches \
-            -d '{"event_type":"Check Tanaka Notify","client_payload":{"update_time":"'"$UPDATE_TIME"'"}}'
-          echo "✅ Check Tanaka Notify を起動しました（UPDATE_TIME=$UPDATE_TIME）"
+            -d "{\"event_type\":\"Check Tanaka Notify\",\"client_payload\":{\"update_time\":\"${UPDATE_TIME}\"}}"
+          echo "✅ Check Tanaka Notify を起動しました（UPDATE_TIME=${UPDATE_TIME}）"
