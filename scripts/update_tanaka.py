@@ -85,27 +85,31 @@ def main():
     current_time = now.strftime("%H:%M")
     print(f"🕒 現在時刻: {current_time}")
 
-    if EXPECTED_TIME_STR:
-        print(f"⏳ 期待する公表時刻: {EXPECTED_TIME_STR}（UPDATE_TIME={_raw_update_time}）")
-
-    # サーバーキャッシュ対策: 期待する時刻のデータが取れるまでリトライ
-    MAX_RETRY = 6
-    RETRY_WAIT = 30  # 秒
-    prices, update_text = None, None
-
-    for attempt in range(1, MAX_RETRY + 1):
-        prices, update_text = fetch_tanaka_prices()
-        print(f"📅 取得データの公表時刻: {update_text}（試行 {attempt}/{MAX_RETRY}）")
-
-        if not EXPECTED_TIME_STR or EXPECTED_TIME_STR in update_text:
-            break  # 期待通りのデータが取れた
-
-        if attempt < MAX_RETRY:
-            print(f"⚠ サーバーキャッシュの可能性。{RETRY_WAIT}秒後にリトライします...")
-            time.sleep(RETRY_WAIT)
+    # GASから価格データが渡されている場合はそれを使用（サーバーキャッシュ問題を根本解決）
+    prices_json_str = os.getenv("PRICES_JSON", "")
+    if prices_json_str and prices_json_str != "null":
+        data_from_gas = json.loads(prices_json_str)
+        prices = data_from_gas["prices"]
+        update_text = data_from_gas["update_time"]
+        print(f"📅 GASから受け取った公表時刻: {update_text}")
     else:
-        print(f"❌ {MAX_RETRY}回リトライしても {EXPECTED_TIME_STR} のデータが取得できませんでした。処理を中断します。")
-        sys.exit(1)
+        # 手動実行などのフォールバック: サイトから取得（リトライあり）
+        if EXPECTED_TIME_STR:
+            print(f"⏳ 期待する公表時刻: {EXPECTED_TIME_STR}（UPDATE_TIME={_raw_update_time}）")
+        MAX_RETRY = 6
+        RETRY_WAIT = 30
+        prices, update_text = None, None
+        for attempt in range(1, MAX_RETRY + 1):
+            prices, update_text = fetch_tanaka_prices()
+            print(f"📅 取得データの公表時刻: {update_text}（試行 {attempt}/{MAX_RETRY}）")
+            if not EXPECTED_TIME_STR or EXPECTED_TIME_STR in update_text:
+                break
+            if attempt < MAX_RETRY:
+                print(f"⚠ サーバーキャッシュの可能性。{RETRY_WAIT}秒後にリトライします...")
+                time.sleep(RETRY_WAIT)
+        else:
+            print(f"❌ {MAX_RETRY}回リトライしても {EXPECTED_TIME_STR} のデータが取得できませんでした。処理を中断します。")
+            sys.exit(1)
 
     existing_data = load_json(PATH_MAIN)
     last_update_time = existing_data["update_time"] if existing_data else None
