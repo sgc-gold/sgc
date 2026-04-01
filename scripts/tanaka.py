@@ -232,7 +232,7 @@ def build_lineworks_message(date_info, prices, nine_thirty_diff, spread, comment
             else:
                 num      = re.sub(r"[^\d\-]", "", day_diff_text)
                 value    = int(num) if num else 0
-                day_diff = "変わらず" if value == 0 else day_diff_text.strip()
+                day_diff = "変わらず" if value == 0 else day_diff_text.strip() + "円"
 
             price_str = f"{price:.2f}円" if metal == "銀" else f"{int(price):,}円"
             line      = f"{label}：{price_str}（{day_diff}"
