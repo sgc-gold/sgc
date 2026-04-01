@@ -25,6 +25,7 @@ jobs:
       - name: Run update script
         env:
           UPDATE_TIME: ${{ github.event.client_payload.update_time }}
+          PRICES_JSON: ${{ toJson(github.event.client_payload.tanaka_data) }}
         run: python scripts/update_tanaka.py
 
       # 変更があれば commit & push
