@@ -5,6 +5,7 @@ import re
 from datetime import datetime
 import os
 import sys
+import time
 
 URL = "https://gold.tanaka.co.jp/commodity/souba/index.php"
 PATH_MAIN = "data/tanaka_price.json"
@@ -12,6 +13,13 @@ PATH_930 = "data/tanaka_price_930.json"
 
 # 手動実行判定
 is_workflow_dispatch = os.getenv("GITHUB_EVENT_NAME") == "workflow_dispatch"
+
+# GASから渡された期待する更新時刻（"930" or "1400"）
+_raw_update_time = os.getenv("UPDATE_TIME", "")
+EXPECTED_TIME_STR = {
+    "930": "09:30",
+    "1400": "14:00",
+}.get(_raw_update_time, "")
 
 def fetch_tanaka_prices():
     res = requests.get(URL)
@@ -73,17 +81,32 @@ def append_to_history(data, update_text):
     print(f"📚 履歴保存完了: {path}（スナップショット数: {len(existing['snapshots'])}）")
 
 def main():
-    prices, update_text = fetch_tanaka_prices()
     now = datetime.now()
     current_time = now.strftime("%H:%M")
-
     print(f"🕒 現在時刻: {current_time}")
-    print(f"📅 取得データの公表時刻: {update_text}")
 
-    # ※ スキップ判定を削除
-    # check_tanaka_update.py がハッシュ変化を確認済みのためここでの重複チェックは不要。
-    # ただしサーバーのキャッシュ等で古いデータが返ってくる場合があるため、
-    # 既存データと同じ公表時刻の場合は警告を出しつつも処理を継続する。
+    if EXPECTED_TIME_STR:
+        print(f"⏳ 期待する公表時刻: {EXPECTED_TIME_STR}（UPDATE_TIME={_raw_update_time}）")
+
+    # サーバーキャッシュ対策: 期待する時刻のデータが取れるまでリトライ
+    MAX_RETRY = 6
+    RETRY_WAIT = 30  # 秒
+    prices, update_text = None, None
+
+    for attempt in range(1, MAX_RETRY + 1):
+        prices, update_text = fetch_tanaka_prices()
+        print(f"📅 取得データの公表時刻: {update_text}（試行 {attempt}/{MAX_RETRY}）")
+
+        if not EXPECTED_TIME_STR or EXPECTED_TIME_STR in update_text:
+            break  # 期待通りのデータが取れた
+
+        if attempt < MAX_RETRY:
+            print(f"⚠ サーバーキャッシュの可能性。{RETRY_WAIT}秒後にリトライします...")
+            time.sleep(RETRY_WAIT)
+    else:
+        print(f"❌ {MAX_RETRY}回リトライしても {EXPECTED_TIME_STR} のデータが取得できませんでした。処理を中断します。")
+        sys.exit(1)
+
     existing_data = load_json(PATH_MAIN)
     last_update_time = existing_data["update_time"] if existing_data else None
 
