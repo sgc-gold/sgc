@@ -23,6 +23,8 @@ jobs:
 
       # update_tanaka.py を実行（GASが更新確認済みのためcheck不要）
       - name: Run update script
+        env:
+          UPDATE_TIME: ${{ github.event.client_payload.update_time }}
         run: python scripts/update_tanaka.py
 
       # 変更があれば commit & push
