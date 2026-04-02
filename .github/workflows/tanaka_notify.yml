@@ -66,7 +66,7 @@ jobs:
           git stash
           git pull --rebase origin main
           git stash pop || true
-          git add -f scripts/comment.txt scripts/comment_pm.txt 2>/dev/null || true
+          git add -f scripts/comment.txt scripts/comment_pm.txt scripts/comment_log.txt 2>/dev/null || true
           git diff --cached --quiet || git commit -m "Update txt/json files [skip ci]"
           git push
       # ── 7. チャート画像取得（BullionVault） ───────────────
