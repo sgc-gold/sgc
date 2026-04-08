@@ -646,19 +646,11 @@ var STORAGE_KEY = 'sgc_ginza_ok';
 
 // ────────────────────────────────────
 //  HEIGHT FIX
-//  CSS の 100dvh がメイン。dvh非対応の古いSafari向けに
-//  visualViewport.height でJS補完する。
+//  #shell の高さは CSS の 100dvh に完全に任せる。
+//  JSでpx固定すると、PWA起動時にSafariブラウザ時の
+//  高さが焼き付いてしまうため一切上書きしない。
+//  sizeFrame() のみ iframe の高さ調整に使用する。
 // ────────────────────────────────────
-function setHeight() {
-  // visualViewport.height = Safariツールバーを除いた正確な実表示高さ
-  var h = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
-  var shell = document.getElementById('shell');
-  if (shell) {
-    shell.style.height = h + 'px';
-    shell.style.maxHeight = h + 'px';
-  }
-  sizeFrame();
-}
 function sizeFrame() {
   var frame   = document.getElementById('main-frame');
   var content = document.getElementById('content-area');
@@ -667,27 +659,24 @@ function sizeFrame() {
   if (rect.height > 0) frame.style.height = rect.height + 'px';
 }
 
-// 初回
-setHeight();
+sizeFrame();
 
-// visualViewport のリサイズ（キーボード展開・アドレスバー変化）
 if (window.visualViewport) {
-  window.visualViewport.addEventListener('resize', setHeight);
+  window.visualViewport.addEventListener('resize', sizeFrame);
 } else {
-  window.addEventListener('resize', setHeight);
+  window.addEventListener('resize', sizeFrame);
 }
 
-// 回転対応
 window.addEventListener('orientationchange', function() {
-  setTimeout(setHeight, 50);
-  setTimeout(setHeight, 300);
-  setTimeout(setHeight, 600);
+  setTimeout(sizeFrame, 50);
+  setTimeout(sizeFrame, 300);
+  setTimeout(sizeFrame, 600);
 });
 
 window.addEventListener('load', function() {
-  setHeight();
-  setTimeout(setHeight, 200);
-  setTimeout(setHeight, 500);
+  sizeFrame();
+  setTimeout(sizeFrame, 200);
+  setTimeout(sizeFrame, 500);
 });
 
 // ────────────────────────────────────
