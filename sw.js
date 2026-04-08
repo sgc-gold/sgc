@@ -2,12 +2,35 @@
 //  SGC 社内ポータル Service Worker
 //  バージョンを変えると全キャッシュが更新されます
 // ══════════════════════════════════════════
-var CACHE_VERSION = 'sgc-portal-v1';
+var CACHE_VERSION = 'sgc-portal-v2';
 
-// キャッシュするファイル（起動に必要な最低限のファイル）
+// キャッシュするファイル（全ページ + 主要アセット）
 var PRECACHE_URLS = [
   './index.html',
-  './manifest.json'
+  './main.html',
+  './price.html',
+  './market.html',
+  './diamond.html',
+  './gemstone.html',
+  './coin.html',
+  './register.html',
+  './schedule.html',
+  './contacts.html',
+  './news.html',
+  './youtube.html',
+  './manifest.json',
+  './image/sgc-icon.png',
+  './image/sgc-logo.png',
+  './data/tanaka_price.json',
+  './data/exchange_rate.json',
+  './data/diamonds.json',
+  './data/gemstones.json',
+  './data/coins.json',
+  './data/rapaport.json',
+  './data/calibrations.json',
+  './data/cuts.json',
+  './data/models.json',
+  './data/exhibition.json'
 ];
 
 // ────────────────────────────────────
@@ -16,9 +39,15 @@ var PRECACHE_URLS = [
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(CACHE_VERSION).then(function(cache) {
-      return cache.addAll(PRECACHE_URLS);
+      // 個別にaddして1ファイル失敗でもインストール継続
+      return Promise.allSettled(
+        PRECACHE_URLS.map(function(url) {
+          return cache.add(url).catch(function(err) {
+            console.warn('SW: precache miss:', url, err);
+          });
+        })
+      );
     }).then(function() {
-      // 即座にアクティブ化（waitingをスキップ）
       return self.skipWaiting();
     })
   );
@@ -48,24 +77,46 @@ self.addEventListener('activate', function(event) {
 self.addEventListener('fetch', function(event) {
   var url = event.request.url;
 
-  // Google Apps Script / 外部リクエストはキャッシュしない
+  // 外部リクエストはキャッシュしない
   if (
     url.includes('script.google.com') ||
     url.includes('fonts.googleapis.com') ||
     url.includes('fonts.gstatic.com') ||
     url.includes('sgc-gold.co.jp') ||
-    url.includes('raw.githubusercontent.com')
+    url.includes('cdn.jsdelivr.net') ||
+    url.includes('cdnjs.cloudflare.com') ||
+    url.includes('googleapis.com')
   ) {
     event.respondWith(fetch(event.request));
     return;
   }
 
-  // 同一オリジンのファイルは Network First（キャッシュフォールバック）
-  if (event.request.method === 'GET' && url.startsWith(self.location.origin)) {
+  // GETリクエストのみキャッシュ対象
+  if (event.request.method !== 'GET') return;
+
+  // data/*.json は Stale-While-Revalidate（キャッシュを即返しつつバックグラウンド更新）
+  if (url.includes('/data/')) {
+    event.respondWith(
+      caches.open(CACHE_VERSION).then(function(cache) {
+        return cache.match(event.request).then(function(cached) {
+          var fetchPromise = fetch(event.request).then(function(response) {
+            if (response && response.status === 200) {
+              cache.put(event.request, response.clone());
+            }
+            return response;
+          }).catch(function() { return cached; });
+          return cached || fetchPromise;
+        });
+      })
+    );
+    return;
+  }
+
+  // HTML・画像等は Network First（キャッシュフォールバック）
+  if (url.startsWith(self.location.origin) || url.includes('sgc-gold.github.io')) {
     event.respondWith(
       fetch(event.request)
         .then(function(response) {
-          // 成功したらキャッシュを更新
           if (response && response.status === 200) {
             var responseClone = response.clone();
             caches.open(CACHE_VERSION).then(function(cache) {
@@ -75,7 +126,6 @@ self.addEventListener('fetch', function(event) {
           return response;
         })
         .catch(function() {
-          // ネットワーク失敗時はキャッシュから返す
           return caches.match(event.request).then(function(cached) {
             return cached || caches.match('./index.html');
           });
@@ -84,7 +134,6 @@ self.addEventListener('fetch', function(event) {
     return;
   }
 
-  // その他はそのまま通す
   event.respondWith(fetch(event.request));
 });
 

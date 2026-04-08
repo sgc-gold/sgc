@@ -2,6 +2,7 @@
   "name": "SGC 社内ポータル",
   "short_name": "SGC ポータル",
   "description": "SGC Co., Ltd. 社内ポータルシステム",
+  "id": "./index.html",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -11,16 +12,22 @@
   "lang": "ja",
   "icons": [
     {
-      "src": "https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png",
+      "src": "./image/sgc-icon.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png",
+      "src": "./image/sgc-icon.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "./image/sgc-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "categories": ["business", "finance"],
