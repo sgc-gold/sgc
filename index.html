@@ -95,7 +95,8 @@
     grid-template-rows: calc(var(--header-h) + var(--safe-top)) 1fr;
     grid-template-areas: "hdr hdr" "side main";
     width: 100%;
-    height: 100%; /* JSで正確な値に上書き */
+    height: 100vh;        /* フォールバック（古いブラウザ用） */
+    height: 100dvh;       /* dvh: Safariのツールバーを正確に除いた実表示高さ */
     overflow: hidden;
   }
 
@@ -645,11 +646,12 @@ var STORAGE_KEY = 'sgc_ginza_ok';
 
 // ────────────────────────────────────
 //  HEIGHT FIX
-//  iOSはwindow.innerHeightがアドレスバー分を含まないことがある。
-//  visualViewport.height が最も正確な実表示高さ。
+//  CSS の 100dvh がメイン。dvh非対応の古いSafari向けに
+//  visualViewport.height でJS補完する。
 // ────────────────────────────────────
 function setHeight() {
-  var h = window.innerHeight;  // ← visualViewport ではなく innerHeight を使う
+  // visualViewport.height = Safariツールバーを除いた正確な実表示高さ
+  var h = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
   var shell = document.getElementById('shell');
   if (shell) {
     shell.style.height = h + 'px';
