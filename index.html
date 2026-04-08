@@ -175,8 +175,8 @@
   @media (max-width: 899px) {
     #shell {
       grid-template-columns: 1fr;
-      /* bnav行はauto（コンテンツ高さ＝bottom-nav実サイズ）に任せる */
-      grid-template-rows: calc(var(--header-h) + env(safe-area-inset-top, 0px)) 1fr auto;
+      /* bnav行を明示的に計算: コンテンツ高さ + セーフエリア */
+      grid-template-rows: calc(var(--header-h) + env(safe-area-inset-top, 0px)) 1fr calc(var(--bottom-content-h) + env(safe-area-inset-bottom, 0px));
       grid-template-areas: "hdr" "main" "bnav";
     }
     .hamburger { display: flex; }
@@ -194,8 +194,10 @@
       background: var(--green-dk);
       border-top: 1px solid rgba(192,154,80,0.14);
       display: flex;
-      align-items: center; /* アイコンを中央揃え */
-      /* safe-area-inset-bottom を padding-bottom で吸収 → 背景色が塗られ余白なし */
+      /* flex-start: アイテムを上端に固定し、safe-area分のpaddingを下に確保 */
+      align-items: flex-start;
+      /* コンテンツ56px + セーフエリアの合計高さを明示 */
+      height: calc(var(--bottom-content-h) + env(safe-area-inset-bottom, 0px));
       padding-bottom: env(safe-area-inset-bottom, 0px);
       padding-left:  env(safe-area-inset-left,   0px);
       padding-right: env(safe-area-inset-right,  0px);
@@ -205,7 +207,7 @@
       flex: 1; display: flex !important; flex-direction: column; align-items: center; justify-content: center;
       gap: 3px; color: rgba(255,255,255,0.38); font-size: 0.58rem; letter-spacing: 0.03em;
       cursor: pointer; border: none; background: none; padding: 8px 2px;
-      height: var(--bottom-content-h); /* コンテンツ高さは固定、余白はpadding-bottomで処理 */
+      height: var(--bottom-content-h); /* 56px 固定、セーフエリアはpadding-bottomで処理 */
       text-decoration: none; transition: color 0.15s;
       -webkit-tap-highlight-color: transparent;
     }
