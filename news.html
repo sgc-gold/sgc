@@ -333,11 +333,11 @@
 
 <!-- Tabs -->
 <div class="tab-bar">
-  <button class="tab-btn active" data-query="SGC OR 大黄金展" data-label="すべて">すべて</button>
-  <button class="tab-btn" data-query="SGC 金 買取" data-label="SGC">SGC</button>
+  <button class="tab-btn active" data-query="SGC OR SGCホール OR 黄金泥棒 OR 大黄金展 OR 金 買取 相場" data-label="すべて">すべて</button>
+  <button class="tab-btn" data-query="SGCホール" data-label="SGCホール">SGCホール</button>
+  <button class="tab-btn" data-query="黄金泥棒" data-label="黄金泥棒">黄金泥棒</button>
   <button class="tab-btn" data-query="大黄金展" data-label="大黄金展">大黄金展</button>
-  <button class="tab-btn" data-query="金 買取 相場" data-label="金相場">金相場</button>
-  <button class="tab-btn" data-query="プラチナ 買取" data-label="プラチナ">プラチナ</button>
+  <button class="tab-btn" data-query="金 買取 相場" data-label="金相場（関連）">金相場（関連）</button>
 </div>
 
 <div class="container">
@@ -390,7 +390,7 @@
 </div><!-- /container -->
 
 <script>
-  let currentQuery = "SGC OR 大黄金展";
+  let currentQuery = "SGC OR SGCホール OR 黄金泥棒 OR 大黄金展 OR 金 買取 相場";
 
   // ─── Tab switching ───
   document.querySelectorAll(".tab-btn").forEach(btn => {
@@ -589,6 +589,13 @@
       return;
     }
 
+    // 更新日が新しい順にソート
+    items.sort((a, b) => {
+      const da = a.pubDate ? new Date(a.pubDate).getTime() : 0;
+      const db = b.pubDate ? new Date(b.pubDate).getTime() : 0;
+      return db - da;
+    });
+
     items.forEach((item, i) => {
       const card = document.createElement("a");
       card.className = "news-card";
@@ -622,7 +629,8 @@
 
       // キーワードバッジ
       let badge = "";
-      if (/sgc/i.test(cleanTitle))    badge = `<span class="news-keyword-badge">SGC</span>`;
+      if (/sgc/i.test(cleanTitle))          badge = `<span class="news-keyword-badge">SGC</span>`;
+      else if (/黄金泥棒/.test(cleanTitle)) badge = `<span class="news-keyword-badge">黄金泥棒</span>`;
       else if (/大黄金展/.test(cleanTitle)) badge = `<span class="news-keyword-badge">大黄金展</span>`;
 
       card.innerHTML = `
