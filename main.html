@@ -90,12 +90,33 @@ body::before {
   padding: 4px 12px;
   transition: background 0.18s, border-color 0.18s;
   font-family: 'DM Sans', sans-serif;
+  touch-action: manipulation;
 }
 .price-detail-link:hover {
   background: rgba(192,154,80,0.12);
   border-color: rgba(192,154,80,0.6);
 }
 .price-detail-link svg { width: 11px; height: 11px; }
+
+/* 更新ボタン */
+.refresh-fab {
+  display: flex; align-items: center; gap: 5px;
+  background: none;
+  border: 1px solid rgba(192,154,80,0.35);
+  border-radius: 100px;
+  padding: 4px 10px;
+  font-size: 0.68rem;
+  color: rgba(232,212,154,0.7);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: 0.06em;
+  transition: background 0.18s, border-color 0.18s;
+  touch-action: manipulation;
+}
+.refresh-fab:hover { background: rgba(192,154,80,0.1); border-color: rgba(192,154,80,0.6); }
+.refresh-fab svg { transition: transform 0.5s; }
+.refresh-fab.spinning svg { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .sgc-divider {
   height: 1px;
@@ -243,6 +264,8 @@ body::before {
   border-color: rgba(192,154,80,0.4);
 }
 .quick-btn:active { transform: scale(0.96); }
+/* 300ms遅延除去 */
+.quick-btn { touch-action: manipulation; }
 .quick-btn-icon {
   width: 36px; height: 36px;
   border-radius: 10px;
@@ -321,10 +344,16 @@ body::before {
   <div class="price-band-inner">
     <div class="price-band-header">
       <div class="price-band-title">田中貴金属 買取価格</div>
-      <a class="price-detail-link" href="#" onclick="openFrame(event,'price.html')">
-        詳細価格
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="refresh-fab" id="mainRefreshBtn" onclick="refreshData()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.65"/></svg>
+          更新
+        </button>
+        <a class="price-detail-link" href="#" onclick="openFrame(event,'price.html')">
+          詳細価格
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
     </div>
 
     <div class="price-row">
@@ -429,80 +458,95 @@ body::before {
 <script>
 function openFrame(e, url) {
   e.preventDefault();
+  // 親フレームのローディング表示を呼び出す
+  if (parent && parent.showFrameLoading) parent.showFrameLoading();
   const iframe = parent.document.getElementById('main-frame');
   if (iframe) iframe.src = url;
 }
 
-fetch("data/tanaka_price.json")
-  .then(r => r.json())
-  .then(data => {
-    const g  = data.prices.GOLD;
-    const pt = data.prices.PLATINUM;
+// 価格データ取得
+function loadPrice() {
+  return fetch("data/tanaka_price.json?t=" + Date.now())
+    .then(r => r.json())
+    .then(data => {
+      const g  = data.prices.GOLD;
+      const pt = data.prices.PLATINUM;
+      document.getElementById("gold-price").textContent = g.buy;
+      document.getElementById("pt-price").textContent   = pt.buy;
+      document.getElementById("update-time").textContent = data.update_time || '—';
+      const gEl = document.getElementById("gold-diff");
+      gEl.textContent  = g.buy_diff + " 円";
+      gEl.className    = "price-item-diff " + (g.buy_diff.includes('-') ? 'negative' : 'positive');
+      const ptEl = document.getElementById("pt-diff");
+      ptEl.textContent = pt.buy_diff + " 円";
+      ptEl.className   = "price-item-diff " + (pt.buy_diff.includes('-') ? 'negative' : 'positive');
+      notifyHeight();
+    })
+    .catch(() => {
+      document.getElementById("gold-price").textContent = "取得失敗";
+      document.getElementById("pt-price").textContent   = "取得失敗";
+    });
+}
 
-    document.getElementById("gold-price").textContent = g.buy;
-    document.getElementById("pt-price").textContent   = pt.buy;
-    document.getElementById("update-time").textContent = data.update_time || '—';
+// 大黄金展データ取得
+function loadExhibition() {
+  return fetch("data/exhibition.json?t=" + Date.now())
+    .then(r => r.json())
+    .then(events => {
+      const todayStr = new Date().toISOString().split("T")[0];
+      const gold = events.filter(e => e.category === "大黄金展");
+      const todayEv    = gold.filter(e => e.start <= todayStr && e.end >= todayStr);
+      const upcomingEv = gold.filter(e => e.start > todayStr)
+                             .sort((a,b) => a.start.localeCompare(b.start))
+                             .slice(0, 4);
+      const box = document.getElementById("ex-container");
+      let html = '';
+      if (todayEv.length === 0 && upcomingEv.length === 0) {
+        html = '<div class="ex-empty">現在・直近の開催予定はありません。</div>';
+      } else {
+        todayEv.forEach(e => {
+          html += `<div class="exhibition-card">
+            <div class="ex-dot today"></div>
+            <div class="ex-body">
+              <span class="ex-badge today">開催中</span>
+              <div class="ex-title">${e.title}</div>
+              <div class="ex-location">${e.location}</div>
+              <div class="ex-date">${e.start} 〜 ${e.end}</div>
+            </div>
+          </div>`;
+        });
+        upcomingEv.forEach(e => {
+          html += `<div class="exhibition-card">
+            <div class="ex-dot upcoming"></div>
+            <div class="ex-body">
+              <span class="ex-badge upcoming">開催予定</span>
+              <div class="ex-title">${e.title}</div>
+              <div class="ex-location">${e.location}</div>
+              <div class="ex-date">${e.start} 〜 ${e.end}</div>
+            </div>
+          </div>`;
+        });
+      }
+      box.innerHTML = html;
+      notifyHeight();
+    })
+    .catch(() => {
+      document.getElementById("ex-container").innerHTML = '<div class="ex-empty">データ取得に失敗しました。</div>';
+    });
+}
 
-    const gEl = document.getElementById("gold-diff");
-    gEl.textContent  = g.buy_diff + " 円";
-    gEl.className    = "price-item-diff " + (g.buy_diff.includes('-') ? 'negative' : 'positive');
-
-    const ptEl = document.getElementById("pt-diff");
-    ptEl.textContent = pt.buy_diff + " 円";
-    ptEl.className   = "price-item-diff " + (pt.buy_diff.includes('-') ? 'negative' : 'positive');
-
-    notifyHeight();
-  })
-  .catch(() => {
-    document.getElementById("gold-price").textContent = "取得失敗";
-    document.getElementById("pt-price").textContent   = "取得失敗";
+// 更新ボタン処理
+function refreshData() {
+  const btn = document.getElementById("mainRefreshBtn");
+  if (btn) btn.classList.add("spinning");
+  Promise.all([loadPrice(), loadExhibition()]).finally(() => {
+    if (btn) btn.classList.remove("spinning");
   });
+}
 
-fetch("data/exhibition.json")
-  .then(r => r.json())
-  .then(events => {
-    const todayStr = new Date().toISOString().split("T")[0];
-    const gold = events.filter(e => e.category === "大黄金展");
-    const todayEv    = gold.filter(e => e.start <= todayStr && e.end >= todayStr);
-    const upcomingEv = gold.filter(e => e.start > todayStr)
-                           .sort((a,b) => a.start.localeCompare(b.start))
-                           .slice(0, 4);
-
-    const box = document.getElementById("ex-container");
-    let html = '';
-
-    if (todayEv.length === 0 && upcomingEv.length === 0) {
-      html = '<div class="ex-empty">現在・直近の開催予定はありません。</div>';
-    } else {
-      todayEv.forEach(e => {
-        html += `<div class="exhibition-card">
-          <div class="ex-dot today"></div>
-          <div class="ex-body">
-            <span class="ex-badge today">開催中</span>
-            <div class="ex-title">${e.title}</div>
-            <div class="ex-location">${e.location}</div>
-            <div class="ex-date">${e.start} 〜 ${e.end}</div>
-          </div>
-        </div>`;
-      });
-      upcomingEv.forEach(e => {
-        html += `<div class="exhibition-card">
-          <div class="ex-dot upcoming"></div>
-          <div class="ex-body">
-            <span class="ex-badge upcoming">開催予定</span>
-            <div class="ex-title">${e.title}</div>
-            <div class="ex-location">${e.location}</div>
-            <div class="ex-date">${e.start} 〜 ${e.end}</div>
-          </div>
-        </div>`;
-      });
-    }
-    box.innerHTML = html;
-    notifyHeight();
-  })
-  .catch(() => {
-    document.getElementById("ex-container").innerHTML = '<div class="ex-empty">データ取得に失敗しました。</div>';
-  });
+// 初回ロード
+loadPrice();
+loadExhibition();
 
 function notifyHeight() {
   parent.postMessage({ type: 'resize-iframe', height: document.body.scrollHeight }, '*');
