@@ -1,0 +1,35 @@
+{
+  "name": "SGC 社内ポータル",
+  "short_name": "SGC ポータル",
+  "description": "SGC Co., Ltd. 社内ポータルシステム",
+  "id": "./index.html",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0E1F17",
+  "theme_color": "#0E1F17",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "./image/sgc-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./image/sgc-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./image/sgc-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["business", "finance"],
+  "prefer_related_applications": false
+}

@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+
+  <!-- ══════════════════════════════════════════
+       iPhone / iOS PWA 完全対応メタタグ
+  ══════════════════════════════════════════ -->
+
+  <!-- viewport: safe-area 対応 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+
+  <!-- PWA基本 -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SGC ポータル">
+
+  <!-- テーマカラー（Android Chrome + Safari UI） -->
+  <meta name="theme-color" content="#0E1F17">
+  <meta name="msapplication-TileColor" content="#0E1F17">
+
+  <!-- アイコン: apple-touch-icon（iOS ホーム画面アイコン） -->
+  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+
+  <!-- favicon -->
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+  <link rel="shortcut icon" href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+
+  <!-- Web App Manifest（PWAとして正式登録） -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- iOS スプラッシュ画面（iPhone各サイズ対応） -->
+  <!-- iPhone 14 Pro Max -->
+  <link rel="apple-touch-startup-image"
+    media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+  <!-- iPhone 14 Pro -->
+  <link rel="apple-touch-startup-image"
+    media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+  <!-- iPhone 14 / 13 / 12 -->
+  <link rel="apple-touch-startup-image"
+    media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+  <!-- iPhone SE (3rd gen) / 8 -->
+  <link rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png">
+
+  <title>SGC 社内ポータル</title>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green:    #1A3628;
+    --green-lt: #254D38;
+    --green-dk: #0E1F17;
+    --gold:     #C09A50;
+    --gold-lt:  #E8D49A;
+    --gold-dk:  #8A6A28;
+    --white:    #FFFFFF;
+    --border:   rgba(192,154,80,0.18);
+    --nav-w:    260px;
+    --header-h: 58px;
+    --bottom-content-h: 56px;
+    --safe-top:    env(safe-area-inset-top,    0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left:   env(safe-area-inset-left,   0px);
+    --safe-right:  env(safe-area-inset-right,  0px);
+  }
+
+  /* スクロール禁止（PWA全画面維持） */
+  html, body {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--green-dk);
+    overscroll-behavior: none;
+  }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+
+  #shell {
+    display: grid;
+    grid-template-columns: var(--nav-w) 1fr;
+    grid-template-rows: calc(var(--header-h) + var(--safe-top)) 1fr;
+    grid-template-areas: "hdr hdr" "side main";
+    width: 100%;
+    height: 100vh;        /* フォールバック（古いブラウザ用） */
+    height: 100dvh;       /* dvh: Safariのツールバーを正確に除いた実表示高さ */
+    overflow: hidden;
+  }
+
+  /* ─── Header ─── */
+  #app-header {
+    grid-area: hdr; background: var(--green-dk);
+    border-bottom: 1px solid rgba(192,154,80,0.12);
+    display: flex; align-items: flex-end;
+    padding: var(--safe-top) 16px 0;
+    height: calc(var(--header-h) + var(--safe-top));
+    gap: 12px; position: relative; z-index: 300;
+  }
+  #app-header .header-inner { display: flex; align-items: center; gap: 12px; width: 100%; height: var(--header-h); }
+  #app-header::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dk) 25%, var(--gold) 50%, var(--gold-dk) 75%, transparent);
+  }
+  .header-logo  { height: 26px; width: auto; opacity: 0.9; flex-shrink: 0; }
+  .header-title { flex: 1; font-family: 'Shippori Mincho', serif; font-size: 1.05rem; font-weight: 600; color: var(--white); letter-spacing: 0.1em; cursor: pointer; user-select: none; }
+  .header-title:hover { color: var(--gold-lt); }
+  .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 6px; border-radius: 8px; flex-shrink: 0; -webkit-tap-highlight-color: transparent; }
+  .hamburger span { display: block; width: 22px; height: 2px; background: rgba(255,255,255,0.8); border-radius: 2px; transition: all 0.28s ease; }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ─── Sidebar ─── */
+  #sidebar { grid-area: side; background: var(--green-dk); border-right: 1px solid rgba(192,154,80,0.1); display: flex; flex-direction: column; overflow: hidden; }
+  .sidebar-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px 12px 20px; scrollbar-width: thin; scrollbar-color: rgba(192,154,80,0.18) transparent; -webkit-overflow-scrolling: touch; }
+  .sidebar-scroll::-webkit-scrollbar { width: 3px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(192,154,80,0.2); border-radius: 4px; }
+
+  .nav-section-title { font-size: 0.56rem; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(192,154,80,0.45); padding: 14px 8px 5px; display: flex; align-items: center; gap: 8px; }
+  .nav-section-title::after { content: ''; flex: 1; height: 1px; background: rgba(192,154,80,0.1); }
+
+  .nav-link { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; color: rgba(255,255,255,0.55); font-size: 0.84rem; text-decoration: none; cursor: pointer; transition: background 0.15s, color 0.15s; border: 1px solid transparent; user-select: none; margin-bottom: 1px; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  .nav-link:hover  { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.85); }
+  .nav-link.active { background: rgba(192,154,80,0.1); color: var(--gold-lt); border-color: rgba(192,154,80,0.16); }
+  .nav-link.disabled { opacity: 0.28; pointer-events: none; text-decoration: line-through; }
+  .nav-icon { width: 16px; height: 16px; opacity: 0.55; flex-shrink: 0; transition: opacity 0.15s; }
+  .nav-link:hover .nav-icon, .nav-link.active .nav-icon { opacity: 0.9; }
+
+  /* ── 銀座店専用リンク ── */
+  .nav-link.ginza {
+    border-color: rgba(192,154,80,0.15);
+    background: rgba(192,154,80,0.04);
+    color: rgba(232,212,154,0.55);
+  }
+  .nav-link.ginza:hover { background: rgba(192,154,80,0.12); color: var(--gold-lt); }
+  .nav-link.ginza.active { background: rgba(192,154,80,0.18); color: var(--gold-lt); border-color: rgba(192,154,80,0.3); }
+  .ginza-badge {
+    margin-left: auto; flex-shrink: 0;
+    font-size: 0.5rem; font-weight: 700; letter-spacing: 0.06em;
+    padding: 2px 7px; border-radius: 4px;
+    background: rgba(192,154,80,0.18); border: 1px solid rgba(192,154,80,0.25);
+    color: var(--gold-lt); white-space: nowrap;
+    transition: background 0.2s;
+  }
+
+  .sidebar-footer { padding: 10px 14px; border-top: 1px solid rgba(192,154,80,0.08); font-size: 0.6rem; color: rgba(255,255,255,0.18); letter-spacing: 0.06em; font-family: 'Cormorant Garamond', serif; font-style: italic; text-align: center; }
+
+  /* ─── Content ─── */
+  #content-area {
+    grid-area: main; overflow: hidden; background: #F7F3EB; display: flex; flex-direction: column;
+    padding-left: var(--safe-left); padding-right: var(--safe-right);
+    position: relative;
+  }
+  #main-frame { flex: 1; width: 100%; border: none; display: block; min-height: 0; }
+
+  /* ─── フレームローディングオーバーレイ ─── */
+  #frame-loading {
+    display: none;
+    position: absolute; inset: 0; z-index: 50;
+    background: rgba(14,31,23,0.72);
+    backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+    align-items: center; justify-content: center;
+    flex-direction: column; gap: 12px;
+    pointer-events: none;
+  }
+  #frame-loading.show { display: flex; }
+  .frame-spinner {
+    width: 30px; height: 30px;
+    border: 2px solid rgba(192,154,80,0.2);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: fl-spin 0.75s linear infinite;
+  }
+  @keyframes fl-spin { to { transform: rotate(360deg); } }
+  .frame-loading-text {
+    font-size: 0.72rem; color: rgba(232,212,154,0.7);
+    letter-spacing: 0.1em; font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ─── Overlay ─── */
+  #overlay { display: none; position: fixed; inset: 0; z-index: 250; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
+  #overlay.active { display: block; }
+
+  /* ══════════════════
+     MOBILE
+  ══════════════════ */
+  @media (max-width: 899px) {
+    #shell {
+      grid-template-columns: 1fr;
+      /* bnav行を明示的に計算: コンテンツ高さ + セーフエリア */
+      grid-template-rows: calc(var(--header-h) + env(safe-area-inset-top, 0px)) 1fr calc(var(--bottom-content-h) + env(safe-area-inset-bottom, 0px));
+      grid-template-areas: "hdr" "main" "bnav";
+    }
+    .hamburger { display: flex; }
+    #sidebar {
+      grid-area: unset; position: fixed;
+      top: calc(var(--header-h) + env(safe-area-inset-top, 0px));
+      left: 0; width: var(--nav-w); bottom: 0; z-index: 260;
+      transform: translateX(-100%);
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 4px 0 24px rgba(0,0,0,0.55);
+    }
+    #sidebar.open { transform: translateX(0); }
+    #bottom-nav {
+      grid-area: bnav;
+      background: var(--green-dk);
+      border-top: 1px solid rgba(192,154,80,0.14);
+      display: flex;
+      /* flex-start: アイテムを上端に固定し、safe-area分のpaddingを下に確保 */
+      align-items: flex-start;
+      /* コンテンツ56px + セーフエリアの合計高さを明示 */
+      height: calc(var(--bottom-content-h) + env(safe-area-inset-bottom, 0px));
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      padding-left:  env(safe-area-inset-left,   0px);
+      padding-right: env(safe-area-inset-right,  0px);
+      position: relative; z-index: 100;
+    }
+    .bnav-item {
+      flex: 1; display: flex !important; flex-direction: column; align-items: center; justify-content: center;
+      gap: 3px; color: rgba(255,255,255,0.38); font-size: 0.58rem; letter-spacing: 0.03em;
+      cursor: pointer; border: none; background: none; padding: 8px 2px;
+      height: var(--bottom-content-h); /* 56px 固定、セーフエリアはpadding-bottomで処理 */
+      text-decoration: none; transition: color 0.15s;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .bnav-item.active { color: var(--gold); }
+    .bnav-item svg { width: 20px; height: 20px; flex-shrink: 0; display: block; }
+    .bnav-item span { display: block; line-height: 1; }
+  }
+  @media (min-width: 900px) { #bottom-nav { display: none !important; } }
+
+  /* ══════════════════════════════════════════
+     パスワードモーダル
+  ══════════════════════════════════════════ */
+  #pw-backdrop {
+    display: none; position: fixed; inset: 0; z-index: 900;
+    background: rgba(8,14,11,0.78);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  #pw-backdrop.show { display: flex; }
+
+  #pw-modal {
+    width: 100%; max-width: 360px;
+    background: #0C1C14;
+    border: 1px solid rgba(192,154,80,0.22);
+    border-radius: 20px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(192,154,80,0.08);
+    overflow: hidden;
+    animation: pwIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes pwIn {
+    from { opacity:0; transform: scale(0.85) translateY(24px); }
+    to   { opacity:1; transform: scale(1) translateY(0); }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%,60%  { transform: translateX(-9px); }
+    40%,80%  { transform: translateX(9px); }
+  }
+
+  .pw-top {
+    background: linear-gradient(160deg, #091510 0%, #142214 100%);
+    padding: 30px 24px 22px; text-align: center;
+    border-bottom: 1px solid rgba(192,154,80,0.12);
+    position: relative;
+  }
+  .pw-top::after {
+    content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dk) 25%, var(--gold) 50%, var(--gold-dk) 75%, transparent);
+  }
+  .pw-icon { width: 56px; height: 56px; margin: 0 auto 14px; background: rgba(192,154,80,0.1); border: 1px solid rgba(192,154,80,0.22); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; }
+  .pw-title { font-family: 'Shippori Mincho', serif; font-size: 1.15rem; font-weight: 700; color: #fff; letter-spacing: 0.1em; }
+  .pw-sub { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 0.7rem; color: rgba(192,154,80,0.5); letter-spacing: 0.22em; margin-top: 6px; }
+
+  .pw-body { padding: 22px 22px 24px; }
+  .pw-label { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(192,154,80,0.55); display: block; margin-bottom: 8px; }
+  .pw-field { position: relative; margin-bottom: 6px; }
+  #pw-input {
+    width: 100%; height: 46px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(192,154,80,0.2);
+    border-radius: 11px; color: #fff;
+    font-family: 'DM Sans', sans-serif; font-size: 1rem; letter-spacing: 0.18em;
+    padding: 0 46px 0 14px; outline: none;
+    transition: border-color 0.18s, box-shadow 0.18s;
+    /* iOS zoom防止: font-size 16px以上にする */
+    font-size: 16px;
+  }
+  #pw-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(192,154,80,0.18); }
+  #pw-input::placeholder { color: rgba(255,255,255,0.18); letter-spacing: 0.06em; }
+  .pw-eye-btn {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    color: rgba(192,154,80,0.4); font-size: 0.9rem; padding: 4px; line-height: 1;
+    transition: color 0.15s;
+  }
+  .pw-eye-btn:hover { color: var(--gold); }
+  .pw-err { font-size: 0.72rem; color: #E07070; min-height: 20px; margin-bottom: 10px; letter-spacing: 0.02em; }
+  .pw-submit {
+    width: 100%; height: 46px;
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-lt) 100%);
+    border: none; border-radius: 11px; color: #fff;
+    font-family: 'Shippori Mincho', serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.14em;
+    cursor: pointer; box-shadow: 0 3px 12px rgba(14,31,23,0.45);
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .pw-submit:hover { opacity: 0.88; }
+  .pw-submit:active { transform: scale(0.97); }
+  .pw-cancel { display: block; width: 100%; margin-top: 10px; background: none; border: none; color: rgba(255,255,255,0.27); font-family: 'DM Sans', sans-serif; font-size: 0.75rem; letter-spacing: 0.04em; cursor: pointer; padding: 4px; transition: color 0.15s; text-align: center; }
+  .pw-cancel:hover { color: rgba(255,255,255,0.6); }
+
+  /* ══════════════════════════════════════════
+     iOS PWA インストールバナー（完全版）
+  ══════════════════════════════════════════ */
+  #pwa-banner {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 800;
+    padding: 0 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
+    pointer-events: none;
+    animation: bannerSlideUp 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  #pwa-banner.show { display: block; }
+  @keyframes bannerSlideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 899px) {
+    #pwa-banner {
+      padding-bottom: calc(var(--bottom-content-h) + env(safe-area-inset-bottom, 0px) + 12px);
+    }
+  }
+
+  .pwa-card {
+    background: linear-gradient(135deg, #0C1C14 0%, #142214 100%);
+    border: 1px solid rgba(192,154,80,0.28);
+    border-radius: 18px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.65), 0 0 0 1px rgba(192,154,80,0.06);
+    padding: 16px 16px 14px;
+    pointer-events: all;
+    position: relative;
+    overflow: hidden;
+  }
+  .pwa-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dk) 25%, var(--gold) 50%, var(--gold-dk) 75%, transparent);
+  }
+
+  .pwa-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .pwa-app-icon { width: 44px; height: 44px; border-radius: 11px; background: rgba(192,154,80,0.1); border: 1px solid rgba(192,154,80,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
+  .pwa-app-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+  .pwa-text { flex: 1; min-width: 0; }
+  .pwa-title { font-family: 'Shippori Mincho', serif; font-size: 0.92rem; font-weight: 700; color: #fff; letter-spacing: 0.06em; }
+  .pwa-desc { font-size: 0.72rem; color: rgba(192,154,80,0.65); margin-top: 2px; letter-spacing: 0.02em; line-height: 1.4; }
+  .pwa-close { background: none; border: none; color: rgba(255,255,255,0.3); font-size: 1.1rem; cursor: pointer; padding: 4px; line-height: 1; flex-shrink: 0; align-self: flex-start; transition: color 0.15s; -webkit-tap-highlight-color: transparent; }
+  .pwa-close:hover { color: rgba(255,255,255,0.7); }
+
+  .pwa-actions { display: flex; gap: 8px; }
+  .pwa-btn-primary {
+    flex: 1; height: 40px;
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-lt) 100%);
+    border: none; border-radius: 10px;
+    color: #fff; font-family: 'Shippori Mincho', serif; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.08em;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+    box-shadow: 0 3px 10px rgba(14,31,23,0.4);
+    transition: opacity 0.15s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pwa-btn-primary:active { transform: scale(0.97); opacity: 0.88; }
+  .pwa-btn-skip { height: 40px; padding: 0 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: rgba(255,255,255,0.4); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; cursor: pointer; white-space: nowrap; transition: background 0.15s, color 0.15s; -webkit-tap-highlight-color: transparent; }
+  .pwa-btn-skip:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.65); }
+
+  /* ── 手順ガイドモーダル ── */
+  #pwa-guide-backdrop {
+    display: none; position: fixed; inset: 0; z-index: 850;
+    background: rgba(8,14,11,0.82);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    align-items: flex-end; justify-content: center;
+    padding: 20px 16px calc(env(safe-area-inset-bottom, 0px) + 20px);
+  }
+  #pwa-guide-backdrop.show { display: flex; }
+
+  #pwa-guide-modal {
+    width: 100%; max-width: 400px;
+    background: #0C1C14;
+    border: 1px solid rgba(192,154,80,0.22);
+    border-radius: 20px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.7);
+    overflow: hidden;
+    animation: pwIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  .pwa-guide-top { background: linear-gradient(160deg, #091510 0%, #142214 100%); padding: 24px 20px 18px; text-align: center; border-bottom: 1px solid rgba(192,154,80,0.12); position: relative; }
+  .pwa-guide-top::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-dk) 25%, var(--gold) 50%, var(--gold-dk) 75%, transparent); }
+  .pwa-guide-title { font-family: 'Shippori Mincho', serif; font-size: 1.05rem; font-weight: 700; color: #fff; letter-spacing: 0.1em; }
+  .pwa-guide-sub { font-size: 0.68rem; color: rgba(192,154,80,0.5); letter-spacing: 0.12em; margin-top: 4px; }
+
+  .pwa-guide-body { padding: 20px; }
+  .pwa-step { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+  .pwa-step:last-child { margin-bottom: 0; }
+  .pwa-step-num { width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0; background: rgba(192,154,80,0.12); border: 1px solid rgba(192,154,80,0.2); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; font-weight: 700; color: var(--gold); }
+  .pwa-step-text { flex: 1; }
+  .pwa-step-title { font-size: 0.8rem; color: #fff; font-weight: 500; letter-spacing: 0.02em; line-height: 1.4; }
+  .pwa-step-note { font-size: 0.68rem; color: rgba(255,255,255,0.4); margin-top: 2px; line-height: 1.4; }
+
+  .pwa-guide-footer { padding: 0 20px 20px; }
+  .pwa-guide-close { width: 100%; height: 42px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 11px; color: rgba(255,255,255,0.5); font-family: 'DM Sans', sans-serif; font-size: 0.82rem; letter-spacing: 0.04em; cursor: pointer; transition: background 0.15s, color 0.15s; -webkit-tap-highlight-color: transparent; }
+  .pwa-guide-close:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.75); }
+
+  /* ── アップデート通知バナー（Service Worker用） ── */
+  #sw-update-bar {
+    display: none; position: fixed; top: calc(var(--header-h) + var(--safe-top) + 8px); left: 50%; transform: translateX(-50%);
+    z-index: 500; background: var(--green-lt); border: 1px solid rgba(192,154,80,0.35);
+    border-radius: 12px; padding: 10px 16px; gap: 12px;
+    align-items: center; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    font-size: 0.78rem; color: var(--gold-lt); white-space: nowrap;
+    max-width: calc(100vw - 32px);
+  }
+  #sw-update-bar.show { display: flex; }
+  #sw-update-bar button { background: var(--gold); border: none; border-radius: 8px; padding: 5px 12px; color: var(--green-dk); font-size: 0.72rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  </style>
+</head>
+<body>
+<div id="shell">
+
+  <!-- ─── Header ─── -->
+  <header id="app-header">
+    <div class="header-inner">
+      <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="header-title" onclick="navigate('main.html',null)">社内ポータル</div>
+      <img class="header-logo" src="https://www.sgc-gold.co.jp/img/header-logo.png" alt="SGC">
+    </div>
+  </header>
+
+  <!-- ─── Sidebar ─── -->
+  <nav id="sidebar">
+    <div class="sidebar-scroll">
+
+      <div class="nav-section-title">Home</div>
+      <a class="nav-link active" onclick="navigate('main.html',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        トップページ
+      </a>
+
+      <div class="nav-section-title">Market · 貴金属市況</div>
+      <a class="nav-link" onclick="navigate('price.html',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        田中貴金属価格
+      </a>
+      <a class="nav-link" onclick="navigate('https://script.google.com/macros/s/AKfycbyoZvlzgcQrVdYI2JCgJBHaZ11BYASFME91VkWhc5sriiI8Sr2CqJpVV8mGzyXb6XCW/exec', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 9l10 13 10-13-10-7z"/><line x1="12" y1="9" x2="12" y2="15"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
+        SGC買取価格
+      </a>
+      <a class="nav-link" onclick="navigate('https://script.google.com/macros/s/AKfycbzw6OKj2rMVVzxuxrYLu07voIsebAxYqX9iZHo80-NZHqvy9FsY74NeuclM-D1ZuNw-8w/exec', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8"/><line x1="12" y1="6" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="18"/></svg>
+        SGC売却価格
+      </a>
+      <a class="nav-link" onclick="navigate('market.html',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        市況情報
+      </a>
+
+      <div class="nav-section-title">Purchase · 買取関連</div>
+      <a class="nav-link" onclick="navigate('https://script.google.com/macros/s/AKfycbxV4bMjhApWrwqTBLsuu0BnSQ5L8TyaV40_qCOO_RFjT3-WHvosgeesx_LxWZAO4MFr/exec',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        IGシリアル照合
+      </a>
+      <a class="nav-link" onclick="navigate('coin.html',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        記念金貨買取価格
+      </a>
+      <a class="nav-link" onclick="navigate('https://script.google.com/macros/s/AKfycbxeQHB5lwwoTw0f-cgXh657fuaNiHL-LMbo5AfUOm9pDyftHNaF7OPi5hfMOrKNPhKYyQ/exec',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        買取 / 分割確認
+      </a>
+      <a class="nav-link" onclick="navigate('diamond.html',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 9l10 13 10-13-10-7z"/><path d="M2 9h20"/></svg>
+        ダイヤ相場検索
+      </a>
+      <a class="nav-link" onclick="navigate('gemstone.html',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        色石重量検索
+      </a>
+
+      <div class="nav-section-title">Sales · 販売関連</div>
+      <a class="nav-link disabled">準備中</a>
+
+      <div class="nav-section-title">Reference · 社内資料</div>
+      <a class="nav-link" onclick="navigate('schedule.html',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        スケジュール
+      </a>
+      <a class="nav-link" onclick="navigate('contacts.html',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        拠点一覧
+      </a>
+
+      <div class="nav-section-title">Media · メディア</div>
+      <a class="nav-link" onclick="navigate('news.html',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg>
+        ニュース
+      </a>
+      <a class="nav-link" onclick="navigate('youtube.html',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.54C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+        YouTube
+      </a>
+
+      <!-- ★ 銀座店用 ── 最下部 ★ -->
+      <div class="nav-section-title">Ginza · 銀座店</div>
+      <a class="nav-link ginza" id="ginza-link" onclick="ginzaClick(this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        銀座店用
+        <span class="ginza-badge" id="ginza-badge">🔒 限定</span>
+      </a>
+
+    </div>
+    <div class="sidebar-footer">© SGC Co., Ltd. All Rights Reserved.</div>
+  </nav>
+
+  <!-- ─── Content ─── -->
+  <div id="content-area">
+    <iframe id="main-frame" src="main.html" scrolling="yes" allowtransparency="true"></iframe>
+    <!-- ページ読み込み中オーバーレイ -->
+    <div id="frame-loading">
+      <div class="frame-spinner"></div>
+      <div class="frame-loading-text">読み込み中…</div>
+    </div>
+  </div>
+
+  <!-- ─── Bottom nav (mobile only) ─── -->
+  <nav id="bottom-nav">
+    <a class="bnav-item active" onclick="navigate('main.html',this)" data-bnav>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>ホーム</span>
+    </a>
+    <a class="bnav-item" onclick="navigate('price.html',this)" data-bnav>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>価格</span>
+    </a>
+    <a class="bnav-item" onclick="navigate('coin.html',this)" data-bnav>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      <span>金貨</span>
+    </a>
+    <a class="bnav-item" onclick="navigate('market.html',this)" data-bnav>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      <span>市況</span>
+    </a>
+    <button class="bnav-item" onclick="toggleSidebar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <span>メニュー</span>
+    </button>
+  </nav>
+
+</div><!-- /shell -->
+
+<div id="overlay" onclick="closeSidebar()"></div>
+
+<!-- Service Worker アップデートバー -->
+<div id="sw-update-bar">
+  🔄 新しいバージョンが利用可能です
+  <button onclick="applyUpdate()">更新する</button>
+</div>
+
+<!-- ══════════════════════════════════
+     パスワードモーダル
+══════════════════════════════════ -->
+<div id="pw-backdrop">
+  <div id="pw-modal" role="dialog" aria-modal="true" aria-label="銀座店専用ログイン">
+    <div class="pw-top">
+      <div class="pw-icon">🏬</div>
+      <div class="pw-title">銀座店専用ページ</div>
+      <div class="pw-sub">GINZA STORE · STAFF ONLY</div>
+    </div>
+    <div class="pw-body">
+      <label class="pw-label" for="pw-input">パスワード</label>
+      <div class="pw-field">
+        <input type="password" id="pw-input" placeholder="Password" autocomplete="current-password" inputmode="text">
+        <button class="pw-eye-btn" id="pw-eye" type="button" onclick="toggleEye()" aria-label="パスワード表示切替">👁</button>
+      </div>
+      <div class="pw-err" id="pw-err"></div>
+      <button class="pw-submit" onclick="submitPw()">ログイン</button>
+      <button class="pw-cancel" onclick="closePw()">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PWA インストールバナー（iOS Safari）
+══════════════════════════════════ -->
+<div id="pwa-banner">
+  <div class="pwa-card">
+    <div class="pwa-top">
+      <div class="pwa-app-icon">
+        <img src="https://raw.githubusercontent.com/sgc-gold/sgc/main/image/sgc-icon.png" alt="SGC" onerror="this.parentNode.innerHTML='🏅'">
+      </div>
+      <div class="pwa-text">
+        <div class="pwa-title">アプリとして追加する</div>
+        <div class="pwa-desc">ホーム画面に追加するとアプリのように快適に使えます</div>
+      </div>
+      <button class="pwa-close" onclick="dismissBanner()" aria-label="閉じる">✕</button>
+    </div>
+    <div class="pwa-actions">
+      <button class="pwa-btn-primary" onclick="triggerInstall()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v13M5 9l7 6 7-6"/><path d="M3 20h18"/></svg>
+        ホーム画面に追加
+      </button>
+      <button class="pwa-btn-skip" onclick="dismissBanner()">後で</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 手順ガイドモーダル ── -->
+<div id="pwa-guide-backdrop">
+  <div id="pwa-guide-modal" role="dialog" aria-modal="true">
+    <div class="pwa-guide-top">
+      <div class="pwa-guide-title">ホーム画面に追加する方法</div>
+      <div class="pwa-guide-sub">Safari · iOS</div>
+    </div>
+    <div class="pwa-guide-body">
+      <div class="pwa-step">
+        <div class="pwa-step-num">1</div>
+        <div class="pwa-step-text">
+          <div class="pwa-step-title">Safari 下部の「共有」ボタンをタップ</div>
+          <div class="pwa-step-note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;display:inline-block"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+            画面下中央の上矢印アイコンです
+          </div>
+        </div>
+      </div>
+      <div class="pwa-step">
+        <div class="pwa-step-num">2</div>
+        <div class="pwa-step-text">
+          <div class="pwa-step-title">「ホーム画面に追加」を選択</div>
+          <div class="pwa-step-note">メニューをスクロールすると見つかります</div>
+        </div>
+      </div>
+      <div class="pwa-step">
+        <div class="pwa-step-num">3</div>
+        <div class="pwa-step-text">
+          <div class="pwa-step-title">右上の「追加」をタップ</div>
+          <div class="pwa-step-note">アプリとしてホーム画面に追加されます 🎉</div>
+        </div>
+      </div>
+    </div>
+    <div class="pwa-guide-footer">
+      <button class="pwa-guide-close" onclick="closeGuide()">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  ★ パスワード設定 ★
+// ══════════════════════════════════════════════
+var GINZA_PW    = 'melmelsa';
+var STORAGE_KEY = 'sgc_ginza_ok';
+
+// ────────────────────────────────────
+//  HEIGHT FIX
+//  #shell の高さは CSS の 100dvh に完全に任せる。
+//  JSでpx固定すると、PWA起動時にSafariブラウザ時の
+//  高さが焼き付いてしまうため一切上書きしない。
+//  sizeFrame() のみ iframe の高さ調整に使用する。
+// ────────────────────────────────────
+function sizeFrame() {
+  var frame   = document.getElementById('main-frame');
+  var content = document.getElementById('content-area');
+  if (!frame || !content) return;
+  var rect = content.getBoundingClientRect();
+  if (rect.height > 0) frame.style.height = rect.height + 'px';
+}
+
+sizeFrame();
+
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', sizeFrame);
+} else {
+  window.addEventListener('resize', sizeFrame);
+}
+
+window.addEventListener('orientationchange', function() {
+  setTimeout(sizeFrame, 50);
+  setTimeout(sizeFrame, 300);
+  setTimeout(sizeFrame, 600);
+});
+
+window.addEventListener('load', function() {
+  sizeFrame();
+  setTimeout(sizeFrame, 200);
+  setTimeout(sizeFrame, 500);
+});
+
+// ────────────────────────────────────
+//  iOS スクロールバウンス防止
+// ────────────────────────────────────
+document.addEventListener('touchmove', function(e) {
+  // sidebar-scroll と iframe 内はスクロール許可
+  var el = e.target;
+  var allow = false;
+  while (el) {
+    if (el.classList && (el.classList.contains('sidebar-scroll') || el.tagName === 'IFRAME')) {
+      allow = true; break;
+    }
+    el = el.parentElement;
+  }
+  if (!allow) e.preventDefault();
+}, { passive: false });
+
+// ────────────────────────────────────
+//  NAVIGATION
+// ────────────────────────────────────
+var frame = document.getElementById('main-frame');
+var frameLoading = document.getElementById('frame-loading');
+
+// ローディングオーバーレイの表示（子フレームからも呼べるよう window に公開）
+window.showFrameLoading = function() {
+  if (frameLoading) frameLoading.classList.add('show');
+};
+function hideFrameLoading() {
+  if (frameLoading) frameLoading.classList.remove('show');
+}
+
+// iframeのロード完了でオーバーレイを消す
+frame.addEventListener('load', hideFrameLoading);
+
+function navigate(url, el) {
+  if (!url || url === '#') return;
+  window.showFrameLoading();
+  frame.src = url;
+  document.querySelectorAll('#sidebar .nav-link').forEach(function(l) { l.classList.remove('active'); });
+  if (el && el.closest && el.closest('#sidebar')) el.classList.add('active');
+  document.querySelectorAll('[data-bnav]').forEach(function(l) { l.classList.remove('active'); });
+  if (el && el.hasAttribute && el.hasAttribute('data-bnav')) el.classList.add('active');
+  if (window.innerWidth < 900) closeSidebar();
+}
+
+// ────────────────────────────────────
+//  SIDEBAR
+// ────────────────────────────────────
+var sidebar   = document.getElementById('sidebar');
+var overlay   = document.getElementById('overlay');
+var hamburger = document.getElementById('hamburger');
+function toggleSidebar() {
+  var isOpen = sidebar.classList.toggle('open');
+  hamburger.classList.toggle('open', isOpen);
+  overlay.classList.toggle('active', isOpen);
+}
+function closeSidebar() {
+  sidebar.classList.remove('open');
+  hamburger.classList.remove('open');
+  overlay.classList.remove('active');
+}
+
+// ────────────────────────────────────
+//  GINZA AUTH
+// ────────────────────────────────────
+function isAuthed() { return localStorage.getItem(STORAGE_KEY) === '1'; }
+function refreshBadge() {
+  var badge = document.getElementById('ginza-badge');
+  var link  = document.getElementById('ginza-link');
+  if (isAuthed()) {
+    badge.textContent = '銀座店';
+    badge.style.background = 'rgba(192,154,80,0.28)';
+    link.querySelector('svg').innerHTML = '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>';
+  } else {
+    badge.textContent = '🔒 限定';
+    badge.style.background = '';
+  }
+}
+refreshBadge();
+
+function ginzaClick(el) {
+  if (isAuthed()) {
+    document.querySelectorAll('#sidebar .nav-link').forEach(function(l) { l.classList.remove('active'); });
+    el.classList.add('active');
+    frame.src = 'https://script.google.com/macros/s/AKfycbyf2YPwoPW7dM6OMrK9OyxCJkGXeAa883HcQe6Atz982MHyqF8iobXqGSGFjULebLRp/exec';
+    if (window.innerWidth < 900) closeSidebar();
+  } else { openPw(); }
+}
+
+// ────────────────────────────────────
+//  PASSWORD MODAL
+// ────────────────────────────────────
+var backdrop = document.getElementById('pw-backdrop');
+function openPw() {
+  document.getElementById('pw-input').value = '';
+  document.getElementById('pw-err').textContent = '';
+  backdrop.classList.add('show');
+  setTimeout(function() { document.getElementById('pw-input').focus(); }, 160);
+}
+function closePw() { backdrop.classList.remove('show'); }
+function toggleEye() {
+  var inp = document.getElementById('pw-input');
+  var eye = document.getElementById('pw-eye');
+  if (inp.type === 'password') { inp.type = 'text'; eye.textContent = '🙈'; }
+  else { inp.type = 'password'; eye.textContent = '👁'; }
+}
+function submitPw() {
+  var val = document.getElementById('pw-input').value;
+  var err = document.getElementById('pw-err');
+  if (val === GINZA_PW) {
+    localStorage.setItem(STORAGE_KEY, '1');
+    refreshBadge(); closePw();
+    var link = document.getElementById('ginza-link');
+    document.querySelectorAll('#sidebar .nav-link').forEach(function(l) { l.classList.remove('active'); });
+    link.classList.add('active');
+    frame.src = 'https://script.google.com/macros/s/AKfycbyf2YPwoPW7dM6OMrK9OyxCJkGXeAa883HcQe6Atz982MHyqF8iobXqGSGFjULebLRp/exec';
+    if (window.innerWidth < 900) closeSidebar();
+  } else {
+    err.textContent = 'パスワードが正しくありません。';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+    var modal = document.getElementById('pw-modal');
+    modal.style.animation = 'none'; void modal.offsetWidth;
+    modal.style.animation = 'shake 0.38s ease';
+  }
+}
+document.getElementById('pw-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') submitPw();
+  if (e.key === 'Escape') closePw();
+});
+backdrop.addEventListener('click', function(e) { if (e.target === backdrop) closePw(); });
+
+// ══════════════════════════════════════════════
+//  Service Worker 登録（PWA必須）
+// ══════════════════════════════════════════════
+var swRegistration = null;
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('sw.js')
+      .then(function(reg) {
+        swRegistration = reg;
+        // アップデート検知
+        reg.addEventListener('updatefound', function() {
+          var newWorker = reg.installing;
+          if (!newWorker) return;
+          newWorker.addEventListener('statechange', function() {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              document.getElementById('sw-update-bar').classList.add('show');
+            }
+          });
+        });
+        // 定期的にアップデート確認（30分ごと）
+        setInterval(function() { reg.update(); }, 30 * 60 * 1000);
+      })
+      .catch(function(err) { console.log('SW registration failed:', err); });
+    // SW更新後のリロード
+    navigator.serviceWorker.addEventListener('controllerchange', function() {
+      window.location.reload();
+    });
+  });
+}
+function applyUpdate() {
+  document.getElementById('sw-update-bar').classList.remove('show');
+  if (swRegistration && swRegistration.waiting) {
+    swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+  }
+}
+
+// ══════════════════════════════════════════════
+//  PWA インストールバナー（iOS Safari 完全版）
+// ══════════════════════════════════════════════
+(function() {
+  var BANNER_DISMISS_KEY = 'sgc_pwa_banner_dismissed';
+  var DISMISS_DAYS = 7;
+
+  // ① スタンドアロン（PWA起動中）は表示しない
+  var isStandalone = (
+    window.navigator.standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches
+  );
+  if (isStandalone) return;
+
+  // ② iOS Safari のみ
+  var ua = navigator.userAgent;
+  var isIOS = /iP(hone|ad|od)/.test(ua);
+  var isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|OPiOS|EdgiOS|GSA/.test(ua);
+  if (!isIOS || !isSafari) return;
+
+  // ③ 直近 dismiss済み はスキップ
+  var dismissed = localStorage.getItem(BANNER_DISMISS_KEY);
+  if (dismissed) {
+    if (Date.now() - parseInt(dismissed, 10) < DISMISS_DAYS * 86400000) return;
+  }
+
+  // ④ iOSバージョン
+  var iosMatch = ua.match(/OS (\d+)_(\d+)/);
+  var iosMajor = iosMatch ? parseInt(iosMatch[1], 10) : 0;
+
+  // ⑤ バナー表示
+  var banner = document.getElementById('pwa-banner');
+  setTimeout(function() { banner.classList.add('show'); }, 2000);
+
+  // ⑥ インストールボタン処理
+  window.triggerInstall = function() {
+    if (iosMajor >= 16 && navigator.share) {
+      navigator.share({ title: 'SGC 社内ポータル', url: location.href })
+        .catch(function() { showGuide(); });
+    } else {
+      showGuide();
+    }
+  };
+
+  window.dismissBanner = function() {
+    banner.classList.remove('show');
+    localStorage.setItem(BANNER_DISMISS_KEY, Date.now().toString());
+  };
+
+  // ⑦ 手順ガイド
+  var guideBackdrop = document.getElementById('pwa-guide-backdrop');
+  function showGuide() {
+    banner.classList.remove('show');
+    guideBackdrop.classList.add('show');
+  }
+  window.closeGuide = function() {
+    guideBackdrop.classList.remove('show');
+    localStorage.setItem(BANNER_DISMISS_KEY, Date.now().toString());
+  };
+  guideBackdrop.addEventListener('click', function(e) {
+    if (e.target === guideBackdrop) window.closeGuide();
+  });
+})();
+
+// ────────────────────────────────────
+//  iframe メッセージ処理
+// ────────────────────────────────────
+window.addEventListener('message', function(e) {
+  if (!e.data || !e.data.type) return;
+  var BASE = 'https://script.google.com/macros/s/AKfycbyf2YPwoPW7dM6OMrK9OyxCJkGXeAa883HcQe6Atz982MHyqF8iobXqGSGFjULebLRp/exec';
+  if (e.data.type === 'go-page') { frame.src = BASE + '?page=' + e.data.page; }
+  if (e.data.type === 'go-back') { frame.src = BASE + '?page=ginza'; }
+  if (e.data.type === 'logout') {
+    localStorage.removeItem(STORAGE_KEY);
+    refreshBadge();
+    frame.src = 'main.html';
+  }
+});
+</script>
+</body>
+</html>
