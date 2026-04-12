@@ -1,0 +1,29 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # リポジトリをチェックアウト
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # APIキーのプレースホルダーを実際のシークレットに置換
+      - name: Inject YouTube API key
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.PORTAL_YOUTUBE }}
+        run: |
+          sed -i "s|__YOUTUBE_API_KEY__|${YOUTUBE_API_KEY}|g" youtube.html
+
+      # gh-pages ブランチにデプロイ
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          exclude_assets: '.github'
