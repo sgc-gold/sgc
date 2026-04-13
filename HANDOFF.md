@@ -1,15 +1,15 @@
 # SGC プロジェクト HANDOFF
 
 ## 最終更新
-2026-04-12
+2026-04-13
 
 ---
 
 ## 今日やったこと
 
-- **diamond.html のタイトル修正**: `ダイヤ相場検索（編集中）` → `ダイヤ相場検索` に変更
-- **diamond.html の更新情報を更新**: `2026年03月14日 NJ大会 2月後半分＆3月前半分のデータを追加` → `2026年04月12日 NJ大会 3月後半分＆4月前半分のデータを追加`
-- commit & push 完了（コミット `8b039e8`）
+- **`.github/workflows/update_tanaka.yml` 修正**: 価格更新後に `deploy.yml` を明示的にトリガーするよう修正（gh-pages 反映漏れ対応）
+- **HANDOFF.md 更新**: セッション終了処理
+- commit & push 完了（コミット `65cf028`）
 
 ---
 
@@ -20,13 +20,14 @@
 - [ ] `data/tanaka_price.json` などの更新を Service Worker が正しくリアルタイム反映するか確認
 - [ ] `scripts/check_tanaka_update(使わなければ削除する).py` の整理判断
 - [ ] ニュースカテゴリの検索クエリ（特にSGCホール）が意図した記事を取得できるか実機確認
+- [ ] `update_tanaka.yml` のトリガー修正が実際に gh-pages へ正しく反映されるか動作確認
 
 ---
 
 ## 現在のデプロイ状況
 
 - **GitHub Pages**: `https://sgc-gold.github.io/sgc/`
-- **最新コミット**: `8b039e8` (2026-04-12)
+- **最新コミット**: `65cf028` (2026-04-13)
 - **ブランチ**: `main`
 
 ---
