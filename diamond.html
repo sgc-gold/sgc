@@ -717,7 +717,7 @@ select {
 <!-- Notice -->
 <div class="notice-bar">
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-  <span id="noticeText"><strong>更新情報</strong>　2026年04月12日　NJ大会 3月後半分＆4月前半分のデータを追加</span>
+  <span id="noticeText"><strong>更新情報</strong>　2026年05月01日　NJ大会4月後半分のデータを追加</span>
 </div>
 
 <!-- ─── Tab Nav ─── -->
@@ -1309,8 +1309,15 @@ async function loadAll() {
 
 async function loadNJData() {
   try {
-    const resp = await fetch(GITHUB_BASE + "diamonds.json");
-    diamondData = await resp.json();
+    const years = [2025, 2026];
+    const results = await Promise.all(
+      years.map(y =>
+        fetch(GITHUB_BASE + `diamonds_${y}.json`)
+          .then(r => r.ok ? r.json() : [])
+          .catch(() => [])
+      )
+    );
+    diamondData = results.flat();
     populateNJFilters();
   } catch(e) { console.warn("NJデータ読み込み失敗", e); }
 }
