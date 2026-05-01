@@ -1033,21 +1033,20 @@ select {
             </select>
           </div>
 
-          <!-- 掛け率 -->
-          <div class="form-label">掛け率</div>
+          <!-- 発行日 -->
+          <div class="form-label">発行日</div>
           <div class="form-control">
-            <select id="rRateSelectLookup" style="min-width:110px;">
-              <option value="0.1">1掛け</option>
-              <option value="0.2">2掛け</option>
-              <option value="0.3">3掛け</option>
-              <option value="0.4" selected>4掛け</option>
-              <option value="0.5">5掛け</option>
-              <option value="0.6">6掛け</option>
-              <option value="0.7">7掛け</option>
-              <option value="0.8">8掛け</option>
-              <option value="0.9">9掛け</option>
-              <option value="1.0">10掛け（掛け率なし）</option>
+            <select id="rDateSelect" style="min-width:160px;">
+              <option value="">最新</option>
             </select>
+          </div>
+
+          <!-- 掛け率 -->
+          <div class="form-label">掛け率（%）</div>
+          <div class="form-control" style="align-items:center;gap:6px;">
+            <input type="number" id="rRateInput" min="1" max="50" step="1" value="40"
+              style="width:64px;text-align:center;">
+            <span style="color:var(--ink-soft);font-size:0.8rem;">%　（1〜50%）</span>
           </div>
 
         </div>
@@ -1410,9 +1409,21 @@ function populateCtRangeSelect(selId, shape) {
   });
 }
 
+/* "M/D/YYYY" → Date（文字列比較では新旧が正しく判定できないため） */
+function parseRapaDate(d) {
+  const [m, day, y] = d.split('/').map(Number);
+  return new Date(y, m - 1, day);
+}
+
 function populateRapaFilters() {
   populateCtRangeSelect("hmCtRange", "BR");
   populateCtRangeSelect("trCtRange", "BR");
+
+  // 発行日プルダウンを新しい順で生成
+  const dates = [...new Set(rapaData.map(r => r.date))]
+    .sort((a, b) => parseRapaDate(b) - parseRapaDate(a));
+  const sel = document.getElementById("rDateSelect");
+  dates.forEach(d => sel.appendChild(new Option(d, d)));
 }
 
 /* ════════════════════════════════════════
@@ -1466,6 +1477,8 @@ document.getElementById("rLookupClear").addEventListener("click", () => {
     document.getElementById(id).value = "";
   });
   document.getElementById("rCaratMain").value = "0.50";
+  document.getElementById("rRateInput").value = "40";
+  document.getElementById("rDateSelect").value = "";
   const si = document.getElementById("rSpinInt"), sd = document.getElementById("rSpinDec");
   if (si && sd) { si.value = "0"; sd.value = "50"; }
   document.getElementById("lookupResultArea").style.display = "none";
@@ -1477,7 +1490,6 @@ document.getElementById("rLookupBtn").addEventListener("click", runRapaLookup);
 
 function runRapaLookup() {
   const RAPA_COLORS = ["D","E","F","G","H","I","J","K","L","M"];
-  const rateLabels  = {"0.1":"1掛け","0.2":"2掛け","0.3":"3掛け","0.4":"4掛け","0.5":"5掛け","0.6":"6掛け","0.7":"7掛け","0.8":"8掛け","0.9":"9掛け","1.0":"10掛け"};
 
   const shape     = document.getElementById("rShapeSelect").value;
   const colorFrom = document.getElementById("rColorFrom").value;
@@ -1485,45 +1497,45 @@ function runRapaLookup() {
   const clarFrom  = document.getElementById("rClarityFrom").value;
   const clarTo    = document.getElementById("rClarityTo").value;
   const caratVal  = parseFloat(document.getElementById("rCaratMain").value);
-  const rate      = parseFloat(document.getElementById("rRateSelectLookup").value) || 1;
+  const selDate   = document.getElementById("rDateSelect").value;
+  // 掛け率：1〜50% を 0.01〜0.50 に変換
+  const ratePct   = Math.min(50, Math.max(1, parseInt(document.getElementById("rRateInput").value) || 40));
+  const rate      = ratePct / 100;
 
   const colorFromIdx = colorFrom ? RAPA_COLORS.indexOf(colorFrom) : 0;
   const colorToIdx   = colorTo   ? RAPA_COLORS.indexOf(colorTo)   : RAPA_COLORS.length - 1;
   const clarFromIdx  = clarFrom  ? CLARITY_RAPA.indexOf(clarFrom)  : 0;
   const clarToIdx    = clarTo    ? CLARITY_RAPA.indexOf(clarTo)    : CLARITY_RAPA.length - 1;
 
-  const results = rapaData.filter(r => {
+  // 発行日フィルタ（未選択 = 最新号のみ使用）
+  let baseData;
+  if (selDate) {
+    baseData = rapaData.filter(r => r.date === selDate);
+  } else {
+    const latestDate = [...new Set(rapaData.map(r => r.date))]
+      .sort((a, b) => parseRapaDate(b) - parseRapaDate(a))[0];
+    baseData = rapaData.filter(r => r.date === latestDate);
+  }
+
+  const results = baseData.filter(r => {
     if (r.shape !== shape) return false;
     const ci = RAPA_COLORS.indexOf(r.color);
     if (ci < 0 || ci < colorFromIdx || ci > colorToIdx) return false;
     const li = CLARITY_RAPA.indexOf(r.clarity);
     if (li < 0 || li < clarFromIdx || li > clarToIdx) return false;
-    if (!isNaN(caratVal)) {
-      if (caratVal < r.ct_min || caratVal > r.ct_max) return false;
-    }
+    if (!isNaN(caratVal) && (caratVal < r.ct_min || caratVal > r.ct_max)) return false;
     return true;
   });
 
-  // 各カラー×クラリティの組み合わせで最新日付のレコードのみ残す
-  const latestMap = new Map();
-  results.forEach(r => {
-    const key = `${r.color}|${r.clarity}|${r.ct_min}|${r.ct_max}`;
-    const existing = latestMap.get(key);
-    if (!existing || r.date > existing.date) latestMap.set(key, r);
-  });
-  const filteredResults = Array.from(latestMap.values());
-  // カラー→クラリティ順でソート
-  const RAPA_COLORS_SORT = ["D","E","F","G","H","I","J","K","L","M"];
-  filteredResults.sort((a, b) => {
-    const ci = RAPA_COLORS_SORT.indexOf(a.color) - RAPA_COLORS_SORT.indexOf(b.color);
-    if (ci !== 0) return ci;
-    return CLARITY_RAPA.indexOf(a.clarity) - CLARITY_RAPA.indexOf(b.clarity);
+  results.sort((a, b) => {
+    const ci = RAPA_COLORS.indexOf(a.color) - RAPA_COLORS.indexOf(b.color);
+    return ci !== 0 ? ci : CLARITY_RAPA.indexOf(a.clarity) - CLARITY_RAPA.indexOf(b.clarity);
   });
 
   const area = document.getElementById("lookupResultArea");
   area.style.display = "block";
 
-  if (!filteredResults.length) {
+  if (!results.length) {
     document.getElementById("lrCount").textContent  = "0件（該当なし）";
     document.getElementById("lrAvgUsd").textContent = "—";
     document.getElementById("lrAvgJpy").innerHTML   = "<span class='lr-unit'>円/ct</span>";
@@ -1534,17 +1546,17 @@ function runRapaLookup() {
     return;
   }
 
-  const avgUsd  = filteredResults.reduce((s, r) => s + r.price_usd, 0) / filteredResults.length;
-  const avgJpy  = avgUsd * usdJpy;
-  const refCt   = !isNaN(caratVal) ? caratVal : 0;
+  const avgUsd   = results.reduce((s, r) => s + r.price_usd, 0) / results.length;
+  const avgJpy   = avgUsd * usdJpy;
+  const refCt    = !isNaN(caratVal) ? caratVal : 0;
   const avgTotal = Math.round(avgJpy * rate * refCt);
-  const latestDate = filteredResults.map(r => r.date).sort().reverse()[0] || "—";
+  const shownDate = results[0].date;
 
-  document.getElementById("lrCount").textContent   = `${filteredResults.length} 件`;
+  document.getElementById("lrCount").textContent   = `${results.length} 件`;
   document.getElementById("lrAvgUsd").innerHTML    = `$${avgUsd.toLocaleString(undefined,{maximumFractionDigits:0})} <span style="font-size:0.72rem;color:var(--ink-soft)">USD/ct（平均）</span>`;
   document.getElementById("lrAvgJpy").innerHTML    = `${fmt(avgJpy)}<span class="lr-unit">円/ct</span>`;
-  document.getElementById("lrRateLabel").textContent = rateLabels[String(rate)] || `${Math.round(rate*100)}%`;
-  document.getElementById("lrDate").textContent    = latestDate;
+  document.getElementById("lrRateLabel").textContent = `${ratePct}%`;
+  document.getElementById("lrDate").textContent    = shownDate;
 
   if (refCt > 0) {
     document.getElementById("lrAvgTotalRow").style.display = "flex";
@@ -1553,15 +1565,13 @@ function runRapaLookup() {
     document.getElementById("lrAvgTotalRow").style.display = "none";
   }
 
-  const thTotal = document.getElementById("lrTotalHeader");
-  thTotal.textContent = refCt > 0
-    ? `買取参考価格（${rateLabels[String(rate)] || Math.round(rate*100)+"%"}）`
-    : "買取参考価格";
+  document.getElementById("lrTotalHeader").textContent =
+    refCt > 0 ? `買取参考価格（${ratePct}%）` : "買取参考価格";
 
   const tbody = document.getElementById("lookupTableBody");
   tbody.innerHTML = "";
   const TD = "padding:7px 10px;border-bottom:1px solid rgba(192,154,80,0.08);font-feature-settings:'tnum';white-space:nowrap;";
-  filteredResults.forEach((r, idx) => {
+  results.forEach((r, idx) => {
     const jpy   = Math.round(r.price_usd * usdJpy);
     const total = refCt > 0 ? fmt(Math.round(jpy * rate * refCt)) + "円" : "—";
     const tr    = document.createElement("tr");
@@ -1577,7 +1587,7 @@ function runRapaLookup() {
     tbody.appendChild(tr);
   });
 
-  document.getElementById("lookupTableWrap").style.display = filteredResults.length > 1 ? "block" : "none";
+  document.getElementById("lookupTableWrap").style.display = results.length > 1 ? "block" : "none";
   notifyHeight();
 }
 
