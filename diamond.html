@@ -969,6 +969,14 @@ select {
       <div class="panel-body">
         <div class="form-grid" style="max-width:720px;">
 
+          <!-- 発行日 -->
+          <div class="form-label">発行日</div>
+          <div class="form-control">
+            <select id="rDateSelect" style="min-width:160px;">
+              <option value="">最新</option>
+            </select>
+          </div>
+
           <!-- 形状 -->
           <div class="form-label">形状</div>
           <div class="form-control">
@@ -1033,22 +1041,6 @@ select {
             </select>
           </div>
 
-          <!-- 発行日 -->
-          <div class="form-label">発行日</div>
-          <div class="form-control">
-            <select id="rDateSelect" style="min-width:160px;">
-              <option value="">最新</option>
-            </select>
-          </div>
-
-          <!-- 掛け率 -->
-          <div class="form-label">掛け率（%）</div>
-          <div class="form-control" style="align-items:center;gap:6px;">
-            <input type="number" id="rRateInput" min="1" max="50" step="1" value="40"
-              style="width:64px;text-align:center;">
-            <span style="color:var(--ink-soft);font-size:0.8rem;">%　（1〜50%）</span>
-          </div>
-
         </div>
 
         <!-- 検索ボタン -->
@@ -1062,32 +1054,47 @@ select {
 
         <!-- 結果エリア -->
         <div id="lookupResultArea" style="display:none; margin-top:16px;">
-          <!-- 1件 or 範囲内平均の概要カード -->
-          <div id="lookupSummaryCard" class="lookup-result-card visible" style="margin-bottom:12px;">
-            <div class="lookup-result-row">
-              <span class="lr-label">検索件数</span>
-              <span class="lr-val" id="lrCount">—</span>
+          <div class="summary-panel">
+            <div class="summary-header">
+              <span class="summary-header-icon">◆</span>
+              <span class="summary-header-title">買取参考価格</span>
             </div>
-            <div class="lookup-result-row">
-              <span class="lr-label">平均ラパ価格</span>
-              <span class="lr-val usd" id="lrAvgUsd">—</span>
-            </div>
-            <div class="lookup-result-row">
-              <span class="lr-label">平均円換算単価</span>
-              <span class="lr-val big" id="lrAvgJpy">—<span class="lr-unit">円/ct</span></span>
-            </div>
-            <div class="lookup-result-row" id="lrAvgTotalRow" style="display:none;">
-              <span class="lr-label">買取参考価格（平均 × <span id="lrRateLabel">8掛け</span>）</span>
-              <span class="lr-val big" id="lrAvgTotal">—<span class="lr-unit">円</span></span>
-            </div>
-            <div class="lookup-result-row">
-              <span class="lr-label">データ日付</span>
-              <span class="lr-val" id="lrDate" style="color:var(--ink-soft);font-size:0.75rem;">—</span>
+            <div class="summary-rows">
+              <div class="summary-row">
+                <span class="s-label">検索件数</span>
+                <span class="s-value"><strong id="rapaSummaryCount">—</strong><span class="s-unit">件</span></span>
+              </div>
+              <div class="summary-row">
+                <span class="s-label">平均ガイ単価</span>
+                <span class="s-value"><strong id="rapaSummaryAvgUsd">—</strong><span class="s-unit">USD/ct</span></span>
+              </div>
+              <div class="summary-row">
+                <span class="s-label">平均ガイ単価 × 為替</span>
+                <span class="s-value"><strong id="rapaSummaryAvgJpy">—</strong><span class="s-unit">円/ct</span></span>
+              </div>
+              <div class="summary-row">
+                <span class="s-label">掛け率</span>
+                <span class="s-value">
+                  <select id="rRateInput"></select>
+                </span>
+              </div>
+              <div class="summary-row" style="border-top:1px solid rgba(192,154,80,0.12); padding-top:10px;">
+                <span class="s-label">ガイ単価</span>
+                <span class="s-value"><strong id="rapaSummaryUnitPrice">—</strong><span class="s-unit">円/ct</span></span>
+              </div>
+              <div class="summary-row">
+                <span class="s-label">カラット</span>
+                <span class="s-value"><strong id="rapaSummaryCarat">—</strong><span class="s-unit">ct</span></span>
+              </div>
+              <div class="summary-row total">
+                <span class="s-label">買取参考価格</span>
+                <span class="s-value"><strong id="rapaSummaryTotal">—</strong><span class="s-unit">円</span></span>
+              </div>
             </div>
           </div>
 
           <!-- 一覧テーブル（複数件） -->
-          <div id="lookupTableWrap" style="overflow-x:auto; display:none;">
+          <div id="lookupTableWrap" style="overflow-x:auto; display:none; margin-top:16px;">
             <table id="lookupTable" style="width:100%;border-collapse:collapse;font-size:0.78rem;min-width:560px;">
               <thead>
                 <tr>
@@ -1424,6 +1431,14 @@ function populateRapaFilters() {
     .sort((a, b) => parseRapaDate(b) - parseRapaDate(a));
   const sel = document.getElementById("rDateSelect");
   dates.forEach(d => sel.appendChild(new Option(d, d)));
+
+  // 掛け率セレクト生成（1〜50%、デフォルト40%）
+  const rateSel = document.getElementById("rRateInput");
+  for (let i = 1; i <= 50; i++) {
+    const opt = new Option(`${i}%`, i);
+    if (i === 40) opt.selected = true;
+    rateSel.appendChild(opt);
+  }
 }
 
 /* ════════════════════════════════════════
@@ -1482,6 +1497,7 @@ document.getElementById("rLookupClear").addEventListener("click", () => {
   const si = document.getElementById("rSpinInt"), sd = document.getElementById("rSpinDec");
   if (si && sd) { si.value = "0"; sd.value = "50"; }
   document.getElementById("lookupResultArea").style.display = "none";
+  window.rapaLastResults = null;
   notifyHeight();
 });
 
@@ -1498,9 +1514,6 @@ function runRapaLookup() {
   const clarTo    = document.getElementById("rClarityTo").value;
   const caratVal  = parseFloat(document.getElementById("rCaratMain").value);
   const selDate   = document.getElementById("rDateSelect").value;
-  // 掛け率：1〜50% を 0.01〜0.50 に変換
-  const ratePct   = Math.min(50, Math.max(1, parseInt(document.getElementById("rRateInput").value) || 40));
-  const rate      = ratePct / 100;
 
   const colorFromIdx = colorFrom ? RAPA_COLORS.indexOf(colorFrom) : 0;
   const colorToIdx   = colorTo   ? RAPA_COLORS.indexOf(colorTo)   : RAPA_COLORS.length - 1;
@@ -1532,43 +1545,51 @@ function runRapaLookup() {
     return ci !== 0 ? ci : CLARITY_RAPA.indexOf(a.clarity) - CLARITY_RAPA.indexOf(b.clarity);
   });
 
-  const area = document.getElementById("lookupResultArea");
-  area.style.display = "block";
+  const avgUsd = results.length ? results.reduce((s, r) => s + r.price_usd, 0) / results.length : 0;
+  const avgJpy = avgUsd * usdJpy;
+  const refCt  = !isNaN(caratVal) ? caratVal : 0;
+
+  // 掛け率変更時の再計算用に保存
+  window.rapaLastResults = results;
+  window.rapaLastAvgUsd  = avgUsd;
+  window.rapaLastAvgJpy  = avgJpy;
+  window.rapaLastCarat   = refCt;
+
+  document.getElementById("lookupResultArea").style.display = "block";
+  renderRapaSummary(results, avgUsd, avgJpy, refCt);
+  renderLookupTable(results, refCt);
+  notifyHeight();
+}
+
+/* サマリーパネルの描画 */
+function renderRapaSummary(results, avgUsd, avgJpy, refCt) {
+  const ratePct   = parseInt(document.getElementById("rRateInput").value) || 40;
+  const rate      = ratePct / 100;
+  const unitPrice = Math.round(avgJpy * rate);
 
   if (!results.length) {
-    document.getElementById("lrCount").textContent  = "0件（該当なし）";
-    document.getElementById("lrAvgUsd").textContent = "—";
-    document.getElementById("lrAvgJpy").innerHTML   = "<span class='lr-unit'>円/ct</span>";
-    document.getElementById("lrAvgTotalRow").style.display = "none";
-    document.getElementById("lrDate").textContent   = "—";
-    document.getElementById("lookupTableWrap").style.display = "none";
-    notifyHeight();
+    document.getElementById("rapaSummaryCount").textContent     = "0（該当なし）";
+    document.getElementById("rapaSummaryAvgUsd").textContent    = "—";
+    document.getElementById("rapaSummaryAvgJpy").textContent    = "—";
+    document.getElementById("rapaSummaryUnitPrice").textContent = "—";
+    document.getElementById("rapaSummaryCarat").textContent     = "—";
+    document.getElementById("rapaSummaryTotal").textContent     = "—";
     return;
   }
 
-  const avgUsd   = results.reduce((s, r) => s + r.price_usd, 0) / results.length;
-  const avgJpy   = avgUsd * usdJpy;
-  const refCt    = !isNaN(caratVal) ? caratVal : 0;
-  const avgTotal = Math.round(avgJpy * rate * refCt);
-  const shownDate = results[0].date;
+  document.getElementById("rapaSummaryCount").textContent     = results.length;
+  document.getElementById("rapaSummaryAvgUsd").textContent    = `$${avgUsd.toLocaleString(undefined,{maximumFractionDigits:0})}`;
+  document.getElementById("rapaSummaryAvgJpy").textContent    = fmt(Math.round(avgJpy));
+  document.getElementById("rapaSummaryUnitPrice").textContent = fmt(unitPrice);
+  document.getElementById("rapaSummaryCarat").textContent     = refCt > 0 ? refCt.toFixed(3) : "—";
+  document.getElementById("rapaSummaryTotal").textContent     = refCt > 0 ? fmt(Math.round(unitPrice * refCt)) : "—";
+}
 
-  document.getElementById("lrCount").textContent   = `${results.length} 件`;
-  document.getElementById("lrAvgUsd").innerHTML    = `$${avgUsd.toLocaleString(undefined,{maximumFractionDigits:0})} <span style="font-size:0.72rem;color:var(--ink-soft)">USD/ct（平均）</span>`;
-  document.getElementById("lrAvgJpy").innerHTML    = `${fmt(avgJpy)}<span class="lr-unit">円/ct</span>`;
-  document.getElementById("lrRateLabel").textContent = `${ratePct}%`;
-  document.getElementById("lrDate").textContent    = shownDate;
-
-  if (refCt > 0) {
-    document.getElementById("lrAvgTotalRow").style.display = "flex";
-    document.getElementById("lrAvgTotal").innerHTML = `${fmt(avgTotal)}<span class="lr-unit">円</span>`;
-  } else {
-    document.getElementById("lrAvgTotalRow").style.display = "none";
-  }
-
-  document.getElementById("lrTotalHeader").textContent =
-    refCt > 0 ? `買取参考価格（${ratePct}%）` : "買取参考価格";
-
-  const tbody = document.getElementById("lookupTableBody");
+/* テーブルの描画 */
+function renderLookupTable(results, refCt) {
+  const ratePct = parseInt(document.getElementById("rRateInput").value) || 40;
+  const rate    = ratePct / 100;
+  const tbody   = document.getElementById("lookupTableBody");
   tbody.innerHTML = "";
   const TD = "padding:7px 10px;border-bottom:1px solid rgba(192,154,80,0.08);font-feature-settings:'tnum';white-space:nowrap;";
   results.forEach((r, idx) => {
@@ -1586,10 +1607,18 @@ function runRapaLookup() {
     `;
     tbody.appendChild(tr);
   });
-
   document.getElementById("lookupTableWrap").style.display = results.length > 1 ? "block" : "none";
-  notifyHeight();
+  document.getElementById("lrTotalHeader").textContent =
+    refCt > 0 ? `買取参考価格（${ratePct}%）` : "買取参考価格";
 }
+
+/* 掛け率変更 → サマリー＆テーブルをその場で再計算 */
+document.getElementById("rRateInput").addEventListener("change", function() {
+  if (!window.rapaLastResults) return;
+  renderRapaSummary(window.rapaLastResults, window.rapaLastAvgUsd, window.rapaLastAvgJpy, window.rapaLastCarat);
+  renderLookupTable(window.rapaLastResults, window.rapaLastCarat);
+  notifyHeight();
+});
 
 /* ════════════════════════════════════════
    HEATMAP
