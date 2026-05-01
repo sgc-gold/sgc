@@ -2,7 +2,7 @@
 //  SGC 社内ポータル Service Worker
 //  バージョンを変えると全キャッシュが更新されます
 // ══════════════════════════════════════════
-var CACHE_VERSION = 'sgc-portal-v3';
+var CACHE_VERSION = 'sgc-portal-v4';
 
 // キャッシュするファイル（全ページ + 主要アセット）
 var PRECACHE_URLS = [
@@ -23,7 +23,8 @@ var PRECACHE_URLS = [
   './image/sgc-logo.png',
   './data/tanaka_price.json',
   './data/exchange_rate.json',
-  './data/diamonds.json',
+  './data/diamonds_2025.json',
+  './data/diamonds_2026.json',
   './data/gemstones.json',
   './data/coins.json',
   './data/rapaport.json',
