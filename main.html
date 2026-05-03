@@ -471,8 +471,12 @@ function loadPrice() {
     .then(data => {
       const g  = data.prices.GOLD;
       const pt = data.prices.PLATINUM;
-      document.getElementById("gold-price").textContent = g.buy;
-      document.getElementById("pt-price").textContent   = pt.buy;
+      const formatPrice = value => {
+        const num = Number(value);
+        return Number.isFinite(num) ? num.toLocaleString('ja-JP') : value;
+      };
+      document.getElementById("gold-price").textContent = formatPrice(g.buy);
+      document.getElementById("pt-price").textContent   = formatPrice(pt.buy);
       document.getElementById("update-time").textContent = data.update_time || '—';
       const gEl = document.getElementById("gold-diff");
       gEl.textContent  = g.buy_diff + " 円";
