@@ -463,13 +463,13 @@ const GEM_DIRECT_IMAGES = {
   ruby:          "https://upload.wikimedia.org/wikipedia/commons/4/4d/Ruby-Diamond-88757.gif",
   sapphire:      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Cut_sapphire.jpg/320px-Cut_sapphire.jpg",
   emerald:       "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Esmeralda_Emerald_Envy_14x10.jpg/320px-Esmeralda_Emerald_Envy_14x10.jpg",
-  aquamarine:    "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Aquamarine_on_matrix.jpg/320px-Aquamarine_on_matrix.jpg",
+  aquamarine:    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Aquamarine_gem.jpg/320px-Aquamarine_gem.jpg",
   alexandrite:   "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Alexandrite_gems.jpg/320px-Alexandrite_gems.jpg",
   amethyst:      "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Cut_amethyst.jpg/320px-Cut_amethyst.jpg",
   ametrine:      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Ametrine_gem.jpg/320px-Ametrine_gem.jpg",
   andalusite:    "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Andalusite_gem.jpg/320px-Andalusite_gem.jpg",
   apatite:       "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Apatite_gem.jpg/320px-Apatite_gem.jpg",
-  amber:         "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Baltic_amber_pendants.jpg/320px-Baltic_amber_pendants.jpg",
+  amber:         "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Amber_gem.jpg/320px-Amber_gem.jpg",
   axinite:       "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Axinite_gem.jpg/320px-Axinite_gem.jpg",
   benitoite:     "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Benitoite_gem.jpg/320px-Benitoite_gem.jpg",
   beryl:         "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Beryl.jpg/320px-Beryl.jpg",
@@ -654,18 +654,42 @@ const GEM_SEARCH_KEYWORDS = {
   zircon_blue:   "zircon faceted gem blue",
 };
 
-// ── 除外キーワード（鉱物標本・原石を除外）
+const DIRECT_IMAGE_FORCE_FALLBACK_IDS = new Set([
+  'beryl'
+]);
+
 const IMAGE_EXCLUDE_WORDS = [
   'rough', 'crystal_cluster', 'mineral_specimen', 'matrix',
   'formation', 'druse', 'specimen', 'crystal_on', 'raw',
-  'native_', 'deposit', 'outcrop', 'vein', 'aggregate'
+  'native_', 'deposit', 'outcrop', 'vein', 'aggregate',
+  'cluster', 'rock', 'mineral', 'museum', 'collection',
+  'pendant', 'necklace', 'ring', 'bracelet', 'earring',
+  'brooch', 'carving', 'cameo', 'bead', 'beads', 'mounted'
 ];
 
-// ── 優先キーワード（ルース宝石らしい画像ファイル名）
 const IMAGE_PREFER_WORDS = [
   'faceted', 'cut', 'gem', 'loose', 'cabochon', 'polished',
-  'stone', 'jewelry', 'jewel', '_gem', 'gemstone'
+  '_gem', 'gemstone'
 ];
+
+function getImageFilename(url) {
+  if (!url) return '';
+  try {
+    return decodeURIComponent(String(url).split('/').pop() || '').toLowerCase();
+  } catch (e) {
+    return String(url).split('/').pop().toLowerCase();
+  }
+}
+
+function hasExcludedImageWord(filename) {
+  return IMAGE_EXCLUDE_WORDS.some(word => filename.includes(word));
+}
+
+function shouldUseDirectImage(gemId, url) {
+  if (!url || DIRECT_IMAGE_FORCE_FALLBACK_IDS.has(gemId)) return false;
+  const filename = getImageFilename(url);
+  return !!filename && !hasExcludedImageWord(filename);
+}
 
 const GEMSTONES_DATA = [
   {"id":"diamond","name_ja":"ダイヤモンド","sg_min":3.5,"sg_max":3.53,"sg_std":3.52,"color_group":"colorless","description":"最硬の宝石。輝きと分散の王者。地球最深部からの贈り物","color_swatch":"linear-gradient(135deg,#C0C8D0,#E8F0F8,#FFFFFF)"},
@@ -1073,16 +1097,18 @@ const GEM_COMMONS_CATEGORIES = {
 function scoreImageFile(filename) {
   const fn = filename.toLowerCase();
   let score = 0;
-  // 優先: ファセット・カット・宝石らしいキーワード
-  const prefer = ['faceted','_cut','cut_','gem','loose','cabochon','polished','jewelry','jewel','stone','carat','ct_'];
-  for (const w of prefer) { if (fn.includes(w)) score += 10; }
-  // 除外: 標本・原石らしいキーワード
-  const avoid = ['rough','crystal_cluster','specimen','matrix','formation','druse','raw_','native_','deposit','vein','aggregate','cluster','massive','schist','rock','geology','mineral_','_mineral','museum','collection'];
-  for (const w of avoid) { if (fn.includes(w)) score -= 20; }
+  for (const w of IMAGE_PREFER_WORDS) {
+    if (fn.includes(w)) score += 12;
+  }
+  if (fn.includes('faceted') || fn.includes('cabochon')) score += 8;
+  for (const w of IMAGE_EXCLUDE_WORDS) {
+    if (fn.includes(w)) score -= 25;
+  }
   return score;
 }
 
 const _catCache = {};
+const _searchCache = {};
 
 async function fetchCategoryImage(category) {
   if (_catCache[category] !== undefined) return _catCache[category];
@@ -1091,18 +1117,15 @@ async function fetchCategoryImage(category) {
     const resp = await fetch(url);
     const data = await resp.json();
     const members = data?.query?.categorymembers || [];
-    // JPGとPNGのみ、スコアでソート
     const imgFiles = members
       .filter(m => /\.(jpg|jpeg|png)$/i.test(m.title))
       .map(m => ({ title: m.title, score: scoreImageFile(m.title) }))
-      .filter(m => m.score >= 0) // スコアが負のものは除外
+      .filter(m => m.score > 0)
       .sort((a, b) => b.score - a.score);
 
     if (!imgFiles.length) {
-      // スコアフィルタを緩めて再試行
-      const all = members.filter(m => /\.(jpg|jpeg|png)$/i.test(m.title));
-      if (!all.length) { _catCache[category] = null; return null; }
-      imgFiles.push({ title: all[0].title, score: 0 });
+      _catCache[category] = null;
+      return null;
     }
     const chosen = imgFiles[0].title.replace('File:', '');
     const infoUrl = `https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(chosen)}&prop=imageinfo&iiprop=url&iiurlwidth=320&format=json&origin=*`;
@@ -1117,6 +1140,48 @@ async function fetchCategoryImage(category) {
     _catCache[category] = null;
     return null;
   }
+}
+
+async function fetchSearchImage(gemId) {
+  if (_searchCache[gemId] !== undefined) return _searchCache[gemId];
+  try {
+    const keyword = GEM_SEARCH_KEYWORDS[gemId];
+    if (!keyword) {
+      _searchCache[gemId] = null;
+      return null;
+    }
+    const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrlimit=15&gsrsearch=${encodeURIComponent(keyword)}&prop=imageinfo&iiprop=url&iiurlwidth=320&format=json&origin=*`;
+    const resp = await fetch(url);
+    const data = await resp.json();
+    const pages = Object.values(data?.query?.pages || {});
+    const candidates = pages
+      .map(page => ({
+        title: page.title || '',
+        thumb: page?.imageinfo?.[0]?.thumburl || null,
+        score: scoreImageFile(page.title || '')
+      }))
+      .filter(page => page.thumb && page.score > 0)
+      .sort((a, b) => b.score - a.score);
+    const best = candidates[0]?.thumb || null;
+    _searchCache[gemId] = best;
+    return best;
+  } catch (e) {
+    _searchCache[gemId] = null;
+    return null;
+  }
+}
+
+async function resolveGemImage(gemId) {
+  const directUrl = GEM_DIRECT_IMAGES[gemId];
+  if (shouldUseDirectImage(gemId, directUrl)) return directUrl;
+  const searchUrl = await fetchSearchImage(gemId);
+  if (searchUrl) return searchUrl;
+  const cat = GEM_COMMONS_CATEGORIES[gemId];
+  if (cat) {
+    const categoryUrl = await fetchCategoryImage(cat);
+    if (categoryUrl) return categoryUrl;
+  }
+  return null;
 }
 
 function setGemImage(gemId, url) {
@@ -1136,11 +1201,9 @@ function setGemImage(gemId, url) {
     img.onerror = function() {
       this.style.display = 'none';
       if (swatch) swatch.style.display = 'flex';
-      // 直接URLが失敗したらWikimedia APIにフォールバック
-      const cat = GEM_COMMONS_CATEGORIES[gemId];
-      if (cat && this.dataset.fallbackTried !== '1') {
+      if (this.dataset.fallbackTried !== '1') {
         this.dataset.fallbackTried = '1';
-        fetchCategoryImage(cat).then(fbUrl => {
+        resolveGemImage(gemId).then(fbUrl => {
           if (fbUrl) {
             this.src = fbUrl;
             this.style.display = '';
@@ -1249,10 +1312,9 @@ function initDrumTouch() {
 //  INIT
 // ══════════════════════════════════════════════════
 async function init() {
-  // 直接URLをGEMSTONES_DATAにマージ
   GEMSTONES = GEMSTONES_DATA.map(g => ({
     ...g,
-    image_url: GEM_DIRECT_IMAGES[g.id] || null
+    image_url: shouldUseDirectImage(g.id, GEM_DIRECT_IMAGES[g.id]) ? GEM_DIRECT_IMAGES[g.id] : null
   }));
 
   try {
@@ -1273,22 +1335,16 @@ async function init() {
   document.getElementById('drumDown').addEventListener('click', () => drumStep(-1));
   document.getElementById('drumUp').addEventListener('click',   () => drumStep(+1));
 
-  // 直接URLを持つ宝石は即時読み込み、なければWikimedia APIフォールバック
   loadGemImages();
 }
 
 async function loadGemImages() {
-  // 直接URLを持つ宝石はすでにHTMLに埋め込まれているので
-  // onerrorハンドラがフォールバックを処理する
-  // ここではURLが未設定の宝石のみWikimediaから取得
   const needsFetch = GEMSTONES.filter(g => !g.image_url);
   const BATCH = 5;
   for (let i = 0; i < needsFetch.length; i += BATCH) {
     const batch = needsFetch.slice(i, i + BATCH);
     await Promise.all(batch.map(async gem => {
-      const cat = GEM_COMMONS_CATEGORIES[gem.id];
-      if (!cat) return;
-      const url = await fetchCategoryImage(cat);
+      const url = await resolveGemImage(gem.id);
       if (url) setGemImage(gem.id, url);
     }));
   }
@@ -1400,19 +1456,15 @@ function showGemBanner(g) {
       thumb.innerHTML = '';
       thumb.style.background = g.color_swatch || '#333';
       thumb.style.borderRadius = '8px';
-      // フォールバック試行
-      const cat = GEM_COMMONS_CATEGORIES[g.id];
-      if (cat) {
-        fetchCategoryImage(cat).then(u => {
-          if (u) {
-            const fi = document.createElement('img');
-            fi.src = u; fi.alt = g.name_ja;
-            fi.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:8px';
-            thumb.innerHTML = '';
-            thumb.appendChild(fi);
-          }
-        });
-      }
+      resolveGemImage(g.id).then(u => {
+        if (u) {
+          const fi = document.createElement('img');
+          fi.src = u; fi.alt = g.name_ja;
+          fi.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:8px';
+          thumb.innerHTML = '';
+          thumb.appendChild(fi);
+        }
+      });
     };
     thumb.appendChild(img);
   } else {
