@@ -49,8 +49,6 @@ self.addEventListener('install', function(event) {
           });
         })
       );
-    }).then(function() {
-      return self.skipWaiting();
     })
   );
 });
