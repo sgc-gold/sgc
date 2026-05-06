@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>トップページ</title>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -335,6 +335,178 @@ body::before {
 }
 .contact-box a { color: var(--green); font-weight: 500; text-decoration: underline; text-underline-offset: 2px; }
 .contact-box a:hover { color: var(--gold-dk); }
+
+/* Design experiment: modern executive dashboard */
+:root {
+  --green: #12392f;
+  --green-lt: #1f5a4b;
+  --green-dk: #071f1b;
+  --gold: #c99b38;
+  --gold-lt: #f1d990;
+  --gold-dk: #9b7222;
+  --cream: #f5f1e8;
+  --cream-dk: #e6ddcd;
+  --ink: #171713;
+  --ink-soft: #696256;
+  --border: rgba(20, 57, 47, 0.11);
+  --shadow: 0 18px 50px rgba(18, 57, 47, 0.11);
+}
+
+html {
+  background:
+    radial-gradient(circle at 15% -10%, rgba(201, 155, 56, 0.18), transparent 30%),
+    linear-gradient(180deg, #fbf8f1 0%, var(--cream) 100%);
+}
+
+body {
+  background: transparent;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+body::before {
+  opacity: 0.18;
+}
+
+.price-band {
+  margin: 14px 14px 0;
+  padding: 0;
+  border: 1px solid rgba(241, 217, 144, 0.18);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(241, 217, 144, 0.22), transparent 28%),
+    linear-gradient(135deg, #09231f 0%, #12392f 58%, #0a2a25 100%);
+  box-shadow: 0 24px 70px rgba(7, 31, 27, 0.24);
+  overflow: hidden;
+}
+
+.price-band::after {
+  left: 24px;
+  right: 24px;
+  background: linear-gradient(90deg, transparent, rgba(241, 217, 144, 0.65), transparent);
+}
+
+.price-band-inner {
+  max-width: 720px;
+  padding: 24px 18px 20px;
+}
+
+.price-band-title {
+  font-size: clamp(1.05rem, 3.2vw, 1.35rem);
+  letter-spacing: 0.08em;
+}
+
+.refresh-fab,
+.price-detail-link {
+  min-height: 44px;
+  border-color: rgba(241, 217, 144, 0.32);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.price-row {
+  gap: 12px;
+}
+
+.price-item {
+  border-radius: 18px;
+  border-color: rgba(241, 217, 144, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.notice-pill,
+.quick-btn,
+.exhibition-card,
+.contact-box {
+  border-radius: 20px;
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+}
+
+.notice-pill {
+  max-width: 720px;
+  margin: 18px auto 0;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--green);
+}
+
+.section-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 26px 18px 0;
+}
+
+.section-label {
+  color: var(--green-lt);
+  font-weight: 700;
+}
+
+.quick-grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+}
+
+.quick-btn {
+  min-height: 112px;
+  padding: 20px 14px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.quick-btn:focus-visible,
+.price-detail-link:focus-visible,
+.refresh-fab:focus-visible,
+.contact-box a:focus-visible {
+  outline: 3px solid rgba(201, 155, 56, 0.45);
+  outline-offset: 3px;
+}
+
+.quick-btn-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, rgba(18, 57, 47, 0.1), rgba(201, 155, 56, 0.18));
+}
+
+.exhibition-card {
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.update-item {
+  min-height: 44px;
+  align-items: center;
+}
+
+@media (max-width: 520px) {
+  .price-band {
+    margin: 10px 10px 0;
+    border-radius: 20px;
+  }
+
+  .price-band-header,
+  .sgc-links-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .price-row {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 </style>
 </head>
 <body>
