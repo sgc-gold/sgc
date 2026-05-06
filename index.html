@@ -177,6 +177,32 @@
     pointer-events: none;
   }
   #frame-loading.show { display: flex; }
+  #pull-refresh-edge { display: none; pointer-events: none; }
+  #pull-refresh-indicator {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translate(-50%, -8px);
+    min-width: 160px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(192,154,80,0.24);
+    background: rgba(255,255,255,0.92);
+    color: var(--green);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    box-shadow: 0 10px 30px rgba(7,31,27,0.12);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    z-index: 210;
+    text-align: center;
+  }
+  #pull-refresh-indicator.show { opacity: 1; transform: translate(-50%, 0); }
+  #pull-refresh-indicator.ready {
+    color: var(--gold-dk);
+    border-color: rgba(201,155,56,0.42);
+  }
   .frame-spinner {
     width: 30px; height: 30px;
     border: 2px solid rgba(192,154,80,0.2);
@@ -235,6 +261,17 @@
     .bnav-item.active { color: var(--gold); }
     .bnav-item svg { width: 20px; height: 20px; flex-shrink: 0; display: block; }
     .bnav-item span { display: block; line-height: 1; }
+    #pull-refresh-edge {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 28px;
+      z-index: 205;
+      background: transparent;
+    }
+    #pull-refresh-edge.external-active { pointer-events: auto; }
   }
   @media (min-width: 900px) { #bottom-nav { display: none !important; } }
 
@@ -664,6 +701,8 @@
 
   <!-- ─── Content ─── -->
   <div id="content-area">
+    <div id="pull-refresh-edge"></div>
+    <div id="pull-refresh-indicator">下に引いて更新</div>
     <iframe id="main-frame" src="main.html" scrolling="yes" allowtransparency="true"></iframe>
     <!-- ページ読み込み中オーバーレイ -->
     <div id="frame-loading">
@@ -856,6 +895,11 @@ document.addEventListener('touchmove', function(e) {
 // ────────────────────────────────────
 var frame = document.getElementById('main-frame');
 var frameLoading = document.getElementById('frame-loading');
+var pullRefreshEdge = document.getElementById('pull-refresh-edge');
+var pullRefreshIndicator = document.getElementById('pull-refresh-indicator');
+var frameAtTop = true;
+var edgePullTracking = false;
+var edgePullStartY = 0;
 
 // ローディングオーバーレイの表示（子フレームからも呼べるよう window に公開）
 window.showFrameLoading = function() {
@@ -865,18 +909,94 @@ function hideFrameLoading() {
   if (frameLoading) frameLoading.classList.remove('show');
 }
 
+function setPullRefreshIndicator(progress, armed) {
+  if (!pullRefreshIndicator) return;
+  if (progress <= 0) {
+    pullRefreshIndicator.classList.remove('show', 'ready');
+    pullRefreshIndicator.textContent = '下に引いて更新';
+    return;
+  }
+  pullRefreshIndicator.classList.add('show');
+  pullRefreshIndicator.classList.toggle('ready', !!armed);
+  pullRefreshIndicator.textContent = armed ? '指を離して更新' : '下に引いて更新';
+}
+
+function resetPullRefreshIndicator() {
+  setPullRefreshIndicator(0, false);
+}
+
+function refreshCurrentFrame() {
+  if (!frame) return;
+  window.showFrameLoading();
+  resetPullRefreshIndicator();
+  frame.src = frame.src;
+}
+
+function isInternalFrame() {
+  if (!frame || !frame.src) return false;
+  try {
+    return new URL(frame.src, window.location.href).origin === window.location.origin;
+  } catch (err) {
+    return false;
+  }
+}
+
 // iframeのロード完了でオーバーレイを消す
-frame.addEventListener('load', hideFrameLoading);
+function syncPullRefreshEdge() {
+  if (!pullRefreshEdge) return;
+  pullRefreshEdge.classList.toggle('external-active', window.innerWidth < 900 && !isInternalFrame());
+}
+
+frame.addEventListener('load', function() {
+  hideFrameLoading();
+  syncPullRefreshEdge();
+});
 
 function navigate(url, el) {
   if (!url || url === '#') return;
   window.showFrameLoading();
+  resetPullRefreshIndicator();
   frame.src = url;
+  syncPullRefreshEdge();
   document.querySelectorAll('#sidebar .nav-link').forEach(function(l) { l.classList.remove('active'); });
   if (el && el.closest && el.closest('#sidebar')) el.classList.add('active');
   document.querySelectorAll('[data-bnav]').forEach(function(l) { l.classList.remove('active'); });
   if (el && el.hasAttribute && el.hasAttribute('data-bnav')) el.classList.add('active');
   if (window.innerWidth < 900) closeSidebar();
+}
+
+if (pullRefreshEdge) {
+  pullRefreshEdge.addEventListener('touchstart', function(e) {
+    if (window.innerWidth >= 900 || isInternalFrame() || frameLoading.classList.contains('show')) return;
+    if (!e.touches || e.touches.length !== 1) return;
+    edgePullTracking = true;
+    edgePullStartY = e.touches[0].clientY;
+    setPullRefreshIndicator(0.01, false);
+  }, { passive: true });
+
+  pullRefreshEdge.addEventListener('touchmove', function(e) {
+    if (!edgePullTracking || !e.touches || e.touches.length !== 1) return;
+    var delta = Math.max(0, e.touches[0].clientY - edgePullStartY);
+    if (delta <= 0) return;
+    e.preventDefault();
+    setPullRefreshIndicator(Math.min(delta / 96, 1), delta >= 72);
+  }, { passive: false });
+
+  pullRefreshEdge.addEventListener('touchend', function(e) {
+    if (!edgePullTracking) return;
+    var delta = 0;
+    if (e.changedTouches && e.changedTouches.length === 1) {
+      delta = Math.max(0, e.changedTouches[0].clientY - edgePullStartY);
+    }
+    edgePullTracking = false;
+    if (delta >= 72) refreshCurrentFrame();
+    else resetPullRefreshIndicator();
+  }, { passive: true });
+
+  pullRefreshEdge.addEventListener('touchcancel', function() {
+    edgePullTracking = false;
+    resetPullRefreshIndicator();
+  }, { passive: true });
 }
 
 // ────────────────────────────────────
@@ -1072,12 +1192,21 @@ function applyUpdate() {
 window.addEventListener('message', function(e) {
   if (!e.data || !e.data.type) return;
   var BASE = 'https://script.google.com/macros/s/AKfycbyf2YPwoPW7dM6OMrK9OyxCJkGXeAa883HcQe6Atz982MHyqF8iobXqGSGFjULebLRp/exec';
-  if (e.data.type === 'go-page') { frame.src = BASE + '?page=' + e.data.page; }
-  if (e.data.type === 'go-back') { frame.src = BASE + '?page=ginza'; }
+  if (e.data.type === 'go-page') { frame.src = BASE + '?page=' + e.data.page; syncPullRefreshEdge(); }
+  if (e.data.type === 'go-back') { frame.src = BASE + '?page=ginza'; syncPullRefreshEdge(); }
+  if (e.data.type === 'scroll-state') { frameAtTop = !!e.data.atTop; }
+  if (e.data.type === 'pull-refresh-progress') {
+    if (window.innerWidth < 900 && frameAtTop) setPullRefreshIndicator(e.data.progress || 0, !!e.data.armed);
+  }
+  if (e.data.type === 'pull-refresh-reset') { resetPullRefreshIndicator(); }
+  if (e.data.type === 'refresh-current-frame') {
+    if (window.innerWidth < 900 && frameAtTop && !frameLoading.classList.contains('show')) refreshCurrentFrame();
+  }
   if (e.data.type === 'logout') {
     localStorage.removeItem(STORAGE_KEY);
     refreshBadge();
     frame.src = 'main.html';
+    syncPullRefreshEdge();
   }
 });
 </script>
