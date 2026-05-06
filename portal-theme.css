@@ -1,0 +1,334 @@
+/* SGC internal portal shared design alignment */
+:root {
+  --green: #12392f;
+  --green-lt: #1f5a4b;
+  --green-dk: #071f1b;
+  --gold: #c99b38;
+  --gold-lt: #f1d990;
+  --gold-dk: #9b7222;
+  --cream: #f5f1e8;
+  --cream-dk: #e6ddcd;
+  --white: #ffffff;
+  --ink: #171713;
+  --ink-soft: #696256;
+  --border: rgba(20, 57, 47, 0.11);
+  --border-ui: rgba(20, 57, 47, 0.18);
+  --shadow: 0 18px 50px rgba(18, 57, 47, 0.11);
+  --focus: rgba(201, 155, 56, 0.45);
+}
+
+html {
+  background:
+    radial-gradient(circle at 15% -10%, rgba(201, 155, 56, 0.18), transparent 30%),
+    linear-gradient(180deg, #fbf8f1 0%, var(--cream) 100%);
+}
+
+body {
+  background: transparent;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+body::before {
+  opacity: 0.18;
+}
+
+body > header,
+.page-header {
+  margin: 14px 14px 0;
+  border: 1px solid rgba(241, 217, 144, 0.18);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(241, 217, 144, 0.22), transparent 28%),
+    linear-gradient(135deg, #09231f 0%, #12392f 58%, #0a2a25 100%) !important;
+  box-shadow: 0 24px 70px rgba(7, 31, 27, 0.24);
+  overflow: hidden;
+}
+
+body > header::after,
+.page-header::after {
+  left: 24px;
+  right: 24px;
+  background: linear-gradient(90deg, transparent, rgba(241, 217, 144, 0.65), transparent) !important;
+}
+
+.header-title,
+.page-header-title,
+body > header h1 {
+  font-size: clamp(1.2rem, 3.2vw, 1.75rem);
+  letter-spacing: 0.08em;
+}
+
+.header-eyebrow,
+.page-header-eyebrow {
+  color: rgba(241, 217, 144, 0.72) !important;
+}
+
+.panel-title,
+.summary-header-title,
+.search-panel-title,
+.metal-name-ja,
+.coin-title,
+.card-title,
+.card-name,
+.news-title,
+.video-title,
+.drawer-title,
+.section-title,
+.section-label,
+.map-header {
+  color: var(--green) !important;
+}
+
+.card-subtitle,
+.coin-subtitle,
+.news-meta,
+.video-meta,
+.info-label,
+.field-hint,
+.result-count,
+.sort-hint {
+  color: var(--ink-soft) !important;
+}
+
+.content,
+.container,
+.page-wrap,
+.wrap,
+.section-block,
+.search-wrap,
+.result-meta,
+.coins-grid,
+.cards-grid,
+.calendar-wrap,
+.map-section,
+.table-section {
+  max-width: 1180px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.content,
+.container,
+.page-wrap,
+.wrap {
+  padding-left: 18px;
+  padding-right: 18px;
+}
+
+.notice-bar,
+.subtitle-bar,
+.status-bar,
+.filter-bar,
+.tab-bar,
+.tab-nav,
+.legend-bar {
+  max-width: 1180px;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.74) !important;
+  box-shadow: var(--shadow);
+  color: var(--green) !important;
+}
+
+.panel,
+.metal-card,
+.search-panel,
+.summary-panel,
+.table-wrapper,
+.table-wrap,
+.notes,
+.coin-card,
+.market-card,
+.card,
+.auth-card,
+.calendar,
+.map-section,
+.news-card,
+.video-card,
+.ext-links,
+.chart-container,
+.graph-chart-wrap,
+.lookup-result-card,
+.rate-info-bar,
+.hm-detail-card,
+.result-panel,
+.gem-selected-banner {
+  border-radius: 20px !important;
+  border-color: var(--border) !important;
+  background: rgba(255, 255, 255, 0.84) !important;
+  box-shadow: var(--shadow) !important;
+}
+
+.panel-header,
+.summary-header,
+.metal-header,
+.search-panel-header,
+.coin-card-header,
+.card-header,
+.map-header,
+.drawer-header {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(245, 241, 232, 0.86)) !important;
+  border-color: var(--border) !important;
+}
+
+.tab-btn,
+.filter-btn,
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-search,
+.btn-clear,
+.btn-auth,
+.refresh-btn,
+.delete-btn,
+.drawer-close,
+button,
+a {
+  touch-action: manipulation;
+}
+
+.tab-btn,
+.filter-btn,
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-search,
+.btn-clear,
+.btn-auth,
+.refresh-btn,
+.delete-btn {
+  min-height: 44px;
+  border-radius: 13px !important;
+}
+
+.btn-primary,
+.btn-search,
+.btn-auth,
+.btn-calc {
+  background: linear-gradient(135deg, var(--green) 0%, var(--green-lt) 100%) !important;
+  color: var(--white) !important;
+  box-shadow: 0 10px 26px rgba(7, 31, 27, 0.18) !important;
+}
+
+input,
+select,
+textarea,
+.search-input,
+.dim-input {
+  min-height: 44px;
+  border-radius: 13px !important;
+  border-color: var(--border-ui) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.search-input:focus,
+.dim-input:focus,
+button:focus-visible,
+a:focus-visible,
+.tab-btn:focus-visible,
+.filter-btn:focus-visible,
+.btn:focus-visible {
+  outline: 3px solid var(--focus) !important;
+  outline-offset: 3px;
+  box-shadow: none;
+}
+
+table th,
+#resultTable thead th,
+.hm-head,
+.hm-head-corner,
+.hm-row-head {
+  background: var(--green-dk) !important;
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+.tab-btn.active,
+.filter-btn.active,
+.rapa-stab.active,
+.ctog-btn.active,
+.htog.active,
+.ttog.active {
+  color: var(--gold-lt) !important;
+  border-color: var(--gold) !important;
+  background: linear-gradient(135deg, rgba(18, 57, 47, 0.94), rgba(31, 90, 75, 0.94)) !important;
+}
+
+.gem-card,
+.cut-card,
+.color-tile,
+.multiplier-drum-wrap,
+.dim-input,
+.result-panel,
+.search-input {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(241, 217, 144, 0.18);
+}
+
+body:has(.gem-grid) {
+  background:
+    radial-gradient(circle at 18% -10%, rgba(201, 155, 56, 0.14), transparent 32%),
+    linear-gradient(180deg, #071f1b 0%, #0b1715 100%);
+  color: #f5f1e8;
+}
+
+body:has(.gem-grid) .wrap {
+  max-width: 760px;
+}
+
+body:has(.gem-grid) .section-label,
+body:has(.gem-grid) .gem-name,
+body:has(.gem-grid) .dim-label {
+  color: #f5f1e8;
+}
+
+body:has(.gem-grid) .result-panel,
+body:has(.gem-grid) .gem-selected-banner,
+body:has(.gem-grid) .search-input,
+body:has(.gem-grid) .dim-input,
+body:has(.gem-grid) .gem-card,
+body:has(.gem-grid) .cut-card,
+body:has(.gem-grid) .color-tile {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #f5f1e8 !important;
+}
+
+@media (max-width: 560px) {
+  body > header,
+  .page-header {
+    margin: 10px 10px 0;
+    border-radius: 20px;
+  }
+
+  .content,
+  .container,
+  .page-wrap,
+  .wrap {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .tab-bar,
+  .tab-nav,
+  .filter-bar {
+    margin-left: 10px;
+    margin-right: 10px;
+    overflow-x: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

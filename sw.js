@@ -2,12 +2,13 @@
 //  SGC 社内ポータル Service Worker
 //  バージョンを変えると全キャッシュが更新されます
 // ══════════════════════════════════════════
-var CACHE_VERSION = 'sgc-portal-v5';
+var CACHE_VERSION = 'sgc-portal-v6';
 
 // キャッシュするファイル（全ページ + 主要アセット）
 var PRECACHE_URLS = [
   './index.html',
   './main.html',
+  './portal-theme.css',
   './price.html',
   './market.html',
   './diamond.html',
