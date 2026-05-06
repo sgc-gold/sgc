@@ -8,7 +8,7 @@
   ══════════════════════════════════════════ -->
 
   <!-- viewport: safe-area 対応 -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
   <!-- PWA基本 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -434,6 +434,134 @@
   }
   #sw-update-bar.show { display: flex; }
   #sw-update-bar button { background: var(--gold); border: none; border-radius: 8px; padding: 5px 12px; color: var(--green-dk); font-size: 0.72rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+
+  /* Design experiment: modern executive shell */
+  :root {
+    --green: #12392f;
+    --green-lt: #1f5a4b;
+    --green-dk: #071f1b;
+    --gold: #c99b38;
+    --gold-lt: #f1d990;
+    --gold-dk: #9b7222;
+    --white: #ffffff;
+    --border: rgba(241, 217, 144, 0.18);
+    --nav-w: 284px;
+    --header-h: 66px;
+    --bottom-content-h: 64px;
+  }
+
+  body {
+    font-size: 16px;
+    line-height: 1.5;
+    background:
+      radial-gradient(circle at 15% -10%, rgba(201, 155, 56, 0.16), transparent 34%),
+      linear-gradient(180deg, #fbf8f1 0%, #f5f1e8 100%);
+  }
+
+  #app-header {
+    background: rgba(7, 31, 27, 0.96);
+    border-bottom-color: rgba(241, 217, 144, 0.18);
+    box-shadow: 0 14px 46px rgba(7, 31, 27, 0.18);
+  }
+
+  #app-header .header-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .header-title {
+    font-size: clamp(1.05rem, 2vw, 1.25rem);
+    letter-spacing: 0.08em;
+  }
+
+  .hamburger {
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #sidebar {
+    background:
+      radial-gradient(circle at 20% 0%, rgba(241, 217, 144, 0.12), transparent 28%),
+      linear-gradient(180deg, #09231f 0%, #071f1b 100%);
+    border-right-color: rgba(241, 217, 144, 0.14);
+  }
+
+  .sidebar-scroll {
+    padding: 18px 14px 22px;
+  }
+
+  .nav-section-title {
+    color: rgba(241, 217, 144, 0.62);
+    font-weight: 700;
+  }
+
+  .nav-link {
+    min-height: 44px;
+    border-radius: 13px;
+    padding: 10px 12px;
+    color: rgba(255, 255, 255, 0.68);
+  }
+
+  .nav-link:hover,
+  .nav-link:focus-visible {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.94);
+    outline: none;
+  }
+
+  .nav-link:focus-visible,
+  .bnav-item:focus-visible,
+  #sw-update-bar button:focus-visible {
+    box-shadow: 0 0 0 3px rgba(201, 155, 56, 0.45);
+  }
+
+  .nav-link.active {
+    background: linear-gradient(135deg, rgba(201, 155, 56, 0.2), rgba(255, 255, 255, 0.07));
+    border-color: rgba(241, 217, 144, 0.28);
+    color: var(--gold-lt);
+  }
+
+  #content-area {
+    background:
+      radial-gradient(circle at 85% 0%, rgba(18, 57, 47, 0.08), transparent 32%),
+      linear-gradient(180deg, #fbf8f1 0%, #f5f1e8 100%);
+  }
+
+  #frame-loading {
+    backdrop-filter: blur(10px);
+  }
+
+  #bottom-nav {
+    background: rgba(7, 31, 27, 0.96);
+    border-top-color: rgba(241, 217, 144, 0.2);
+    box-shadow: 0 -14px 40px rgba(7, 31, 27, 0.18);
+  }
+
+  .bnav-item {
+    min-height: 56px;
+  }
+
+  .bnav-item.active {
+    color: var(--gold-lt);
+  }
+
+  #sw-update-bar {
+    border-radius: 16px;
+    box-shadow: 0 18px 50px rgba(7, 31, 27, 0.22);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
   </style>
 </head>
 <body>
