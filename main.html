@@ -66,9 +66,24 @@ body::before {
 
 .price-band-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 10px;
   margin-bottom: 12px;
+}
+.price-band-title-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  text-align: center;
+  gap: 6px;
+}
+.price-band-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  gap: 8px;
 }
 .price-band-title {
   font-family: 'Shippori Mincho', serif;
@@ -76,6 +91,11 @@ body::before {
   font-weight: 700;
   letter-spacing: 0.12em;
   color: var(--white);
+}
+.price-band-title-group .price-update {
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 0;
 }
 .price-detail-link {
   display: inline-flex;
@@ -91,6 +111,11 @@ body::before {
   transition: background 0.18s, border-color 0.18s;
   font-family: 'DM Sans', sans-serif;
   touch-action: manipulation;
+}
+.price-detail-link svg {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
 }
 .price-detail-link:hover {
   background: rgba(192,154,80,0.12);
@@ -111,7 +136,14 @@ body::before {
   transition: background 0.18s, border-color 0.18s;
   touch-action: manipulation;
 }
+.refresh-fab svg {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+}
 .refresh-fab:hover { background: rgba(192,154,80,0.1); border-color: rgba(192,154,80,0.6); }
+.refresh-fab.spinning svg { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 .sgc-divider {
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(192,154,80,0.3) 30%, rgba(192,154,80,0.3) 70%, transparent);
@@ -232,25 +264,24 @@ body::before {
 
 .quick-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
 }
 .quick-btn {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  justify-content: flex-start;
+  gap: 10px;
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 16px 8px;
+  padding: 14px 12px;
   cursor: pointer;
   text-decoration: none;
   color: var(--ink);
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s;
   box-shadow: var(--shadow);
-  min-height: 88px;
+  min-height: 70px;
 }
 .quick-btn:hover {
   transform: translateY(-2px);
@@ -260,13 +291,28 @@ body::before {
 .quick-btn:active { transform: translateY(0); }
 /* 300ms遅延除去 */
 .quick-btn { touch-action: manipulation; }
+.quick-btn-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(18,57,47,0.08);
+  background: rgba(30,61,44,0.05);
+}
+.quick-btn-icon svg {
+  width: 18px;
+  height: 18px;
+}
 .quick-btn-label {
   font-family: 'Shippori Mincho', serif;
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   font-weight: 600;
-  text-align: center;
+  text-align: left;
   color: var(--green);
-  line-height: 1.3;
+  line-height: 1.25;
 }
 
 /* ─── Exhibition ─── */
@@ -378,11 +424,15 @@ body::before {
 .price-band-title-group {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  align-items: center;
+  width: 100%;
+  text-align: center;
+  gap: 6px;
 }
 
 .price-band-title-group .price-update {
-  justify-content: flex-start;
+  justify-content: flex-end;
+  width: 100%;
   margin-top: 0;
 }
 
@@ -443,13 +493,13 @@ body::before {
 }
 
 .quick-grid {
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .quick-btn {
   min-height: 74px;
-  padding: 17px 14px;
+  padding: 14px 12px;
   background: rgba(255, 255, 255, 0.82);
   border-radius: 8px;
 }
@@ -515,7 +565,23 @@ body::before {
   }
 
   .quick-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .quick-btn {
+    min-height: 64px;
+    padding: 10px 8px;
+    gap: 8px;
+  }
+
+  .quick-btn-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .quick-btn-label {
+    font-size: 0.64rem;
   }
 }
 
@@ -544,11 +610,13 @@ body::before {
           <span class="price-update-time" id="update-time">—</span>
         </div>
       </div>
-      <div style="display:flex;gap:8px;align-items:center;">
+      <div class="price-band-actions">
         <button class="refresh-fab" id="mainRefreshBtn" onclick="refreshData()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.65"/></svg>
           更新
         </button>
         <a class="price-detail-link" href="#" onclick="openFrame(event,'price.html')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           詳細価格
         </a>
       </div>
@@ -592,14 +660,23 @@ body::before {
   <div class="quick-grid">
 
     <a class="quick-btn" href="#" onclick="openFrame(event,'diamond.html')">
+      <div class="quick-btn-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1A3628" stroke-width="2"><path d="M12 2L2 9l10 13 10-13-10-7z"/><path d="M2 9h20"/></svg>
+      </div>
       <div class="quick-btn-label">ダイヤ相場検索</div>
     </a>
 
     <a class="quick-btn" href="#" onclick="openFrame(event,'coin.html')">
+      <div class="quick-btn-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1A3628" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 10h8"/></svg>
+      </div>
       <div class="quick-btn-label">記念金貨買取価格</div>
     </a>
 
     <a class="quick-btn" href="#" onclick="openFrame(event,'https://script.google.com/macros/s/AKfycbxV4bMjhApWrwqTBLsuu0BnSQ5L8TyaV40_qCOO_RFjT3-WHvosgeesx_LxWZAO4MFr/exec')">
+      <div class="quick-btn-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1A3628" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+      </div>
       <div class="quick-btn-label">IGシリアル照合</div>
     </a>
 
@@ -651,6 +728,10 @@ function loadPrice() {
   return fetch("data/tanaka_price.json?t=" + Date.now())
     .then(r => r.json())
     .then(data => {
+      const normalizeUpdateTime = value => {
+        const text = String(value || '—').replace(/\s*[（(]日本時間[）)]/g, '').trim();
+        return text || '—';
+      };
       const g  = data.prices.GOLD;
       const pt = data.prices.PLATINUM;
       const formatPrice = value => {
@@ -659,7 +740,7 @@ function loadPrice() {
       };
       document.getElementById("gold-price").textContent = formatPrice(g.buy);
       document.getElementById("pt-price").textContent   = formatPrice(pt.buy);
-      document.getElementById("update-time").textContent = data.update_time || '—';
+      document.getElementById("update-time").textContent = normalizeUpdateTime(data.update_time);
       const gEl = document.getElementById("gold-diff");
       gEl.textContent  = g.buy_diff + " 円";
       gEl.className    = "price-item-diff " + (g.buy_diff.includes('-') ? 'negative' : 'positive');

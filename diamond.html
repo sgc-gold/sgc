@@ -70,7 +70,11 @@ body::before {
   border: 1px solid rgba(192,154,80,0.25);
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.1rem; flex-shrink: 0;
+  flex-shrink: 0;
+}
+.page-header-icon svg {
+  width: 18px;
+  height: 18px;
 }
 .page-header-title {
   font-family: 'Shippori Mincho', serif;
@@ -129,7 +133,11 @@ body::before {
 }
 .tab-btn:hover { color: rgba(255,255,255,0.8); }
 .tab-btn.active { color: var(--gold-lt); border-bottom-color: var(--gold); }
-.tab-btn .tab-icon { font-size: 0.9rem; }
+.tab-btn .tab-icon svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+}
 
 /* ── Page wrap ── */
 .page-wrap {
@@ -705,7 +713,12 @@ select {
 <div class="page-header">
   <div class="page-header-inner">
     <div class="page-header-left">
-      <div class="page-header-icon">💎</div>
+      <div class="page-header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M12 3L5 9l7 12 7-12-7-6z"/>
+          <path d="M5 9h14"/>
+        </svg>
+      </div>
       <div class="page-header-title">
         ダイヤ相場検索
         <span>Diamond Market Reference System</span>
@@ -724,10 +737,22 @@ select {
 <!-- ─── Tab Nav ─── -->
 <div class="tab-nav">
   <button class="tab-btn active" data-tab="njTab">
-    <span class="tab-icon">🏷️</span> NJ大会相場
+    <span class="tab-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M4 7h9l7 7-7 7H4z"/>
+        <circle cx="8.5" cy="11.5" r="1.2"/>
+      </svg>
+    </span> NJ大会相場
   </button>
   <button class="tab-btn" data-tab="rapaTab">
-    <span class="tab-icon">📊</span> ラパポート相場
+    <span class="tab-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <line x1="5" y1="19" x2="19" y2="19"/>
+        <rect x="6" y="11" width="3" height="8" rx="0.6"/>
+        <rect x="11" y="7" width="3" height="12" rx="0.6"/>
+        <rect x="16" y="4" width="3" height="15" rx="0.6"/>
+      </svg>
+    </span> ラパポート相場
   </button>
 </div>
 
