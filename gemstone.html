@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 <title>宝石重量計算ツール</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -352,7 +352,6 @@ body::before{
   .multiplier-drum-wrap{min-width:72px}
 }
 </style>
-<link rel="stylesheet" href="portal-theme.css">
 </head>
 <body>
 
@@ -845,18 +844,18 @@ const GEMSTONES_DATA = [
 ];
 
 const COLOR_GROUPS = [
-  {id:'all',     label:'すべて',     swatch:'linear-gradient(135deg,#8B1A1A,#1A8B3A,#1A3A8B,#8B8B1A)',iconSvg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3L5 9l7 12 7-12-7-6z"/><path d="M5 9h14"/></svg>`},
-  {id:'red',     label:'赤・ピンク', swatch:'linear-gradient(135deg,#6B0020,#C0392B,#FF6090)',iconSvg:''},
-  {id:'blue',    label:'青・水色',   swatch:'linear-gradient(135deg,#0A1545,#1565C0,#42A5F5)',iconSvg:''},
-  {id:'purple',  label:'紫',         swatch:'linear-gradient(135deg,#3D0A6B,#7B1FA2,#AB47BC)',iconSvg:''},
-  {id:'green',   label:'緑',         swatch:'linear-gradient(135deg,#003A1A,#006B3A,#40C060)',iconSvg:''},
-  {id:'yellow',  label:'黄・緑黄',   swatch:'linear-gradient(135deg,#5A5A00,#A0A000,#D0C020)',iconSvg:''},
-  {id:'orange',  label:'橙・茶橙',   swatch:'linear-gradient(135deg,#7A3A00,#C06000,#E8A000)',iconSvg:''},
-  {id:'brown',   label:'茶・褐色',   swatch:'linear-gradient(135deg,#3A2A10,#6A5020,#9A7840)',iconSvg:''},
-  {id:'colorless',label:'無色・白',  swatch:'linear-gradient(135deg,#B0B8C8,#D8E0F0,#FFFFFF)',iconSvg:''},
-  {id:'black',   label:'黒・グレー', swatch:'linear-gradient(135deg,#0A0A0A,#303030,#606060)',iconSvg:''},
-  {id:'multi',   label:'多色・変色', swatch:'linear-gradient(135deg,#C03030,#30C030,#3030C0,#C0C030)',iconSvg:''},
-  {id:'organic', label:'有機・特殊', swatch:'linear-gradient(135deg,#5A3000,#9A5800,#C0A060)',iconSvg:''},
+  {id:'all',     label:'すべて',     swatch:'linear-gradient(135deg,#8B1A1A,#1A8B3A,#1A3A8B,#8B8B1A)',emoji:'✦'},
+  {id:'red',     label:'赤・ピンク', swatch:'linear-gradient(135deg,#6B0020,#C0392B,#FF6090)',emoji:''},
+  {id:'blue',    label:'青・水色',   swatch:'linear-gradient(135deg,#0A1545,#1565C0,#42A5F5)',emoji:''},
+  {id:'purple',  label:'紫',         swatch:'linear-gradient(135deg,#3D0A6B,#7B1FA2,#AB47BC)',emoji:''},
+  {id:'green',   label:'緑',         swatch:'linear-gradient(135deg,#003A1A,#006B3A,#40C060)',emoji:''},
+  {id:'yellow',  label:'黄・緑黄',   swatch:'linear-gradient(135deg,#5A5A00,#A0A000,#D0C020)',emoji:''},
+  {id:'orange',  label:'橙・茶橙',   swatch:'linear-gradient(135deg,#7A3A00,#C06000,#E8A000)',emoji:''},
+  {id:'brown',   label:'茶・褐色',   swatch:'linear-gradient(135deg,#3A2A10,#6A5020,#9A7840)',emoji:''},
+  {id:'colorless',label:'無色・白',  swatch:'linear-gradient(135deg,#B0B8C8,#D8E0F0,#FFFFFF)',emoji:''},
+  {id:'black',   label:'黒・グレー', swatch:'linear-gradient(135deg,#0A0A0A,#303030,#606060)',emoji:''},
+  {id:'multi',   label:'多色・変色', swatch:'linear-gradient(135deg,#C03030,#30C030,#3030C0,#C0C030)',emoji:''},
+  {id:'organic', label:'有機・特殊', swatch:'linear-gradient(135deg,#5A3000,#9A5800,#C0A060)',emoji:''},
 ];
 
 const CUTS = [
@@ -1620,6 +1619,5 @@ window.addEventListener('resize',notifyHeight);
 
 init();
 </script>
-<script src="portal-frame-bridge.js"></script>
 </body>
 </html>
