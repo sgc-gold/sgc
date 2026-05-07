@@ -526,7 +526,7 @@
   }
 
   .nav-section-title {
-    color: rgba(241, 217, 144, 0.62);
+    color: rgba(241, 217, 144, 0.76);
     font-weight: 700;
   }
 
@@ -534,12 +534,14 @@
     min-height: 44px;
     border-radius: 13px;
     padding: 10px 12px;
-    color: rgba(255, 255, 255, 0.68);
+    color: rgba(255, 255, 255, 0.82);
+    background: rgba(255, 255, 255, 0.025);
+    border-color: rgba(241, 217, 144, 0.08);
   }
 
   .nav-link:hover,
   .nav-link:focus-visible {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.1);
     color: rgba(255, 255, 255, 0.94);
     outline: none;
   }
@@ -551,9 +553,14 @@
   }
 
   .nav-link.active {
-    background: linear-gradient(135deg, rgba(201, 155, 56, 0.2), rgba(255, 255, 255, 0.07));
-    border-color: rgba(241, 217, 144, 0.28);
-    color: var(--gold-lt);
+    background: linear-gradient(135deg, var(--gold-lt), var(--gold));
+    border-color: rgba(241, 217, 144, 0.72);
+    color: #041613;
+    font-weight: 700;
+  }
+
+  .nav-link.active .nav-icon {
+    opacity: 1;
   }
 
   #content-area {
@@ -578,6 +585,7 @@
 
   .bnav-item.active {
     color: var(--gold-lt);
+    font-weight: 700;
   }
 
   #sw-update-bar {
