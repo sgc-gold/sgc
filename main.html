@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 <title>トップページ</title>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -66,24 +66,9 @@ body::before {
 
 .price-band-header {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 12px;
-}
-.price-band-title-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  text-align: center;
-  gap: 6px;
-}
-.price-band-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  width: 100%;
-  gap: 8px;
 }
 .price-band-title {
   font-family: 'Shippori Mincho', serif;
@@ -91,11 +76,6 @@ body::before {
   font-weight: 700;
   letter-spacing: 0.12em;
   color: var(--white);
-}
-.price-band-title-group .price-update {
-  justify-content: flex-end;
-  width: 100%;
-  margin-top: 0;
 }
 .price-detail-link {
   display: inline-flex;
@@ -106,27 +86,24 @@ body::before {
   color: var(--gold);
   text-decoration: none;
   border: 1px solid rgba(192,154,80,0.35);
-  border-radius: 6px;
+  border-radius: 100px;
   padding: 4px 12px;
   transition: background 0.18s, border-color 0.18s;
   font-family: 'DM Sans', sans-serif;
   touch-action: manipulation;
 }
-.price-detail-link svg {
-  width: 11px;
-  height: 11px;
-  flex-shrink: 0;
-}
 .price-detail-link:hover {
   background: rgba(192,154,80,0.12);
   border-color: rgba(192,154,80,0.6);
 }
+.price-detail-link svg { width: 11px; height: 11px; }
+
 /* 更新ボタン */
 .refresh-fab {
   display: flex; align-items: center; gap: 5px;
   background: none;
   border: 1px solid rgba(192,154,80,0.35);
-  border-radius: 6px;
+  border-radius: 100px;
   padding: 4px 10px;
   font-size: 0.68rem;
   color: rgba(232,212,154,0.7);
@@ -136,14 +113,11 @@ body::before {
   transition: background 0.18s, border-color 0.18s;
   touch-action: manipulation;
 }
-.refresh-fab svg {
-  width: 11px;
-  height: 11px;
-  flex-shrink: 0;
-}
 .refresh-fab:hover { background: rgba(192,154,80,0.1); border-color: rgba(192,154,80,0.6); }
+.refresh-fab svg { transition: transform 0.5s; }
 .refresh-fab.spinning svg { animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
 .sgc-divider {
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(192,154,80,0.3) 30%, rgba(192,154,80,0.3) 70%, transparent);
@@ -169,7 +143,7 @@ body::before {
 .price-item {
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(192,154,80,0.15);
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 13px 16px;
   display: flex;
   justify-content: space-between;
@@ -196,7 +170,7 @@ body::before {
   font-size: 0.8rem;
   font-weight: 500;
   padding: 3px 9px;
-  border-radius: 5px;
+  border-radius: 100px;
   white-space: nowrap;
   font-family: 'DM Sans', sans-serif;
 }
@@ -264,55 +238,50 @@ body::before {
 
 .quick-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
 }
 .quick-btn {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
+  justify-content: center;
+  gap: 8px;
   background: var(--white);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 14px 12px;
+  border-radius: 14px;
+  padding: 16px 8px;
   cursor: pointer;
   text-decoration: none;
   color: var(--ink);
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s;
   box-shadow: var(--shadow);
-  min-height: 70px;
+  min-height: 88px;
 }
 .quick-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 28px rgba(28,26,22,0.14);
   border-color: rgba(192,154,80,0.4);
 }
-.quick-btn:active { transform: translateY(0); }
+.quick-btn:active { transform: scale(0.96); }
 /* 300ms遅延除去 */
 .quick-btn { touch-action: manipulation; }
 .quick-btn-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 6px;
-  flex-shrink: 0;
+  width: 36px; height: 36px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(18,57,47,0.08);
-  background: rgba(30,61,44,0.05);
+  background: rgba(30,61,44,0.08);
 }
-.quick-btn-icon svg {
-  width: 18px;
-  height: 18px;
-}
+.quick-btn-icon svg { width: 18px; height: 18px; }
 .quick-btn-label {
   font-family: 'Shippori Mincho', serif;
-  font-size: 0.74rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  text-align: left;
+  text-align: center;
   color: var(--green);
-  line-height: 1.25;
+  line-height: 1.3;
 }
 
 /* ─── Exhibition ─── */
@@ -320,7 +289,7 @@ body::before {
 .exhibition-card {
   background: var(--white);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 14px 16px;
   box-shadow: var(--shadow);
   display: flex;
@@ -340,7 +309,7 @@ body::before {
   display: inline-block;
   font-size: 0.58rem; font-weight: 600;
   letter-spacing: 0.12em; text-transform: uppercase;
-  padding: 2px 8px; border-radius: 4px; margin-bottom: 5px;
+  padding: 2px 8px; border-radius: 100px; margin-bottom: 5px;
 }
 .ex-badge.today    { background: rgba(192,154,80,0.15); color: var(--gold-dk); border: 1px solid rgba(192,154,80,0.3); }
 .ex-badge.upcoming { background: rgba(30,61,44,0.08);   color: var(--green-lt); border: 1px solid rgba(30,61,44,0.15); }
@@ -361,242 +330,12 @@ body::before {
 
 /* ─── Contact ─── */
 .contact-box {
-  background: var(--white); border: 1px solid var(--border); border-radius: 8px;
+  background: var(--white); border: 1px solid var(--border); border-radius: 12px;
   padding: 16px 18px; box-shadow: var(--shadow); font-size: 0.85rem; color: var(--ink-soft); line-height: 1.7;
 }
 .contact-box a { color: var(--green); font-weight: 500; text-decoration: underline; text-underline-offset: 2px; }
 .contact-box a:hover { color: var(--gold-dk); }
-
-/* Design experiment: modern executive dashboard */
-:root {
-  --green: #12392f;
-  --green-lt: #1f5a4b;
-  --green-dk: #071f1b;
-  --gold: #c99b38;
-  --gold-lt: #f1d990;
-  --gold-dk: #9b7222;
-  --cream: #f5f1e8;
-  --cream-dk: #e6ddcd;
-  --ink: #171713;
-  --ink-soft: #696256;
-  --border: rgba(20, 57, 47, 0.11);
-  --shadow: 0 10px 28px rgba(18, 57, 47, 0.10);
-}
-
-html {
-  background:
-    radial-gradient(circle at 15% -10%, rgba(201, 155, 56, 0.18), transparent 30%),
-    linear-gradient(180deg, #fbf8f1 0%, var(--cream) 100%);
-}
-
-body {
-  background: transparent;
-  font-size: 16px;
-  line-height: 1.5;
-}
-
-body::before {
-  opacity: 0.18;
-}
-
-.price-band {
-  margin: 14px 14px 0;
-  padding: 0;
-  border: 1px solid rgba(241, 217, 144, 0.18);
-  border-radius: 6px;
-  background:
-    linear-gradient(135deg, #09231f 0%, #12392f 58%, #0a2a25 100%);
-  box-shadow: 0 18px 46px rgba(7, 31, 27, 0.22);
-  overflow: hidden;
-}
-
-.price-band::after {
-  left: 24px;
-  right: 24px;
-  background: linear-gradient(90deg, transparent, rgba(241, 217, 144, 0.65), transparent);
-}
-
-.price-band-inner {
-  max-width: 720px;
-  padding: 18px 18px 16px;
-}
-
-.price-band-title-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  text-align: center;
-  gap: 6px;
-}
-
-.price-band-title-group .price-update {
-  justify-content: flex-end;
-  width: 100%;
-  margin-top: 0;
-}
-
-.price-band-title {
-  font-size: clamp(1.05rem, 3.2vw, 1.35rem);
-  letter-spacing: 0.08em;
-}
-
-.refresh-fab,
-.price-detail-link {
-  min-height: 38px;
-  border-color: rgba(241, 217, 144, 0.32);
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 6px;
-  text-transform: uppercase;
-}
-
-.price-item-diff {
-  border-radius: 5px;
-}
-
-.price-row {
-  gap: 12px;
-}
-
-.price-item {
-  border-radius: 8px;
-  border-color: rgba(241, 217, 144, 0.16);
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
-}
-
-.notice-pill,
-.quick-btn,
-.exhibition-card,
-.contact-box {
-  border-radius: 8px;
-  border-color: var(--border);
-  box-shadow: var(--shadow);
-}
-
-.notice-pill {
-  max-width: 720px;
-  margin: 18px auto 0;
-  background: rgba(255, 255, 255, 0.72);
-  color: var(--green);
-}
-
-.section-wrap {
-  max-width: 760px;
-  margin: 0 auto;
-  padding: 26px 18px 0;
-}
-
-.section-label {
-  color: var(--green-lt);
-  font-weight: 700;
-}
-
-.quick-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.quick-btn {
-  min-height: 74px;
-  padding: 14px 12px;
-  background: rgba(255, 255, 255, 0.82);
-  border-radius: 8px;
-}
-
-.quick-btn:focus-visible,
-.price-detail-link:focus-visible,
-.refresh-fab:focus-visible,
-.contact-box a:focus-visible {
-  outline: 3px solid rgba(201, 155, 56, 0.45);
-  outline-offset: 3px;
-}
-
-.exhibition-card {
-  background: rgba(255, 255, 255, 0.86);
-}
-
-.update-item {
-  min-height: 44px;
-  align-items: center;
-}
-
-@media (max-width: 520px) {
-  .price-band {
-    margin: 10px 10px 0;
-    border-radius: 8px;
-  }
-
-  .price-band-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-
-  .price-row {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 8px;
-  }
-
-  .price-item {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 11px 10px;
-  }
-
-  .price-item-val {
-    font-size: 1.05rem;
-  }
-
-  .price-item-diff {
-    font-size: 0.68rem;
-    padding: 2px 6px;
-    border-radius: 5px;
-  }
-
-  .sgc-links-row {
-    gap: 8px;
-  }
-
-  .sgc-link {
-    min-width: 0;
-    padding: 6px 8px;
-    font-size: 0.63rem;
-  }
-
-  .quick-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-  }
-
-  .quick-btn {
-    min-height: 64px;
-    padding: 10px 8px;
-    gap: 8px;
-  }
-
-  .quick-btn-icon {
-    width: 30px;
-    height: 30px;
-  }
-
-  .quick-btn-label {
-    font-size: 0.64rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-  }
-}
 </style>
-<link rel="stylesheet" href="portal-theme.css">
 </head>
 <body>
 
@@ -604,21 +343,15 @@ body::before {
 <div class="price-band">
   <div class="price-band-inner">
     <div class="price-band-header">
-      <div class="price-band-title-group">
-        <div class="price-band-title">田中貴金属 買取価格</div>
-        <div class="price-update">
-          <span class="price-update-label">更新日時</span>
-          <span class="price-update-time" id="update-time">—</span>
-        </div>
-      </div>
-      <div class="price-band-actions">
+      <div class="price-band-title">田中貴金属 買取価格</div>
+      <div style="display:flex;gap:8px;align-items:center;">
         <button class="refresh-fab" id="mainRefreshBtn" onclick="refreshData()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.65"/></svg>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.65"/></svg>
           更新
         </button>
         <a class="price-detail-link" href="#" onclick="openFrame(event,'price.html')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           詳細価格
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
       </div>
     </div>
@@ -639,19 +372,26 @@ body::before {
         <div class="price-item-diff loading" id="pt-diff">読込中</div>
       </div>
     </div>
+    <div class="price-update">
+      <span class="price-update-label">更新日時</span>
+      <span class="price-update-time" id="update-time">—</span>
+    </div>
     <div class="sgc-divider"></div>
     <div class="sgc-links-row">
       <a class="price-detail-link sgc-link" href="#" onclick="openFrame(event,'https://script.google.com/macros/s/AKfycbyoZvlzgcQrVdYI2JCgJBHaZ11BYASFME91VkWhc5sriiI8Sr2CqJpVV8mGzyXb6XCW/exec')">
-        SGC 買取価格
+        💎 SGC 買取価格
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
       <a class="price-detail-link sgc-link" href="#" onclick="openFrame(event,'https://script.google.com/macros/s/AKfycbzw6OKj2rMVVzxuxrYLu07voIsebAxYqX9iZHo80-NZHqvy9FsY74NeuclM-D1ZuNw-8w/exec')">
-        SGC 売却価格
+        🪙 SGC 売却価格
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
     </div>
   </div>
 </div>
 
 <div class="notice-pill">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
   サイドメニューからも各ページにアクセスできます
 </div>
 
@@ -729,10 +469,6 @@ function loadPrice() {
   return fetch("data/tanaka_price.json?t=" + Date.now())
     .then(r => r.json())
     .then(data => {
-      const normalizeUpdateTime = value => {
-        const text = String(value || '—').replace(/\s*[（(]日本時間[）)]/g, '').trim();
-        return text || '—';
-      };
       const g  = data.prices.GOLD;
       const pt = data.prices.PLATINUM;
       const formatPrice = value => {
@@ -741,7 +477,7 @@ function loadPrice() {
       };
       document.getElementById("gold-price").textContent = formatPrice(g.buy);
       document.getElementById("pt-price").textContent   = formatPrice(pt.buy);
-      document.getElementById("update-time").textContent = normalizeUpdateTime(data.update_time);
+      document.getElementById("update-time").textContent = data.update_time || '—';
       const gEl = document.getElementById("gold-diff");
       gEl.textContent  = g.buy_diff + " 円";
       gEl.className    = "price-item-diff " + (g.buy_diff.includes('-') ? 'negative' : 'positive');
@@ -822,6 +558,5 @@ function notifyHeight() {
 window.addEventListener('load', notifyHeight);
 window.addEventListener('resize', notifyHeight);
 </script>
-<script src="portal-frame-bridge.js"></script>
 </body>
 </html>

@@ -8,7 +8,7 @@
   ══════════════════════════════════════════ -->
 
   <!-- viewport: safe-area 対応 -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 
   <!-- PWA基本 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -177,32 +177,6 @@
     pointer-events: none;
   }
   #frame-loading.show { display: flex; }
-  #pull-refresh-edge { display: none; pointer-events: none; }
-  #pull-refresh-indicator {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translate(-50%, -8px);
-    min-width: 160px;
-    padding: 8px 14px;
-    border-radius: 999px;
-    border: 1px solid rgba(192,154,80,0.24);
-    background: rgba(255,255,255,0.92);
-    color: var(--green);
-    font-size: 0.72rem;
-    letter-spacing: 0.04em;
-    box-shadow: 0 10px 30px rgba(7,31,27,0.12);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.18s ease, transform 0.18s ease;
-    z-index: 210;
-    text-align: center;
-  }
-  #pull-refresh-indicator.show { opacity: 1; transform: translate(-50%, 0); }
-  #pull-refresh-indicator.ready {
-    color: var(--gold-dk);
-    border-color: rgba(201,155,56,0.42);
-  }
   .frame-spinner {
     width: 30px; height: 30px;
     border: 2px solid rgba(192,154,80,0.2);
@@ -226,7 +200,8 @@
   @media (max-width: 899px) {
     #shell {
       grid-template-columns: 1fr;
-      grid-template-rows: calc(var(--header-h) + env(safe-area-inset-top, 0px)) 1fr var(--bottom-content-h);
+      /* bnav行を明示的に計算: コンテンツ高さ + セーフエリア */
+      grid-template-rows: calc(var(--header-h) + env(safe-area-inset-top, 0px)) 1fr calc(var(--bottom-content-h) + env(safe-area-inset-bottom, 0px));
       grid-template-areas: "hdr" "main" "bnav";
     }
     .hamburger { display: flex; }
@@ -244,8 +219,11 @@
       background: var(--green-dk);
       border-top: 1px solid rgba(192,154,80,0.14);
       display: flex;
-      align-items: stretch;
-      height: var(--bottom-content-h);
+      /* flex-start: アイテムを上端に固定し、safe-area分のpaddingを下に確保 */
+      align-items: flex-start;
+      /* コンテンツ56px + セーフエリアの合計高さを明示 */
+      height: calc(var(--bottom-content-h) + env(safe-area-inset-bottom, 0px));
+      padding-bottom: env(safe-area-inset-bottom, 0px);
       padding-left:  env(safe-area-inset-left,   0px);
       padding-right: env(safe-area-inset-right,  0px);
       position: relative; z-index: 100;
@@ -254,24 +232,13 @@
       flex: 1; display: flex !important; flex-direction: column; align-items: center; justify-content: center;
       gap: 3px; color: rgba(255,255,255,0.38); font-size: 0.58rem; letter-spacing: 0.03em;
       cursor: pointer; border: none; background: none; padding: 8px 2px;
-      height: 100%;
+      height: var(--bottom-content-h); /* 56px 固定、セーフエリアはpadding-bottomで処理 */
       text-decoration: none; transition: color 0.15s;
       -webkit-tap-highlight-color: transparent; touch-action: manipulation;
     }
     .bnav-item.active { color: var(--gold); }
     .bnav-item svg { width: 20px; height: 20px; flex-shrink: 0; display: block; }
     .bnav-item span { display: block; line-height: 1; }
-    #pull-refresh-edge {
-      display: block;
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 28px;
-      z-index: 205;
-      background: transparent;
-    }
-    #pull-refresh-edge.external-active { pointer-events: auto; }
   }
   @media (min-width: 900px) { #bottom-nav { display: none !important; } }
 
@@ -467,155 +434,6 @@
   }
   #sw-update-bar.show { display: flex; }
   #sw-update-bar button { background: var(--gold); border: none; border-radius: 8px; padding: 5px 12px; color: var(--green-dk); font-size: 0.72rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
-
-  /* Design experiment: modern executive shell */
-  :root {
-    --green: #12392f;
-    --green-lt: #1f5a4b;
-    --green-dk: #071f1b;
-    --green-xdk: #041613;
-    --navy: #071521;
-    --gold: #c99b38;
-    --gold-lt: #f1d990;
-    --gold-dk: #9b7222;
-    --white: #ffffff;
-    --border: rgba(241, 217, 144, 0.18);
-    --nav-w: 284px;
-    --header-h: 66px;
-    --bottom-content-h: 64px;
-  }
-
-  body {
-    font-size: 16px;
-    line-height: 1.5;
-    background:
-      radial-gradient(circle at 15% -10%, rgba(201, 155, 56, 0.16), transparent 34%),
-      linear-gradient(180deg, #fbf8f1 0%, #f5f1e8 100%);
-  }
-
-  #app-header {
-    background:
-      linear-gradient(90deg, rgba(241, 217, 144, 0.08), transparent 28%, rgba(241, 217, 144, 0.05)),
-      linear-gradient(135deg, var(--green-xdk), var(--navy) 58%, var(--green));
-    border-bottom-color: rgba(241, 217, 144, 0.18);
-    box-shadow: 0 18px 52px rgba(7, 21, 33, 0.24);
-  }
-
-  #app-header .header-inner {
-    max-width: 1280px;
-    margin: 0 auto;
-  }
-
-  .header-title {
-    font-size: clamp(1.05rem, 2vw, 1.25rem);
-    letter-spacing: 0.08em;
-  }
-
-  .hamburger {
-    min-width: 44px;
-    min-height: 44px;
-    align-items: center;
-    justify-content: center;
-  }
-
-  #sidebar {
-    background:
-      linear-gradient(90deg, rgba(241, 217, 144, 0.07), transparent 30%),
-      linear-gradient(180deg, var(--navy) 0%, var(--green-xdk) 100%);
-    border-right-color: rgba(241, 217, 144, 0.14);
-  }
-
-  .sidebar-scroll {
-    padding: 18px 14px 22px;
-  }
-
-  .nav-section-title {
-    color: rgba(241, 217, 144, 0.76);
-    font-weight: 700;
-  }
-
-  .nav-link {
-    min-height: 44px;
-    border-radius: 10px;
-    padding: 10px 12px;
-    color: rgba(255, 255, 255, 0.82);
-    background: rgba(255, 255, 255, 0.035);
-    border-color: rgba(241, 217, 144, 0.08);
-    line-height: 1.35;
-  }
-
-  .nav-link:hover,
-  .nav-link:focus-visible {
-    background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.94);
-    outline: none;
-  }
-
-  .nav-link:focus-visible,
-  .bnav-item:focus-visible,
-  #sw-update-bar button:focus-visible {
-    box-shadow: 0 0 0 3px rgba(201, 155, 56, 0.45);
-  }
-
-  .nav-link.active {
-    background: linear-gradient(135deg, var(--gold-lt), var(--gold));
-    border-color: rgba(241, 217, 144, 0.72);
-    color: var(--green-xdk);
-    font-weight: 700;
-    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
-  }
-
-  .nav-link.active .nav-icon {
-    opacity: 1;
-  }
-
-  #content-area {
-    background:
-      linear-gradient(120deg, rgba(7, 21, 33, 0.05), transparent 34%),
-      linear-gradient(180deg, #fbfaf6 0%, #f5f1e8 100%);
-  }
-
-  #frame-loading {
-    backdrop-filter: blur(10px);
-  }
-
-  #bottom-nav {
-    background:
-      linear-gradient(135deg, var(--green-xdk), var(--navy) 70%, var(--green));
-    border-top-color: rgba(241, 217, 144, 0.2);
-    box-shadow: 0 -14px 40px rgba(7, 31, 27, 0.18);
-  }
-
-  .bnav-item {
-    min-height: 56px;
-    color: rgba(255, 255, 255, 0.72);
-  }
-
-  .bnav-item.active {
-    color: var(--gold-lt);
-    font-weight: 700;
-  }
-
-  .bnav-item:focus-visible {
-    outline: 3px solid rgba(201, 155, 56, 0.45);
-    outline-offset: -3px;
-  }
-
-  #sw-update-bar {
-    border-radius: 16px;
-    box-shadow: 0 18px 50px rgba(7, 31, 27, 0.22);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      scroll-behavior: auto !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
   </style>
 </head>
 <body>
@@ -722,8 +540,6 @@
 
   <!-- ─── Content ─── -->
   <div id="content-area">
-    <div id="pull-refresh-edge"></div>
-    <div id="pull-refresh-indicator">下に引いて更新</div>
     <iframe id="main-frame" src="main.html" scrolling="yes" allowtransparency="true"></iframe>
     <!-- ページ読み込み中オーバーレイ -->
     <div id="frame-loading">
@@ -916,11 +732,6 @@ document.addEventListener('touchmove', function(e) {
 // ────────────────────────────────────
 var frame = document.getElementById('main-frame');
 var frameLoading = document.getElementById('frame-loading');
-var pullRefreshEdge = document.getElementById('pull-refresh-edge');
-var pullRefreshIndicator = document.getElementById('pull-refresh-indicator');
-var frameAtTop = true;
-var edgePullTracking = false;
-var edgePullStartY = 0;
 
 // ローディングオーバーレイの表示（子フレームからも呼べるよう window に公開）
 window.showFrameLoading = function() {
@@ -930,94 +741,18 @@ function hideFrameLoading() {
   if (frameLoading) frameLoading.classList.remove('show');
 }
 
-function setPullRefreshIndicator(progress, armed) {
-  if (!pullRefreshIndicator) return;
-  if (progress <= 0) {
-    pullRefreshIndicator.classList.remove('show', 'ready');
-    pullRefreshIndicator.textContent = '下に引いて更新';
-    return;
-  }
-  pullRefreshIndicator.classList.add('show');
-  pullRefreshIndicator.classList.toggle('ready', !!armed);
-  pullRefreshIndicator.textContent = armed ? '指を離して更新' : '下に引いて更新';
-}
-
-function resetPullRefreshIndicator() {
-  setPullRefreshIndicator(0, false);
-}
-
-function refreshCurrentFrame() {
-  if (!frame) return;
-  window.showFrameLoading();
-  resetPullRefreshIndicator();
-  frame.src = frame.src;
-}
-
-function isInternalFrame() {
-  if (!frame || !frame.src) return false;
-  try {
-    return new URL(frame.src, window.location.href).origin === window.location.origin;
-  } catch (err) {
-    return false;
-  }
-}
-
 // iframeのロード完了でオーバーレイを消す
-function syncPullRefreshEdge() {
-  if (!pullRefreshEdge) return;
-  pullRefreshEdge.classList.toggle('external-active', window.innerWidth < 900 && !isInternalFrame());
-}
-
-frame.addEventListener('load', function() {
-  hideFrameLoading();
-  syncPullRefreshEdge();
-});
+frame.addEventListener('load', hideFrameLoading);
 
 function navigate(url, el) {
   if (!url || url === '#') return;
   window.showFrameLoading();
-  resetPullRefreshIndicator();
   frame.src = url;
-  syncPullRefreshEdge();
   document.querySelectorAll('#sidebar .nav-link').forEach(function(l) { l.classList.remove('active'); });
   if (el && el.closest && el.closest('#sidebar')) el.classList.add('active');
   document.querySelectorAll('[data-bnav]').forEach(function(l) { l.classList.remove('active'); });
   if (el && el.hasAttribute && el.hasAttribute('data-bnav')) el.classList.add('active');
   if (window.innerWidth < 900) closeSidebar();
-}
-
-if (pullRefreshEdge) {
-  pullRefreshEdge.addEventListener('touchstart', function(e) {
-    if (window.innerWidth >= 900 || isInternalFrame() || frameLoading.classList.contains('show')) return;
-    if (!e.touches || e.touches.length !== 1) return;
-    edgePullTracking = true;
-    edgePullStartY = e.touches[0].clientY;
-    setPullRefreshIndicator(0.01, false);
-  }, { passive: true });
-
-  pullRefreshEdge.addEventListener('touchmove', function(e) {
-    if (!edgePullTracking || !e.touches || e.touches.length !== 1) return;
-    var delta = Math.max(0, e.touches[0].clientY - edgePullStartY);
-    if (delta <= 0) return;
-    e.preventDefault();
-    setPullRefreshIndicator(Math.min(delta / 96, 1), delta >= 72);
-  }, { passive: false });
-
-  pullRefreshEdge.addEventListener('touchend', function(e) {
-    if (!edgePullTracking) return;
-    var delta = 0;
-    if (e.changedTouches && e.changedTouches.length === 1) {
-      delta = Math.max(0, e.changedTouches[0].clientY - edgePullStartY);
-    }
-    edgePullTracking = false;
-    if (delta >= 72) refreshCurrentFrame();
-    else resetPullRefreshIndicator();
-  }, { passive: true });
-
-  pullRefreshEdge.addEventListener('touchcancel', function() {
-    edgePullTracking = false;
-    resetPullRefreshIndicator();
-  }, { passive: true });
 }
 
 // ────────────────────────────────────
@@ -1213,21 +948,12 @@ function applyUpdate() {
 window.addEventListener('message', function(e) {
   if (!e.data || !e.data.type) return;
   var BASE = 'https://script.google.com/macros/s/AKfycbyf2YPwoPW7dM6OMrK9OyxCJkGXeAa883HcQe6Atz982MHyqF8iobXqGSGFjULebLRp/exec';
-  if (e.data.type === 'go-page') { frame.src = BASE + '?page=' + e.data.page; syncPullRefreshEdge(); }
-  if (e.data.type === 'go-back') { frame.src = BASE + '?page=ginza'; syncPullRefreshEdge(); }
-  if (e.data.type === 'scroll-state') { frameAtTop = !!e.data.atTop; }
-  if (e.data.type === 'pull-refresh-progress') {
-    if (window.innerWidth < 900 && frameAtTop) setPullRefreshIndicator(e.data.progress || 0, !!e.data.armed);
-  }
-  if (e.data.type === 'pull-refresh-reset') { resetPullRefreshIndicator(); }
-  if (e.data.type === 'refresh-current-frame') {
-    if (window.innerWidth < 900 && frameAtTop && !frameLoading.classList.contains('show')) refreshCurrentFrame();
-  }
+  if (e.data.type === 'go-page') { frame.src = BASE + '?page=' + e.data.page; }
+  if (e.data.type === 'go-back') { frame.src = BASE + '?page=ginza'; }
   if (e.data.type === 'logout') {
     localStorage.removeItem(STORAGE_KEY);
     refreshBadge();
     frame.src = 'main.html';
-    syncPullRefreshEdge();
   }
 });
 </script>

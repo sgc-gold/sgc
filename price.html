@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 <title>価格情報</title>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -159,11 +159,7 @@ body::before {
   width: 36px; height: 36px;
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.metal-icon svg {
-  width: 18px;
-  height: 18px;
+  font-size: 1rem; flex-shrink: 0;
 }
 .metal-card.gold     .metal-icon { background: rgba(192,154,80,0.12); }
 .metal-card.platinum .metal-icon { background: rgba(128,144,168,0.12); }
@@ -341,7 +337,6 @@ body::before {
   .price-main { font-size: 1.7rem; }
 }
 </style>
-<link rel="stylesheet" href="portal-theme.css">
 </head>
 <body>
 
@@ -364,9 +359,7 @@ body::before {
       <div class="metal-card gold::before"></div>
       <div class="metal-header">
         <div class="metal-name-wrap">
-          <div class="metal-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M8 12h8M12 8v8"/></svg>
-          </div>
+          <div class="metal-icon">✦</div>
           <div><div class="metal-name-ja">金</div><div class="metal-name-en">Gold</div></div>
         </div>
         <div class="metal-symbol">XAU</div>
@@ -395,9 +388,9 @@ body::before {
 
 <script>
 const METALS = [
-  { key: 'GOLD',     ja: '金',       en: 'Gold',     symbol: 'XAU', cls: 'gold',     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M8 12h8M12 8v8"/></svg>` },
-  { key: 'PLATINUM', ja: 'プラチナ',  en: 'Platinum', symbol: 'XPT', cls: 'platinum', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 7-7 11-7-11 7-7z"/><path d="M12 7v10"/></svg>` },
-  { key: 'SILVER',   ja: '銀',       en: 'Silver',   symbol: 'XAG', cls: 'silver',   icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M8 9h8M8 15h8"/></svg>` },
+  { key: 'GOLD',     ja: '金',       en: 'Gold',     symbol: 'XAU', cls: 'gold',     icon: '✦' },
+  { key: 'PLATINUM', ja: 'プラチナ',  en: 'Platinum', symbol: 'XPT', cls: 'platinum', icon: '◇' },
+  { key: 'SILVER',   ja: '銀',       en: 'Silver',   symbol: 'XAG', cls: 'silver',   icon: '◈' },
 ];
 
 function diffClass(val) {
@@ -484,6 +477,5 @@ function notifyHeight() {
 window.addEventListener('load',   notifyHeight);
 window.addEventListener('resize', notifyHeight);
 </script>
-<script src="portal-frame-bridge.js"></script>
 </body>
 </html>
