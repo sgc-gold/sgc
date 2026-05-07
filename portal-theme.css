@@ -4,6 +4,8 @@
   --green-lt: #1f5a4b;
   --green-dk: #071f1b;
   --green-xdk: #041613;
+  --navy: #071521;
+  --navy-lt: #102338;
   --gold: #c99b38;
   --gold-lt: #f1d990;
   --gold-dk: #9b7222;
@@ -19,14 +21,18 @@
   --focus: rgba(201, 155, 56, 0.45);
   --surface: rgba(255, 255, 255, 0.88);
   --surface-strong: rgba(255, 255, 255, 0.96);
+  --surface-dark: #071521;
   --tab-text: #f3ead2;
   --tab-text-muted: rgba(243, 234, 210, 0.86);
+  --danger: #9f2f2f;
+  --success: #1f6f55;
+  --warning: #8a641d;
 }
 
 html {
   background:
-    radial-gradient(circle at 15% -10%, rgba(201, 155, 56, 0.18), transparent 30%),
-    linear-gradient(180deg, #fbf8f1 0%, var(--cream) 100%);
+    linear-gradient(120deg, rgba(7, 21, 33, 0.05), transparent 34%),
+    linear-gradient(180deg, #fbfaf6 0%, var(--cream) 100%);
 }
 
 body {
@@ -49,7 +55,7 @@ body > header,
   border-radius: 18px;
   background:
     linear-gradient(90deg, rgba(241, 217, 144, 0.12), transparent 22%, transparent 78%, rgba(241, 217, 144, 0.08)),
-    linear-gradient(135deg, var(--green-xdk) 0%, var(--green) 56%, #0a2a25 100%) !important;
+    linear-gradient(135deg, var(--green-xdk) 0%, var(--navy) 48%, var(--green) 100%) !important;
   box-shadow: 0 24px 70px rgba(7, 31, 27, 0.24);
   overflow: hidden;
 }
@@ -173,7 +179,6 @@ body > header h1 {
 .chart-container,
 .graph-chart-wrap,
 .lookup-result-card,
-.rate-info-bar,
 .hm-detail-card,
 .result-panel,
 .gem-selected-banner {
@@ -231,7 +236,7 @@ a {
 .btn-search,
 .btn-auth,
 .btn-calc {
-  background: linear-gradient(135deg, var(--green) 0%, var(--green-lt) 100%) !important;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--green) 100%) !important;
   color: var(--white) !important;
   box-shadow: 0 10px 26px rgba(7, 31, 27, 0.18) !important;
 }
@@ -244,6 +249,9 @@ textarea,
   min-height: 44px;
   border-radius: 13px !important;
   border-color: var(--border-ui) !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  color: var(--ink) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 input:focus,
@@ -266,8 +274,8 @@ table th,
 .hm-head,
 .hm-head-corner,
 .hm-row-head {
-  background: var(--green-dk) !important;
-  color: rgba(255, 255, 255, 0.82) !important;
+  background: linear-gradient(180deg, var(--navy), var(--green-xdk)) !important;
+  color: rgba(255, 255, 255, 0.94) !important;
 }
 
 .tab-btn.active,
@@ -460,6 +468,184 @@ tbody tr:hover,
   border-color: rgba(201, 155, 56, 0.38) !important;
 }
 
+/* Executive contrast pass */
+.price-item,
+.summary-row,
+.lookup-result-row,
+.hm-dc-row,
+.update-item {
+  border-color: rgba(20, 57, 47, 0.1) !important;
+}
+
+.s-label,
+.hm-dc-label,
+.lookup-result-row .lr-label,
+.form-label,
+.dim-label,
+.info-label,
+.price-label,
+.field-hint,
+.range-sep {
+  color: rgba(23, 23, 19, 0.72) !important;
+}
+
+.s-value,
+.s-value strong,
+.hm-dc-val,
+.lookup-result-row .lr-val,
+.price-value,
+.priceCell,
+td:not(.hm-cell) {
+  color: var(--ink) !important;
+}
+
+.summary-row.total .s-label,
+.summary-row.total .s-value strong,
+.lookup-result-row .lr-val.big,
+.hm-dc-val.jpy,
+#resultTable tbody td.priceCell,
+.count-bar strong,
+.result-count strong {
+  color: var(--green) !important;
+  font-weight: 800 !important;
+}
+
+.hm-dc-val.usd,
+.lookup-result-row .lr-val.usd,
+.news-source,
+.detail-toggle {
+  color: var(--gold-dk) !important;
+  font-weight: 800 !important;
+}
+
+.s-unit,
+.hm-dc-unit,
+.lookup-result-row .lr-unit,
+.news-date,
+.ex-date,
+.hm-dc-note,
+.count-bar,
+.pagination-wrap .page-info {
+  color: rgba(23, 23, 19, 0.58) !important;
+}
+
+/* Rapaport exchange panel: keep this dark and highly legible. */
+.rate-info-bar {
+  border-radius: 16px !important;
+  border: 1px solid rgba(241, 217, 144, 0.28) !important;
+  background:
+    linear-gradient(90deg, rgba(241, 217, 144, 0.1), transparent 34%),
+    linear-gradient(135deg, var(--green-xdk), var(--navy) 54%, var(--green) 100%) !important;
+  box-shadow: var(--shadow-deep) !important;
+  color: var(--white) !important;
+  padding: 18px 22px !important;
+}
+
+.rate-info-bar .rate-label,
+.rate-info-bar label {
+  color: rgba(243, 234, 210, 0.82) !important;
+  font-weight: 700 !important;
+}
+
+.rate-info-bar .rate-main,
+#rateDisplay {
+  color: var(--gold-lt) !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.24);
+}
+
+.rate-info-bar .rate-date,
+#rateDateDisplay {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+.rate-info-bar input,
+.rate-info-bar select,
+.rate-info-bar .dim-input {
+  background: rgba(255, 255, 255, 0.96) !important;
+  color: var(--green-xdk) !important;
+  border-color: rgba(241, 217, 144, 0.42) !important;
+  font-weight: 800 !important;
+}
+
+.rate-info-bar .btn,
+.rate-info-bar .btn-secondary,
+.rate-info-bar .btn-sm {
+  background: linear-gradient(135deg, var(--gold-lt), var(--gold)) !important;
+  color: var(--green-xdk) !important;
+  border-color: rgba(241, 217, 144, 0.72) !important;
+  font-weight: 800 !important;
+}
+
+.lookup-result-card,
+.summary-panel,
+.hm-detail-card,
+.rate-info-bar,
+.table-wrapper,
+.table-wrap {
+  margin-top: 2px;
+  margin-bottom: 18px !important;
+}
+
+table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+tbody tr:nth-child(even) {
+  background-color: rgba(7, 21, 33, 0.025) !important;
+}
+
+tbody tr:hover {
+  background-color: rgba(201, 155, 56, 0.08) !important;
+}
+
+td,
+th {
+  line-height: 1.45 !important;
+}
+
+.error-wrap,
+.chart-empty,
+.ex-empty,
+.loading-wrap,
+.empty,
+.empty-message {
+  border-radius: 14px !important;
+}
+
+.error-wrap,
+.error,
+.alert-error {
+  background: rgba(159, 47, 47, 0.08) !important;
+  border-color: rgba(159, 47, 47, 0.28) !important;
+  color: var(--danger) !important;
+}
+
+.success,
+.alert-success {
+  background: rgba(31, 111, 85, 0.08) !important;
+  border-color: rgba(31, 111, 85, 0.28) !important;
+  color: var(--success) !important;
+}
+
+.warning,
+.alert-warning,
+.notice-pill,
+.notice-bar {
+  color: var(--green) !important;
+}
+
+.positive {
+  color: #b13a3a !important;
+  background: rgba(177, 58, 58, 0.12) !important;
+}
+
+.negative {
+  color: #245f99 !important;
+  background: rgba(36, 95, 153, 0.12) !important;
+}
+
 .gem-card,
 .cut-card,
 .color-tile,
@@ -527,6 +713,27 @@ body:has(.gem-grid) .color-tile {
     margin-left: 10px;
     margin-right: 10px;
     overflow-x: auto;
+  }
+
+  .rate-info-bar {
+    padding: 16px !important;
+    gap: 14px !important;
+  }
+
+  .rate-info-bar .rate-main {
+    font-size: clamp(1.35rem, 8vw, 1.8rem) !important;
+  }
+
+  .panel,
+  .summary-panel,
+  .search-panel,
+  .table-wrapper,
+  .table-wrap,
+  .news-card,
+  .coin-card,
+  .market-card,
+  .card {
+    border-radius: 14px !important;
   }
 }
 
