@@ -36,7 +36,6 @@ jobs:
             webdriver-manager \
             pillow \
             requests \
-            sendgrid \
             beautifulsoup4
       # ── 5. update_time を環境変数に展開 ────────────────────
       #       repository_dispatch と workflow_dispatch の両方に対応
@@ -78,5 +77,8 @@ jobs:
       - name: Send email and LINE WORKS
         run: python scripts/tanaka.py
         env:
-          SENDGRID_API_KEY:      ${{ secrets.SENDGRID_API_KEY }}
+          SMTP_HOST:             smtp-relay.brevo.com
+          SMTP_PORT:             587
+          SMTP_USERNAME:         ${{ secrets.BREVO_SMTP_USER }}
+          SMTP_PASSWORD:         ${{ secrets.BREVO_SMTP_KEY }}
           LINEWORKS_WEBHOOK_URL: ${{ secrets.LINEWORKS_WEBHOOK_URL }}
