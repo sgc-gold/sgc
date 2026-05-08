@@ -1,10 +1,9 @@
-import base64
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import (
-    Mail, To, From, Subject, HtmlContent,
-    Attachment, FileContent, FileName, FileType, Disposition, ContentId
-)
 from datetime import datetime
+from email.header import Header
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
 import requests
 import math
 import re
@@ -12,9 +11,12 @@ import json
 import os
 
 # ==================================================
-# メール設定（SendGrid経由）
+# メール送信（SMTP / Brevo想定）
 # ==================================================
-SENDGRID_API_KEY = os.environ["SENDGRID_API_KEY"]
+SMTP_HOST = os.environ.get("SMTP_HOST", "").strip()
+SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
+SMTP_USERNAME = os.environ.get("SMTP_USERNAME", "").strip()
+SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "").strip()
 FROM_EMAIL       = "yokomori@sgc-gold.co.jp"
 TO_EMAIL         = "yokomori@sgc-gold.co.jp"
 BCC_EMAILS       = [
@@ -38,6 +40,43 @@ CHART_FILES      = {
 
 
 # ==================================================
+# SMTP で HTMLメール（inline画像付き）を送信
+# ==================================================
+def send_email_smtp(*, subject: str, html_body: str, inline_images: dict[str, str]):
+    if not SMTP_HOST or not SMTP_USERNAME or not SMTP_PASSWORD:
+        raise RuntimeError(
+            "SMTP settings are missing. Set SMTP_HOST/SMTP_PORT/SMTP_USERNAME/SMTP_PASSWORD."
+        )
+
+    msg_root = MIMEMultipart("related")
+    msg_root["From"] = FROM_EMAIL
+    msg_root["To"] = TO_EMAIL
+    if BCC_EMAILS:
+        msg_root["Bcc"] = ", ".join(BCC_EMAILS)
+    msg_root["Subject"] = str(Header(subject, "utf-8"))
+
+    msg_alt = MIMEMultipart("alternative")
+    msg_root.attach(msg_alt)
+    msg_alt.attach(MIMEText(html_body, "html", "utf-8"))
+
+    for content_id, path in inline_images.items():
+        if not os.path.exists(path):
+            continue
+        with open(path, "rb") as f:
+            img = MIMEImage(f.read())
+        img.add_header("Content-ID", f"<{content_id}>")
+        img.add_header("Content-Disposition", "inline", filename=os.path.basename(path))
+        msg_root.attach(img)
+
+    recipients = [TO_EMAIL] + list(BCC_EMAILS)
+
+    with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=30) as smtp:
+        smtp.ehlo()
+        smtp.starttls()
+        smtp.ehlo()
+        smtp.login(SMTP_USERNAME, SMTP_PASSWORD)
+        smtp.sendmail(FROM_EMAIL, recipients, msg_root.as_string())
+
 # data/tanaka_price.json から価格を読み込む
 # （スクレイピングはupdate_tanaka.pyが担当）
 # ==================================================
@@ -362,30 +401,8 @@ body = f"""
 </p>
 """
 
-msg = Mail(
-    from_email=From(FROM_EMAIL, "（株）SGC 横森俊一"),
-    to_emails=[To(TO_EMAIL)] + [To(bcc) for bcc in BCC_EMAILS],
-    subject=Subject(subject),
-    html_content=HtmlContent(body)
-)
-
-# チャート画像を添付（インライン埋め込み）
-for key, path in CHART_FILES.items():
-    if os.path.exists(path):
-        with open(path, "rb") as img_file:
-            encoded = base64.b64encode(img_file.read()).decode()
-        attachment = Attachment(
-            FileContent(encoded),
-            FileName(os.path.basename(path)),
-            FileType("image/png"),
-            Disposition("inline"),
-            ContentId(key)
-        )
-        msg.attachment = attachment
-
-sg = SendGridAPIClient(SENDGRID_API_KEY)
-response = sg.send(msg)
-print(f"✅ メール送信完了 (status: {response.status_code})")
+send_email_smtp(subject=subject, html_body=body, inline_images=CHART_FILES)
+print("✅ メール送信（SMTP）完了")
 
 # LINE WORKS 送信
 lineworks_message = build_lineworks_message(
