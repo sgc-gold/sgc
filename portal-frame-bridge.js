@@ -3,7 +3,10 @@
 
   var tracking = false;
   var armed = false;
+  var pulling = false;
+  var refreshing = false;
   var startY = 0;
+  var startX = 0;
   var maxPull = 96;
   var triggerPull = 72;
   var startBand = 120;
@@ -40,7 +43,30 @@
   function resetPullState() {
     tracking = false;
     armed = false;
+    pulling = false;
     postMessage('pull-refresh-reset');
+  }
+
+  function finishRefresh() {
+    refreshing = false;
+    postScrollState(true);
+    postMessage('pull-refresh-done');
+  }
+
+  function runRefresh() {
+    if (refreshing) return;
+    refreshing = true;
+    try {
+      if (typeof window.portalRefresh === 'function') {
+        Promise.resolve(window.portalRefresh()).then(finishRefresh, function () {
+          finishRefresh();
+        });
+      } else {
+        window.location.reload();
+      }
+    } catch (err) {
+      finishRefresh();
+    }
   }
 
   window.addEventListener('scroll', function () {
@@ -61,22 +87,32 @@
   });
 
   window.addEventListener('touchstart', function (event) {
+    if (refreshing) return;
     if (!event.touches || event.touches.length !== 1) return;
     if (!atTop()) return;
     if (event.touches[0].clientY > startBand) return;
     tracking = true;
     armed = false;
+    pulling = false;
+    startX = event.touches[0].clientX;
     startY = event.touches[0].clientY;
     postMessage('pull-refresh-progress', { progress: 0, armed: false });
   }, { passive: true });
 
   window.addEventListener('touchmove', function (event) {
-    if (!tracking || !event.touches || event.touches.length !== 1) return;
-    var delta = Math.max(0, event.touches[0].clientY - startY);
-    if (delta <= 0) return;
+    if (refreshing || !tracking || !event.touches || event.touches.length !== 1) return;
+    var deltaX = event.touches[0].clientX - startX;
+    var deltaY = event.touches[0].clientY - startY;
+    if (deltaY <= 0) return;
+    if (Math.abs(deltaX) > Math.max(12, deltaY * 0.75)) {
+      resetPullState();
+      return;
+    }
+    if (!pulling && deltaY < 8) return;
+    pulling = true;
 
     event.preventDefault();
-    var clamped = Math.min(delta, maxPull);
+    var clamped = Math.min(deltaY, maxPull);
     armed = clamped >= triggerPull;
     postMessage('pull-refresh-progress', {
       progress: clamped / maxPull,
@@ -90,7 +126,13 @@
     else postMessage('pull-refresh-reset');
     tracking = false;
     armed = false;
+    pulling = false;
   }, { passive: true });
 
   window.addEventListener('touchcancel', resetPullState, { passive: true });
+
+  window.addEventListener('message', function (event) {
+    if (!event.data || event.data.type !== 'portal-refresh') return;
+    runRefresh();
+  });
 })();
