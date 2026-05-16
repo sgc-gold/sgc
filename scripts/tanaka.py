@@ -80,6 +80,14 @@ def send_email_smtp(*, subject: str, html_body: str, inline_images: dict[str, st
             smtp.login(SMTP_USERNAME, SMTP_PASSWORD)
         except smtplib.SMTPAuthenticationError as exc:
             response = exc.smtp_error.decode("utf-8", errors="replace")
+            if "Unauthorized IP address" in response:
+                raise RuntimeError(
+                    "Brevo rejected the GitHub Actions runner IP address. "
+                    "In Brevo, check Settings > Security > Authorized IPs and either deactivate "
+                    "blocking for SMTP keys or authorize the public IP printed by the workflow step "
+                    "'Show GitHub runner public IP'. "
+                    f"Brevo response: {exc.smtp_code} {response}"
+                ) from exc
             raise RuntimeError(
                 "Brevo SMTP authentication failed. "
                 "Check that BREVO_SMTP_USER is the SMTP login shown in Brevo SMTP settings, "

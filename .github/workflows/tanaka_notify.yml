@@ -91,6 +91,11 @@ jobs:
           test -n "$SMTP_USERNAME" || (echo "::error::BREVO_SMTP_USER secret is not set" && exit 1)
           test -n "$SMTP_PASSWORD" || (echo "::error::BREVO_SMTP_KEY secret is not set" && exit 1)
           test -n "$LINEWORKS_WEBHOOK_URL" || (echo "::error::LINEWORKS_WEBHOOK_URL secret is not set" && exit 1)
+      - name: Show GitHub runner public IP
+        run: |
+          echo "GitHub runner public IP:"
+          curl -fsS https://api.ipify.org
+          echo
       - name: Send email and LINE WORKS
         run: python scripts/tanaka.py
         env:
