@@ -10,6 +10,8 @@ import time
 URL = "https://gold.tanaka.co.jp/commodity/souba/index.php"
 PATH_MAIN = "data/tanaka_price.json"
 PATH_930 = "data/tanaka_price_930.json"
+PATH_HISTORY_DIR = "data/history"
+PATH_HISTORY_INDEX = "data/history/index.json"
 
 # 手動実行判定
 is_workflow_dispatch = os.getenv("GITHUB_EVENT_NAME") == "workflow_dispatch"
@@ -53,6 +55,17 @@ def load_json(path):
             return json.load(f)
     return None
 
+def update_history_index():
+    if not os.path.isdir(PATH_HISTORY_DIR):
+        return
+
+    files = sorted(
+        name for name in os.listdir(PATH_HISTORY_DIR)
+        if re.match(r"^\d{4}-\d{2}-\d{2}\.json$", name)
+    )
+    save_json(PATH_HISTORY_INDEX, {"files": files})
+    print(f"History index saved: {PATH_HISTORY_INDEX} ({len(files)} files)")
+
 def append_to_history(data, update_text):
     """日付別の履歴ファイルにスナップショットを追記する"""
     match = re.search(r"(\d{4})年(\d{2})月(\d{2})日", update_text)
@@ -78,6 +91,7 @@ def append_to_history(data, update_text):
     existing["snapshots"].sort(key=lambda s: s["update_time"])
 
     save_json(path, existing)
+    update_history_index()
     print(f"📚 履歴保存完了: {path}（スナップショット数: {len(existing['snapshots'])}）")
 
 def main():

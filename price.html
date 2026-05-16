@@ -116,200 +116,253 @@ body::before {
   padding: 0 16px;
 }
 
-/* ─── Metal cards ─── */
-.metal-card {
+/* Price table */
+.price-table-panel {
   background: var(--white);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 14px;
   box-shadow: var(--shadow);
   overflow: hidden;
-  margin-bottom: 14px;
-  animation: cardIn 0.4s ease both;
+  margin-bottom: 18px;
+  animation: tableIn 0.35s ease both;
 }
-@keyframes cardIn {
-  from { opacity: 0; transform: translateY(10px); }
+@keyframes tableIn {
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.metal-card:nth-child(1) { animation-delay: 0.05s; }
-.metal-card:nth-child(2) { animation-delay: 0.12s; }
-.metal-card:nth-child(3) { animation-delay: 0.19s; }
-
-/* Top accent bar per metal */
-.metal-card.gold::before   { content: ''; display: block; height: 3px; background: linear-gradient(90deg, #9A7A28, #E8D49A, #C09A50); }
-.metal-card.platinum::before { content: ''; display: block; height: 3px; background: linear-gradient(90deg, #6080A0, #B0C8E0, #8090A8); }
-.metal-card.silver::before  { content: ''; display: block; height: 3px; background: linear-gradient(90deg, #707080, #C8C8D0, #A0A0B0); }
-
-/* Card header row */
-.metal-header {
+.price-table-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 18px 12px;
-  border-bottom: 1px solid rgba(192,154,80,0.1);
-  background: linear-gradient(180deg, rgba(247,243,235,0.8) 0%, var(--white) 100%);
-  flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
+  padding: 14px 18px;
+  background: linear-gradient(180deg, rgba(247,243,235,0.88), rgba(255,255,255,0.98));
+  border-top: 3px solid var(--gold-dk);
+  border-bottom: 1px solid rgba(192,154,80,0.12);
 }
-.metal-name-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.metal-icon {
-  width: 36px; height: 36px;
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1rem; flex-shrink: 0;
-}
-.metal-card.gold     .metal-icon { background: rgba(192,154,80,0.12); }
-.metal-card.platinum .metal-icon { background: rgba(128,144,168,0.12); }
-.metal-card.silver   .metal-icon { background: rgba(160,160,176,0.12); }
-
-.metal-name-ja {
+.price-table-title {
   font-family: 'Shippori Mincho', serif;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--ink);
   letter-spacing: 0.06em;
 }
-.metal-name-en {
+.price-table-caption {
+  font-size: 0.68rem;
+  color: var(--ink-soft);
+  margin-top: 3px;
+  letter-spacing: 0.03em;
+}
+.price-table-badge {
+  font-size: 0.62rem;
+  color: var(--gold-dk);
+  border: 1px solid rgba(192,154,80,0.25);
+  border-radius: 999px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+.price-table-wrap {
+  width: 100%;
+}
+.price-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.price-table th {
+  padding: 10px 12px;
+  background: rgba(247,243,235,0.62);
+  border-bottom: 1px solid rgba(192,154,80,0.12);
+  color: var(--ink-soft);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-align: right;
+  white-space: nowrap;
+}
+.price-table th:first-child {
+  text-align: left;
+  width: 26%;
+}
+.price-table td {
+  padding: 13px 12px;
+  border-bottom: 1px solid rgba(192,154,80,0.1);
+  text-align: right;
+  vertical-align: middle;
+}
+.price-table tr:last-child td {
+  border-bottom: 0;
+}
+.price-table tr {
+  background: rgba(255,255,255,0.94);
+}
+.price-table tr:nth-child(even) {
+  background: rgba(247,243,235,0.22);
+}
+.price-metal {
+  text-align: left;
+}
+.price-metal-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.price-metal-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.95rem;
+}
+.price-metal.gold .price-metal-mark { background: rgba(192,154,80,0.12); color: var(--gold-dk); }
+.price-metal.platinum .price-metal-mark { background: rgba(74,106,138,0.11); color: #4A6A8A; }
+.price-metal.silver .price-metal-mark { background: rgba(106,106,122,0.11); color: #6A6A7A; }
+.price-metal-ja {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.05em;
+  line-height: 1.15;
+}
+.price-metal-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+}
+.price-metal-en {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
   font-size: 0.72rem;
   color: var(--ink-soft);
-  letter-spacing: 0.1em;
-  margin-top: 1px;
-}
-.metal-symbol {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.65rem;
-  font-weight: 500;
-  color: rgba(255,255,255,0.85);
-  padding: 3px 10px;
-  border-radius: 100px;
   letter-spacing: 0.08em;
 }
-.metal-card.gold     .metal-symbol { background: var(--gold-dk); }
-.metal-card.platinum .metal-symbol { background: #4A6A8A; }
-.metal-card.silver   .metal-symbol { background: #6A6A7A; }
-
-/* Price columns */
-.price-cols {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.price-symbol {
+  font-size: 0.55rem;
+  color: rgba(255,255,255,0.9);
+  border-radius: 999px;
+  padding: 2px 7px;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
 }
-.price-col {
-  padding: 16px 18px;
-  position: relative;
-}
-.price-col:first-child {
-  border-right: 1px solid rgba(192,154,80,0.1);
-}
-.price-col-label {
-  font-size: 0.58rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  margin-bottom: 8px;
-  display: flex; align-items: center; gap: 6px;
-}
-.price-col-label::before {
-  content: '';
-  display: inline-block;
-  width: 3px; height: 9px;
-  border-radius: 2px;
-}
-.price-col.retail .price-col-label::before   { background: var(--green-lt); }
-.price-col.purchase .price-col-label::before { background: var(--gold); }
-
-.price-main {
+.price-metal.gold .price-symbol { background: var(--gold-dk); }
+.price-metal.platinum .price-symbol { background: #4A6A8A; }
+.price-metal.silver .price-symbol { background: #6A6A7A; }
+.price-value {
   font-family: 'DM Sans', sans-serif;
-  font-size: clamp(1.3rem, 3.5vw, 1.65rem);
-  font-weight: 500;
-  color: var(--ink);
-  letter-spacing: -0.01em;
-  line-height: 1;
-  margin-bottom: 8px;
-}
-.price-main .unit { font-size: 0.75rem; color: var(--ink-soft); font-weight: 400; margin-left: 3px; }
-
-.diff-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 10px;
-  border-radius: 100px;
-  font-size: 0.78rem;
-  font-weight: 500;
-  font-family: 'DM Sans', sans-serif;
-  line-height: 1;
-}
-.diff-badge.up   { background: rgba(181,41,41,0.1);  color: var(--up); }
-.diff-badge.dn   { background: rgba(26,90,154,0.1);  color: var(--dn); }
-.diff-badge.flat { background: rgba(90,84,72,0.08);  color: var(--ink-soft); }
-
-.diff-sub {
-  display: block;
-  font-size: 0.68rem;
-  color: var(--ink-soft);
-  margin-top: 5px;
-  letter-spacing: 0.03em;
-}
-.diff-sub .val { font-weight: 500; }
-
-/* Divider label between cols */
-.vs-divider {
-  position: absolute;
-  right: -1px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 22px; height: 22px;
-  background: var(--cream);
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.5rem;
-  color: var(--ink-soft);
-  letter-spacing: 0;
-  z-index: 2;
+  font-size: 1.12rem;
   font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0;
+  white-space: nowrap;
 }
-
-/* ─── Notes ─── */
-.notes {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px 20px;
-  box-shadow: var(--shadow);
-  margin-bottom: 8px;
+.price-value .unit {
+  font-size: 0.68rem;
+  font-weight: 400;
+  color: var(--ink-soft);
+  margin-left: 2px;
 }
-.notes-title {
-  font-size: 0.6rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--gold-dk);
-  margin-bottom: 12px;
-  display: flex; align-items: center; gap: 8px;
+.price-rate-cell {
+  text-align: center;
 }
-.notes-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-.note-item {
+.price-rate-card {
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
   gap: 8px;
-  font-size: 0.8rem;
-  color: var(--ink-soft);
-  line-height: 1.65;
-  padding: 5px 0;
-  border-bottom: 1px solid rgba(192,154,80,0.08);
+  min-height: 86px;
+  padding: 10px 12px;
+  border: 1px solid rgba(192,154,80,0.1);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(247,243,235,0.42), rgba(255,255,255,0.86));
 }
-.note-item:last-child { border-bottom: none; padding-bottom: 0; }
-.note-bullet {
-  flex-shrink: 0;
-  width: 4px; height: 4px;
+.price-rate-main {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: auto;
+}
+.price-rate-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 7px;
+  color: var(--gold-dk);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  line-height: 1;
+}
+.price-rate-label::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--green-lt);
+}
+.price-rate-cell.purchase .price-rate-label::before {
   background: var(--gold);
-  border-radius: 50%;
-  margin-top: 8px;
+}
+.price-rate-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 6px;
+}
+.price-rate-930 {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(90,84,72,0.06);
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+  line-height: 1.2;
+}
+.price-rate-930 .up { color: var(--up); font-weight: 600; }
+.price-rate-930 .dn { color: var(--dn); font-weight: 600; }
+.price-diff {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+.price-diff.up { background: rgba(181,41,41,0.1); color: var(--up); }
+.price-diff.dn { background: rgba(26,90,154,0.1); color: var(--dn); }
+.price-diff.flat { background: rgba(90,84,72,0.08); color: var(--ink-soft); }
+
+.price-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 18px 14px;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(192,154,80,0.12);
+  background: rgba(247,243,235,0.42);
+  border-radius: 9px;
+  font-size: 0.76rem;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+.price-note::before {
+  content: '※';
+  flex-shrink: 0;
+  color: var(--gold-dk);
+  font-weight: 700;
 }
 
 /* ─── Error state ─── */
@@ -318,6 +371,133 @@ body::before {
   padding: 40px 20px;
   color: var(--ink-soft);
   font-size: 0.88rem;
+}
+
+/* Price trend */
+.trend-panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px 18px;
+  box-shadow: var(--shadow);
+  margin: 18px 0 14px;
+}
+.trend-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.trend-tools {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.trend-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.06em;
+}
+.trend-meta {
+  font-size: 0.68rem;
+  color: var(--ink-soft);
+  margin-top: 4px;
+  letter-spacing: 0.04em;
+}
+.trend-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px;
+  background: var(--cream);
+  border: 1px solid rgba(192,154,80,0.16);
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+.trend-periods {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px;
+  background: rgba(26,54,40,0.06);
+  border: 1px solid rgba(26,54,40,0.1);
+  border-radius: 10px;
+}
+.trend-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  border-radius: 7px;
+  min-height: 34px;
+  padding: 0 11px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 500;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.trend-btn.active {
+  background: var(--green);
+  color: var(--white);
+}
+.trend-periods .trend-btn.active {
+  background: var(--gold-dk);
+}
+.trend-canvas-wrap {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  border: 1px solid rgba(192,154,80,0.1);
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(192,154,80,0.13), transparent 24%),
+    linear-gradient(180deg, rgba(247,243,235,0.72), rgba(255,255,255,0.96));
+  overflow: hidden;
+  touch-action: none;
+}
+#trend-chart {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.trend-empty {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+  text-align: center;
+  padding: 18px;
+}
+.trend-empty.show { display: flex; }
+.trend-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 0.74rem;
+  color: var(--ink-soft);
+}
+.trend-summary strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.trend-summary .up { color: var(--up); }
+.trend-summary .dn { color: var(--dn); }
+.trend-hint {
+  margin-top: 7px;
+  font-size: 0.68rem;
+  color: rgba(90,84,72,0.72);
+  letter-spacing: 0.03em;
 }
 
 /* ─── Skeleton loader ─── */
@@ -335,6 +515,99 @@ body::before {
 
 @media (min-width: 540px) {
   .price-main { font-size: 1.7rem; }
+}
+@media (max-width: 560px) {
+  .price-table-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .price-table thead {
+    display: none;
+  }
+  .price-table,
+  .price-table tbody,
+  .price-table td {
+    display: block;
+    width: 100%;
+  }
+  .price-table tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 13px 14px;
+    border-bottom: 1px solid rgba(192,154,80,0.12);
+  }
+  .price-table tr:last-child {
+    border-bottom: 0;
+  }
+  .price-table td {
+    border: 0;
+    padding: 0;
+    text-align: left;
+  }
+  .price-metal {
+    grid-column: 1 / -1;
+  }
+  .price-rate-cell {
+    width: auto;
+    min-width: 0;
+    padding: 0;
+  }
+  .price-rate-card {
+    min-height: 104px;
+    gap: 8px;
+    padding: 10px 8px;
+  }
+  .price-rate-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+  }
+  .price-value {
+    font-size: 1rem;
+  }
+  .price-rate-meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .price-diff {
+    min-width: 0;
+    font-size: 0.72rem;
+  }
+  .trend-controls,
+  .trend-periods {
+    width: 100%;
+  }
+  .trend-btn {
+    min-width: 0;
+    font-size: 0.7rem;
+  }
+  .trend-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .trend-tools {
+    align-items: stretch;
+  }
+  .trend-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .trend-periods {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .trend-btn {
+    padding: 0 8px;
+  }
+  .trend-canvas-wrap {
+    height: 270px;
+  }
+  .trend-summary {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
 }
 </style>
 </head>
@@ -354,36 +627,64 @@ body::before {
 
 <div class="content">
   <div id="cards-container">
-    <!-- JS がカードを生成 -->
-    <div class="metal-card gold">
-      <div class="metal-card gold::before"></div>
-      <div class="metal-header">
-        <div class="metal-name-wrap">
-          <div class="metal-icon">✦</div>
-          <div><div class="metal-name-ja">金</div><div class="metal-name-en">Gold</div></div>
+    <div class="price-table-panel">
+      <div class="price-table-header">
+        <div>
+          <div class="price-table-title">本日の価格</div>
+          <div class="price-table-caption">田中貴金属 公表価格（税込）</div>
         </div>
-        <div class="metal-symbol">XAU</div>
+        <div class="price-table-badge">読み込み中</div>
       </div>
-      <div class="price-cols">
-        <div class="price-col retail">
-          <div class="price-col-label">小売価格（税込）</div>
-          <div class="price-main"><span class="skeleton" style="width:110px;height:28px;">&nbsp;</span></div>
-          <div class="diff-badge flat"><span class="skeleton" style="width:60px;height:14px;">&nbsp;</span></div>
-        </div>
-        <div class="price-col purchase">
-          <div class="price-col-label">買取価格（税込）</div>
-          <div class="price-main"><span class="skeleton" style="width:110px;height:28px;">&nbsp;</span></div>
-          <div class="diff-badge flat"><span class="skeleton" style="width:60px;height:14px;">&nbsp;</span></div>
-        </div>
+      <div class="price-table-wrap">
+        <table class="price-table" aria-label="田中貴金属価格表">
+          <thead>
+            <tr>
+              <th>金属</th>
+              <th>小売</th>
+              <th>買取</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="skeleton" style="width:110px;height:28px;">&nbsp;</span></td>
+              <td><span class="skeleton" style="width:110px;height:58px;">&nbsp;</span></td>
+              <td><span class="skeleton" style="width:110px;height:58px;">&nbsp;</span></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+      <div class="price-note">前日比は前営業日の9:30の価格と比較して算出しています。</div>
     </div>
   </div>
 
-  <div class="notes">
-    <div class="notes-title">注意事項</div>
-    <div class="note-item"><div class="note-bullet"></div><div>前日比は前営業日の9:30の価格と比較して算出しています。</div></div>
-    <div class="note-item"><div class="note-bullet"></div><div>14:30更新時のみ、（9:30比）も併記されます。</div></div>
-  </div>
+  <section class="trend-panel" aria-labelledby="trend-title">
+    <div class="trend-header">
+      <div>
+        <h2 class="trend-title" id="trend-title">買取価格 推移</h2>
+        <div class="trend-meta" id="trend-meta">履歴データを読み込み中...</div>
+      </div>
+      <div class="trend-tools">
+        <div class="trend-controls" aria-label="表示する金属">
+          <button type="button" class="trend-btn active" data-metal="GOLD">Gold</button>
+          <button type="button" class="trend-btn" data-metal="PLATINUM">Platinum</button>
+          <button type="button" class="trend-btn" data-metal="SILVER">Silver</button>
+        </div>
+        <div class="trend-periods" aria-label="表示期間">
+          <button type="button" class="trend-btn" data-range="1w">1週</button>
+          <button type="button" class="trend-btn" data-range="1m">1ヶ月</button>
+          <button type="button" class="trend-btn active" data-range="3m">3ヶ月</button>
+          <button type="button" class="trend-btn" data-range="6m">6ヶ月</button>
+        </div>
+      </div>
+    </div>
+    <div class="trend-canvas-wrap">
+      <canvas id="trend-chart" aria-label="買取価格の推移グラフ"></canvas>
+      <div class="trend-empty" id="trend-empty">履歴データを表示できませんでした。</div>
+    </div>
+    <div class="trend-summary" id="trend-summary"></div>
+    <div class="trend-hint">丸印をタップ、または左右にドラッグすると、その時点の価格を確認できます。</div>
+  </section>
+
 </div>
 
 <script>
@@ -392,6 +693,356 @@ const METALS = [
   { key: 'PLATINUM', ja: 'プラチナ',  en: 'Platinum', symbol: 'XPT', cls: 'platinum', icon: '◇' },
   { key: 'SILVER',   ja: '銀',       en: 'Silver',   symbol: 'XAG', cls: 'silver',   icon: '◈' },
 ];
+
+const TREND_META = {
+  GOLD:     { label: 'Gold',     color: '#B88A24', unit: '円' },
+  PLATINUM: { label: 'Platinum', color: '#4A6A8A', unit: '円' },
+  SILVER:   { label: 'Silver',   color: '#6A6A7A', unit: '円' },
+};
+const TREND_RANGES = {
+  '1w': { label: '1週間', days: 7 },
+  '1m': { label: '1ヶ月', days: 31 },
+  '3m': { label: '3ヶ月', days: 93 },
+  '6m': { label: '6ヶ月', days: 186 },
+};
+const TREND_MIN_TIME = 9 * 60 + 30;
+const TREND_MAX_TIME = 14 * 60;
+let trendRows = [];
+let selectedTrendMetal = 'GOLD';
+let selectedTrendRange = '3m';
+let trendActiveIndex = null;
+let trendPointerDown = false;
+let trendRenderState = null;
+
+function toNumber(value) {
+  const n = Number(String(value ?? '').replace(/,/g, ''));
+  return Number.isFinite(n) ? n : null;
+}
+
+function formatYen(value) {
+  if (!Number.isFinite(value)) return '-';
+  return value.toLocaleString('ja-JP', {
+    maximumFractionDigits: Math.abs(value) < 1000 ? 2 : 0
+  }) + '円';
+}
+
+function formatTrendDate(date) {
+  const parts = String(date).split('-');
+  return parts.length === 3 ? `${Number(parts[1])}/${Number(parts[2])}` : date;
+}
+
+function formatTrendPoint(point) {
+  return `${formatTrendDate(point.date)} ${point.time}`;
+}
+
+function minutesFromUpdateTime(updateTime) {
+  const match = String(updateTime || '').match(/(\d{1,2}):(\d{2})/);
+  if (!match) return null;
+  return Number(match[1]) * 60 + Number(match[2]);
+}
+
+function timeFromUpdateTime(updateTime) {
+  const mins = minutesFromUpdateTime(updateTime);
+  if (!Number.isFinite(mins)) return '';
+  return `${String(Math.floor(mins / 60)).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')}`;
+}
+
+function dateValue(date, time) {
+  return new Date(`${date}T${time || '00:00'}:00+09:00`).getTime();
+}
+
+function filteredTrendPoints() {
+  const all = trendRows
+    .map(row => ({ ...row, value: row[selectedTrendMetal] }))
+    .filter(point => Number.isFinite(point.value))
+    .sort((a, b) => a.timestamp - b.timestamp);
+  if (!all.length) return [];
+
+  const lastTime = all[all.length - 1].timestamp;
+  const days = TREND_RANGES[selectedTrendRange].days;
+  const minTime = lastTime - (days - 1) * 24 * 60 * 60 * 1000;
+  return all.filter(point => point.timestamp >= minTime);
+}
+
+async function loadTrendRows() {
+  const indexRes = await fetch('data/history/index.json?nocache=' + Date.now());
+  const index = await indexRes.json();
+  const files = Array.isArray(index.files) ? index.files : [];
+  const days = await Promise.all(files.map(async file => {
+    const res = await fetch('data/history/' + file + '?nocache=' + Date.now());
+    return res.json();
+  }));
+
+  return days
+    .flatMap(day => {
+      const snapshots = Array.isArray(day.snapshots) ? day.snapshots : [];
+      return snapshots.map(snapshot => {
+        const minutes = minutesFromUpdateTime(snapshot.update_time);
+        if (!Number.isFinite(minutes) || minutes < TREND_MIN_TIME || minutes > TREND_MAX_TIME) return null;
+        const time = timeFromUpdateTime(snapshot.update_time);
+        return {
+          date: day.date || '',
+          time,
+          timestamp: dateValue(day.date || '', time),
+          update_time: snapshot.update_time,
+          GOLD: toNumber(snapshot.prices.GOLD && snapshot.prices.GOLD.buy),
+          PLATINUM: toNumber(snapshot.prices.PLATINUM && snapshot.prices.PLATINUM.buy),
+          SILVER: toNumber(snapshot.prices.SILVER && snapshot.prices.SILVER.buy),
+        };
+      });
+    })
+    .filter(row => row && row.date && Number.isFinite(row.timestamp))
+    .sort((a, b) => a.timestamp - b.timestamp);
+}
+
+function drawTrendChart() {
+  const canvas = document.getElementById('trend-chart');
+  const empty = document.getElementById('trend-empty');
+  const summary = document.getElementById('trend-summary');
+  const metaText = document.getElementById('trend-meta');
+  if (!canvas || !empty || !summary || !metaText) return;
+
+  const points = filteredTrendPoints();
+
+  empty.classList.toggle('show', points.length < 2);
+  if (points.length < 2) {
+    summary.innerHTML = '';
+    metaText.textContent = '履歴データが不足しています';
+    trendRenderState = null;
+    return;
+  }
+  if (trendActiveIndex === null || trendActiveIndex >= points.length) {
+    trendActiveIndex = points.length - 1;
+  }
+
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+  canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const width = rect.width;
+  const height = rect.height;
+  const pad = { top: 24, right: 18, bottom: 38, left: width < 420 ? 46 : 62 };
+  const chartW = width - pad.left - pad.right;
+  const chartH = height - pad.top - pad.bottom;
+  const values = points.map(p => p.value);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || Math.max(1, max * 0.02);
+  const yMin = min - range * 0.08;
+  const yMax = max + range * 0.08;
+  const tone = TREND_META[selectedTrendMetal];
+  const activePoint = points[trendActiveIndex];
+
+  ctx.clearRect(0, 0, width, height);
+  const bg = ctx.createLinearGradient(0, 0, 0, height);
+  bg.addColorStop(0, 'rgba(255,255,255,0.78)');
+  bg.addColorStop(1, 'rgba(247,243,235,0.34)');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.font = '11px DM Sans, sans-serif';
+  ctx.textBaseline = 'middle';
+
+  for (let i = 0; i <= 3; i++) {
+    const y = pad.top + chartH * (i / 3);
+    const value = yMax - (yMax - yMin) * (i / 3);
+    ctx.strokeStyle = i === 3 ? 'rgba(192,154,80,0.28)' : 'rgba(192,154,80,0.14)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(width - pad.right, y);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(90,84,72,0.62)';
+    ctx.textAlign = 'right';
+    ctx.fillText(formatYen(value).replace('円', ''), pad.left - 8, y);
+  }
+
+  const firstTime = points[0].timestamp;
+  const lastTime = points[points.length - 1].timestamp;
+  const spanTime = Math.max(1, lastTime - firstTime);
+  const xFor = index => pad.left + chartW * ((points[index].timestamp - firstTime) / spanTime);
+  const yFor = value => pad.top + chartH * (1 - ((value - yMin) / (yMax - yMin)));
+
+  const gradient = ctx.createLinearGradient(0, pad.top, 0, height - pad.bottom);
+  gradient.addColorStop(0, tone.color + '33');
+  gradient.addColorStop(1, tone.color + '00');
+
+  ctx.beginPath();
+  points.forEach((point, index) => {
+    const x = xFor(index);
+    const y = yFor(point.value);
+    if (index === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.lineTo(xFor(points.length - 1), height - pad.bottom);
+  ctx.lineTo(xFor(0), height - pad.bottom);
+  ctx.closePath();
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  ctx.beginPath();
+  points.forEach((point, index) => {
+    const x = xFor(index);
+    const y = yFor(point.value);
+    if (index === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.shadowColor = tone.color + '44';
+  ctx.shadowBlur = 12;
+  ctx.strokeStyle = tone.color;
+  ctx.lineWidth = 2.8;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  points.forEach((point, index) => {
+    const x = xFor(index);
+    const y = yFor(point.value);
+    ctx.beginPath();
+    ctx.arc(x, y, index === trendActiveIndex ? 5.5 : 3.2, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fill();
+    ctx.strokeStyle = tone.color;
+    ctx.lineWidth = index === trendActiveIndex ? 2.4 : 1.7;
+    ctx.stroke();
+  });
+
+  const labelIndexes = [...new Set([0, Math.floor((points.length - 1) / 2), points.length - 1])];
+  ctx.fillStyle = 'rgba(90,84,72,0.72)';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  labelIndexes.forEach(index => {
+    ctx.fillText(formatTrendDate(points[index].date), xFor(index), height - pad.bottom + 12);
+  });
+
+  const activeX = xFor(trendActiveIndex);
+  const activeY = yFor(activePoint.value);
+  ctx.strokeStyle = 'rgba(28,26,22,0.22)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 5]);
+  ctx.beginPath();
+  ctx.moveTo(activeX, pad.top);
+  ctx.lineTo(activeX, height - pad.bottom);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  const tooltipLines = [
+    formatTrendPoint(activePoint),
+    formatYen(activePoint.value)
+  ];
+  ctx.font = '600 12px DM Sans, sans-serif';
+  const boxW = Math.max(...tooltipLines.map(line => ctx.measureText(line).width)) + 22;
+  const boxH = 50;
+  let boxX = activeX + 12;
+  if (boxX + boxW > width - 10) boxX = activeX - boxW - 12;
+  let boxY = activeY - boxH - 12;
+  if (boxY < 8) boxY = activeY + 14;
+  ctx.fillStyle = 'rgba(14,31,23,0.94)';
+  roundRect(ctx, boxX, boxY, boxW, boxH, 9);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(232,212,154,0.82)';
+  ctx.font = '11px DM Sans, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText(tooltipLines[0], boxX + 11, boxY + 9);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '600 15px DM Sans, sans-serif';
+  ctx.fillText(tooltipLines[1], boxX + 11, boxY + 27);
+
+  const first = points[0];
+  const last = points[points.length - 1];
+  const diff = last.value - first.value;
+  const diffClassName = diff > 0 ? 'up' : diff < 0 ? 'dn' : '';
+  const sign = diff > 0 ? '+' : '';
+  metaText.textContent = `${formatTrendDate(first.date)} - ${formatTrendDate(last.date)} / 09:30〜14:00公表分`;
+  summary.innerHTML = `
+    <span>最新 <strong>${formatYen(last.value)}</strong></span>
+    <span>選択 <strong>${formatTrendPoint(activePoint)} ${formatYen(activePoint.value)}</strong></span>
+    <span>期間差 <strong class="${diffClassName}">${sign}${formatYen(diff)}</strong></span>
+  `;
+  trendRenderState = { points, pad, width, height, xFor, yFor };
+  notifyHeight();
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function selectTrendPoint(clientX) {
+  if (!trendRenderState) return;
+  const canvas = document.getElementById('trend-chart');
+  const rect = canvas.getBoundingClientRect();
+  const x = clientX - rect.left;
+  let nearest = 0;
+  let distance = Infinity;
+  trendRenderState.points.forEach((point, index) => {
+    const d = Math.abs(trendRenderState.xFor(index) - x);
+    if (d < distance) {
+      distance = d;
+      nearest = index;
+    }
+  });
+  trendActiveIndex = nearest;
+  drawTrendChart();
+}
+
+async function initTrendChart() {
+  try {
+    trendRows = await loadTrendRows();
+    drawTrendChart();
+  } catch (err) {
+    console.error(err);
+    const empty = document.getElementById('trend-empty');
+    const metaText = document.getElementById('trend-meta');
+    if (empty) empty.classList.add('show');
+    if (metaText) metaText.textContent = '履歴データを取得できませんでした';
+    notifyHeight();
+  }
+}
+
+document.querySelectorAll('.trend-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.dataset.metal) {
+      selectedTrendMetal = btn.dataset.metal;
+      document.querySelectorAll('[data-metal]').forEach(b => b.classList.toggle('active', b === btn));
+    }
+    if (btn.dataset.range) {
+      selectedTrendRange = btn.dataset.range;
+      trendActiveIndex = null;
+      document.querySelectorAll('[data-range]').forEach(b => b.classList.toggle('active', b === btn));
+    }
+    drawTrendChart();
+  });
+});
+
+const trendCanvas = document.getElementById('trend-chart');
+if (trendCanvas) {
+  trendCanvas.addEventListener('pointerdown', event => {
+    trendPointerDown = true;
+    trendCanvas.setPointerCapture(event.pointerId);
+    selectTrendPoint(event.clientX);
+  });
+  trendCanvas.addEventListener('pointermove', event => {
+    if (trendPointerDown) selectTrendPoint(event.clientX);
+  });
+  trendCanvas.addEventListener('pointerup', event => {
+    trendPointerDown = false;
+    try { trendCanvas.releasePointerCapture(event.pointerId); } catch (e) {}
+  });
+  trendCanvas.addEventListener('pointercancel', () => {
+    trendPointerDown = false;
+  });
+}
 
 function diffClass(val) {
   if (!val) return 'flat';
@@ -402,43 +1053,87 @@ function diffIcon(val) {
   return val.startsWith('+') ? '▲' : val.startsWith('-') ? '▼' : '—';
 }
 
-function buildCard(meta, p, isAfternoon) {
-  function priceBlock(price, diff, diff930, side) {
-    const dc   = diffClass(diff);
-    const icon = diffIcon(diff);
-    const label = side === 'retail' ? '小売価格（税込）' : '買取価格（税込）';
+function formatPriceCell(price) {
+  const n = Number(String(price).replace(/,/g, ''));
+  const value = Number.isFinite(n) ? n.toLocaleString('ja-JP') : price;
+  return `<span class="price-value">${value}<span class="unit">円</span></span>`;
+}
 
-    let sub930 = '';
-    if (isAfternoon && diff930) {
-      const dc2 = diffClass(diff930);
-      sub930 = `<span class="diff-sub">9:30比 <span class="val ${dc2}">${diffIcon(diff930)} ${diff930}円</span></span>`;
-    }
+function diffCell(diff) {
+  const dc = diffClass(diff);
+  return `<span class="price-diff ${dc}">${diffIcon(diff)} ${diff}円</span>`;
+}
 
+function nineThirtyCell(diff) {
+  if (!diff) return `<div class="price-rate-930">9:30比 -</div>`;
+  const dc = diffClass(diff);
+  return `<div class="price-rate-930">9:30比 <span class="${dc}">${diffIcon(diff)} ${diff}円</span></div>`;
+}
+
+function rateCell(kind, price, diff, diff930) {
+  const label = kind === 'retail' ? '小売価格' : '買取価格';
+  const side = kind === 'retail' ? 'retail' : 'purchase';
+  return `
+    <td class="price-rate-cell ${side}" data-label="${label}">
+      <div class="price-rate-card">
+        <div class="price-rate-label">${label}</div>
+        <div class="price-rate-main">
+          ${formatPriceCell(price)}
+          ${diffCell(diff)}
+        </div>
+        <div class="price-rate-meta">
+          ${nineThirtyCell(diff930)}
+        </div>
+      </div>
+    </td>`;
+}
+
+function buildPriceTable(data) {
+  const isAfternoon = Object.values(data.prices).some(p => p.retail_930diff || p.buy_930diff);
+  const rows = METALS.map(meta => {
+    const p = data.prices[meta.key];
+    if (!p) return '';
     return `
-      <div class="price-col ${side}">
-        <div class="price-col-label">${label}</div>
-        <div class="price-main">${Number(price.replace(/,/g,'')).toLocaleString()}<span class="unit">円</span></div>
-        <div class="diff-badge ${dc}">${icon} ${diff}円</div>
-        ${sub930}
-      </div>`;
-  }
+      <tr>
+        <td class="price-metal ${meta.cls}" data-label="金属">
+          <div class="price-metal-main">
+            <div class="price-metal-mark">${meta.icon}</div>
+            <div>
+              <div class="price-metal-ja">${meta.ja}</div>
+              <div class="price-metal-sub">
+                <span class="price-metal-en">${meta.en}</span>
+                <span class="price-symbol">${meta.symbol}</span>
+              </div>
+            </div>
+          </div>
+        </td>
+        ${rateCell('retail', p.retail, p.retail_diff, isAfternoon ? p.retail_930diff : '')}
+        ${rateCell('purchase', p.buy, p.buy_diff, isAfternoon ? p.buy_930diff : '')}
+      </tr>`;
+  }).join('');
 
   return `
-    <div class="metal-card ${meta.cls}">
-      <div class="metal-header">
-        <div class="metal-name-wrap">
-          <div class="metal-icon">${meta.icon}</div>
-          <div>
-            <div class="metal-name-ja">${meta.ja}</div>
-            <div class="metal-name-en">${meta.en}</div>
-          </div>
+    <div class="price-table-panel">
+      <div class="price-table-header">
+        <div>
+          <div class="price-table-title">本日の価格</div>
+          <div class="price-table-caption">田中貴金属 公表価格（税込）</div>
         </div>
-        <div class="metal-symbol">${meta.symbol}</div>
+        <div class="price-table-badge">${isAfternoon ? '9:30比あり' : '午前公表'}</div>
       </div>
-      <div class="price-cols">
-        ${priceBlock(p.retail, p.retail_diff, p.retail_930diff, 'retail')}
-        ${priceBlock(p.buy,    p.buy_diff,    p.buy_930diff,    'purchase')}
+      <div class="price-table-wrap">
+        <table class="price-table" aria-label="田中貴金属価格表">
+          <thead>
+            <tr>
+              <th>金属</th>
+              <th>小売</th>
+              <th>買取</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
       </div>
+      <div class="price-note">前日比は前営業日の9:30の価格と比較して算出しています。</div>
     </div>`;
 }
 
@@ -449,17 +1144,8 @@ async function fetchTanaka() {
 
     document.getElementById('update-time').textContent = data.update_time;
 
-    const isAfternoon = Object.values(data.prices).some(p => p.retail_930diff || p.buy_930diff);
     const container   = document.getElementById('cards-container');
-    let html = '';
-
-    for (const meta of METALS) {
-      const p = data.prices[meta.key];
-      if (!p) continue;
-      html += buildCard(meta, p, isAfternoon);
-    }
-
-    container.innerHTML = html;
+    container.innerHTML = buildPriceTable(data);
     notifyHeight();
   } catch (err) {
     console.error(err);
@@ -470,12 +1156,16 @@ async function fetchTanaka() {
 }
 
 fetchTanaka();
+initTrendChart();
 
 function notifyHeight() {
   parent.postMessage({ type: 'resize-iframe', height: document.body.scrollHeight }, '*');
 }
 window.addEventListener('load',   notifyHeight);
-window.addEventListener('resize', notifyHeight);
+window.addEventListener('resize', () => {
+  drawTrendChart();
+  notifyHeight();
+});
 </script>
 </body>
 </html>
