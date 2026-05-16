@@ -1,0 +1,97 @@
+{
+  "date": "2026-05-07",
+  "snapshots": [
+    {
+      "update_time": "2026年05月07日 09:30公表（日本時間）",
+      "prices": {
+        "GOLD": {
+          "retail": "26,181",
+          "retail_diff": "+273",
+          "buy": "25,824",
+          "buy_diff": "+273"
+        },
+        "PLATINUM": {
+          "retail": "11,640",
+          "retail_diff": "+332",
+          "buy": "11,217",
+          "buy_diff": "+332"
+        },
+        "SILVER": {
+          "retail": "439.23",
+          "retail_diff": "+13.86",
+          "buy": "422.18",
+          "buy_diff": "+13.86"
+        }
+      }
+    },
+    {
+      "update_time": "2026年05月07日 09:30公表（日本時間）",
+      "prices": {
+        "GOLD": {
+          "retail": "26,181",
+          "retail_diff": "+273",
+          "buy": "25,824",
+          "buy_diff": "+273"
+        },
+        "PLATINUM": {
+          "retail": "11,640",
+          "retail_diff": "+332",
+          "buy": "11,217",
+          "buy_diff": "+332"
+        },
+        "SILVER": {
+          "retail": "439.23",
+          "retail_diff": "+13.86",
+          "buy": "422.18",
+          "buy_diff": "+13.86"
+        }
+      }
+    },
+    {
+      "update_time": "2026年05月07日 14:00公表（日本時間）",
+      "prices": {
+        "GOLD": {
+          "retail": "26,181",
+          "retail_diff": "+273",
+          "buy": "25,824",
+          "buy_diff": "+273"
+        },
+        "PLATINUM": {
+          "retail": "11,585",
+          "retail_diff": "+277",
+          "buy": "11,162",
+          "buy_diff": "+277"
+        },
+        "SILVER": {
+          "retail": "441.76",
+          "retail_diff": "+16.39",
+          "buy": "424.71",
+          "buy_diff": "+16.39"
+        }
+      }
+    },
+    {
+      "update_time": "2026年05月07日 17:00公表（日本時間）",
+      "prices": {
+        "GOLD": {
+          "retail": "26,500",
+          "retail_diff": "+592",
+          "buy": "25,951",
+          "buy_diff": "+400"
+        },
+        "PLATINUM": {
+          "retail": "11,800",
+          "retail_diff": "+492",
+          "buy": "11,251",
+          "buy_diff": "+366"
+        },
+        "SILVER": {
+          "retail": "459.36",
+          "retail_diff": "+33.99",
+          "buy": "426.36",
+          "buy_diff": "+18.04"
+        }
+      }
+    }
+  ]
+}
