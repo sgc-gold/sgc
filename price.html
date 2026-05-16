@@ -1157,6 +1157,11 @@ async function fetchTanaka() {
 
 fetchTanaka();
 initTrendChart();
+window.portalRefresh = function() {
+  return Promise.all([fetchTanaka(), initTrendChart()]).then(function() {
+    notifyHeight();
+  });
+};
 
 function notifyHeight() {
   parent.postMessage({ type: 'resize-iframe', height: document.body.scrollHeight }, '*');
@@ -1167,5 +1172,6 @@ window.addEventListener('resize', () => {
   notifyHeight();
 });
 </script>
+<script src="portal-frame-bridge.js"></script>
 </body>
 </html>

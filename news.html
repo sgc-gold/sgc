@@ -682,7 +682,8 @@
     notifyHeight();
   }
 
-  function refreshNews() { loadNews(currentQuery); }
+  function refreshNews() { return loadNews(currentQuery); }
+  window.portalRefresh = refreshNews;
 
   // ─── Utils ───
   function escHtml(str) {
@@ -723,5 +724,6 @@
   });
   window.addEventListener('resize', notifyHeight);
 </script>
+<script src="portal-frame-bridge.js"></script>
 </body>
 </html>

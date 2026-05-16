@@ -190,6 +190,33 @@
     letter-spacing: 0.1em; font-family: 'DM Sans', sans-serif;
   }
 
+  #pull-refresh-indicator {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 8px);
+    left: 50%;
+    z-index: 70;
+    transform: translate(-50%, -54px) scale(0.96);
+    opacity: 0;
+    pointer-events: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 8px 12px;
+    border: 1px solid rgba(192,154,80,0.24);
+    border-radius: 999px;
+    background: rgba(14,31,23,0.88);
+    color: rgba(232,212,154,0.9);
+    box-shadow: 0 10px 26px rgba(0,0,0,0.24);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    transition: transform 0.18s ease, opacity 0.18s ease;
+  }
+  #pull-refresh-indicator.show { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  #pull-refresh-indicator.ready .pull-refresh-icon { transform: rotate(180deg); }
+  #pull-refresh-indicator.refreshing .pull-refresh-icon { animation: fl-spin 0.75s linear infinite; }
+  .pull-refresh-icon { width: 14px; height: 14px; transition: transform 0.18s ease; flex-shrink: 0; }
+  .pull-refresh-text { font-size: 0.68rem; letter-spacing: 0.08em; white-space: nowrap; }
+
   /* ─── Overlay ─── */
   #overlay { display: none; position: fixed; inset: 0; z-index: 250; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
   #overlay.active { display: block; }
@@ -469,7 +496,7 @@
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 9l10 13 10-13-10-7z"/><line x1="12" y1="9" x2="12" y2="15"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
         SGC買取価格
       </a>
-      <a class="nav-link" onclick="navigate('https://script.google.com/macros/s/AKfycbzw6OKj2rMVVzxuxrYLu07voIsebAxYqX9iZHo80-NZHqvy9FsY74NeuclM-D1ZuNw-8w/exec', this)">
+      <a class="nav-link" onclick="navigate('https://script.google.com/macros/s/AKfycbwPjdsqHi8KMu-EfBBPxDzAouz9LgrgjYxuXkVRc0Fvvg9jaxjnAqqASY1OMeZI67TfSQ/exec', this)">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8"/><line x1="12" y1="6" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="18"/></svg>
         SGC売却価格
       </a>
@@ -549,6 +576,11 @@
   </div>
 
   <!-- ─── Bottom nav (mobile only) ─── -->
+    <div id="pull-refresh-indicator" aria-hidden="true">
+      <svg class="pull-refresh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="6 9 12 15 18 9"/></svg>
+      <span class="pull-refresh-text" id="pull-refresh-text">下に引いて更新</span>
+    </div>
+
   <nav id="bottom-nav">
     <a class="bnav-item active" onclick="navigate('main.html',this)" data-bnav>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -732,6 +764,93 @@ document.addEventListener('touchmove', function(e) {
 // ────────────────────────────────────
 var frame = document.getElementById('main-frame');
 var frameLoading = document.getElementById('frame-loading');
+var pullRefreshIndicator = document.getElementById('pull-refresh-indicator');
+var pullRefreshText = document.getElementById('pull-refresh-text');
+var pullRefreshInFlight = false;
+var pullRefreshTimer = null;
+var headerPull = { tracking: false, armed: false, pulling: false, startX: 0, startY: 0 };
+
+function isGasUrl(url) {
+  try {
+    var u = new URL(url, window.location.href);
+    return u.hostname === 'script.google.com' || u.hostname === 'script.googleusercontent.com';
+  } catch (err) {
+    return false;
+  }
+}
+
+function isStaticFrameUrl(url) {
+  try {
+    var u = new URL(url, window.location.href);
+    return u.origin === window.location.origin && /\.html$/i.test(u.pathname);
+  } catch (err) {
+    return false;
+  }
+}
+
+function staticRefreshUrl(url) {
+  var u = new URL(url, window.location.href);
+  u.searchParams.set('__refresh', Date.now().toString());
+  return u.href;
+}
+
+function setPullIndicator(progress, armed, refreshing) {
+  if (!pullRefreshIndicator || !pullRefreshText) return;
+  var show = refreshing || progress > 0;
+  pullRefreshIndicator.classList.toggle('show', show);
+  pullRefreshIndicator.classList.toggle('ready', !!armed && !refreshing);
+  pullRefreshIndicator.classList.toggle('refreshing', !!refreshing);
+  if (refreshing) pullRefreshText.textContent = '更新中';
+  else pullRefreshText.textContent = armed ? '離して更新' : '下に引いて更新';
+}
+
+function resetPullIndicator() {
+  if (pullRefreshInFlight) return;
+  setPullIndicator(0, false, false);
+}
+
+function finishPullRefresh() {
+  pullRefreshInFlight = false;
+  if (pullRefreshTimer) {
+    clearTimeout(pullRefreshTimer);
+    pullRefreshTimer = null;
+  }
+  setPullIndicator(0, false, false);
+  hideFrameLoading();
+}
+
+function reloadCurrentFrame() {
+  if (!frame || !frame.src) return;
+  if (isGasUrl(frame.src)) {
+    frame.src = frame.src;
+    return;
+  }
+  if (isStaticFrameUrl(frame.src)) {
+    frame.src = staticRefreshUrl(frame.src);
+    return;
+  }
+  frame.src = frame.src;
+}
+
+function refreshCurrentFrame() {
+  if (pullRefreshInFlight || !frame) return;
+  pullRefreshInFlight = true;
+  setPullIndicator(1, true, true);
+  if (isStaticFrameUrl(frame.src)) {
+    try {
+      frame.contentWindow.postMessage({ type: 'portal-refresh' }, window.location.origin);
+    } catch (err) {
+      reloadCurrentFrame();
+    }
+    pullRefreshTimer = setTimeout(function() {
+      reloadCurrentFrame();
+    }, 1400);
+  } else {
+    window.showFrameLoading();
+    reloadCurrentFrame();
+    pullRefreshTimer = setTimeout(finishPullRefresh, 2500);
+  }
+}
 
 // ローディングオーバーレイの表示（子フレームからも呼べるよう window に公開）
 window.showFrameLoading = function() {
@@ -742,7 +861,10 @@ function hideFrameLoading() {
 }
 
 // iframeのロード完了でオーバーレイを消す
-frame.addEventListener('load', hideFrameLoading);
+frame.addEventListener('load', function() {
+  hideFrameLoading();
+  if (pullRefreshInFlight) finishPullRefresh();
+});
 
 function navigate(url, el) {
   if (!url || url === '#') return;
@@ -754,6 +876,51 @@ function navigate(url, el) {
   if (el && el.hasAttribute && el.hasAttribute('data-bnav')) el.classList.add('active');
   if (window.innerWidth < 900) closeSidebar();
 }
+
+(function setupHeaderPullRefresh() {
+  var header = document.getElementById('app-header');
+  if (!header) return;
+  header.addEventListener('touchstart', function(e) {
+    if (window.innerWidth >= 900 || pullRefreshInFlight) return;
+    if (!e.touches || e.touches.length !== 1) return;
+    headerPull.tracking = true;
+    headerPull.armed = false;
+    headerPull.pulling = false;
+    headerPull.startX = e.touches[0].clientX;
+    headerPull.startY = e.touches[0].clientY;
+  }, { passive: true });
+  header.addEventListener('touchmove', function(e) {
+    if (!headerPull.tracking || !e.touches || e.touches.length !== 1) return;
+    var dx = e.touches[0].clientX - headerPull.startX;
+    var dy = e.touches[0].clientY - headerPull.startY;
+    if (dy <= 0) return;
+    if (Math.abs(dx) > Math.max(12, dy * 0.75)) {
+      headerPull.tracking = false;
+      resetPullIndicator();
+      return;
+    }
+    if (!headerPull.pulling && dy < 8) return;
+    headerPull.pulling = true;
+    e.preventDefault();
+    var progress = Math.min(dy, 96) / 96;
+    headerPull.armed = progress >= 0.75;
+    setPullIndicator(progress, headerPull.armed, false);
+  }, { passive: false });
+  header.addEventListener('touchend', function() {
+    if (!headerPull.tracking) return;
+    if (headerPull.armed) refreshCurrentFrame();
+    else resetPullIndicator();
+    headerPull.tracking = false;
+    headerPull.armed = false;
+    headerPull.pulling = false;
+  }, { passive: true });
+  header.addEventListener('touchcancel', function() {
+    headerPull.tracking = false;
+    headerPull.armed = false;
+    headerPull.pulling = false;
+    resetPullIndicator();
+  }, { passive: true });
+})();
 
 // ────────────────────────────────────
 //  SIDEBAR
@@ -948,6 +1115,18 @@ function applyUpdate() {
 window.addEventListener('message', function(e) {
   if (!e.data || !e.data.type) return;
   var BASE = 'https://script.google.com/macros/s/AKfycbyf2YPwoPW7dM6OMrK9OyxCJkGXeAa883HcQe6Atz982MHyqF8iobXqGSGFjULebLRp/exec';
+  if (e.data.type === 'pull-refresh-progress') {
+    setPullIndicator(Math.max(0, Math.min(1, e.data.progress || 0)), !!e.data.armed, false);
+  }
+  if (e.data.type === 'pull-refresh-reset') {
+    resetPullIndicator();
+  }
+  if (e.data.type === 'refresh-current-frame') {
+    refreshCurrentFrame();
+  }
+  if (e.data.type === 'pull-refresh-done') {
+    finishPullRefresh();
+  }
   if (e.data.type === 'go-page') { frame.src = BASE + '?page=' + e.data.page; }
   if (e.data.type === 'go-back') { frame.src = BASE + '?page=ginza'; }
   if (e.data.type === 'logout') {

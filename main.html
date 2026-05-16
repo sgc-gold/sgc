@@ -543,10 +543,11 @@ function loadExhibition() {
 function refreshData() {
   const btn = document.getElementById("mainRefreshBtn");
   if (btn) btn.classList.add("spinning");
-  Promise.all([loadPrice(), loadExhibition()]).finally(() => {
+  return Promise.all([loadPrice(), loadExhibition()]).finally(() => {
     if (btn) btn.classList.remove("spinning");
   });
 }
+window.portalRefresh = refreshData;
 
 // 初回ロード
 loadPrice();
@@ -558,5 +559,6 @@ function notifyHeight() {
 window.addEventListener('load', notifyHeight);
 window.addEventListener('resize', notifyHeight);
 </script>
+<script src="portal-frame-bridge.js"></script>
 </body>
 </html>
