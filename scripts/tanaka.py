@@ -17,6 +17,7 @@ SMTP_HOST = os.environ.get("SMTP_HOST", "").strip()
 SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
 SMTP_USERNAME = os.environ.get("SMTP_USERNAME", "").strip()
 SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "").strip()
+FORCE_SEND_AFTER_1700 = os.environ.get("FORCE_SEND_AFTER_1700", "").strip().lower() == "true"
 FROM_EMAIL       = "yokomori@sgc-gold.co.jp"
 TO_EMAIL         = "yokomori@sgc-gold.co.jp"
 BCC_EMAILS       = [
@@ -310,9 +311,11 @@ print(f"📅 価格ファイルの公表時刻: {date_info}")
 m_time = re.search(r'(\d{1,2}):(\d{2})公表', date_info)
 if m_time:
     update_hour = int(m_time.group(1))
-    if update_hour >= 17:
+    if update_hour >= 17 and not FORCE_SEND_AFTER_1700:
         print(f"⏭ 17:00以降の更新のためスキップ（{date_info}）")
         exit(0)
+    if update_hour >= 17 and FORCE_SEND_AFTER_1700:
+        print(f"⚠ FORCE_SEND_AFTER_1700=true のため17:00以降のデータでも送信します（{date_info}）")
 
 spread        = calculate_spread(new_prices)
 spread_report = check_spread_change(spread)
@@ -320,6 +323,8 @@ spread_report = check_spread_change(spread)
 subject = "【田中貴金属】 価格更新通知　(株)SGC横森"
 if any(spread[metal] != DEFAULT_SPREAD[metal] for metal in spread):
     subject = "【田中貴金属】 価格更新通知 ※スプレッド変更　(株)SGC横森"
+if FORCE_SEND_AFTER_1700:
+    subject = "【送信テスト】" + subject
 spread_notice = "【要確認】 スプレッドに変更がありました" if "※" in subject else ""
 
 # コメントファイル読み込み
