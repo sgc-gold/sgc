@@ -8,10 +8,6 @@ on:
         description: '930 または 1400'
         required: true
         default: '1400'
-      force_send_after_1700:
-        description: '17:00以降のデータでも送信確認する'
-        required: false
-        default: 'false'
 
 permissions:
   contents: write
@@ -91,11 +87,6 @@ jobs:
           test -n "$SMTP_USERNAME" || (echo "::error::BREVO_SMTP_USER secret is not set" && exit 1)
           test -n "$SMTP_PASSWORD" || (echo "::error::BREVO_SMTP_KEY secret is not set" && exit 1)
           test -n "$LINEWORKS_WEBHOOK_URL" || (echo "::error::LINEWORKS_WEBHOOK_URL secret is not set" && exit 1)
-      - name: Show GitHub runner public IP
-        run: |
-          echo "GitHub runner public IP:"
-          curl -fsS https://api.ipify.org
-          echo
       - name: Send email and LINE WORKS
         run: python scripts/tanaka.py
         env:
@@ -103,5 +94,4 @@ jobs:
           SMTP_PORT:             587
           SMTP_USERNAME:         ${{ secrets.BREVO_SMTP_USER }}
           SMTP_PASSWORD:         ${{ secrets.BREVO_SMTP_KEY }}
-          FORCE_SEND_AFTER_1700: ${{ github.event.inputs.force_send_after_1700 || 'false' }}
           LINEWORKS_WEBHOOK_URL: ${{ secrets.LINEWORKS_WEBHOOK_URL }}
