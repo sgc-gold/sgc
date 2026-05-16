@@ -37,7 +37,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add data/*.json
+          git add data/*.json data/history/*.json
           git diff --cached --quiet || (git commit -m "📈 Tanaka update at $(date '+%Y-%m-%d %H:%M JST')" && git push https://x-access-token:${PAT_GITHUB}@github.com/sgc-gold/sgc.git)
 
       # 通知ワークフローを起動（UPDATE_TIMEをGASから正しく引き継ぐ）
