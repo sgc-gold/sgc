@@ -72,10 +72,20 @@ def send_email_smtp(*, subject: str, html_body: str, inline_images: dict[str, st
     recipients = [TO_EMAIL] + list(BCC_EMAILS)
 
     with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=30) as smtp:
+        print(f"SMTP接続先: {SMTP_HOST}:{SMTP_PORT}")
         smtp.ehlo()
         smtp.starttls()
         smtp.ehlo()
-        smtp.login(SMTP_USERNAME, SMTP_PASSWORD)
+        try:
+            smtp.login(SMTP_USERNAME, SMTP_PASSWORD)
+        except smtplib.SMTPAuthenticationError as exc:
+            response = exc.smtp_error.decode("utf-8", errors="replace")
+            raise RuntimeError(
+                "Brevo SMTP authentication failed. "
+                "Check that BREVO_SMTP_USER is the SMTP login shown in Brevo SMTP settings, "
+                "and BREVO_SMTP_KEY is the SMTP password/master password, not a Brevo API key. "
+                f"Brevo response: {exc.smtp_code} {response}"
+            ) from exc
         smtp.sendmail(FROM_EMAIL, recipients, msg_root.as_string())
 
 # data/tanaka_price.json から価格を読み込む
