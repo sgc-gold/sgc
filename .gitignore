@@ -1,0 +1,9 @@
+gas/
+gas/**/node_modules/
+gas/**/.clasp.json
+gas/**/.clasprc.json
+gas/.clasprc.json
+gas/**/.claspignore
+
+.npm-cache/
+**/__pycache__/
