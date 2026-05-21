@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "build:portal": "node tools/build-portal.mjs"
+  }
+}
