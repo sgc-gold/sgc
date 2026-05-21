@@ -1,4 +1,4 @@
-import { cp, mkdir, readdir, rm, stat } from "node:fs/promises";
+import { cp, mkdir, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
@@ -26,7 +26,13 @@ const allowedRootFiles = [
 
 const allowedDirs = ["image", "data"];
 const excludedDataFiles = new Set(["diamonds.json"]);
-const allowedRootEntries = new Set([...allowedRootFiles, ...allowedDirs]);
+const routesFile = "_routes.json";
+const routesConfig = {
+  version: 1,
+  include: ["/*"],
+  exclude: []
+};
+const allowedRootEntries = new Set([...allowedRootFiles, ...allowedDirs, routesFile]);
 
 function resolveInside(base, target) {
   const resolved = path.resolve(base, target);
@@ -59,6 +65,11 @@ async function copyDirFromRoot(dir) {
 
   await mkdir(dest, { recursive: true });
   await copyDirContents(source, dest, dir);
+}
+
+async function writeRoutesFile() {
+  const routesPath = resolveInside(outDir, routesFile);
+  await writeFile(routesPath, `${JSON.stringify(routesConfig, null, 2)}\n`, "utf8");
 }
 
 async function copyDirContents(sourceDir, destDir, relativeDir) {
@@ -148,8 +159,10 @@ async function build() {
   for (const dir of allowedDirs) {
     await copyDirFromRoot(dir);
   }
+  await writeRoutesFile();
 
   await assertExists("index.html");
+  await assertExists(routesFile);
   await assertDirectory("data");
   await assertDirectory("image");
 
