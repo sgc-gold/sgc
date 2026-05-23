@@ -333,11 +333,11 @@
 
 <!-- Tabs -->
 <div class="tab-bar">
-  <button class="tab-btn active" data-query="SGC OR SGCホール OR 黄金泥棒 OR 大黄金展 OR 金 買取 相場" data-label="すべて">すべて</button>
-  <button class="tab-btn" data-query="SGCホール" data-label="SGCホール">SGCホール</button>
-  <button class="tab-btn" data-query="黄金泥棒" data-label="黄金泥棒">黄金泥棒</button>
-  <button class="tab-btn" data-query="大黄金展" data-label="大黄金展">大黄金展</button>
-  <button class="tab-btn" data-query="金 買取 相場" data-label="金相場（関連）">金相場（関連）</button>
+  <button class="tab-btn active" data-topic="all" data-query="SGC OR SGCホール OR 大黄金展 OR 金相場 OR 金価格 OR NY金 OR 金先物 OR 金密輸 OR 金塊 密輸" data-label="すべて">すべて</button>
+  <button class="tab-btn" data-topic="sgcHall" data-query="SGCホール" data-label="SGCホール">SGCホール</button>
+  <button class="tab-btn" data-topic="exhibition" data-query="大黄金展" data-label="大黄金展">大黄金展</button>
+  <button class="tab-btn" data-topic="goldMarket" data-query="金相場 OR 金価格 OR ゴールド価格 OR NY金 OR 金先物 OR スポット金 OR 現物金 OR 地金価格" data-label="金相場（関連）">金相場（関連）</button>
+  <button class="tab-btn" data-topic="goldSmuggling" data-query="金密輸 OR 金塊 密輸 OR 金地金 密輸" data-label="金密輸">金密輸</button>
 </div>
 
 <div class="container">
@@ -372,7 +372,7 @@
   <div class="ext-links" id="extLinks" style="display:none; margin-top:20px;">
     <div class="ext-links-label">直接検索リンク</div>
     <div class="ext-links-row">
-      <a class="ext-link" href="https://news.google.com/search?q=SGC+OR+大黄金展&hl=ja&gl=JP&ceid=JP:ja" target="_blank" rel="noopener">
+      <a class="ext-link" href="https://news.google.com/search?q=SGC+OR+大黄金展+OR+金相場+OR+金密輸&hl=ja&gl=JP&ceid=JP:ja" target="_blank" rel="noopener">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         Google ニュース
       </a>
@@ -384,13 +384,18 @@
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         Yahoo! ニュース (大黄金展)
       </a>
+      <a class="ext-link" href="https://news.yahoo.co.jp/search?p=%E9%87%91%E5%AF%86%E8%BC%B8&ei=utf-8" target="_blank" rel="noopener">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Yahoo! ニュース (金密輸)
+      </a>
     </div>
   </div>
 
 </div><!-- /container -->
 
 <script>
-  let currentQuery = "SGC OR SGCホール OR 黄金泥棒 OR 大黄金展 OR 金 買取 相場";
+  let currentQuery = "SGC OR SGCホール OR 大黄金展 OR 金相場 OR 金価格 OR NY金 OR 金先物 OR 金密輸 OR 金塊 密輸";
+  let currentTopic = "all";
 
   // ─── Tab switching ───
   document.querySelectorAll(".tab-btn").forEach(btn => {
@@ -398,7 +403,8 @@
       document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       currentQuery = btn.dataset.query;
-      loadNews(currentQuery);
+      currentTopic = btn.dataset.topic || "all";
+      loadNews(currentQuery, currentTopic);
     });
   });
 
@@ -485,7 +491,7 @@
   }
 
   // ─── Race: 全プロキシを並列で試し最初の成功を返す ───
-  async function loadNews(query) {
+  async function loadNews(query, topic = currentTopic) {
     showLoading();
     const rssUrl = buildRssUrl(query);
 
@@ -522,7 +528,7 @@
       showError();
       return;
     }
-    renderNews(result, query);
+    renderNews(result, query, topic);
   }
 
   // ════════════════════════════════════════════════
@@ -575,9 +581,10 @@
   }
 
   // ─── Render ───
-  function renderNews(items, query) {
+  function renderNews(items, query, topic = currentTopic) {
     const list = document.getElementById("newsList");
     list.innerHTML = "";
+    items = filterNewsItems(items, topic);
 
     if (!items || items.length === 0) {
       list.innerHTML = `
@@ -627,11 +634,7 @@
         .replace(/\s+/g, " ")
         .trim();
 
-      // キーワードバッジ
-      let badge = "";
-      if (/sgc/i.test(cleanTitle))          badge = `<span class="news-keyword-badge">SGC</span>`;
-      else if (/黄金泥棒/.test(cleanTitle)) badge = `<span class="news-keyword-badge">黄金泥棒</span>`;
-      else if (/大黄金展/.test(cleanTitle)) badge = `<span class="news-keyword-badge">大黄金展</span>`;
+      const badge = buildKeywordBadge(`${cleanTitle} ${cleanDesc} ${source}`);
 
       card.innerHTML = `
         <div class="news-meta">
@@ -650,6 +653,61 @@
     });
 
     showList(items.length);
+  }
+
+  function filterNewsItems(items, topic) {
+    if (!items?.length) return [];
+    return items.filter(item => {
+      const text = getSearchText(item);
+      if (topic === "goldMarket") return isGoldMarketArticle(text);
+      if (topic === "goldSmuggling") return isGoldSmugglingArticle(text);
+      if (topic === "sgcHall") return /SGCホール|ＳＧＣホール|sgc\s*hall/i.test(text);
+      if (topic === "exhibition") return /大黄金展/.test(text);
+
+      return /sgc|SGCホール|ＳＧＣホール|大黄金展/i.test(text) ||
+             isGoldMarketArticle(text) ||
+             isGoldSmugglingArticle(text);
+    });
+  }
+
+  function getSearchText(item) {
+    return [
+      item?.title || "",
+      item?.description || "",
+      item?.source || ""
+    ].join(" ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;|&amp;|&lt;|&gt;|&quot;/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function isGoldMarketArticle(text) {
+    if (!text) return false;
+
+    const unrelatedMoney = /金メダル|給付金|補助金|助成金|税金|料金|資金|基金|賃金|年金|罰金|預金|送金|借金|金曜|金曜日|金庫|金具|金型|黄金週間|ゴールデンウィーク/;
+    const explicitMarket = /金相場|金価格|ゴールド価格|地金価格|国内金価格|純金価格|金地金価格|NY金|ＮＹ金|COMEX金|ＣＯＭＥＸ金|金先物|スポット金|現物金|貴金属市況|金市況|XAU|Gold price/i;
+    const goldAsset = /金地金|地金|純金|ゴールド|貴金属|金ＥＴＦ|金ETF|金投資|金需要|金保有|中央銀行.*金|金.*中央銀行/i;
+    const marketContext = /相場|市況|価格|先物|現物|スポット|上昇|下落|続伸|反落|高値|安値|最高値|最安値|ドル|米金利|長期金利|FRB|ＦＲＢ|FOMC|インフレ|安全資産|利下げ|利上げ|為替|円建て|ドル建て/i;
+    const buyAdContext = /買取店|高価買取|買取専門|査定|キャンペーン|ブランド品|ジュエリー買取|出張買取|宅配買取/;
+
+    if (explicitMarket.test(text)) return true;
+    if (unrelatedMoney.test(text) && !goldAsset.test(text)) return false;
+    if (buyAdContext.test(text) && !marketContext.test(text)) return false;
+
+    return goldAsset.test(text) && marketContext.test(text);
+  }
+
+  function isGoldSmugglingArticle(text) {
+    return /金密輸|金塊密輸|金地金密輸|金塊\s*密輸|金地金\s*密輸|密輸.*(?:金|金塊|金地金)|(?:金|金塊|金地金).*密輸/.test(text || "");
+  }
+
+  function buildKeywordBadge(text) {
+    if (/sgc/i.test(text)) return `<span class="news-keyword-badge">SGC</span>`;
+    if (/大黄金展/.test(text)) return `<span class="news-keyword-badge">大黄金展</span>`;
+    if (isGoldMarketArticle(text)) return `<span class="news-keyword-badge">金相場</span>`;
+    if (isGoldSmugglingArticle(text)) return `<span class="news-keyword-badge">金密輸</span>`;
+    return "";
   }
 
   // ─── UI helpers ───
@@ -682,7 +740,7 @@
     notifyHeight();
   }
 
-  function refreshNews() { return loadNews(currentQuery); }
+  function refreshNews() { return loadNews(currentQuery, currentTopic); }
   window.portalRefresh = refreshNews;
 
   // ─── Utils ───
