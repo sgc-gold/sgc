@@ -168,6 +168,60 @@
   }
   #main-frame { flex: 1; width: 100%; border: none; display: block; min-height: 0; }
 
+  #migration-notice {
+    display: none;
+    flex-shrink: 0;
+    margin: 12px 14px 0;
+    padding: 14px 16px;
+    border: 1px solid rgba(192,154,80,0.28);
+    border-radius: 10px;
+    background: #fffaf0;
+    color: #1f2a22;
+    box-shadow: 0 4px 18px rgba(28,26,22,0.12);
+  }
+  #migration-notice.show { display: block; }
+  .migration-notice-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 0.96rem;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+  .migration-notice-text {
+    font-size: 0.78rem;
+    line-height: 1.65;
+    color: #4f574f;
+  }
+  .migration-notice-text strong { color: var(--green); }
+  .migration-notice-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .migration-notice-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 8px 13px;
+    border-radius: 8px;
+    background: var(--green);
+    color: #fff;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+  }
+  .migration-notice-url {
+    font-size: 0.72rem;
+    color: var(--gold-dk);
+    word-break: break-all;
+  }
+
   /* ─── フレームローディングオーバーレイ ─── */
   #frame-loading {
     display: none;
@@ -268,6 +322,20 @@
     .bnav-item.active { color: var(--gold); }
     .bnav-item svg { width: 20px; height: 20px; flex-shrink: 0; display: block; }
     .bnav-item span { display: block; line-height: 1; }
+    #migration-notice {
+      margin: 8px 8px 0;
+      padding: 11px 12px;
+      border-radius: 8px;
+    }
+    .migration-notice-title { font-size: 0.86rem; margin-bottom: 4px; }
+    .migration-notice-text { font-size: 0.72rem; line-height: 1.55; }
+    .migration-notice-actions { gap: 7px; margin-top: 8px; }
+    .migration-notice-link {
+      width: 100%;
+      min-height: 38px;
+      font-size: 0.76rem;
+    }
+    .migration-notice-url { font-size: 0.66rem; }
   }
   @media (min-width: 900px) { #bottom-nav { display: none !important; } }
 
@@ -569,6 +637,16 @@
 
   <!-- ─── Content ─── -->
   <div id="content-area">
+    <section id="migration-notice" aria-label="社内ポータル新アドレスのご案内">
+      <div class="migration-notice-title">社内ポータルの新アドレスを公開しました</div>
+      <div class="migration-notice-text">
+        今後は下記の新アドレスへ移行予定です。新ページでは<strong>会社メールアドレス</strong>に届くワンタイムコードでログインします。認証は約1か月ごとに必要です。旧ページはしばらく利用できますが、可能な方から新アドレスの利用をお願いいたします。
+      </div>
+      <div class="migration-notice-actions">
+        <a class="migration-notice-link" href="https://sgc-internal-portal.pages.dev/" target="_blank" rel="noopener noreferrer">新アドレスを開く</a>
+        <span class="migration-notice-url">https://sgc-internal-portal.pages.dev/</span>
+      </div>
+    </section>
     <iframe id="main-frame" src="main.html" scrolling="yes" allowtransparency="true"></iframe>
     <!-- ページ読み込み中オーバーレイ -->
     <div id="frame-loading">
@@ -710,6 +788,16 @@
 var GINZA_PW    = 'melmelsa';
 var STORAGE_KEY = 'sgc_ginza_ok';
 
+function setupMigrationNotice() {
+  var notice = document.getElementById('migration-notice');
+  if (!notice) return;
+  if (window.location.hostname === 'sgc-gold.github.io') {
+    notice.classList.add('show');
+  }
+}
+
+setupMigrationNotice();
+
 // ────────────────────────────────────
 //  HEIGHT FIX
 //  #shell の高さは CSS の 100dvh に完全に任せる。
@@ -722,7 +810,15 @@ function sizeFrame() {
   var content = document.getElementById('content-area');
   if (!frame || !content) return;
   var rect = content.getBoundingClientRect();
-  if (rect.height > 0) frame.style.height = rect.height + 'px';
+  var notice = document.getElementById('migration-notice');
+  var noticeHeight = 0;
+  if (notice && notice.classList.contains('show')) {
+    var noticeStyle = window.getComputedStyle(notice);
+    noticeHeight = notice.offsetHeight +
+      parseFloat(noticeStyle.marginTop || '0') +
+      parseFloat(noticeStyle.marginBottom || '0');
+  }
+  if (rect.height > 0) frame.style.height = Math.max(0, rect.height - noticeHeight) + 'px';
 }
 
 sizeFrame();
