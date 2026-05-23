@@ -221,6 +221,47 @@
     color: var(--gold-dk);
     word-break: break-all;
   }
+  .migration-notice-auth {
+    margin-top: 9px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    background: rgba(26,54,40,0.06);
+    border: 1px solid rgba(26,54,40,0.12);
+    font-size: 0.74rem;
+    line-height: 1.55;
+    color: #3f4b43;
+  }
+  .migration-notice-auth strong { color: var(--green); }
+  .migration-copy-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 9px;
+    flex-wrap: wrap;
+  }
+  .migration-copy-btn {
+    min-height: 36px;
+    padding: 8px 12px;
+    border: 1px solid rgba(26,54,40,0.22);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--green);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .migration-copy-btn:active {
+    background: rgba(26,54,40,0.08);
+  }
+  .migration-copy-status {
+    min-height: 18px;
+    font-size: 0.72rem;
+    color: var(--gold-dk);
+  }
 
   /* ─── フレームローディングオーバーレイ ─── */
   #frame-loading {
@@ -336,6 +377,26 @@
       font-size: 0.76rem;
     }
     .migration-notice-url { font-size: 0.66rem; }
+    .migration-notice-auth {
+      margin-top: 8px;
+      padding: 8px 9px;
+      font-size: 0.7rem;
+      line-height: 1.5;
+    }
+    .migration-copy-row {
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .migration-copy-btn {
+      width: 100%;
+      min-height: 38px;
+      font-size: 0.74rem;
+    }
+    .migration-copy-status {
+      width: 100%;
+      font-size: 0.68rem;
+      text-align: center;
+    }
   }
   @media (min-width: 900px) { #bottom-nav { display: none !important; } }
 
@@ -640,11 +701,18 @@
     <section id="migration-notice" aria-label="社内ポータル新アドレスのご案内">
       <div class="migration-notice-title">社内ポータルの新アドレスを公開しました</div>
       <div class="migration-notice-text">
-        今後は下記の新アドレスへ移行予定です。新ページでは<strong>会社メールアドレス</strong>に届くワンタイムコードでログインします。認証は約1か月ごとに必要です。旧ページはしばらく利用できますが、可能な方から新アドレスの利用をお願いいたします。
+        今後は下記の新アドレスへ移行予定です。旧ページはしばらく利用できますが、可能な方から新アドレスの利用をお願いいたします。
       </div>
       <div class="migration-notice-actions">
         <a class="migration-notice-link" href="https://sgc-internal-portal.pages.dev/" target="_blank" rel="noopener noreferrer">新アドレスを開く</a>
         <span class="migration-notice-url">https://sgc-internal-portal.pages.dev/</span>
+      </div>
+      <div class="migration-notice-auth">
+        新ページでは、<strong>会社メールアドレスによる認証</strong>が必要です。ログインできるのは <strong>@sgc-gold.co.jp</strong> のメールアドレスのみです。個人メールアドレスやGmail等ではログインできません。メールに届くワンタイムコードを入力してログインしてください。認証は約1か月ごとに必要になります。
+      </div>
+      <div class="migration-copy-row">
+        <button class="migration-copy-btn" type="button" onclick="copyCompanyEmailDomain()">@sgc-gold.co.jp をコピー</button>
+        <span class="migration-copy-status" id="migration-copy-status" aria-live="polite"></span>
       </div>
     </section>
     <iframe id="main-frame" src="main.html" scrolling="yes" allowtransparency="true"></iframe>
@@ -787,6 +855,8 @@
 // ══════════════════════════════════════════════
 var GINZA_PW    = 'melmelsa';
 var STORAGE_KEY = 'sgc_ginza_ok';
+var COMPANY_EMAIL_DOMAIN = '@sgc-gold.co.jp';
+var migrationCopyTimer = null;
 
 function setupMigrationNotice() {
   var notice = document.getElementById('migration-notice');
@@ -797,6 +867,47 @@ function setupMigrationNotice() {
 }
 
 setupMigrationNotice();
+
+function setMigrationCopyStatus(message) {
+  var status = document.getElementById('migration-copy-status');
+  if (!status) return;
+  status.textContent = message;
+  if (migrationCopyTimer) clearTimeout(migrationCopyTimer);
+  migrationCopyTimer = setTimeout(function() {
+    status.textContent = '';
+  }, 2400);
+}
+
+function fallbackCopyText(text) {
+  var textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'fixed';
+  textarea.style.left = '-9999px';
+  textarea.style.top = '0';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  try {
+    return document.execCommand('copy');
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+
+function copyCompanyEmailDomain() {
+  var text = COMPANY_EMAIL_DOMAIN;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      setMigrationCopyStatus('コピーしました');
+    }).catch(function() {
+      setMigrationCopyStatus(fallbackCopyText(text) ? 'コピーしました' : 'コピーできませんでした');
+    });
+    return;
+  }
+
+  setMigrationCopyStatus(fallbackCopyText(text) ? 'コピーしました' : 'コピーできませんでした');
+}
 
 // ────────────────────────────────────
 //  HEIGHT FIX
