@@ -3,6 +3,14 @@ on:
   workflow_dispatch:
   repository_dispatch:
     types: [Check and Update Tanaka]
+
+concurrency:
+  group: tanaka-update
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
 jobs:
   check-and-update:
     runs-on: ubuntu-latest
@@ -46,11 +54,21 @@ jobs:
           PAT_GITHUB: ${{ secrets.TANAKA_GITHUB_TOKEN }}
           UPDATE_TIME: ${{ github.event.client_payload.update_time }}
         run: |
-          curl -s -X POST \
+          response_file="$(mktemp)"
+          set +e
+          http_code=$(curl --silent --show-error --fail-with-body --output "$response_file" --write-out "%{http_code}" -X POST \
             -H "Authorization: token $PAT_GITHUB" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/sgc-gold/sgc/dispatches \
-            -d "{\"event_type\":\"Check Tanaka Notify\",\"client_payload\":{\"update_time\":\"${UPDATE_TIME}\"}}"
+            -d "{\"event_type\":\"Check Tanaka Notify\",\"client_payload\":{\"update_time\":\"${UPDATE_TIME}\"}}")
+          curl_status=$?
+          set -e
+          if [ "$curl_status" -ne 0 ] || [ "$http_code" != "204" ]; then
+            echo "::error::Check Tanaka Notify dispatch failed with HTTP ${http_code}"
+            cat "$response_file"
+            exit 1
+          fi
+          rm -f "$response_file"
           echo "✅ Check Tanaka Notify を起動しました（UPDATE_TIME=${UPDATE_TIME}）"
 
       # deploy.yml を明示的に起動（PATでのpushはActionsをトリガーしないため）
@@ -58,9 +76,19 @@ jobs:
         env:
           PAT_GITHUB: ${{ secrets.TANAKA_GITHUB_TOKEN }}
         run: |
-          curl -s -X POST \
+          response_file="$(mktemp)"
+          set +e
+          http_code=$(curl --silent --show-error --fail-with-body --output "$response_file" --write-out "%{http_code}" -X POST \
             -H "Authorization: token $PAT_GITHUB" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/sgc-gold/sgc/actions/workflows/deploy.yml/dispatches \
-            -d '{"ref":"main"}'
+            -d '{"ref":"main"}')
+          curl_status=$?
+          set -e
+          if [ "$curl_status" -ne 0 ] || [ "$http_code" != "204" ]; then
+            echo "::error::deploy.yml dispatch failed with HTTP ${http_code}"
+            cat "$response_file"
+            exit 1
+          fi
+          rm -f "$response_file"
           echo "✅ deploy.yml を起動しました"

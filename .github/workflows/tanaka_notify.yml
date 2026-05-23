@@ -9,6 +9,10 @@ on:
         required: true
         default: '1400'
 
+concurrency:
+  group: tanaka-notify-${{ github.event.client_payload.update_time || inputs.update_time || github.run_id }}
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
