@@ -19,8 +19,26 @@ def log(message):
 
 def fetch_comment():
     url = "https://nanboya.com/gold-kaitori/souba/"
-    response = requests.get(url)
+    params = {"cb": str(int(time.time()))}
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/125.0 Safari/537.36"
+        ),
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache",
+    }
+    response = requests.get(url, params=params, headers=headers, timeout=30)
+    response.raise_for_status()
     response.encoding = "utf-8"
+    cache_info = {
+        "url": response.url,
+        "date": response.headers.get("Date", ""),
+        "x_cache": response.headers.get("X-Cache", ""),
+        "age": response.headers.get("Age", ""),
+    }
+    log(f"fetch_comment: {cache_info}")
     soup = BeautifulSoup(response.text, "html.parser")
     return soup
 
