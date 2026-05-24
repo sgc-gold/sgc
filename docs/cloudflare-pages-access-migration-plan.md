@@ -294,12 +294,32 @@ https://sgc-internal-portal.pages.dev/
 ```text
 - 社内ポータルの新アドレスを公開したこと
 - 新ページは会社メールアドレス OTP 認証が必要であること
+- ログインできるのは @sgc-gold.co.jp の会社メールアドレスのみであること
+- 個人メールアドレス、Gmail、その他メールアドレスではログインできないこと
+- ワンタイムコードは入力した会社メールアドレス宛に届くこと
 - 認証は約1か月ごとに必要であること
 - 旧ページはしばらく利用できること
 - 可能な方から新アドレスを利用してほしいこと
 ```
 
 同じ `index.html` は Cloudflare Pages にも出力されるため、バナーは `sgc-gold.github.io` でのみ表示する。
+
+追加済みの操作:
+
+```text
+- 新アドレスを開くボタン
+- @sgc-gold.co.jp をコピーするボタン
+- コピー成功時の「コピーしました」表示
+- Clipboard API 非対応時の textarea fallback
+```
+
+表示条件:
+
+```text
+location.hostname === "sgc-gold.github.io"
+```
+
+Cloudflare Pages 側、つまり `sgc-internal-portal.pages.dev` ではこの案内バナーは表示しない。
 
 ## Cloudflare Custom Domain
 
