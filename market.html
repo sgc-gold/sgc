@@ -434,8 +434,18 @@ header::after {
     <div class="card-header">
       <div class="card-icon icon-pt">◇</div>
       <div class="card-header-text">
-        <div class="card-title">プラチナ価格</div>
-        <div class="card-subtitle">XPT / USD · Platinum</div>
+        <div class="card-title">プラチナ価格（円/g）</div>
+        <div class="card-subtitle">Chart: XPT / USD · Platinum per oz</div>
+      </div>
+    </div>
+    <div class="spot-price-panel" id="platinumSpotPanel">
+      <div class="spot-price-row">
+        <div class="spot-price-label">SPOT CONVERSION</div>
+        <div class="spot-price-value"><span id="platinumSpotPrice">取得中</span><span class="spot-price-unit">円/g</span></div>
+      </div>
+      <div class="spot-price-meta">
+        <span id="platinumSpotSource">XPT/USD × USD/JPY ÷ 31.1034768</span>
+        <span class="spot-price-change" id="platinumSpotChange"></span>
       </div>
     </div>
     <div class="card-widget">
@@ -537,14 +547,14 @@ function formatChange(value, percent) {
   return parts.join(' / ');
 }
 
-async function loadGoldSpotPrice() {
-  const panel = document.getElementById('goldSpotPanel');
-  const priceEl = document.getElementById('goldSpotPrice');
-  const sourceEl = document.getElementById('goldSpotSource');
-  const changeEl = document.getElementById('goldSpotChange');
+async function loadSpotPrice(config) {
+  const panel = document.getElementById(config.panelId);
+  const priceEl = document.getElementById(config.priceId);
+  const sourceEl = document.getElementById(config.sourceId);
+  const changeEl = document.getElementById(config.changeId);
 
   try {
-    const response = await fetch('/api/market/gold-jpy', { cache: 'no-store' });
+    const response = await fetch(config.url, { cache: 'no-store' });
     const data = await response.json();
 
     if (!response.ok || typeof data.pricePerGramJpy !== 'number') {
@@ -552,7 +562,7 @@ async function loadGoldSpotPrice() {
     }
 
     priceEl.textContent = numberFormatter.format(data.pricePerGramJpy);
-    sourceEl.textContent = data.source ? `${data.source} · XAU/JPY` : 'XAU/JPY ÷ 31.1034768';
+    sourceEl.textContent = data.source ? `${data.source} · ${config.symbol}` : config.fallbackLabel;
 
     const changeText = formatChange(data.change, data.changePercent);
     changeEl.textContent = changeText;
@@ -569,7 +579,24 @@ async function loadGoldSpotPrice() {
   }
 }
 
-loadGoldSpotPrice();
+loadSpotPrice({
+  panelId: 'goldSpotPanel',
+  priceId: 'goldSpotPrice',
+  sourceId: 'goldSpotSource',
+  changeId: 'goldSpotChange',
+  url: '/api/market/gold-jpy',
+  symbol: 'XAU/JPY',
+  fallbackLabel: 'XAU/JPY ÷ 31.1034768'
+});
+loadSpotPrice({
+  panelId: 'platinumSpotPanel',
+  priceId: 'platinumSpotPrice',
+  sourceId: 'platinumSpotSource',
+  changeId: 'platinumSpotChange',
+  url: '/api/market/platinum-jpy',
+  symbol: 'XPT/JPY',
+  fallbackLabel: 'XPT/USD × USD/JPY ÷ 31.1034768'
+});
 </script>
 <script src="portal-frame-bridge.js"></script>
 </body>
