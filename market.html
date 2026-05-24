@@ -240,6 +240,52 @@ header::after {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
 }
+.spot-price-panel {
+  padding: 13px 16px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: rgba(192,154,80,0.05);
+}
+.spot-price-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.spot-price-label {
+  font-size: 0.64rem;
+  color: rgba(255,255,255,0.44);
+  letter-spacing: 0.12em;
+}
+.spot-price-value {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.38rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--gold-lt);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.spot-price-unit {
+  margin-left: 4px;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.55);
+}
+.spot-price-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 18px;
+  margin-top: 8px;
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.35);
+}
+.spot-price-change.positive { color: #5DC090; }
+.spot-price-change.negative { color: #E06F5F; }
+.spot-price-panel.is-error .spot-price-value {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.6);
+}
 
 /* accent top border */
 .market-card::before {
@@ -323,6 +369,16 @@ header::after {
       <div class="card-header-text">
         <div class="card-title">金価格（円/g）</div>
         <div class="card-subtitle">Chart: XAU / JPY · Yen per oz</div>
+      </div>
+    </div>
+    <div class="spot-price-panel" id="goldSpotPanel">
+      <div class="spot-price-row">
+        <div class="spot-price-label">SPOT CONVERSION</div>
+        <div class="spot-price-value"><span id="goldSpotPrice">取得中</span><span class="spot-price-unit">円/g</span></div>
+      </div>
+      <div class="spot-price-meta">
+        <span id="goldSpotSource">XAU/JPY ÷ 31.1034768</span>
+        <span class="spot-price-change" id="goldSpotChange"></span>
       </div>
     </div>
     <div class="card-widget">
@@ -467,6 +523,53 @@ function notifyHeight() {
 }
 window.addEventListener('load', () => setTimeout(notifyHeight, 1500));
 window.addEventListener('resize', notifyHeight);
+
+const numberFormatter = new Intl.NumberFormat('ja-JP', {
+  maximumFractionDigits: 0
+});
+
+function formatChange(value, percent) {
+  if (value === null && percent === null) return '';
+
+  const parts = [];
+  if (value !== null) parts.push(`${value > 0 ? '+' : ''}${numberFormatter.format(value)}`);
+  if (percent !== null) parts.push(`${percent > 0 ? '+' : ''}${percent.toFixed(2)}%`);
+  return parts.join(' / ');
+}
+
+async function loadGoldSpotPrice() {
+  const panel = document.getElementById('goldSpotPanel');
+  const priceEl = document.getElementById('goldSpotPrice');
+  const sourceEl = document.getElementById('goldSpotSource');
+  const changeEl = document.getElementById('goldSpotChange');
+
+  try {
+    const response = await fetch('/api/market/gold-jpy', { cache: 'no-store' });
+    const data = await response.json();
+
+    if (!response.ok || typeof data.pricePerGramJpy !== 'number') {
+      throw new Error(data.error || 'Invalid market data');
+    }
+
+    priceEl.textContent = numberFormatter.format(data.pricePerGramJpy);
+    sourceEl.textContent = data.source ? `${data.source} · XAU/JPY` : 'XAU/JPY ÷ 31.1034768';
+
+    const changeText = formatChange(data.change, data.changePercent);
+    changeEl.textContent = changeText;
+    changeEl.className = 'spot-price-change';
+    if (data.change > 0 || data.changePercent > 0) changeEl.classList.add('positive');
+    if (data.change < 0 || data.changePercent < 0) changeEl.classList.add('negative');
+  } catch (error) {
+    panel.classList.add('is-error');
+    priceEl.textContent = '取得できません';
+    sourceEl.textContent = 'チャートは表示を継続しています';
+    changeEl.textContent = '';
+  } finally {
+    setTimeout(notifyHeight, 100);
+  }
+}
+
+loadGoldSpotPrice();
 </script>
 <script src="portal-frame-bridge.js"></script>
 </body>
