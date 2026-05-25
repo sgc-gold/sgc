@@ -20,6 +20,8 @@ jobs:
       # リポジトリをチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       # Python をセットアップ
       - name: Set up Python
