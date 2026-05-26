@@ -494,7 +494,7 @@
   // ─── Race: 全プロキシを並列で試し最初の成功を返す ───
   async function loadNews(query, topic = currentTopic) {
     showLoading();
-    const result = await PortalNewsFeed.fetchNews(query);
+    const result = await PortalNewsFeed.fetchTopicNews(topic, query);
 
     if (!result) {
       showError();
@@ -556,7 +556,7 @@
   function renderNews(items, query, topic = currentTopic) {
     const list = document.getElementById("newsList");
     list.innerHTML = "";
-    items = filterNewsItems(items, topic);
+    items = PortalNewsFeed.sortByDateDesc(filterNewsItems(items, topic));
 
     if (!items || items.length === 0) {
       list.innerHTML = `

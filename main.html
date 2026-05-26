@@ -662,7 +662,7 @@ function loadNewsTicker() {
   ticker.style.display = "none";
   track.innerHTML = "";
 
-  return PortalNewsFeed.fetchNews(PortalNewsFeed.TOPIC_QUERY.goldCrime)
+  return PortalNewsFeed.fetchTopicNews("goldCrime", PortalNewsFeed.TOPIC_QUERY.goldCrime)
     .then(items => {
       const filtered = PortalNewsFeed.excludeSgcHall(
         PortalNewsFeed.filterNewsItems(items || [], "goldCrime")
