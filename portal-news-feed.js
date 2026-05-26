@@ -8,9 +8,19 @@
     goldCrime: "金密輸 OR 金塊 密輸 OR 金地金 密輸 OR 金塊強盗 OR 金 強盗 OR 金地金 強盗 OR 貴金属 強盗 OR 地金 強盗"
   };
   const TOPIC_QUERIES = {
+    all: [
+      "SGC OR SGCホール OR 大黄金展 OR 金相場 OR 金価格 OR NY金 OR 金先物 OR 金密輸 OR 金塊 密輸 OR 金塊強盗 OR 金 強盗 OR 貴金属 強盗"
+    ],
     goldCrime: [
+      "SGC OR SGCホール OR 大黄金展 OR 金相場 OR 金価格 OR NY金 OR 金先物 OR 金密輸 OR 金塊 密輸 OR 金塊強盗 OR 金 強盗 OR 貴金属 強盗",
       "金密輸 OR 金塊 密輸 OR 金地金 密輸",
       "金塊強盗 OR 金 強盗 OR 金地金 強盗 OR 貴金属 強盗 OR 地金 強盗 OR インゴット 強盗"
+    ],
+    exhibition: [
+      "SGC OR SGCホール OR 大黄金展 OR 金相場 OR 金価格 OR NY金 OR 金先物 OR 金密輸 OR 金塊 密輸 OR 金塊強盗 OR 金 強盗 OR 貴金属 強盗",
+      "大黄金展",
+      "大黄金展 Yahoo!ニュース",
+      "大黄金展 SGC"
     ]
   };
 
@@ -237,6 +247,11 @@
     return /SGCホール|ＳＧＣホール|sgc\s*hall/i.test(text || "");
   }
 
+  function isExhibitionArticle(text) {
+    if (!text) return false;
+    return /大黄金展/.test(text);
+  }
+
   function isGoldMarketArticle(text) {
     if (!text) return false;
 
@@ -297,6 +312,25 @@
     return "";
   }
 
+  function getTopicLabel(item) {
+    const text = getSearchText(item);
+    const crimeLabel = getCrimeLabel(text);
+    if (crimeLabel) return crimeLabel;
+    if (isGoldMarketArticle(text)) return "金相場";
+    if (isExhibitionArticle(text)) return "大黄金展";
+    if (/sgc/i.test(text) || isSgcHallArticle(text)) return "SGC";
+    return "ニュース";
+  }
+
+  function getTopicClass(item) {
+    const text = getSearchText(item);
+    if (isGoldCrimeArticle(text)) return "crime";
+    if (isGoldMarketArticle(text)) return "market";
+    if (isExhibitionArticle(text)) return "exhibition";
+    if (/sgc/i.test(text) || isSgcHallArticle(text)) return "sgc";
+    return "general";
+  }
+
   function filterNewsItems(items, topic) {
     if (!items?.length) return [];
     const filtered = items.filter(item => {
@@ -304,7 +338,7 @@
       if (topic === "goldMarket") return isGoldMarketArticle(text) && isJapanFocusedArticle(item);
       if (topic === "goldCrime" || topic === "goldSmuggling") return isGoldCrimeArticle(text);
       if (topic === "sgcHall") return isSgcHallArticle(text);
-      if (topic === "exhibition") return /大黄金展/.test(text);
+      if (topic === "exhibition") return isExhibitionArticle(text);
 
       return /sgc|SGCホール|ＳＧＣホール|大黄金展/i.test(text) ||
              isGoldMarketArticle(text) ||
@@ -333,6 +367,8 @@
     isGoldCrimeArticle,
     isJapanFocusedArticle,
     getCrimeLabel,
+    getTopicLabel,
+    getTopicClass,
     excludeSgcHall
   };
 })(window);
