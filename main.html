@@ -141,6 +141,8 @@ body::before {
   gap: 10px;
 }
 .price-item {
+  appearance: none;
+  width: 100%;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(192,154,80,0.15);
   border-radius: 12px;
@@ -149,6 +151,24 @@ body::before {
   justify-content: space-between;
   align-items: center;
   gap: 8px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.price-item:hover,
+.price-item:focus-visible {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(192,154,80,0.36);
+}
+.price-item:focus-visible {
+  outline: 2px solid rgba(232,212,154,0.65);
+  outline-offset: 2px;
+}
+.price-item:active {
+  transform: translateY(1px);
 }
 .price-item-metal {
   font-size: 0.6rem;
@@ -487,20 +507,20 @@ body::before {
     </div>
 
     <div class="price-row">
-      <div class="price-item">
+      <button class="price-item" type="button" onclick="openFrame(event,'price.html?metal=GOLD#trend')" aria-label="Goldの推移グラフを開く">
         <div class="price-item-left">
           <div class="price-item-metal">Gold</div>
           <div class="price-item-val"><span id="gold-price">—</span><span class="price-item-unit">円</span></div>
         </div>
         <div class="price-item-diff loading" id="gold-diff">読込中</div>
-      </div>
-      <div class="price-item">
+      </button>
+      <button class="price-item" type="button" onclick="openFrame(event,'price.html?metal=PLATINUM#trend')" aria-label="Platinumの推移グラフを開く">
         <div class="price-item-left">
           <div class="price-item-metal">Platinum</div>
           <div class="price-item-val"><span id="pt-price">—</span><span class="price-item-unit">円</span></div>
         </div>
         <div class="price-item-diff loading" id="pt-diff">読込中</div>
-      </div>
+      </button>
     </div>
     <div class="price-update">
       <span class="price-update-label">更新日時</span>
