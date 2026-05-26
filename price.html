@@ -419,7 +419,8 @@ body::before {
   border-radius: 10px;
   flex-shrink: 0;
 }
-.trend-periods {
+.trend-periods,
+.trend-times {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -448,6 +449,13 @@ body::before {
 }
 .trend-periods .trend-btn.active {
   background: var(--gold-dk);
+}
+.trend-times {
+  background: rgba(74,106,138,0.08);
+  border-color: rgba(74,106,138,0.14);
+}
+.trend-times .trend-btn.active {
+  background: #4A6A8A;
 }
 .trend-canvas-wrap {
   position: relative;
@@ -575,7 +583,8 @@ body::before {
     font-size: 0.72rem;
   }
   .trend-controls,
-  .trend-periods {
+  .trend-periods,
+  .trend-times {
     width: 100%;
   }
   .trend-btn {
@@ -596,6 +605,10 @@ body::before {
   .trend-periods {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
+  }
+  .trend-times {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
   }
   .trend-btn {
     padding: 0 8px;
@@ -657,7 +670,7 @@ body::before {
     </div>
   </div>
 
-  <section class="trend-panel" aria-labelledby="trend-title">
+  <section class="trend-panel" id="trend" aria-labelledby="trend-title">
     <div class="trend-header">
       <div>
         <h2 class="trend-title" id="trend-title">買取価格 推移</h2>
@@ -674,6 +687,10 @@ body::before {
           <button type="button" class="trend-btn" data-range="1m">1ヶ月</button>
           <button type="button" class="trend-btn active" data-range="3m">3ヶ月</button>
           <button type="button" class="trend-btn" data-range="6m">6ヶ月</button>
+        </div>
+        <div class="trend-times" aria-label="表示する公表時刻">
+          <button type="button" class="trend-btn active" data-time-mode="morning">9:30のみ</button>
+          <button type="button" class="trend-btn" data-time-mode="intraday">9:30 + 14:00</button>
         </div>
       </div>
     </div>
@@ -705,14 +722,27 @@ const TREND_RANGES = {
   '3m': { label: '3ヶ月', days: 93 },
   '6m': { label: '6ヶ月', days: 186 },
 };
-const TREND_MIN_TIME = 9 * 60 + 30;
-const TREND_MAX_TIME = 14 * 60;
+const TREND_TIME_930 = 9 * 60 + 30;
+const TREND_TIME_1400 = 14 * 60;
+const TREND_ALLOWED_TIMES = [TREND_TIME_930, TREND_TIME_1400];
+const TREND_TIME_MODES = {
+  morning: { label: '9:30のみ', times: [TREND_TIME_930] },
+  intraday: { label: '9:30 + 14:00', times: [TREND_TIME_930, TREND_TIME_1400] },
+};
+const TREND_METAL_KEYS = new Set(METALS.map(meta => meta.key));
 let trendRows = [];
-let selectedTrendMetal = 'GOLD';
+let selectedTrendMetal = initialTrendMetal();
 let selectedTrendRange = '3m';
+let selectedTrendTimeMode = 'morning';
 let trendActiveIndex = null;
 let trendPointerDown = false;
 let trendRenderState = null;
+
+function initialTrendMetal() {
+  const params = new URLSearchParams(window.location.search);
+  const metal = String(params.get('metal') || '').toUpperCase();
+  return TREND_METAL_KEYS.has(metal) ? metal : 'GOLD';
+}
 
 function toNumber(value) {
   const n = Number(String(value ?? '').replace(/,/g, ''));
@@ -752,8 +782,10 @@ function dateValue(date, time) {
 }
 
 function filteredTrendPoints() {
+  const mode = TREND_TIME_MODES[selectedTrendTimeMode] || TREND_TIME_MODES.morning;
   const all = trendRows
     .map(row => ({ ...row, value: row[selectedTrendMetal] }))
+    .filter(point => mode.times.includes(point.minutes))
     .filter(point => Number.isFinite(point.value))
     .sort((a, b) => a.timestamp - b.timestamp);
   if (!all.length) return [];
@@ -778,11 +810,12 @@ async function loadTrendRows() {
       const snapshots = Array.isArray(day.snapshots) ? day.snapshots : [];
       return snapshots.map(snapshot => {
         const minutes = minutesFromUpdateTime(snapshot.update_time);
-        if (!Number.isFinite(minutes) || minutes < TREND_MIN_TIME || minutes > TREND_MAX_TIME) return null;
+        if (!Number.isFinite(minutes) || !TREND_ALLOWED_TIMES.includes(minutes)) return null;
         const time = timeFromUpdateTime(snapshot.update_time);
         return {
           date: day.date || '',
           time,
+          minutes,
           timestamp: dateValue(day.date || '', time),
           update_time: snapshot.update_time,
           GOLD: toNumber(snapshot.prices.GOLD && snapshot.prices.GOLD.buy),
@@ -860,10 +893,7 @@ function drawTrendChart() {
     ctx.fillText(formatYen(value).replace('円', ''), pad.left - 8, y);
   }
 
-  const firstTime = points[0].timestamp;
-  const lastTime = points[points.length - 1].timestamp;
-  const spanTime = Math.max(1, lastTime - firstTime);
-  const xFor = index => pad.left + chartW * ((points[index].timestamp - firstTime) / spanTime);
+  const xFor = index => pad.left + chartW * (points.length === 1 ? 0 : index / (points.length - 1));
   const yFor = value => pad.top + chartH * (1 - ((value - yMin) / (yMax - yMin)));
 
   const gradient = ctx.createLinearGradient(0, pad.top, 0, height - pad.bottom);
@@ -958,7 +988,8 @@ function drawTrendChart() {
   const diff = last.value - first.value;
   const diffClassName = diff > 0 ? 'up' : diff < 0 ? 'dn' : '';
   const sign = diff > 0 ? '+' : '';
-  metaText.textContent = `${formatTrendDate(first.date)} - ${formatTrendDate(last.date)} / 09:30〜14:00公表分`;
+  const timeMode = TREND_TIME_MODES[selectedTrendTimeMode] || TREND_TIME_MODES.morning;
+  metaText.textContent = `${formatTrendDate(first.date)} - ${formatTrendDate(last.date)} / ${timeMode.label} / データがある日だけ表示`;
   summary.innerHTML = `
     <span>最新 <strong>${formatYen(last.value)}</strong></span>
     <span>選択 <strong>${formatTrendPoint(activePoint)} ${formatYen(activePoint.value)}</strong></span>
@@ -1000,6 +1031,7 @@ async function initTrendChart() {
   try {
     trendRows = await loadTrendRows();
     drawTrendChart();
+    scrollToTrendFromUrl();
   } catch (err) {
     console.error(err);
     const empty = document.getElementById('trend-empty');
@@ -1010,20 +1042,45 @@ async function initTrendChart() {
   }
 }
 
+function syncTrendButtons() {
+  document.querySelectorAll('[data-metal]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.metal === selectedTrendMetal);
+  });
+  document.querySelectorAll('[data-range]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.range === selectedTrendRange);
+  });
+  document.querySelectorAll('[data-time-mode]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.timeMode === selectedTrendTimeMode);
+  });
+}
+
+function scrollToTrendFromUrl() {
+  if (window.location.hash !== '#trend') return;
+  const trend = document.getElementById('trend');
+  if (!trend) return;
+  window.requestAnimationFrame(() => {
+    trend.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
 document.querySelectorAll('.trend-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     if (btn.dataset.metal) {
       selectedTrendMetal = btn.dataset.metal;
-      document.querySelectorAll('[data-metal]').forEach(b => b.classList.toggle('active', b === btn));
     }
     if (btn.dataset.range) {
       selectedTrendRange = btn.dataset.range;
       trendActiveIndex = null;
-      document.querySelectorAll('[data-range]').forEach(b => b.classList.toggle('active', b === btn));
     }
+    if (btn.dataset.timeMode) {
+      selectedTrendTimeMode = btn.dataset.timeMode;
+      trendActiveIndex = null;
+    }
+    syncTrendButtons();
     drawTrendChart();
   });
 });
+syncTrendButtons();
 
 const trendCanvas = document.getElementById('trend-chart');
 if (trendCanvas) {
