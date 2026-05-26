@@ -20,6 +20,7 @@ const allowedRootFiles = [
   "register.html",
   "market.html",
   "portal-frame-bridge.js",
+  "portal-news-feed.js",
   "sw.js",
   "manifest.json"
 ];

@@ -199,6 +199,105 @@ body::before {
   font-family: 'DM Sans', sans-serif;
 }
 
+/* ─── News ticker ─── */
+.news-ticker {
+  position: relative;
+  z-index: 1;
+  display: none;
+  width: 100%;
+  min-height: 38px;
+  border: 0;
+  border-bottom: 1px solid rgba(192,154,80,0.16);
+  background: rgba(14,31,23,0.94);
+  color: rgba(255,255,255,0.78);
+  cursor: pointer;
+  touch-action: manipulation;
+  overflow: hidden;
+  text-align: left;
+}
+.news-ticker:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+}
+.news-ticker-inner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 8px 18px;
+}
+.news-ticker-label {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border: 1px solid rgba(192,154,80,0.45);
+  border-radius: 4px;
+  color: var(--gold-lt);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  line-height: 1;
+}
+.news-ticker-window {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+.news-ticker-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 22px;
+  min-width: 100%;
+  padding-left: 100%;
+  animation: ticker-scroll 42s linear infinite;
+  will-change: transform;
+}
+.news-ticker:hover .news-ticker-track,
+.news-ticker:focus-visible .news-ticker-track {
+  animation-play-state: paused;
+}
+.news-ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(68vw, 520px);
+  color: rgba(255,255,255,0.74);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+.news-ticker-badge {
+  flex: 0 0 auto;
+  color: rgba(232,212,154,0.8);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+.news-ticker-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+@media (max-width: 420px) {
+  .news-ticker-inner { padding: 8px 14px; gap: 9px; }
+  .news-ticker-item { max-width: 74vw; font-size: 0.72rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .news-ticker-track {
+    display: block;
+    padding-left: 0;
+    animation: none;
+  }
+  .news-ticker-track .news-ticker-item:not(:first-child) {
+    display: none;
+  }
+}
+
 /* ─── Notice ─── */
 .notice-pill {
   position: relative; z-index: 1;
@@ -390,6 +489,15 @@ body::before {
   </div>
 </div>
 
+<button class="news-ticker" id="newsTicker" type="button" onclick="openNewsPage()" aria-label="金密輸・金塊強盗ニュースをニュースページで開く">
+  <span class="news-ticker-inner">
+    <span class="news-ticker-label">NEWS</span>
+    <span class="news-ticker-window">
+      <span class="news-ticker-track" id="newsTickerTrack"></span>
+    </span>
+  </span>
+</button>
+
 <div class="notice-pill">
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
   サイドメニューからも各ページにアクセスできます
@@ -455,6 +563,7 @@ body::before {
   </div>
 </div>
 
+<script src="portal-news-feed.js"></script>
 <script>
 function openFrame(e, url) {
   e.preventDefault();
@@ -462,6 +571,12 @@ function openFrame(e, url) {
   if (parent && parent.showFrameLoading) parent.showFrameLoading();
   const iframe = parent.document.getElementById('main-frame');
   if (iframe) iframe.src = url;
+}
+
+function openNewsPage() {
+  if (parent && parent.showFrameLoading) parent.showFrameLoading();
+  const iframe = parent.document.getElementById('main-frame');
+  if (iframe) iframe.src = 'news.html';
 }
 
 // 価格データ取得
@@ -539,11 +654,48 @@ function loadExhibition() {
     });
 }
 
+function loadNewsTicker() {
+  const ticker = document.getElementById("newsTicker");
+  const track = document.getElementById("newsTickerTrack");
+  if (!ticker || !track || !window.PortalNewsFeed) return Promise.resolve();
+
+  ticker.style.display = "none";
+  track.innerHTML = "";
+
+  return PortalNewsFeed.fetchNews(PortalNewsFeed.TOPIC_QUERY.goldCrime)
+    .then(items => {
+      const filtered = PortalNewsFeed.excludeSgcHall(
+        PortalNewsFeed.filterNewsItems(items || [], "goldCrime")
+      ).slice(0, 5);
+
+      if (!filtered.length) {
+        ticker.style.display = "none";
+        notifyHeight();
+        return;
+      }
+
+      const nodes = filtered.map(item => {
+        const text = PortalNewsFeed.getSearchText(item);
+        const label = PortalNewsFeed.getCrimeLabel(text) || "金関連";
+        const title = PortalNewsFeed.getDisplayTitle(item) || item.title || "";
+        return `<span class="news-ticker-item"><span class="news-ticker-badge">${escHtml(label)}</span><span class="news-ticker-title">${escHtml(title)}</span></span>`;
+      });
+
+      track.innerHTML = nodes.concat(nodes).join("");
+      ticker.style.display = "block";
+      notifyHeight();
+    })
+    .catch(() => {
+      ticker.style.display = "none";
+      notifyHeight();
+    });
+}
+
 // 更新ボタン処理
 function refreshData() {
   const btn = document.getElementById("mainRefreshBtn");
   if (btn) btn.classList.add("spinning");
-  return Promise.all([loadPrice(), loadExhibition()]).finally(() => {
+  return Promise.all([loadPrice(), loadExhibition(), loadNewsTicker()]).finally(() => {
     if (btn) btn.classList.remove("spinning");
   });
 }
@@ -552,9 +704,14 @@ window.portalRefresh = refreshData;
 // 初回ロード
 loadPrice();
 loadExhibition();
+loadNewsTicker();
 
 function notifyHeight() {
   parent.postMessage({ type: 'resize-iframe', height: document.body.scrollHeight }, '*');
+}
+function escHtml(str) {
+  if (!str) return "";
+  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 window.addEventListener('load', notifyHeight);
 window.addEventListener('resize', notifyHeight);
