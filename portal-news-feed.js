@@ -7,6 +7,12 @@
     goldMarket: "金相場 OR 金価格 OR ゴールド価格 OR NY金 OR 金先物 OR スポット金 OR 現物金 OR 地金価格",
     goldCrime: "金密輸 OR 金塊 密輸 OR 金地金 密輸 OR 金塊強盗 OR 金 強盗 OR 金地金 強盗 OR 貴金属 強盗 OR 地金 強盗"
   };
+  const TOPIC_QUERIES = {
+    goldCrime: [
+      "金密輸 OR 金塊 密輸 OR 金地金 密輸",
+      "金塊強盗 OR 金 強盗 OR 金地金 強盗 OR 貴金属 強盗 OR 地金 強盗 OR インゴット 強盗"
+    ]
+  };
 
   function fetchWithTimeout(url, opts = {}) {
     const controller = new AbortController();
@@ -105,6 +111,17 @@
     return sortByDateDesc(result);
   }
 
+  async function fetchTopicNews(topic, fallbackQuery) {
+    const queries = TOPIC_QUERIES[topic] || [fallbackQuery || TOPIC_QUERY[topic] || TOPIC_QUERY.all];
+    const results = await Promise.all(
+      queries.map(query => fetchNews(query).catch(e => { console.warn(e.message); return null; }))
+    );
+    const merged = dedupeNewsItems(results.flatMap(items => items || []));
+    if (!merged.length) return null;
+    if (topic === "goldMarket") return sortByDateDesc(merged.filter(isJapanFocusedArticle));
+    return sortByDateDesc(merged);
+  }
+
   function parseXml(xmlStr) {
     if (!xmlStr) return [];
     try {
@@ -154,6 +171,30 @@
       const db = b.pubDate ? new Date(b.pubDate).getTime() : 0;
       return db - da;
     });
+  }
+
+  function dedupeNewsItems(items) {
+    const seen = new Set();
+    const out = [];
+    (items || []).forEach(item => {
+      const key = normalizeDedupeKey(item);
+      if (seen.has(key)) return;
+      seen.add(key);
+      out.push(item);
+    });
+    return out;
+  }
+
+  function normalizeDedupeKey(item) {
+    const link = (item?.link || "").replace(/[?#].*$/, "").trim();
+    if (link) return `link:${link}`;
+    const date = item?.pubDate ? new Date(item.pubDate) : null;
+    const dateKey = date && !isNaN(date.getTime()) ? date.toISOString().slice(0, 10) : "";
+    return [
+      getDisplayTitle(item).toLowerCase(),
+      getSource(item).toLowerCase(),
+      dateKey
+    ].join("|");
   }
 
   function getSearchText(item) {
@@ -212,6 +253,25 @@
     return goldAsset.test(text) && marketContext.test(text);
   }
 
+  function isJapanFocusedArticle(item) {
+    const source = getSource(item);
+    const text = getSearchText(item);
+    const link = item?.link || "";
+    const haystack = `${source} ${text} ${link}`;
+
+    const blockedSource = /VIETNAM\.VN|Vietnam\.vn|vietnam\.vn|ベトナム|Vietnam News|VNExpress|VnExpress|Tuoi Tre|Thanh Nien/i;
+    if (blockedSource.test(haystack)) return false;
+
+    const knownJapanSource = /Yahoo!ニュース|Yahooニュース|NHK|日本経済新聞|日経|時事通信|共同通信|読売新聞|朝日新聞|毎日新聞|産経新聞|TBS|テレビ朝日|テレ朝|FNN|日テレ|日本テレビ|フジテレビ|テレビ東京|ロイター|Reuters Japan|ブルームバーグ|Bloomberg|みんかぶ|株探|QUICK|モーニングスター|日本証券新聞|財経新聞|東洋経済|ダイヤモンド・オンライン|JBpress|Impress Watch|ITmedia|レスポンス|マイナビニュース|All About|au Webポータル|goo ニュース|livedoor ニュース|BIGLOBEニュース/i;
+    if (knownJapanSource.test(haystack)) return true;
+
+    const japaneseChars = (text.match(/[ぁ-んァ-ン一-龥]/g) || []).length;
+    const latinChars = (text.match(/[A-Za-z]/g) || []).length;
+    if (japaneseChars >= 20 && japaneseChars >= latinChars) return true;
+
+    return false;
+  }
+
   function isGoldSmugglingArticle(text) {
     return /金密輸|金塊密輸|金地金密輸|金塊\s*密輸|金地金\s*密輸|密輸.*(?:金|金塊|金地金)|(?:金|金塊|金地金).*密輸/.test(text || "");
   }
@@ -239,9 +299,9 @@
 
   function filterNewsItems(items, topic) {
     if (!items?.length) return [];
-    return items.filter(item => {
+    const filtered = items.filter(item => {
       const text = getSearchText(item);
-      if (topic === "goldMarket") return isGoldMarketArticle(text);
+      if (topic === "goldMarket") return isGoldMarketArticle(text) && isJapanFocusedArticle(item);
       if (topic === "goldCrime" || topic === "goldSmuggling") return isGoldCrimeArticle(text);
       if (topic === "sgcHall") return isSgcHallArticle(text);
       if (topic === "exhibition") return /大黄金展/.test(text);
@@ -250,6 +310,7 @@
              isGoldMarketArticle(text) ||
              isGoldCrimeArticle(text);
     });
+    return sortByDateDesc(filtered);
   }
 
   function excludeSgcHall(items) {
@@ -259,7 +320,9 @@
   global.PortalNewsFeed = {
     TOPIC_QUERY,
     fetchNews,
+    fetchTopicNews,
     filterNewsItems,
+    sortByDateDesc,
     getSearchText,
     getDisplayTitle,
     getSource,
@@ -268,6 +331,7 @@
     isGoldSmugglingArticle,
     isGoldRobberyArticle,
     isGoldCrimeArticle,
+    isJapanFocusedArticle,
     getCrimeLabel,
     excludeSgcHall
   };
