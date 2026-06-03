@@ -319,7 +319,7 @@
     window.addEventListener('load', function () {
       initializeCameraState();
       initializeFromQuery();
-      startCamera();
+      window.setTimeout(startCamera, 500);
     });
 
     window.addEventListener('pagehide', stopCamera);
