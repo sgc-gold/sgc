@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>NJオークション QRライブ読取</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #ffffff;
+      --text: #172033;
+      --muted: #667085;
+      --line: #d8dee9;
+      --primary: #165dff;
+      --success: #12b76a;
+      --danger: #d92d20;
+      --warning-bg: #fff8e6;
+      --warning-text: #92400e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    .app {
+      width: min(100%, 720px);
+      margin: 0 auto;
+      padding: 12px 12px calc(22px + env(safe-area-inset-bottom));
+    }
+
+    .top {
+      color: #ffffff;
+      padding: 4px 2px 12px;
+    }
+
+    h1 {
+      font-size: 22px;
+      line-height: 1.25;
+      margin: 0 0 6px;
+      letter-spacing: 0;
+    }
+
+    .top p {
+      margin: 0;
+      color: #cbd5e1;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 11px;
+      font: inherit;
+      background: #ffffff;
+      color: var(--text);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .display-no {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      margin-top: 10px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+    }
+
+    .display-no strong {
+      font-size: 28px;
+      line-height: 1.1;
+    }
+
+    .camera {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      border-radius: 8px;
+      background: #020617;
+      border: 1px solid #334155;
+    }
+
+    video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .guide {
+      position: absolute;
+      inset: 20% 12%;
+      display: grid;
+      place-items: center;
+      border: 4px solid #fef08a;
+      border-radius: 12px;
+      color: #ffffff;
+      background: rgba(15, 23, 42, 0.18);
+      font-weight: 900;
+      text-align: center;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
+    }
+
+    .guide.success {
+      border-color: var(--success);
+      background: rgba(18, 183, 106, 0.26);
+    }
+
+    .status {
+      min-height: 44px;
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-weight: 900;
+      color: #ffffff;
+      background: #334155;
+    }
+
+    .status.success {
+      background: var(--success);
+    }
+
+    .status.error {
+      background: var(--danger);
+    }
+
+    .status.warning {
+      color: var(--warning-text);
+      background: var(--warning-bg);
+      border: 1px solid #fedf89;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    button {
+      min-height: 50px;
+      border: 0;
+      border-radius: 8px;
+      padding: 12px 10px;
+      font: inherit;
+      font-weight: 900;
+      color: #ffffff;
+      background: var(--primary);
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: #344054;
+    }
+
+    button.danger {
+      background: var(--danger);
+    }
+
+    button:disabled {
+      background: #98a2b3;
+      cursor: not-allowed;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 8px 0 0;
+    }
+
+    @media (max-width: 430px) {
+      .grid,
+      .actions {
+        grid-template-columns: 1fr;
+      }
+
+      .display-no {
+        display: block;
+      }
+
+      .display-no strong {
+        display: block;
+        margin-top: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <h1>NJオークション QRライブ読取</h1>
+      <p>QRを枠内に入れると、自動で登録します。</p>
+    </header>
+
+    <section class="card">
+      <label for="tournamentLabel">大会区分</label>
+      <select id="tournamentLabel"></select>
+      <div class="grid">
+        <div>
+          <label for="boxNo">箱番</label>
+          <input id="boxNo" type="text" inputmode="numeric" autocomplete="off" value="1">
+        </div>
+        <div>
+          <label for="branchNo">枝番</label>
+          <input id="branchNo" type="text" inputmode="numeric" autocomplete="off" value="1">
+        </div>
+      </div>
+      <div class="display-no">
+        <span>登録する管理番号</span>
+        <strong id="displayNo">1-1</strong>
+      </div>
+      <p class="small">読取前に箱番・枝番を変更できます。</p>
+    </section>
+
+    <section class="camera">
+      <video id="video" playsinline muted></video>
+      <div id="guide" class="guide">QRを枠内に入れてください</div>
+    </section>
+
+    <div id="status" class="status">カメラを準備しています...</div>
+
+    <div class="actions">
+      <button type="button" id="restartButton" class="secondary">再開</button>
+      <button type="button" id="stopButton" class="danger">停止</button>
+    </div>
+
+    <form id="postForm" method="post" hidden>
+      <input name="qrText" id="qrTextField">
+      <input name="tournamentLabel" id="tournamentField">
+      <input name="boxNo" id="boxField">
+      <input name="branchNo" id="branchField">
+      <input name="scannerUrl" id="scannerUrlField">
+    </form>
+
+    <canvas id="canvas" hidden></canvas>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <script>
+    const FALLBACK_GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyBjD2_c3s15o0otKPlZGGWPrgy7PdN2o8EyA61fRPa1cjRXLm3iGnpnf0ETFAa7xGkUg/exec';
+
+    const state = {
+      stream: null,
+      scanning: false,
+      submitted: false,
+      animationId: null,
+      context: null,
+      gasUrl: '',
+    };
+
+    const elements = {
+      tournamentLabel: document.getElementById('tournamentLabel'),
+      boxNo: document.getElementById('boxNo'),
+      branchNo: document.getElementById('branchNo'),
+      displayNo: document.getElementById('displayNo'),
+      video: document.getElementById('video'),
+      guide: document.getElementById('guide'),
+      status: document.getElementById('status'),
+      restartButton: document.getElementById('restartButton'),
+      stopButton: document.getElementById('stopButton'),
+      form: document.getElementById('postForm'),
+      qrTextField: document.getElementById('qrTextField'),
+      tournamentField: document.getElementById('tournamentField'),
+      boxField: document.getElementById('boxField'),
+      branchField: document.getElementById('branchField'),
+      scannerUrlField: document.getElementById('scannerUrlField'),
+      canvas: document.getElementById('canvas'),
+    };
+
+    elements.restartButton.addEventListener('click', startCamera);
+    elements.stopButton.addEventListener('click', function () {
+      stopCamera();
+      showStatus('warning', 'ライブ読取を停止しました。');
+    });
+    elements.boxNo.addEventListener('input', updateDisplayNo);
+    elements.branchNo.addEventListener('input', updateDisplayNo);
+
+    window.addEventListener('load', function () {
+      initializeFromQuery();
+      startCamera();
+    });
+
+    window.addEventListener('pagehide', stopCamera);
+
+    function initializeFromQuery() {
+      const params = new URLSearchParams(location.search);
+      state.gasUrl = params.get('gasUrl') || FALLBACK_GAS_WEB_APP_URL;
+      initializeTournamentOptions(params.get('tournamentLabel'));
+      elements.boxNo.value = params.get('boxNo') || '1';
+      elements.branchNo.value = params.get('branchNo') || '1';
+      elements.form.action = state.gasUrl;
+      updateDisplayNo();
+    }
+
+    function initializeTournamentOptions(initialValue) {
+      const now = new Date();
+      const currentMonth = now.getMonth() + 1;
+      const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1;
+      const options = [
+        currentMonth + '月前半大会',
+        currentMonth + '月後半大会',
+        nextMonth + '月前半大会',
+        nextMonth + '月後半大会',
+      ];
+      const defaultValue = now.getDate() <= 15
+        ? currentMonth + '月後半大会'
+        : nextMonth + '月前半大会';
+
+      elements.tournamentLabel.innerHTML = options.map(function (label) {
+        return '<option value="' + escapeAttribute(label) + '">' + escapeHtml(label) + '</option>';
+      }).join('');
+      elements.tournamentLabel.value = initialValue || defaultValue;
+      if (elements.tournamentLabel.value !== (initialValue || defaultValue)) {
+        const option = document.createElement('option');
+        option.value = initialValue || defaultValue;
+        option.textContent = initialValue || defaultValue;
+        elements.tournamentLabel.appendChild(option);
+        elements.tournamentLabel.value = initialValue || defaultValue;
+      }
+    }
+
+    function startCamera() {
+      if (state.submitted) {
+        return;
+      }
+      stopCamera({ keepStatus: true });
+
+      if (typeof jsQR !== 'function') {
+        showStatus('error', 'QR読取ライブラリを読み込めませんでした。通信状態を確認してください。');
+        return;
+      }
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showStatus('error', 'このブラウザではライブカメラを利用できません。GAS画面の撮影して読取を使用してください。');
+        return;
+      }
+
+      state.context = elements.canvas.getContext('2d', { willReadFrequently: true });
+      state.scanning = true;
+      elements.guide.classList.remove('success');
+      elements.guide.textContent = 'QRを枠内に入れてください';
+      showStatus('', 'カメラを起動しています...');
+      elements.restartButton.disabled = true;
+
+      navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
+        audio: false,
+      })
+        .then(function (stream) {
+          state.stream = stream;
+          elements.video.srcObject = stream;
+          return elements.video.play();
+        })
+        .then(function () {
+          elements.restartButton.disabled = false;
+          showStatus('', 'QRを探しています...');
+          scanLoop();
+        })
+        .catch(function (error) {
+          stopCamera({ keepStatus: true });
+          elements.restartButton.disabled = false;
+          showStatus('error', 'カメラを起動できませんでした。権限を確認してください。' + formatError(error));
+        });
+    }
+
+    function stopCamera(options) {
+      const keepStatus = options && options.keepStatus;
+      state.scanning = false;
+      if (state.animationId) {
+        cancelAnimationFrame(state.animationId);
+      }
+      state.animationId = null;
+
+      if (state.stream) {
+        state.stream.getTracks().forEach(function (track) {
+          track.stop();
+        });
+      }
+      state.stream = null;
+      state.context = null;
+      elements.video.pause();
+      elements.video.srcObject = null;
+
+      if (!keepStatus) {
+        showStatus('', 'QRを枠内に入れてください');
+      }
+    }
+
+    function scanLoop() {
+      if (!state.scanning || state.submitted) {
+        return;
+      }
+
+      if (elements.video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+        const width = elements.video.videoWidth;
+        const height = elements.video.videoHeight;
+        if (width && height && state.context) {
+          elements.canvas.width = width;
+          elements.canvas.height = height;
+          state.context.drawImage(elements.video, 0, 0, width, height);
+          const imageData = state.context.getImageData(0, 0, width, height);
+          const result = jsQR(imageData.data, imageData.width, imageData.height, {
+            inversionAttempts: 'attemptBoth',
+          });
+
+          if (result && result.data) {
+            handleDetectedQr(result.data);
+            return;
+          }
+        }
+      }
+
+      state.animationId = requestAnimationFrame(scanLoop);
+    }
+
+    function handleDetectedQr(text) {
+      const qrText = String(text || '').trim();
+      if (!qrText || state.submitted) {
+        return;
+      }
+
+      state.submitted = true;
+      stopCamera({ keepStatus: true });
+      elements.guide.classList.add('success');
+      elements.guide.textContent = '読取できました';
+      showStatus('success', '読取できました。登録しています...');
+
+      elements.qrTextField.value = qrText;
+      elements.tournamentField.value = elements.tournamentLabel.value;
+      elements.boxField.value = elements.boxNo.value.trim();
+      elements.branchField.value = elements.branchNo.value.trim();
+      elements.scannerUrlField.value = location.href.split('?')[0];
+
+      window.setTimeout(function () {
+        elements.form.submit();
+      }, 450);
+    }
+
+    function updateDisplayNo() {
+      const boxNo = elements.boxNo.value.trim();
+      const branchNo = elements.branchNo.value.trim();
+      elements.displayNo.textContent = boxNo && branchNo ? boxNo + '-' + branchNo : (boxNo || branchNo || '-');
+    }
+
+    function showStatus(type, text) {
+      elements.status.className = 'status' + (type ? ' ' + type : '');
+      elements.status.textContent = text;
+    }
+
+    function formatError(error) {
+      const message = error && error.message ? error.message : '';
+      return message ? '（' + message + '）' : '';
+    }
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escapeAttribute(value) {
+      return escapeHtml(value);
+    }
+  </script>
+</body>
+</html>
