@@ -219,7 +219,7 @@ body::before {
   align-items: center;
   justify-content: flex-end;
   gap: 6px;
-  margin-top: 12px;
+  margin-bottom: 8px;
 }
 .price-update-label {
   font-size: 0.65rem;
@@ -522,6 +522,10 @@ body::before {
       </div>
     </div>
 
+    <div class="price-update">
+      <span class="price-update-label">更新日時</span>
+      <span class="price-update-time" id="update-time">—</span>
+    </div>
     <div class="price-row">
       <button class="price-item" type="button" onclick="openFrame(event,'price.html?metal=GOLD#trend')" aria-label="Goldの推移グラフを開く">
         <div class="price-item-left">
@@ -541,10 +545,6 @@ body::before {
     <div class="price-trend-hint">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 19V5M4 19h16"/><path d="m7 15 4-4 3 2 5-6"/></svg>
       GOLD / PLATINUMをタップで推移グラフへ
-    </div>
-    <div class="price-update">
-      <span class="price-update-label">更新日時</span>
-      <span class="price-update-time" id="update-time">—</span>
     </div>
     <div class="sgc-divider"></div>
     <div class="sgc-links-row">
