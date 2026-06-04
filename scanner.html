@@ -287,6 +287,8 @@
       animationId: null,
       context: null,
       gasUrl: '',
+      nextNumberLoading: false,
+      nextNumberRequestId: 0,
     };
 
     const elements = {
@@ -315,6 +317,7 @@
     });
     elements.boxNo.addEventListener('input', updateDisplayNo);
     elements.branchNo.addEventListener('input', updateDisplayNo);
+    elements.tournamentLabel.addEventListener('change', loadNextNumber);
 
     window.addEventListener('load', function () {
       initializeCameraState();
@@ -393,7 +396,7 @@
       }
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        showStatus('error', 'このブラウザではライブカメラを利用できません。GAS画面の撮影して読取を使用してください。');
+        showStatus('error', 'このブラウザではライブカメラを利用できません。GAS画面の手動入力を使用してください。');
         return;
       }
 
@@ -511,7 +514,7 @@
 
     function handleDetectedQr(text) {
       const qrText = String(text || '').trim();
-      if (!qrText || state.submitted) {
+      if (!qrText || state.submitted || state.nextNumberLoading) {
         return;
       }
 
@@ -536,6 +539,55 @@
       const boxNo = elements.boxNo.value.trim();
       const branchNo = elements.branchNo.value.trim();
       elements.displayNo.textContent = boxNo && branchNo ? boxNo + '-' + branchNo : (boxNo || branchNo || '-');
+    }
+
+    function loadNextNumber() {
+      if (!state.gasUrl) {
+        return;
+      }
+
+      const requestId = ++state.nextNumberRequestId;
+      const callbackName = '__njNextNumber' + Date.now() + Math.random().toString(36).slice(2);
+      const script = document.createElement('script');
+      state.nextNumberLoading = true;
+      showStatus('warning', '次の番号を取得中...');
+
+      function cleanup() {
+        delete window[callbackName];
+        script.remove();
+        if (requestId === state.nextNumberRequestId) {
+          state.nextNumberLoading = false;
+        }
+      }
+
+      window[callbackName] = function (result) {
+        if (requestId !== state.nextNumberRequestId) {
+          cleanup();
+          return;
+        }
+        if (result && result.success) {
+          elements.boxNo.value = result.boxNo;
+          elements.branchNo.value = result.branchNo;
+          updateDisplayNo();
+          showStatus('', state.scanning ? 'QRを探しています...' : '次の番号を取得しました。');
+        } else {
+          showStatus('error', (result && result.message ? result.message : '次の番号を取得できませんでした。') + ' 箱番・枝番を手入力してください。');
+        }
+        cleanup();
+      };
+
+      script.onerror = function () {
+        if (requestId === state.nextNumberRequestId) {
+          showStatus('error', '次の番号を取得できませんでした。箱番・枝番を手入力してください。');
+        }
+        cleanup();
+      };
+      script.src = state.gasUrl
+        + (state.gasUrl.indexOf('?') >= 0 ? '&' : '?')
+        + 'action=getNextNumber&tournamentLabel=' + encodeURIComponent(elements.tournamentLabel.value)
+        + '&callback=' + encodeURIComponent(callbackName)
+        + '&_=' + Date.now();
+      document.head.appendChild(script);
     }
 
     function showStatus(type, text) {
