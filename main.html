@@ -198,6 +198,22 @@ body::before {
 .negative { background: rgba(26,90,154,0.2);  color: #7ab0f0; }
 .price-item-diff.loading { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.25); font-size: 0.7rem; }
 
+.price-trend-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 9px;
+  color: rgba(232,212,154,0.62);
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+}
+.price-trend-hint svg {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
+}
+
 .price-update {
   display: flex;
   align-items: center;
@@ -521,6 +537,10 @@ body::before {
         </div>
         <div class="price-item-diff loading" id="pt-diff">読込中</div>
       </button>
+    </div>
+    <div class="price-trend-hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 19V5M4 19h16"/><path d="m7 15 4-4 3 2 5-6"/></svg>
+      GOLD / PLATINUMをタップで推移グラフへ
     </div>
     <div class="price-update">
       <span class="price-update-label">更新日時</span>
