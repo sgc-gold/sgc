@@ -1,106 +1,166 @@
-import requests
-from bs4 import BeautifulSoup
-from datetime import datetime
-import re
 import os
+import re
 import time
 import zoneinfo
+from datetime import datetime
+
+import requests
+from bs4 import BeautifulSoup
+
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 MAX_RETRY = 3
-RETRY_WAIT = 300  # 5分
+RETRY_WAIT = 300  # 5 minutes
+TIMEOUT = 30
+NANBOYA_URL = "https://nanboya.com/gold-kaitori/souba/"
+DATE_PATTERN = r"\d{4}\u5e74\d{1,2}\u6708\d{1,2}\u65e5"
+DATE_FORMAT = "%Y\u5e74%m\u6708%d\u65e5"
+FULL_STOP = "\u3002"
 
-# ログ書き込み用関数
+
 def log(message):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open(os.path.join(BASE_DIR, "comment_log.txt"), "a", encoding="utf-8") as log_file:
         log_file.write(f"[{timestamp}] {message}\n")
 
-def fetch_comment():
-    url = "https://nanboya.com/gold-kaitori/souba/"
-    params = {"cb": str(int(time.time()))}
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/125.0 Safari/537.36"
-        ),
-        "Cache-Control": "no-cache",
-        "Pragma": "no-cache",
-    }
-    response = requests.get(url, params=params, headers=headers, timeout=30)
-    response.raise_for_status()
-    response.encoding = "utf-8"
-    cache_info = {
+
+def warn(message):
+    text = f"WARNING: {message}"
+    log(text)
+    print(text)
+
+
+def create_session():
+    session = requests.Session()
+    session.headers.update(
+        {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/125.0.0.0 Safari/537.36"
+            ),
+            "Accept": (
+                "text/html,application/xhtml+xml,application/xml;q=0.9,"
+                "image/avif,image/webp,image/apng,*/*;q=0.8"
+            ),
+            "Accept-Language": "ja-JP,ja;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Referer": "https://nanboya.com/",
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache",
+        }
+    )
+    return session
+
+
+def response_log_info(response):
+    return {
         "url": response.url,
+        "status_code": response.status_code,
         "date": response.headers.get("Date", ""),
         "x_cache": response.headers.get("X-Cache", ""),
         "age": response.headers.get("Age", ""),
+        "server": response.headers.get("Server", ""),
+        "content_type": response.headers.get("Content-Type", ""),
     }
-    log(f"fetch_comment: {cache_info}")
-    soup = BeautifulSoup(response.text, "html.parser")
-    return soup
+
+
+def fetch_comment(session, attempt):
+    params = {"cb": str(int(time.time()))}
+    try:
+        response = session.get(NANBOYA_URL, params=params, timeout=TIMEOUT)
+    except requests.Timeout as exc:
+        warn(f"[attempt {attempt}] Nanboya fetch timed out: {exc}")
+        return None
+    except requests.RequestException as exc:
+        warn(f"[attempt {attempt}] Nanboya fetch request failed: {exc}")
+        return None
+
+    info = response_log_info(response)
+    log(f"[attempt {attempt}] fetch_comment: {info}")
+
+    if response.status_code != 200:
+        warn(f"[attempt {attempt}] Nanboya returned HTTP {response.status_code}: {info}")
+        return None
+
+    response.encoding = "utf-8"
+    try:
+        return BeautifulSoup(response.text, "html.parser")
+    except Exception as exc:
+        warn(f"[attempt {attempt}] Nanboya HTML parse failed: {exc}")
+        return None
+
 
 def extract_comment_text(soup):
     comment_tag = soup.find("p", class_="expert-comment--comment")
     if not comment_tag:
         return None
     comment_text = comment_tag.get_text(strip=True)
-    sentences = comment_text.split("。")
-    return "\n".join(s + "。" for s in sentences if s.strip())
+    sentences = comment_text.split(FULL_STOP)
+    return "\n".join(s + FULL_STOP for s in sentences if s.strip())
+
 
 def save_comment(text):
     with open(os.path.join(BASE_DIR, "comment.txt"), "w", encoding="utf-8") as f:
         f.write(text)
 
-today_date = datetime.now(zoneinfo.ZoneInfo("Asia/Tokyo")).date()
-log(f"今日の日付: {today_date.strftime('%Y年%m月%d日')}")
 
-soup = None
-comment_date_obj = None
-formatted_text = None
+def main():
+    today_date = datetime.now(zoneinfo.ZoneInfo("Asia/Tokyo")).date()
+    log(f"today: {today_date.isoformat()}")
 
-for attempt in range(1, MAX_RETRY + 1):
-    soup = fetch_comment()
-    time_tag = soup.find("p", class_="expert-comment--time")
+    session = create_session()
+    formatted_text = None
 
-    if not time_tag:
-        log(f"[試行{attempt}] 日付タグが見つかりませんでした。")
-        print(f"[試行{attempt}] 日付タグが見つかりませんでした。")
-    else:
-        time_text = time_tag.get_text(strip=True)
-        log(f"[試行{attempt}] 取得した time_text: {time_text}")
-
-        match = re.search(r"\d{4}年\d{1,2}月\d{1,2}日", time_text)
-        if match:
-            comment_date = match.group()
-            comment_date_obj = datetime.strptime(comment_date, "%Y年%m月%d日").date()
-            log(f"[試行{attempt}] 抽出された年月日: {comment_date}")
-
-            if comment_date_obj == today_date:
-                formatted_text = extract_comment_text(soup)
-                break  # 今日のコメント取得成功
-            else:
-                log(f"[試行{attempt}] 本日の日付ではありません（{comment_date}）。")
-                print(f"[試行{attempt}] nanboyaがまだ更新されていません（{comment_date}）。")
+    for attempt in range(1, MAX_RETRY + 1):
+        soup = fetch_comment(session, attempt)
+        if soup is None:
+            pass
         else:
-            # 日付パターンが取れない場合はリトライ（Noneのまま比較しない）
-            log(f"[試行{attempt}] 年月日のパターンが抽出できませんでした。time_text={time_tag.get_text(strip=True) if time_tag else 'None'}")
-            print(f"[試行{attempt}] 日付パターンが取得できませんでした。")
+            time_tag = soup.find("p", class_="expert-comment--time")
 
-    if attempt < MAX_RETRY:
-        print(f"{RETRY_WAIT // 60}分後にリトライします...")
-        time.sleep(RETRY_WAIT)
+            if not time_tag:
+                warn(f"[attempt {attempt}] Nanboya comment time tag was not found.")
+            else:
+                time_text = time_tag.get_text(strip=True)
+                log(f"[attempt {attempt}] time_text: {time_text}")
 
-# 結果の保存
-if formatted_text:
-    save_comment(formatted_text)
-    log("コメントを保存しました。")
-    log(f"コメント本文:\n{formatted_text}")
-    print("コメントを「。」で改行してcomment.txtに保存しました。")
-else:
-    # 今日のコメントは取れなかった → 空にする
-    save_comment("")
-    log("本日のコメントを取得できなかったため、comment.txtを空にしました。")
-    print("本日のコメントを取得できませんでした。comment.txtを空にします。")
+                match = re.search(DATE_PATTERN, time_text)
+                if not match:
+                    warn(f"[attempt {attempt}] Nanboya comment date pattern was not found: {time_text}")
+                else:
+                    comment_date = match.group()
+                    try:
+                        comment_date_obj = datetime.strptime(comment_date, DATE_FORMAT).date()
+                    except ValueError as exc:
+                        warn(f"[attempt {attempt}] Nanboya comment date parse failed: {comment_date} ({exc})")
+                    else:
+                        log(f"[attempt {attempt}] parsed comment_date: {comment_date}")
+
+                        if comment_date_obj == today_date:
+                            formatted_text = extract_comment_text(soup)
+                            if formatted_text:
+                                break
+                            warn(f"[attempt {attempt}] Nanboya comment body tag was not found or was empty.")
+                        else:
+                            warn(
+                                f"[attempt {attempt}] Nanboya comment is not for today: "
+                                f"{comment_date_obj.isoformat()} != {today_date.isoformat()}"
+                            )
+
+        if attempt < MAX_RETRY:
+            print(f"Retrying in {RETRY_WAIT // 60} minutes...")
+            time.sleep(RETRY_WAIT)
+
+    if formatted_text:
+        save_comment(formatted_text)
+        log("comment saved.")
+        log(f"comment body:\n{formatted_text}")
+        print("Saved Nanboya comment to comment.txt.")
+    else:
+        save_comment("")
+        warn("Nanboya comment could not be fetched. Wrote empty comment.txt and continuing.")
+
+
+if __name__ == "__main__":
+    main()
