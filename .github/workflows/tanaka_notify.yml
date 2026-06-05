@@ -53,6 +53,16 @@ jobs:
           echo "UPDATE_TIME=$TIME" >> $GITHUB_ENV
           echo "UPDATE_TIME に設定: $TIME"
       # ── 6. コメント取得（update_time で AM/PM 切り替え） ───
+      - name: Random wait before fetching comment
+        shell: bash
+        run: |
+          if [ "$UPDATE_TIME" = "930" ]; then
+            sleep_seconds=$((RANDOM % 40 + 10))
+            echo "Waiting ${sleep_seconds}s before fetching Nanboya comment..."
+            sleep "$sleep_seconds"
+          else
+            echo "Skipping Nanboya pre-fetch wait for UPDATE_TIME=${UPDATE_TIME}"
+          fi
       - name: Fetch comment
         run: |
           if [ "$UPDATE_TIME" = "930" ]; then
