@@ -1,4 +1,5 @@
 import os
+import random
 import re
 import time
 import zoneinfo
@@ -11,7 +12,8 @@ from bs4 import BeautifulSoup
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 MAX_RETRY = 3
-RETRY_WAIT = 300  # 5 minutes
+RETRY_BASE_WAITS = [0, 20, 75]
+RETRY_JITTER_MAX = 20
 TIMEOUT = 30
 NANBOYA_URL = "https://nanboya.com/gold-kaitori/souba/"
 DATE_PATTERN = r"\d{4}\u5e74\d{1,2}\u6708\d{1,2}\u65e5"
@@ -47,7 +49,9 @@ def create_session():
             "Accept-Language": "ja-JP,ja;q=0.9,en-US;q=0.8,en;q=0.7",
             "Referer": "https://nanboya.com/",
             "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
             "Pragma": "no-cache",
+            "Upgrade-Insecure-Requests": "1",
         }
     )
     return session
@@ -91,6 +95,19 @@ def fetch_comment(session, attempt):
         return None
 
 
+def wait_before_attempt(attempt):
+    base_wait = RETRY_BASE_WAITS[attempt - 1] if attempt <= len(RETRY_BASE_WAITS) else RETRY_BASE_WAITS[-1]
+    if base_wait <= 0:
+        log(f"[attempt {attempt}] starting immediately.")
+        print(f"[attempt {attempt}] Starting Nanboya comment fetch immediately.")
+        return
+
+    wait_seconds = base_wait + random.randint(0, RETRY_JITTER_MAX)
+    log(f"[attempt {attempt}] waiting {wait_seconds}s before retry.")
+    print(f"[attempt {attempt}] Waiting {wait_seconds}s before retrying Nanboya comment fetch...")
+    time.sleep(wait_seconds)
+
+
 def extract_comment_text(soup):
     comment_tag = soup.find("p", class_="expert-comment--comment")
     if not comment_tag:
@@ -113,6 +130,7 @@ def main():
     formatted_text = None
 
     for attempt in range(1, MAX_RETRY + 1):
+        wait_before_attempt(attempt)
         soup = fetch_comment(session, attempt)
         if soup is None:
             pass
@@ -147,10 +165,6 @@ def main():
                                 f"[attempt {attempt}] Nanboya comment is not for today: "
                                 f"{comment_date_obj.isoformat()} != {today_date.isoformat()}"
                             )
-
-        if attempt < MAX_RETRY:
-            print(f"Retrying in {RETRY_WAIT // 60} minutes...")
-            time.sleep(RETRY_WAIT)
 
     if formatted_text:
         save_comment(formatted_text)
