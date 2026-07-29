@@ -2,6 +2,19 @@
   "use strict";
 
   const TIMEOUT_MS = 8000;
+  // 転載ポータルを避け、一次配信に近い主要メディアだけを表示する。
+  // 並び順は、同じ記事が複数社から配信された場合の優先順位にも使う。
+  const MAIN_NEWS_SOURCES = [
+    /NHK(?: NEWS WEB)?/i,
+    /日本経済新聞|日経(?:電子版|新聞)?|NIKKEI/i,
+    /共同通信|時事通信/i,
+    /読売新聞|朝日新聞|毎日新聞|産経新聞|東京新聞/i,
+    /ロイター|Reuters(?: Japan)?/i,
+    /ブルームバーグ|Bloomberg/i,
+    /TBS NEWS DIG|TBSテレビ|テレビ朝日|テレ朝news|日本テレビ|日テレNEWS|FNNプライムオンライン|フジテレビ|テレビ東京|テレ東BIZ/i,
+    /QUICK Money World|QUICK/i,
+    /みんかぶ|株探ニュース|日本証券新聞/i
+  ];
   const TOPIC_QUERY = {
     all: "SGC OR SGCホール OR 大黄金展 OR 金相場 OR 金価格 OR NY金 OR 金先物 OR 金密輸 OR 金塊 密輸 OR 金塊強盗 OR 金 強盗 OR 貴金属 強盗",
     goldMarket: "金相場 OR 金価格 OR ゴールド価格 OR NY金 OR 金先物 OR スポット金 OR 現物金 OR 地金価格",
@@ -126,7 +139,10 @@
     const results = await Promise.all(
       queries.map(query => fetchNews(query).catch(e => { console.warn(e.message); return null; }))
     );
-    const merged = dedupeNewsItems(results.flatMap(items => items || []));
+    const mainSourceItems = results
+      .flatMap(items => items || [])
+      .filter(isMainNewsSource);
+    const merged = dedupeNewsItems(mainSourceItems);
     if (!merged.length) return null;
     if (topic === "goldMarket") return sortByDateDesc(merged.filter(isJapanFocusedArticle));
     return sortByDateDesc(merged);
@@ -184,27 +200,93 @@
   }
 
   function dedupeNewsItems(items) {
-    const seen = new Set();
     const out = [];
-    (items || []).forEach(item => {
-      const key = normalizeDedupeKey(item);
-      if (seen.has(key)) return;
-      seen.add(key);
-      out.push(item);
+    sortByDateDesc(items || []).forEach(item => {
+      const duplicateIndex = out.findIndex(existing => isSameNewsStory(existing, item));
+      if (duplicateIndex < 0) {
+        out.push(item);
+        return;
+      }
+
+      // 同一記事なら、転載元より優先度の高い主要メディアの記事を残す。
+      if (getSourcePriority(item) < getSourcePriority(out[duplicateIndex])) {
+        out[duplicateIndex] = item;
+      }
     });
     return out;
   }
 
-  function normalizeDedupeKey(item) {
-    const link = (item?.link || "").replace(/[?#].*$/, "").trim();
-    if (link) return `link:${link}`;
-    const date = item?.pubDate ? new Date(item.pubDate) : null;
-    const dateKey = date && !isNaN(date.getTime()) ? date.toISOString().slice(0, 10) : "";
-    return [
-      getDisplayTitle(item).toLowerCase(),
-      getSource(item).toLowerCase(),
-      dateKey
-    ].join("|");
+  function isSameNewsStory(a, b) {
+    const linkA = normalizeLink(a?.link);
+    const linkB = normalizeLink(b?.link);
+    if (linkA && linkA === linkB) return true;
+
+    const titleA = normalizeStoryTitle(getDisplayTitle(a));
+    const titleB = normalizeStoryTitle(getDisplayTitle(b));
+    if (!titleA || !titleB) return false;
+    if (titleA === titleB) return true;
+    if (!isPublishedNear(a, b)) return false;
+
+    const shorter = titleA.length <= titleB.length ? titleA : titleB;
+    const longer = titleA.length > titleB.length ? titleA : titleB;
+    if (shorter.length >= 12 && longer.includes(shorter)) return true;
+
+    return bigramSimilarity(titleA, titleB) >= 0.64;
+  }
+
+  function normalizeLink(link) {
+    return (link || "")
+      .replace(/[?#].*$/, "")
+      .replace(/\/$/, "")
+      .trim()
+      .toLowerCase();
+  }
+
+  function normalizeStoryTitle(title) {
+    return (title || "")
+      .normalize("NFKC")
+      .toLowerCase()
+      .replace(/【(?:速報|続報|独自|解説|更新)】/g, "")
+      .replace(/[「」『』【】\[\]（）()〈〉《》]/g, "")
+      .replace(/[\s\u3000・,，.。!！?？:：;；\-‐‑–—―]/g, "")
+      .trim();
+  }
+
+  function bigramSimilarity(a, b) {
+    const grams = value => {
+      const set = new Set();
+      for (let i = 0; i < value.length - 1; i++) set.add(value.slice(i, i + 2));
+      return set;
+    };
+    const gramsA = grams(a);
+    const gramsB = grams(b);
+    if (!gramsA.size || !gramsB.size) return 0;
+    let intersection = 0;
+    gramsA.forEach(gram => { if (gramsB.has(gram)) intersection++; });
+    return (2 * intersection) / (gramsA.size + gramsB.size);
+  }
+
+  function isPublishedNear(a, b) {
+    const timeA = a?.pubDate ? new Date(a.pubDate).getTime() : NaN;
+    const timeB = b?.pubDate ? new Date(b.pubDate).getTime() : NaN;
+    if (!Number.isFinite(timeA) || !Number.isFinite(timeB)) return true;
+    return Math.abs(timeA - timeB) <= 48 * 60 * 60 * 1000;
+  }
+
+  function getTitleSource(item) {
+    const rawTitle = item?.title || "";
+    const match = rawTitle.match(/\s[-–]\s*([^-–]+)$/);
+    return match ? match[1].trim() : "";
+  }
+
+  function getSourcePriority(item) {
+    const source = `${item?.source || ""} ${getTitleSource(item)}`;
+    const index = MAIN_NEWS_SOURCES.findIndex(pattern => pattern.test(source));
+    return index < 0 ? MAIN_NEWS_SOURCES.length : index;
+  }
+
+  function isMainNewsSource(item) {
+    return getSourcePriority(item) < MAIN_NEWS_SOURCES.length;
   }
 
   function getSearchText(item) {
@@ -333,7 +415,8 @@
 
   function filterNewsItems(items, topic) {
     if (!items?.length) return [];
-    const filtered = items.filter(item => {
+    const filtered = dedupeNewsItems(items.filter(item => {
+      if (!isMainNewsSource(item)) return false;
       const text = getSearchText(item);
       if (topic === "goldMarket") return isGoldMarketArticle(text) && isJapanFocusedArticle(item);
       if (topic === "goldCrime" || topic === "goldSmuggling") return isGoldCrimeArticle(text);
@@ -343,7 +426,7 @@
       return /sgc|SGCホール|ＳＧＣホール|大黄金展/i.test(text) ||
              isGoldMarketArticle(text) ||
              isGoldCrimeArticle(text);
-    });
+    }));
     return sortByDateDesc(filtered);
   }
 
@@ -369,6 +452,8 @@
     getCrimeLabel,
     getTopicLabel,
     getTopicClass,
+    isMainNewsSource,
+    dedupeNewsItems,
     excludeSgcHall
   };
 })(window);
