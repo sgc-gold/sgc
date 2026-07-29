@@ -369,3 +369,37 @@ Access 側の設定は削除せず、disable に留める。
 - 社員番号ログイン
 - 社員全体展開
 - Custom Domain 切替
+
+## GitHub Pages正式停止
+
+約1か月の並行運用でCloudflare Pagesに問題がなかったため、Cloudflare Pagesを唯一の本番環境とする。
+
+本番URL:
+
+```text
+https://sgc-internal-portal.pages.dev/
+```
+
+認証にはCloudflare Accessを使用し、`@sgc-gold.co.jp` の会社メールへ送信されるOne-time PINを継続する。LINE WORKS認証は採用しない。
+
+正式停止に伴うコード側の対応:
+
+- `deploy.yml` のGitHub Pages公開ジョブに停止ゲートを設ける。
+- `update_tanaka.yml` から`deploy.yml`を起動するPages専用dispatchにも停止ゲートを設ける。
+- 価格更新、`data/*.json`、`data/history/*.json`、通知、`repository_dispatch`、`workflow_dispatch`、mainへのpush、およびCloudflare Pagesのmainブランチ連携は維持する。
+- `npm run build:portal` と`dist-portal`生成、Pages Functionsを維持する。
+- `gh-pages`ブランチと過去のGitHub Pages成果物は削除しない。
+- `deploy.yml`内の既存公開処理は削除せず、停止ゲートを解除すれば再利用できる状態を維持する。
+- `index.html`の旧GitHub Pages向け移行案内は、復旧性を優先して当面残す。
+
+コード反映とCloudflare Pagesの動作確認後、GitHub管理画面の`Settings` → `Pages`で公開元を`None`へ変更する。管理画面の変更はコード反映前には行わない。
+
+### Cloudflare障害時のロールバック
+
+1. GitHubの`Settings` → `Pages`を開く。
+2. Sourceを`Deploy from a branch`へ戻す。
+3. 公開元に`gh-pages` / `root`を指定する。
+4. `deploy.yml`のジョブレベル停止ゲートを解除する。
+5. `update_tanaka.yml`の`Trigger Deploy`ステップの停止ゲートを解除する。
+6. `deploy.yml`を`workflow_dispatch`で手動実行する。
+7. `https://sgc-gold.github.io/sgc/`の表示を確認する。

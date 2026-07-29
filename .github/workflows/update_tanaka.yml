@@ -74,7 +74,10 @@ jobs:
           echo "✅ Check Tanaka Notify を起動しました（UPDATE_TIME=${UPDATE_TIME}）"
 
       # deploy.yml を明示的に起動（PATでのpushはActionsをトリガーしないため）
+      # GitHub Pages deployment dispatch is retired.
+      # Re-enable this step only when restoring the GitHub Pages fallback.
       - name: Trigger Deploy
+        if: ${{ false }}
         env:
           PAT_GITHUB: ${{ secrets.TANAKA_GITHUB_TOKEN }}
         run: |

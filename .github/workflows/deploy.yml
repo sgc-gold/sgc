@@ -14,6 +14,9 @@ permissions:
 
 jobs:
   deploy:
+    # GitHub Pages was retired after the Cloudflare Pages migration.
+    # Remove this gate only when restoring the GitHub Pages fallback.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
       # リポジトリをチェックアウト
