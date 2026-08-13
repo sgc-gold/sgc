@@ -1105,6 +1105,7 @@ CPIの結果は9月の米連邦公開市場委員会（FOMC）に向けた利上
 米国とイランを巡っては、ホルムズ海峡の通航再開に向けた協議の先行き不透明感が強まり、原油価格が上昇。
 インフレ再燃への警戒が金相場の上値を抑える場面もみられました。
 雇用減速を背景とした利上げ観測の後退と、原油高によるインフレ懸念が交錯するなか、目先は米CPIの内容と発表後のドル・米国債利回りの反応が焦点です。
+<<<<<<< Updated upstream
 [2026-08-13 09:36:36] today: 2026-08-13
 [2026-08-13 09:36:36] [attempt 1] starting immediately.
 [2026-08-13 09:36:38] [attempt 1] fetch_comment: {'url': 'https://nanboya.com/gold-kaitori/souba/?cb=1786581396', 'status_code': 200, 'date': 'Thu, 13 Aug 2026 00:36:37 GMT', 'x_cache': 'Miss from cloudfront', 'age': '', 'server': 'secret', 'content_type': 'text/html; charset=UTF-8'}
@@ -1112,6 +1113,15 @@ CPIの結果は9月の米連邦公開市場委員会（FOMC）に向けた利上
 [2026-08-13 09:36:38] [attempt 1] parsed comment_date: 2026年8月13日
 [2026-08-13 09:36:38] comment saved.
 [2026-08-13 09:36:38] comment body:
+=======
+[2026-08-13 09:38:23] today: 2026-08-13
+[2026-08-13 09:38:23] [attempt 1] starting immediately.
+[2026-08-13 09:38:27] [attempt 1] fetch_comment: {'url': 'https://nanboya.com/gold-kaitori/souba/?cb=1786581503', 'status_code': 200, 'date': 'Thu, 13 Aug 2026 00:38:26 GMT', 'x_cache': 'Miss from cloudfront', 'age': '', 'server': 'secret', 'content_type': 'text/html; charset=UTF-8'}
+[2026-08-13 09:38:27] [attempt 1] time_text: 投稿日時｜ 2026年8月13日（木） 09:01
+[2026-08-13 09:38:27] [attempt 1] parsed comment_date: 2026年8月13日
+[2026-08-13 09:38:27] comment saved.
+[2026-08-13 09:38:27] comment body:
+>>>>>>> Stashed changes
 2026年8月12日（水）のNY金先物は続伸となりました。
 7月の米消費者物価指数（CPI）は市場予想通りの結果となり、前年比の伸び率も前月から鈍化しました。
 インフレ再加速への警戒が和らぎ、前週の弱い米雇用統計と合わせて9月の追加利上げ観測が後退。
