@@ -52,8 +52,35 @@ jobs:
           TIME=$(cat "$GITHUB_EVENT_PATH" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('client_payload', {}).get('update_time', d.get('inputs', {}).get('update_time', '')))")
           echo "UPDATE_TIME=$TIME" >> $GITHUB_ENV
           echo "UPDATE_TIME に設定: $TIME"
+      - name: Refresh main before notification guard
+        run: git pull --ff-only origin main
+      - name: Check notification guard
+        id: notify_guard
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          price_path = Path("data/tanaka_price.json")
+          log_path = Path("data/tanaka_notify_log.json")
+
+          price_data = json.loads(price_path.read_text(encoding="utf-8"))
+          notify_key = str(price_data.get("update_time", "")).strip()
+          log_data = json.loads(log_path.read_text(encoding="utf-8")) if log_path.exists() else {"sent": []}
+          sent = set(log_data.get("sent", []))
+          already_sent = "true" if notify_key in sent else "false"
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+              f.write(f"notify_key={notify_key}\n")
+              f.write(f"already_sent={already_sent}\n")
+
+          print(f"通知キー: {notify_key}")
+          print(f"送信済み: {already_sent}")
+          PY
       # ── 6. コメント取得（update_time で AM/PM 切り替え） ───
       - name: Random wait before fetching comment
+        if: steps.notify_guard.outputs.already_sent != 'true'
         shell: bash
         run: |
           if [ "$UPDATE_TIME" = "930" ]; then
@@ -64,6 +91,7 @@ jobs:
             echo "Skipping Nanboya pre-fetch wait for UPDATE_TIME=${UPDATE_TIME}"
           fi
       - name: Fetch comment
+        if: steps.notify_guard.outputs.already_sent != 'true'
         run: |
           if [ "$UPDATE_TIME" = "930" ]; then
             python scripts/comment.py
@@ -74,6 +102,7 @@ jobs:
           fi
       # ── 6.5. txtファイルをリポジトリにコミット・プッシュ ──
       - name: Save txt files to repository
+        if: steps.notify_guard.outputs.already_sent != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -85,14 +114,17 @@ jobs:
           git push
       # ── 7. チャート画像取得（BullionVault） ───────────────
       - name: Capture BullionVault charts
+        if: steps.notify_guard.outputs.already_sent != 'true'
         run: python scripts/BullionVault.py
         env:
           UPDATE_TIME: ${{ env.UPDATE_TIME }}
       # ── 8. チャート画像取得（ドル円） ─────────────────────
       - name: Capture USDJPY chart
+        if: steps.notify_guard.outputs.already_sent != 'true'
         run: python scripts/gaitame_usdjpy.py
       # ── 9. メール＋LINE WORKS 送信 ─────────────────────────
       - name: Validate notification secrets
+        if: steps.notify_guard.outputs.already_sent != 'true'
         env:
           SMTP_USERNAME:         ${{ secrets.BREVO_SMTP_USER }}
           SMTP_PASSWORD:         ${{ secrets.BREVO_SMTP_KEY }}
@@ -102,6 +134,7 @@ jobs:
           test -n "$SMTP_PASSWORD" || (echo "::error::BREVO_SMTP_KEY secret is not set" && exit 1)
           test -n "$LINEWORKS_WEBHOOK_URL" || (echo "::error::LINEWORKS_WEBHOOK_URL secret is not set" && exit 1)
       - name: Send email and LINE WORKS
+        if: steps.notify_guard.outputs.already_sent != 'true'
         run: python scripts/tanaka.py
         env:
           SMTP_HOST:             smtp-relay.brevo.com
@@ -109,3 +142,41 @@ jobs:
           SMTP_USERNAME:         ${{ secrets.BREVO_SMTP_USER }}
           SMTP_PASSWORD:         ${{ secrets.BREVO_SMTP_KEY }}
           LINEWORKS_WEBHOOK_URL: ${{ secrets.LINEWORKS_WEBHOOK_URL }}
+      - name: Record notification sent
+        if: steps.notify_guard.outputs.already_sent != 'true'
+        env:
+          NOTIFY_KEY: ${{ steps.notify_guard.outputs.notify_key }}
+        run: |
+          git pull --rebase origin main
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          log_path = Path("data/tanaka_notify_log.json")
+          log_path.parent.mkdir(parents=True, exist_ok=True)
+          log_data = json.loads(log_path.read_text(encoding="utf-8")) if log_path.exists() else {"sent": [], "records": []}
+
+          notify_key = os.environ["NOTIFY_KEY"]
+          if notify_key not in log_data["sent"]:
+              log_data["sent"].append(notify_key)
+          log_data["records"] = [
+              r for r in log_data.get("records", []) if r.get("update_time") != notify_key
+          ]
+          log_data["records"].append({
+              "update_time": notify_key,
+              "sent_at": datetime.now(timezone.utc).isoformat(),
+              "run_id": os.environ.get("GITHUB_RUN_ID", ""),
+          })
+
+          log_path.write_text(
+              json.dumps(log_data, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/tanaka_notify_log.json
+          git diff --cached --quiet || git commit -m "Record Tanaka notification [skip ci]"
+          git push

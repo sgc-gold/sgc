@@ -21,6 +21,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          ref: main
           persist-credentials: false
 
       # Python をセットアップ
@@ -35,6 +36,7 @@ jobs:
 
       # update_tanaka.py を実行（GASが更新確認済みのためcheck不要）
       - name: Run update script
+        id: update
         env:
           UPDATE_TIME: ${{ github.event.client_payload.update_time }}
           PRICES_JSON: ${{ toJson(github.event.client_payload.tanaka_data) }}
@@ -42,6 +44,7 @@ jobs:
 
       # 変更があれば commit & push
       - name: Commit changes if any
+        if: steps.update.outputs.updated == 'true'
         env:
           PAT_GITHUB: ${{ secrets.TANAKA_GITHUB_TOKEN }}
         run: |
@@ -52,6 +55,7 @@ jobs:
 
       # 通知ワークフローを起動（UPDATE_TIMEをGASから正しく引き継ぐ）
       - name: Trigger Tanaka Notify
+        if: steps.update.outputs.updated == 'true'
         env:
           PAT_GITHUB: ${{ secrets.TANAKA_GITHUB_TOKEN }}
           UPDATE_TIME: ${{ github.event.client_payload.update_time }}

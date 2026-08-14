@@ -23,6 +23,13 @@ EXPECTED_TIME_STR = {
     "1400": "14:00",
 }.get(_raw_update_time, "")
 
+def set_action_output(name, value):
+    output_path = os.getenv("GITHUB_OUTPUT")
+    if not output_path:
+        return
+    with open(output_path, "a", encoding="utf-8") as f:
+        f.write(f"{name}={value}\n")
+
 def fetch_tanaka_prices():
     res = requests.get(URL)
     res.encoding = "utf-8"
@@ -129,7 +136,9 @@ def main():
     last_update_time = existing_data["update_time"] if existing_data else None
 
     if not is_workflow_dispatch and update_text == last_update_time:
-        print("⚠ 取得した公表時刻が既存データと同じです（サーバーキャッシュの可能性）。処理を継続します。")
+        print("⚠ 取得した公表時刻が既存データと同じです。通知重複防止のため処理を終了します。")
+        set_action_output("updated", "false")
+        return
 
     # === 9:30更新処理 ===
     if "09:30" in update_text:
@@ -165,6 +174,7 @@ def main():
 
     # === 履歴ファイルへの追記（常に実行） ===
     append_to_history(data, update_text)
+    set_action_output("updated", "true")
 
 if __name__ == "__main__":
     main()
