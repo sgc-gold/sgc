@@ -1,6 +1,8 @@
 const SPREADSHEET_ID = "1jOGUMT7gQOadV-UXbZw6r7YktbHur_v42BQR6efuoAE";
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const SHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
+const DATE_HEADER = "\u65e5\u4ed8";
+const EVENT_HEADER = "\u50ac\u4e8b\u540d";
 
 function jsonResponse(body, status = 200, cacheControl = "no-store") {
   return new Response(JSON.stringify(body), {
@@ -45,11 +47,21 @@ async function createAccessToken(email, privateKey) {
   return data.access_token;
 }
 
+async function readJson(url, accessToken) {
+  const response = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
+  const data = await response.json().catch(() => null);
+  if (!response.ok) throw new Error("Google Sheets request failed");
+  return data;
+}
+
 function dateFromValue(value) {
   if (typeof value === "number" && Number.isFinite(value)) {
     return new Date(Date.UTC(1899, 11, 30) + value * 86400000).toISOString().slice(0, 10);
   }
-  const match = String(value || "").trim().match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})$/);
+  const text = String(value || "").trim();
+  const japanese = text.match(/^(\d{4})\u5e74(\d{1,2})\u6708(\d{1,2})\u65e5/);
+  const western = text.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);
+  const match = japanese || western;
   return match ? `${match[1]}-${match[2].padStart(2, "0")}-${match[3].padStart(2, "0")}` : "";
 }
 
@@ -59,11 +71,27 @@ function isNextDay(previous, current) {
   return next.toISOString().slice(0, 10) === current;
 }
 
+function findScheduleSheet(sheets) {
+  return sheets.find((sheet) => {
+    const header = sheet.values?.[0] || [];
+    return header[0] === DATE_HEADER && header.slice(2).some((value) => value === EVENT_HEADER);
+  });
+}
+
 function normalizeRows(values) {
-  const rows = values
-    .map((row) => ({ date: dateFromValue(row?.[0]), title: String(row?.[2] || "").trim() }))
-    .filter((row) => row.date && row.title)
-    .sort((a, b) => a.date.localeCompare(b.date));
+  const uniqueRows = new Map();
+  for (const row of values.slice(1)) {
+    const date = dateFromValue(row?.[0]);
+    if (!date) continue;
+    for (const value of row.slice(2)) {
+      const title = typeof value === "string" ? value.trim() : "";
+      if (title && title !== EVENT_HEADER) uniqueRows.set(`${date}\u0000${title}`, { date, title });
+    }
+  }
+
+  const rows = [...uniqueRows.values()].sort((a, b) => (
+    a.date.localeCompare(b.date) || a.title.localeCompare(b.title)
+  ));
   const events = [];
   for (const row of rows) {
     const previous = events[events.length - 1];
@@ -86,15 +114,18 @@ export async function onRequestGet(context) {
   const email = context.env?.GOOGLE_SERVICE_ACCOUNT_EMAIL;
   const privateKey = String(context.env?.GOOGLE_PRIVATE_KEY || "").replace(/\\n/g, "\n").trim();
   if (!email || !privateKey) return jsonResponse({ error: "Google Sheets credentials are not configured" }, 503);
+
   try {
     const accessToken = await createAccessToken(email, privateKey);
-    const range = encodeURIComponent("A:C");
-    const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${range}?majorDimension=ROWS&valueRenderOption=UNFORMATTED_VALUE`, {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    });
-    const data = await response.json().catch(() => null);
-    if (!response.ok || !Array.isArray(data?.values)) return jsonResponse({ error: "Google Sheets data request failed" }, 502);
-    return jsonResponse(normalizeRows(data.values), 200, "public, max-age=60, s-maxage=300");
+    const baseUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}`;
+    const metadata = await readJson(`${baseUrl}?fields=sheets(properties(sheetId,title))`, accessToken);
+    const sheets = await Promise.all((metadata.sheets || []).map(async (sheet) => ({
+      ...sheet,
+      values: (await readJson(`${baseUrl}/values/${encodeURIComponent(`'${sheet.properties.title}'!A:Z`)}?majorDimension=ROWS&valueRenderOption=FORMATTED_VALUE`, accessToken)).values || []
+    })));
+    const target = findScheduleSheet(sheets);
+    if (!target) return jsonResponse({ error: "Schedule sheet with 日付 and 催事名 headers was not found" }, 502);
+    return jsonResponse(normalizeRows(target.values), 200, "public, max-age=60, s-maxage=300");
   } catch (error) {
     return jsonResponse({ error: "Failed to load exhibition schedule" }, 502);
   }
