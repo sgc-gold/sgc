@@ -2,7 +2,7 @@
 //  SGC 社内ポータル Service Worker
 //  バージョンを変えると全キャッシュが更新されます
 // ══════════════════════════════════════════
-var CACHE_VERSION = 'sgc-portal-v11';
+var CACHE_VERSION = 'sgc-portal-v12';
 
 // キャッシュするファイル（全ページ + 主要アセット）
 var PRECACHE_URLS = [
@@ -95,6 +95,12 @@ self.addEventListener('fetch', function(event) {
 
   // GETリクエストのみキャッシュ対象
   if (event.request.method !== 'GET') return;
+
+  // Keep sheet-backed exhibition data network-first.
+  if (url.includes('/api/exhibitions')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
 
   // data/*.json は Stale-While-Revalidate（キャッシュを即返しつつバックグラウンド更新）
   if (url.includes('/data/')) {

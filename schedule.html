@@ -489,8 +489,16 @@ body::before {
 document.addEventListener("DOMContentLoaded", async () => {
 
   // ─── Data ───
-  const res = await fetch("./data/exhibition.json");
-  const exhibitions = await res.json();
+  const [apiRes, fallbackRes] = await Promise.all([
+    fetch("./api/exhibitions", { cache: "no-store" }).catch(() => null),
+    fetch("./data/exhibition.json")
+  ]);
+  const fallbackExhibitions = await fallbackRes.json();
+  const apiExhibitions = apiRes && apiRes.ok ? await apiRes.json() : [];
+  const exhibitions = [
+    ...fallbackExhibitions.filter(e => e.category !== "大黄金展"),
+    ...apiExhibitions
+  ];
 
   // カテゴリのフィルタリング：クルーズ・出張販売を除外
   const excluded = ["クルーズ", "出張販売"];
