@@ -49,7 +49,7 @@
   }
 
   async function tryRss2json(rssUrl) {
-    const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=30&order_by=pubDate&order_dir=desc`;
+    const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=50&order_by=pubDate&order_dir=desc`;
     const res = await fetchWithTimeout(api);
     if (!res.ok) throw new Error(`rss2json ${res.status}`);
     const d = await res.json();
@@ -88,7 +88,7 @@
   }
 
   async function tryFeedrapp(rssUrl) {
-    const api = `https://feedrapp.info/api?q=${encodeURIComponent(rssUrl)}&num=30&output=json`;
+    const api = `https://feedrapp.info/api?q=${encodeURIComponent(rssUrl)}&num=50&output=json`;
     const res = await fetchWithTimeout(api);
     if (!res.ok) throw new Error(`feedrapp ${res.status}`);
     const d = await res.json();
@@ -106,32 +106,16 @@
   async function fetchNews(query) {
     const rssUrl = buildRssUrl(query);
     const tryProxy = fn => fn(rssUrl).catch(e => { console.warn(e.message); return null; });
-    const promises = [
+    const results = await Promise.all([
       tryProxy(tryRss2json),
       tryProxy(tryAllOrigins),
       tryProxy(tryCorsproxy),
       tryProxy(tryThingproxy),
       tryProxy(tryFeedrapp)
-    ];
+    ]);
 
-    let resolved = false;
-    const result = await new Promise((resolve) => {
-      let settled = 0;
-      promises.forEach(p => {
-        p.then(items => {
-          if (!resolved && items && items.length > 0) {
-            resolved = true;
-            resolve(items);
-          }
-        }).finally(() => {
-          settled++;
-          if (settled === promises.length && !resolved) resolve(null);
-        });
-      });
-    });
-
-    if (!result) return null;
-    return sortByDateDesc(result);
+    const merged = dedupeNewsItems(results.flatMap(items => items || []));
+    return merged.length ? sortByDateDesc(merged) : null;
   }
 
   async function fetchTopicNews(topic, fallbackQuery) {
@@ -139,10 +123,7 @@
     const results = await Promise.all(
       queries.map(query => fetchNews(query).catch(e => { console.warn(e.message); return null; }))
     );
-    const mainSourceItems = results
-      .flatMap(items => items || [])
-      .filter(isMainNewsSource);
-    const merged = dedupeNewsItems(mainSourceItems);
+    const merged = dedupeNewsItems(results.flatMap(items => items || []));
     if (!merged.length) return null;
     if (topic === "goldMarket") return sortByDateDesc(merged.filter(isJapanFocusedArticle));
     return sortByDateDesc(merged);
@@ -416,7 +397,6 @@
   function filterNewsItems(items, topic) {
     if (!items?.length) return [];
     const filtered = dedupeNewsItems(items.filter(item => {
-      if (!isMainNewsSource(item)) return false;
       const text = getSearchText(item);
       if (topic === "goldMarket") return isGoldMarketArticle(text) && isJapanFocusedArticle(item);
       if (topic === "goldCrime" || topic === "goldSmuggling") return isGoldCrimeArticle(text);
