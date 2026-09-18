@@ -723,7 +723,7 @@ select {
 <!-- ─── Tab Nav ─── -->
 <div class="tab-nav">
   <button class="tab-btn active" data-tab="njTab">
-    <span class="tab-icon">🏷️</span> NJ大会相場
+    <span class="tab-icon">🏷️</span> ダイヤ大会相場
   </button>
   <button class="tab-btn" data-tab="rapaTab">
     <span class="tab-icon">📊</span> ラパポート相場
@@ -733,7 +733,7 @@ select {
 <div class="page-wrap">
 
 <!-- ══════════════════════════
-     TAB 1: NJ大会相場
+     TAB 1: ダイヤ大会相場
 ══════════════════════════ -->
 <div id="njTab" class="tab-panel active">
 
@@ -744,6 +744,14 @@ select {
     </div>
     <div class="panel-body">
       <div class="form-grid">
+        <div class="form-label">業者</div>
+        <div class="form-control">
+          <select id="vendorSelect" style="min-width:160px;">
+            <option value="">すべて</option>
+            <option value="NJ">NJ</option>
+            <option value="MONOBANK">ものばんく</option>
+          </select>
+        </div>
         <div class="form-label">カラット（ct）</div>
         <div class="form-control">
           <div id="caratSetRow" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
@@ -912,7 +920,7 @@ select {
           <tr>
             <th>日付</th><th>カラー</th><th>クラリティ</th><th>カット</th>
             <th>蛍光性</th><th>形状</th><th>カラット</th>
-            <th>ガイ単価</th><th>金額</th><th>備考</th><th>詳細</th>
+            <th>ガイ単価</th><th>金額</th><th>備考</th><th>業者</th><th>詳細</th>
           </tr>
         </thead>
         <tbody id="resultBody"></tbody>
@@ -1225,9 +1233,9 @@ const shapeMap    = {
   BUT:"バタフライ", TRI:"トリリアント", FA:"ファンシーカット", RCT:"レクタンギュラー"
 };
 
-const GITHUB_BASE   = "https://raw.githubusercontent.com/sgc-gold/sgc/main/data/";
-const RAPA_URL      = GITHUB_BASE + "rapaport.json";
-const RATE_URL      = GITHUB_BASE + "exchange_rate.json";
+const DATA_BASE     = "./data/";
+const RAPA_URL      = DATA_BASE + "rapaport.json";
+const RATE_URL      = DATA_BASE + "exchange_rate.json";
 
 /* ════════════════════════════════════════
    STATE
@@ -1235,6 +1243,9 @@ const RATE_URL      = GITHUB_BASE + "exchange_rate.json";
 let diamondData    = [];
 let rapaData       = [];
 let usdJpy         = 150;
+const vendorLabels = { NJ: "NJ", MONOBANK: "ものばんく" };
+// vendor がない既存レコードは NJ のデータ。
+function getVendor(d) { return d.vendor || "NJ"; }
 
 /* ════════════════════════════════════════
    HELPERS
@@ -1318,7 +1329,7 @@ async function loadNJData() {
     const years = [2025, 2026];
     const results = await Promise.all(
       years.map(y =>
-        fetch(GITHUB_BASE + `diamonds_${y}.json`)
+        fetch(DATA_BASE + `diamonds_${y}.json`)
           .then(r => r.ok ? r.json() : [])
           .catch(() => [])
       )
@@ -1920,6 +1931,7 @@ function runSearch() {
     const minC     = parseFloat(document.getElementById("minCarat").value) || 0;
     const maxC     = parseFloat(document.getElementById("maxCarat").value) || 999;
     const dateVal  = document.getElementById("dateSelect").value;
+    const vendorVal = document.getElementById("vendorSelect").value;
     const shapeVal = document.getElementById("shapeSelect").value;
     const keyword  = document.getElementById("keyword").value.trim().toLowerCase();
     const fromColorVal = document.getElementById("fromColor").value;
@@ -1938,6 +1950,7 @@ function runSearch() {
     const activeColorType = document.querySelector('.ctog-btn.active')?.dataset.type || "all";
 
     const results = diamondData.filter(d => {
+      if (vendorVal && getVendor(d) !== vendorVal) return false;
       const c = parseFloat(d.carat) || 0;
       if (c < minC || c > maxC) return false;
       if (dateVal && d.date.split(" ")[0] < dateVal) return false;
@@ -2023,6 +2036,7 @@ function runSearch() {
           <td class="priceCell">${(+d.pricePerCarat).toLocaleString()||""}</td>
           <td class="priceCell">${Math.floor((+d.pricePerCarat)*(+d.carat)).toLocaleString()||""}</td>
           <td>${d.notes||""}</td>
+          <td>${vendorLabels[getVendor(d)] || getVendor(d)}</td>
           <td><span class="detail-toggle">詳細</span></td>
         `;
         tbody.appendChild(row);
@@ -2035,7 +2049,7 @@ function runSearch() {
           unevenRate = (((mx - mn) / avg) * 100).toFixed(2) + "%";
           if (d.height) heightRatio = ((parseFloat(d.height) / avg) * 100).toFixed(2) + "%";
         }
-        detailRow.innerHTML = `<td colspan="11">直径：${d.diameterMin||"—"}–${d.diameterMax||"—"} mm（不正円率：${unevenRate||"—"}）　高さ：${d.height||"—"} mm（全高比：${heightRatio||"—"}）</td>`;
+        detailRow.innerHTML = `<td colspan="12">直径：${d.diameterMin||"—"}–${d.diameterMax||"—"} mm（不正円率：${unevenRate||"—"}）　高さ：${d.height||"—"} mm（全高比：${heightRatio||"—"}）</td>`;
         tbody.appendChild(detailRow);
         row.querySelector(".detail-toggle").addEventListener("click", () => {
           detailRow.style.display = detailRow.style.display === "table-row" ? "none" : "table-row";
@@ -2065,7 +2079,7 @@ function runSearch() {
     let sortState = {};
     function enableSort() {
       document.querySelectorAll("#resultTable thead th").forEach((th, idx) => {
-        if (idx === 10) return;
+        if (idx === 11) return;
         th.addEventListener("click", () => {
           const dir = sortState[idx] === "asc" ? "desc" : "asc";
           sortState = { [idx]: dir };
@@ -2100,6 +2114,7 @@ function runSearch() {
         case 7: return parseFloat(row.pricePerCarat) || 0;
         case 8: return (parseFloat(row.pricePerCarat)||0) * (parseFloat(row.carat)||0);
         case 9: return row.notes || "";
+        case 10: return vendorLabels[getVendor(row)] || getVendor(row);
         default: return "";
       }
     }
@@ -2115,7 +2130,7 @@ document.getElementById("clearButton").addEventListener("click", () => {
   ["minCarat","maxCarat","mainCarat","fromColor","toColor",
    "fancyGradeSelect","fancyToneSelect","minCutSelect","maxCutSelect",
    "minClaritySelect","maxClaritySelect","minFluoSelect","maxFluoSelect",
-   "shapeSelect","keyword"
+   "shapeSelect","vendorSelect","keyword"
   ].forEach(id => { document.getElementById(id).value = ""; });
   const si = document.getElementById("spinInt"), sd = document.getElementById("spinDec");
   if (si && sd) { si.value = "0"; sd.value = "50"; document.getElementById("mainCarat").value = "0.50"; }
