@@ -2,7 +2,7 @@
 //  SGC 社内ポータル Service Worker
 //  バージョンを変えると全キャッシュが更新されます
 // ══════════════════════════════════════════
-var CACHE_VERSION = 'sgc-portal-v13';
+var CACHE_VERSION = 'sgc-portal-v14';
 
 // キャッシュするファイル（全ページ + 主要アセット）
 var PRECACHE_URLS = [
@@ -102,7 +102,22 @@ self.addEventListener('fetch', function(event) {
     return;
   }
 
-  // data/*.json は Stale-While-Revalidate（キャッシュを即返しつつバックグラウンド更新）
+  // ダイヤ相場は更新直後のデータを優先し、通信できないときだけキャッシュを使う。
+  if (/\/data\/diamonds_\d{4}\.json$/.test(new URL(url).pathname)) {
+    event.respondWith(
+      fetch(event.request).then(function(response) {
+        if (response.status === 200 && (response.headers.get('Content-Type') || '').includes('application/json')) {
+          caches.open(CACHE_VERSION).then(function(cache) {
+            cache.put(event.request, response.clone());
+          });
+        }
+        return response;
+      }).catch(function() { return caches.match(event.request); })
+    );
+    return;
+  }
+
+  // その他の data/*.json は Stale-While-Revalidate（キャッシュを即返しつつバックグラウンド更新）
   if (url.includes('/data/')) {
     event.respondWith(
       caches.open(CACHE_VERSION).then(function(cache) {

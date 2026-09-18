@@ -1407,6 +1407,17 @@ function populateNJFilters() {
   });
 }
 
+document.getElementById("vendorSelect").addEventListener("change", () => {
+  const vendor = document.getElementById("vendorSelect").value;
+  const latestDate = diamondData
+    .filter(d => !vendor || getVendor(d) === vendor)
+    .map(d => d.date?.split(" ")[0])
+    .filter(Boolean)
+    .sort()
+    .pop();
+  document.getElementById("dateSelect").value = latestDate || "";
+});
+
 /* ════════════════════════════════════════
    RAPA FILTER INIT
 ════════════════════════════════════════ */
