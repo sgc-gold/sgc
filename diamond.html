@@ -744,14 +744,6 @@ select {
     </div>
     <div class="panel-body">
       <div class="form-grid">
-        <div class="form-label">業者</div>
-        <div class="form-control">
-          <select id="vendorSelect" style="min-width:160px;">
-            <option value="">すべて</option>
-            <option value="NJ">NJ</option>
-            <option value="MONOBANK">ものばんく</option>
-          </select>
-        </div>
         <div class="form-label">カラット（ct）</div>
         <div class="form-control">
           <div id="caratSetRow" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
@@ -768,6 +760,14 @@ select {
             <span class="range-sep">〜</span>
             <input type="text" id="maxCarat" placeholder="最大" inputmode="decimal">
           </div>
+        </div>
+        <div class="form-label">業者</div>
+        <div class="form-control">
+          <select id="vendorSelect" style="min-width:160px;">
+            <option value="">すべて</option>
+            <option value="NJ">NJ</option>
+            <option value="MONOBANK">ものばんく</option>
+          </select>
         </div>
         <div class="form-label">開催日</div>
         <div class="form-control">
@@ -1383,15 +1383,12 @@ loadAll();
    NJ FILTER INIT
 ════════════════════════════════════════ */
 function populateNJFilters() {
-  const dates = new Set(), shapes = new Set();
+  const shapes = new Set();
   diamondData.forEach(d => {
-    if (d.date)  dates.add(d.date.split(" ")[0]);
     if (d.shape) shapes.add(d.shape);
   });
   const addOpt = (sel, val, label) => sel.appendChild(new Option(label || val, val));
-  const dateSel = document.getElementById("dateSelect");
-  Array.from(dates).sort((a,b) => new Date(b)-new Date(a)).forEach(d => addOpt(dateSel, d));
-  dateSel.selectedIndex = 1;
+  updateDateOptions();
   const fromColorSel = document.getElementById("fromColor");
   const toColorSel   = document.getElementById("toColor");
   ALPHA_COLOR_ZONES.forEach(z => { addOpt(fromColorSel, z.key, z.label); addOpt(toColorSel, z.key, z.label); });
@@ -1407,16 +1404,18 @@ function populateNJFilters() {
   });
 }
 
-document.getElementById("vendorSelect").addEventListener("change", () => {
+function updateDateOptions() {
   const vendor = document.getElementById("vendorSelect").value;
-  const latestDate = diamondData
+  const dates = [...new Set(diamondData
     .filter(d => !vendor || getVendor(d) === vendor)
     .map(d => d.date?.split(" ")[0])
-    .filter(Boolean)
-    .sort()
-    .pop();
-  document.getElementById("dateSelect").value = latestDate || "";
-});
+    .filter(Boolean))].sort().reverse();
+  const dateSel = document.getElementById("dateSelect");
+  dateSel.replaceChildren(new Option("すべて", ""), ...dates.map(d => new Option(d, d)));
+  dateSel.selectedIndex = dates.length ? 1 : 0;
+}
+
+document.getElementById("vendorSelect").addEventListener("change", updateDateOptions);
 
 /* ════════════════════════════════════════
    RAPA FILTER INIT
@@ -2143,6 +2142,7 @@ document.getElementById("clearButton").addEventListener("click", () => {
    "minClaritySelect","maxClaritySelect","minFluoSelect","maxFluoSelect",
    "shapeSelect","vendorSelect","keyword"
   ].forEach(id => { document.getElementById(id).value = ""; });
+  updateDateOptions();
   const si = document.getElementById("spinInt"), sd = document.getElementById("spinDec");
   if (si && sd) { si.value = "0"; sd.value = "50"; document.getElementById("mainCarat").value = "0.50"; }
   ["hcCheck","treatedCheck","faintCheck"].forEach(id => { document.getElementById(id).checked = false; });
