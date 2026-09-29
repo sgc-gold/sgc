@@ -52,6 +52,35 @@
           "buy_930diff": "+0"
         }
       }
+    },
+    {
+      "update_time": "2026年09月29日 17:00公表（日本時間）",
+      "prices": {
+        "GOLD": {
+          "buy": "22791",
+          "buy_diff": "-767",
+          "retail": "23340",
+          "retail_diff": "-575",
+          "retail_930diff": "+255",
+          "buy_930diff": "+62"
+        },
+        "PLATINUM": {
+          "buy": "9158",
+          "buy_diff": "-482",
+          "retail": "9707",
+          "retail_diff": "-355",
+          "retail_930diff": "-59",
+          "buy_930diff": "-186"
+        },
+        "SILVER": {
+          "buy": "324.5",
+          "buy_diff": "-23.21",
+          "retail": "357.5",
+          "retail_diff": "-7.26",
+          "retail_930diff": "+6.49",
+          "buy_930diff": "-9.46"
+        }
+      }
     }
   ]
 }
