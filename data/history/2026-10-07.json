@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-07",
+  "snapshots": [
+    {
+      "update_time": "2026年10月07日 09:30公表（日本時間）",
+      "prices": {
+        "GOLD": {
+          "buy": "23147",
+          "buy_diff": "+204",
+          "retail": "23503",
+          "retail_diff": "+203"
+        },
+        "PLATINUM": {
+          "buy": "9341",
+          "buy_diff": "-35",
+          "retail": "9763",
+          "retail_diff": "-35"
+        },
+        "SILVER": {
+          "buy": "341.22",
+          "buy_diff": "+4.07",
+          "retail": "358.27",
+          "retail_diff": "+4.07"
+        }
+      }
+    }
+  ]
+}
