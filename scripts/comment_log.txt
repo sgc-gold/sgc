@@ -1739,3 +1739,14 @@ FRBによる10月の追加利上げ見送りが有力視されるなかでも、
 外国為替市場ではドルが一時売られたものの、その後は下げ渋り、ドル建て金価格への下支え効果は限られました。
 FRBによる10月の追加利上げ見送りが有力視されるなかでも、12月の利上げ観測は根強く、米長期金利は依然として高水準で推移しています。
 この日は原油価格と米長期金利が一時低下したものの、金相場の買い戻しは続かず、年内の追加利上げ観測が引き続き重しとなったことがうかがえます。
+[2026-10-22 09:37:28] today: 2026-10-22
+[2026-10-22 09:37:28] [attempt 1] starting immediately.
+[2026-10-22 09:37:28] [attempt 1] fetch_comment: {'url': 'https://nanboya.com/gold-kaitori/souba/?cb=1792629448', 'status_code': 503, 'date': 'Thu, 22 Oct 2026 00:37:28 GMT', 'x_cache': 'Error from cloudfront', 'age': '', 'server': 'CloudFront', 'content_type': 'text/html'}
+[2026-10-22 09:37:28] WARNING: [attempt 1] Nanboya returned HTTP 503: {'url': 'https://nanboya.com/gold-kaitori/souba/?cb=1792629448', 'status_code': 503, 'date': 'Thu, 22 Oct 2026 00:37:28 GMT', 'x_cache': 'Error from cloudfront', 'age': '', 'server': 'CloudFront', 'content_type': 'text/html'}
+[2026-10-22 09:37:28] [attempt 2] waiting 35s before retry.
+[2026-10-22 09:38:03] [attempt 2] fetch_comment: {'url': 'https://nanboya.com/gold-kaitori/souba/?cb=1792629483', 'status_code': 503, 'date': 'Thu, 22 Oct 2026 00:38:03 GMT', 'x_cache': 'Error from cloudfront', 'age': '', 'server': 'CloudFront', 'content_type': 'text/html'}
+[2026-10-22 09:38:03] WARNING: [attempt 2] Nanboya returned HTTP 503: {'url': 'https://nanboya.com/gold-kaitori/souba/?cb=1792629483', 'status_code': 503, 'date': 'Thu, 22 Oct 2026 00:38:03 GMT', 'x_cache': 'Error from cloudfront', 'age': '', 'server': 'CloudFront', 'content_type': 'text/html'}
+[2026-10-22 09:38:03] [attempt 3] waiting 82s before retry.
+[2026-10-22 09:39:25] [attempt 3] fetch_comment: {'url': 'https://nanboya.com/gold-kaitori/souba/?cb=1792629565', 'status_code': 503, 'date': 'Thu, 22 Oct 2026 00:39:25 GMT', 'x_cache': 'Error from cloudfront', 'age': '', 'server': 'CloudFront', 'content_type': 'text/html'}
+[2026-10-22 09:39:25] WARNING: [attempt 3] Nanboya returned HTTP 503: {'url': 'https://nanboya.com/gold-kaitori/souba/?cb=1792629565', 'status_code': 503, 'date': 'Thu, 22 Oct 2026 00:39:25 GMT', 'x_cache': 'Error from cloudfront', 'age': '', 'server': 'CloudFront', 'content_type': 'text/html'}
+[2026-10-22 09:39:25] WARNING: Nanboya comment could not be fetched. Wrote empty comment.txt and continuing.
