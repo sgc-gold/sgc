@@ -1750,3 +1750,18 @@ FRBによる10月の追加利上げ見送りが有力視されるなかでも、
 [2026-10-22 09:39:25] [attempt 3] fetch_comment: {'url': 'https://nanboya.com/gold-kaitori/souba/?cb=1792629565', 'status_code': 503, 'date': 'Thu, 22 Oct 2026 00:39:25 GMT', 'x_cache': 'Error from cloudfront', 'age': '', 'server': 'CloudFront', 'content_type': 'text/html'}
 [2026-10-22 09:39:25] WARNING: [attempt 3] Nanboya returned HTTP 503: {'url': 'https://nanboya.com/gold-kaitori/souba/?cb=1792629565', 'status_code': 503, 'date': 'Thu, 22 Oct 2026 00:39:25 GMT', 'x_cache': 'Error from cloudfront', 'age': '', 'server': 'CloudFront', 'content_type': 'text/html'}
 [2026-10-22 09:39:25] WARNING: Nanboya comment could not be fetched. Wrote empty comment.txt and continuing.
+[2026-11-02 09:33:46] today: 2026-11-02
+[2026-11-02 09:33:46] [attempt 1] starting immediately.
+[2026-11-02 09:33:48] [attempt 1] fetch_comment: {'url': 'https://nanboya.com/gold-kaitori/souba/?cb=1793579626', 'status_code': 200, 'date': 'Mon, 02 Nov 2026 00:33:48 GMT', 'x_cache': 'Miss from cloudfront', 'age': '', 'server': 'secret', 'content_type': 'text/html; charset=UTF-8'}
+[2026-11-02 09:33:49] [attempt 1] time_text: 投稿日時｜ 2026年11月02日（月） 09:03
+[2026-11-02 09:33:49] [attempt 1] parsed comment_date: 2026年11月02日
+[2026-11-02 09:33:49] comment saved.
+[2026-11-02 09:33:49] comment body:
+2026年10月30日（金）のNY金先物は大幅続落となりました。
+米半導体大手インテルが発表した10～12月期の業績見通しが市場予想を下回り、PC需要の減速やキャッシュフロー悪化への懸念から同社株は約29％急落。
+1日の下落率としては1974年以来52年ぶりの大きさとなりました。
+さらに、アマゾンなどの巨額なAI投資に伴う資金負担への警戒も重なり、半導体株を中心に売りが拡大。
+半導体製造装置やメモリー関連銘柄にも売りが波及し、米国の主要な半導体関連株の動向を示すフィラデルフィア半導体株指数（SOX指数）は7.2％急落し、月間でも15％を超える下落となっています。
+ナスダック総合指数も約2.9％値を下げ、米国株式市場ではAI関連投資の採算性に対する懸念が一段と強まりました。
+株安を受けて米国債への資金流入が進み、米長期金利は低下したものの、ドル建て金価格は3％を超える大幅安となり、約1年ぶりの安値圏で取引を終えました。
+原油高によるインフレ懸念と追加利上げ観測が残るなか、株式市場の急落に伴う換金売りも金相場を圧迫した可能性があります。
