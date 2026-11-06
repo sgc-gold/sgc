@@ -5,6 +5,9 @@ on:
     - cron: '0 0 * * *'  # 毎日 0:00 UTC（日本時間 9:00）に実行
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   update-exchange:
     runs-on: ubuntu-latest
@@ -15,10 +18,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 22
-
-      # ✅ ここを追加！ node-fetch をインストール
-      - name: Install dependencies
-        run: npm install node-fetch@2
 
       - name: Update exchange rate
         run: node scripts/fetch_exchange.js

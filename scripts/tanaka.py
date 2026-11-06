@@ -9,6 +9,7 @@ import math
 import re
 import json
 import os
+from notification_config import load_notification_recipients
 
 # ==================================================
 # メール送信（SMTP / Brevo想定）
@@ -17,17 +18,7 @@ SMTP_HOST = os.environ.get("SMTP_HOST", "").strip()
 SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
 SMTP_USERNAME = os.environ.get("SMTP_USERNAME", "").strip()
 SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "").strip()
-FROM_EMAIL       = "yokomori@sgc-gold.co.jp"
-TO_EMAIL         = "yokomori@sgc-gold.co.jp"
-BCC_EMAILS       = [
-    "s.forest.1127@gmail.com",
-    "junjunjunjun@docomo.ne.jp",
-    "hayakichibou@docomo.ne.jp",
-    "ishikawa@sgc-gold.co.jp",
-    "k-tsuchiya@sgc-gold.co.jp",
-    "tsuchiya@sgc-gold.co.jp",
-    "y-hosaka@sgc-gold.co.jp"
-]
+FROM_EMAIL, TO_EMAIL, BCC_EMAILS = load_notification_recipients()
 
 DEFAULT_SPREAD = {
     "金":     325,
@@ -57,8 +48,7 @@ def send_email_smtp(*, subject: str, html_body: str, inline_images: dict[str, st
     msg_root = MIMEMultipart("related")
     msg_root["From"] = FROM_EMAIL
     msg_root["To"] = TO_EMAIL
-    if BCC_EMAILS:
-        msg_root["Bcc"] = ", ".join(BCC_EMAILS)
+    # Bcc recipients belong only in the SMTP envelope, never in MIME headers.
     msg_root["Subject"] = str(Header(subject, "utf-8"))
 
     msg_alt = MIMEMultipart("alternative")

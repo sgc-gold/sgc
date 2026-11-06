@@ -7,4 +7,10 @@ gas/**/.claspignore
 
 .npm-cache/
 **/__pycache__/
+.security-work/
+.venv/
+node_modules/
+.env
+.env.*
+!.env.example
 dist-portal/

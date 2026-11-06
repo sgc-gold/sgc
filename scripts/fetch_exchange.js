@@ -1,7 +1,7 @@
 // scripts/fetch_exchange.js
 const fs = require("fs");
 const path = require("path");
-const fetch = (...args) => import("node-fetch").then(({ default: fetch }) => fetch(...args));
+// Node 22 provides fetch; no runtime package installation is needed.
 
 async function updateExchange() {
   try {

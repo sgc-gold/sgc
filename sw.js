@@ -78,16 +78,18 @@ self.addEventListener('activate', function(event) {
 // ────────────────────────────────────
 self.addEventListener('fetch', function(event) {
   var url = event.request.url;
+  var parsedUrl = new URL(url);
+  var hostname = parsedUrl.hostname;
 
   // 外部リクエストはキャッシュしない
   if (
-    url.includes('script.google.com') ||
-    url.includes('fonts.googleapis.com') ||
-    url.includes('fonts.gstatic.com') ||
-    url.includes('sgc-gold.co.jp') ||
-    url.includes('cdn.jsdelivr.net') ||
-    url.includes('cdnjs.cloudflare.com') ||
-    url.includes('googleapis.com')
+    hostname === 'script.google.com' ||
+    hostname === 'fonts.googleapis.com' ||
+    hostname === 'fonts.gstatic.com' ||
+    (hostname === 'sgc-gold.co.jp' || hostname.endsWith('.sgc-gold.co.jp')) ||
+    hostname === 'cdn.jsdelivr.net' ||
+    hostname === 'cdnjs.cloudflare.com' ||
+    (hostname === 'googleapis.com' || hostname.endsWith('.googleapis.com'))
   ) {
     event.respondWith(fetch(event.request));
     return;
@@ -136,7 +138,7 @@ self.addEventListener('fetch', function(event) {
   }
 
   // HTML・画像等は Network First（キャッシュフォールバック）
-  if (url.startsWith(self.location.origin) || url.includes('sgc-gold.github.io')) {
+  if (parsedUrl.origin === self.location.origin || hostname === 'sgc-gold.github.io') {
     event.respondWith(
       fetch(event.request)
         .then(function(response) {
