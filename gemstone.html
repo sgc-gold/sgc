@@ -1504,7 +1504,12 @@ function buildCutGroups() {
       card.dataset.id = cut.id;
       card.innerHTML = `
         <div class="cut-svg">${CUT_SVGS[cut.id]||'<svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="14" stroke="#C09A50" stroke-width="1"/></svg>'}</div>
-        <div class="cut-name">${cut.name_ja.replace('\n','<br>')}</div>`;
+        <div class="cut-name"></div>`;
+      const cutName = card.querySelector(".cut-name");
+      String(cut.name_ja).split(/\n/).forEach((line, index) => {
+        if (index) cutName.appendChild(document.createElement("br"));
+        cutName.appendChild(document.createTextNode(line));
+      });
       card.addEventListener('click', () => selectCut(cut.id));
       grid.appendChild(card);
     });
@@ -1577,7 +1582,7 @@ function calculate() {
 
   const multNote = multiplier !== 1.0 ? `　×${multiplier.toFixed(1)}` : '';
   document.getElementById('resultGemName').textContent =
-    `${stone.name_ja}　/　${cut.name_ja.replace('\n',' ')}${multNote}`;
+    `${stone.name_ja}　/　${cut.name_ja.replace(/\n/g,' ')}${multNote}`;
   document.getElementById('calibNote').textContent = calibApplied
     ? '▸ 実測補正データ適用済み'
     : '▸ 標準モデル値（補正データなし）';
