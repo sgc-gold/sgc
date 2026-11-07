@@ -1,0 +1,3 @@
+const {test}=require('node:test');const assert=require('node:assert/strict');const vm=require('node:vm');const fs=require('node:fs');const window={};vm.runInNewContext(fs.readFileSync('portal-news-feed.js','utf8'),{window});const clean=window.PortalNewsFeed.getCleanDescription;
+test('normal descriptions keep whitespace, tags and single-level entities behavior',()=>{assert.equal(clean({description:'<b>A</b> &amp; B&nbsp;&lt;C&gt; &quot;D&quot;'}),'A & B <C> "D"');assert.equal(clean({}), '');});
+test('nested encodings decode once without recursively generating markup',()=>{assert.equal(clean({description:'&amp;lt;img&amp;gt; &amp;quot;'}),'&lt;img&gt; &quot;');});

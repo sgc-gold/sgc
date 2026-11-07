@@ -297,11 +297,9 @@
   function getCleanDescription(item) {
     return (item?.description || "")
       .replace(/<[^>]+>/g, " ")
-      .replace(/&nbsp;/g, " ")
-      .replace(/&amp;/g, "&")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&quot;/g, '"')
+      .replace(/&(?:nbsp|amp|lt|gt|quot);/g, entity => ({
+        "&nbsp;": " ", "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"'
+      })[entity])
       .replace(/\s+/g, " ")
       .trim();
   }
