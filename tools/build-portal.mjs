@@ -13,6 +13,7 @@ const allowedRootFiles = [
   "diamond.html",
   "gemstone.html",
   "coin.html",
+  "coin-print.html",
   "schedule.html",
   "contacts.html",
   "news.html",
