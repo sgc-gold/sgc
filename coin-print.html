@@ -5,42 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>記念金貨 買取価格表｜印刷用</title>
   <style>
-    :root { color-scheme: light; --green: #1e3d2c; --gold: #ad8740; --ink: #24231f; --muted: #67645c; --line: #d9d3c7; }
+    :root { color-scheme: light; --green: #1e3d2c; --gold: #ad8740; --ink: #24231f; --muted: #67645c; --line: #ded9cf; }
     * { box-sizing: border-box; }
-    body { margin: 0; background: #f4f1ea; color: var(--ink); font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif; }
-    .toolbar { display: flex; justify-content: center; gap: 12px; padding: 18px; }
-    .toolbar a, .toolbar button { border: 1px solid var(--green); border-radius: 6px; padding: 10px 18px; color: var(--green); background: #fff; font: inherit; text-decoration: none; cursor: pointer; }
+    html, body { margin: 0; color: var(--ink); font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif; }
+    body { background: #f3f0e9; }
+    .toolbar { display: flex; justify-content: center; gap: 12px; padding: 16px; }
+    .toolbar a, .toolbar button { border: 1px solid var(--green); border-radius: 6px; padding: 9px 16px; color: var(--green); background: #fff; font: inherit; text-decoration: none; cursor: pointer; }
     .toolbar button { color: #fff; background: var(--green); }
-    .sheet { width: min(100%, 1120px); min-height: 780px; margin: 0 auto 24px; padding: 34px 40px; background: #fff; box-shadow: 0 4px 24px #00000014; }
-    .heading { display: flex; justify-content: space-between; align-items: end; padding-bottom: 14px; border-bottom: 2px solid var(--gold); }
-    h1 { margin: 0; color: var(--green); font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 25px; letter-spacing: .12em; }
-    .english { margin-top: 5px; color: var(--gold); font: italic 12px Georgia, serif; letter-spacing: .16em; }
-    .date { color: var(--muted); font-size: 11px; text-align: right; line-height: 1.7; }
-    .notice { margin: 12px 0 14px; padding: 8px 12px; border-left: 3px solid var(--gold); background: #faf7f0; color: #4d493f; font-size: 11px; }
-    table { width: 100%; border-collapse: collapse; font-size: 11px; line-height: 1.4; }
-    thead { display: table-header-group; }
-    th { padding: 8px 7px; background: var(--green); color: #fff; font-weight: 600; text-align: left; }
-    td { padding: 6px 7px; border-bottom: 1px solid var(--line); vertical-align: top; }
-    tbody tr:nth-child(even) { background: #faf9f6; }
-    th:nth-child(2), td:nth-child(2), th:nth-child(3), td:nth-child(3), th:nth-child(4), td:nth-child(4) { text-align: center; white-space: nowrap; }
-    th:last-child, td:last-child { text-align: right; white-space: nowrap; }
-    td.price { color: var(--green); font-size: 13px; font-weight: 700; }
+    .sheet { width: 210mm; min-height: 297mm; margin: 0 auto 20px; padding: 8mm; background: #fff; box-shadow: 0 4px 24px #00000014; }
+    .heading { height: 14mm; display: flex; justify-content: space-between; align-items: center; padding-bottom: 2mm; border-bottom: 1.5px solid var(--gold); }
+    h1 { margin: 0; color: var(--green); font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 17pt; letter-spacing: .1em; }
+    .english { margin-top: 1mm; color: var(--gold); font: italic 8pt Georgia, serif; letter-spacing: .14em; }
+    .date { color: var(--muted); font-size: 8pt; text-align: right; line-height: 1.5; }
+    .notice { height: 6mm; margin: 1.5mm 0 2mm; padding: 1mm 2mm; border-left: 2px solid var(--gold); background: #faf7f0; color: #4d493f; font-size: 7.5pt; }
+    .coin-grid { height: 257mm; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(14, minmax(0, 1fr)); column-gap: 2mm; row-gap: 1mm; }
+    .coin { min-width: 0; min-height: 0; display: grid; grid-template-columns: 26mm minmax(0, 1fr) auto; align-items: center; gap: 1.6mm; padding: 1mm 1.2mm; border: 0.25mm solid var(--line); border-radius: 1.5mm; overflow: hidden; break-inside: avoid; }
+    .coin-images { display: flex; align-items: center; gap: .8mm; }
+    .coin-images img { display: block; width: 12.2mm; height: 12.2mm; object-fit: contain; border-radius: 50%; background: #f7f4ed; }
+    .coin-images img.missing { visibility: hidden; }
+    .coin-info { min-width: 0; }
+    .coin-theme { display: -webkit-box; overflow: hidden; color: #39372f; font-size: 7.1pt; font-weight: 600; line-height: 1.25; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+    .coin-spec { margin-top: .8mm; color: var(--muted); font-size: 6.7pt; white-space: nowrap; }
+    .coin-price { align-self: center; color: var(--green); font-size: 10pt; font-weight: 700; white-space: nowrap; }
+    .footer { height: 4mm; display: flex; justify-content: space-between; align-items: end; padding-top: 1mm; color: var(--muted); font-size: 6.5pt; }
     .status { padding: 30px; color: var(--muted); text-align: center; }
-    .footer { display: flex; justify-content: space-between; margin-top: 10px; color: var(--muted); font-size: 9px; }
-    @page { size: A4 landscape; margin: 10mm; }
+    @page { size: A4 portrait; margin: 0; }
     @media print {
-      body { background: #fff; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
-      .toolbar { display: none; }
-      .sheet { width: auto; min-height: 0; margin: 0; padding: 0; box-shadow: none; }
-      .notice { break-inside: avoid; }
-      tr { break-inside: avoid; }
+      html, body { width: 210mm; height: 297mm; background: #fff; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .toolbar { display: none !important; }
+      .sheet { width: 210mm; height: 297mm; min-height: 0; margin: 0; padding: 6mm; box-shadow: none; overflow: hidden; }
+      .coin-grid { height: 257mm; }
     }
-    @media screen and (max-width: 700px) {
-      .sheet { min-height: 0; margin: 0 10px 16px; padding: 22px 16px; overflow-x: auto; }
-      .heading { align-items: start; gap: 8px; }
-      h1 { font-size: 19px; }
-      .date { font-size: 9px; }
-      table { min-width: 680px; }
+    @media screen and (max-width: 760px) {
+      .sheet { width: 100%; min-height: 0; margin: 0; padding: 16px 10px; overflow: auto; }
+      .heading { height: auto; min-height: 58px; }
+      h1 { font-size: 17px; }
+      .date { font-size: 10px; }
+      .notice { height: auto; }
+      .coin-grid { height: auto; grid-template-rows: none; grid-auto-rows: minmax(68px, auto); gap: 6px; }
+      .coin { grid-template-columns: 92px minmax(0, 1fr) auto; gap: 5px; padding: 5px; }
+      .coin-images img { width: 42px; height: 42px; }
+      .coin-theme { font-size: 10px; }
+      .coin-spec { font-size: 9px; }
+      .coin-price { font-size: 12px; }
     }
   </style>
 </head>
@@ -55,14 +62,11 @@
         <h1>記念金貨 買取価格表</h1>
         <div class="english">COMMEMORATIVE GOLD COIN · PURCHASE PRICE LIST</div>
       </div>
-      <div class="date">価格改定日<br>2026年11月8日</div>
+      <div class="date">価格改定日<br>2026年11月8日（日）</div>
     </header>
-    <p class="notice">表示価格は記載の改定日から適用します。実際の買取価格は、金貨の状態や付属品などにより異なる場合があります。</p>
+    <p class="notice">買取価格は金貨の状態や付属品などにより異なる場合があります。</p>
     <div id="tableStatus" class="status">価格表を読み込んでいます…</div>
-    <table id="priceTable" hidden>
-      <thead><tr><th>記念テーマ</th><th>額面</th><th>量目</th><th>発行年</th><th>直径</th><th>買取価格</th></tr></thead>
-      <tbody id="priceRows"></tbody>
-    </table>
+    <section id="coinGrid" class="coin-grid" aria-label="記念金貨の買取価格一覧"></section>
     <footer class="footer"><span>記念金貨 買取価格</span><span>価格は予告なく改定する場合があります</span></footer>
   </main>
   <script>
@@ -71,9 +75,14 @@
       .then(response => { if (!response.ok) throw new Error('価格データを取得できません'); return response.json(); })
       .then(rows => {
         rows.sort((a, b) => parseFloat(b['量目']) - parseFloat(a['量目']) || a['記念テーマ'].localeCompare(b['記念テーマ'], 'ja'));
-        document.getElementById('priceRows').innerHTML = rows.map(row => `<tr><td>${esc(row['記念テーマ'])}</td><td>${esc(row['額面'])}</td><td>${esc(row['量目'])}</td><td>${esc(row['発行年'])}</td><td>${esc(row['直径'])}</td><td class="price">${esc(row['買取価格'])}</td></tr>`).join('');
+        const grid = document.getElementById('coinGrid');
+        grid.style.gridTemplateRows = `repeat(${Math.ceil(rows.length / 2)}, minmax(0, 1fr))`;
+        grid.innerHTML = rows.map(row => `<article class="coin">
+          <div class="coin-images"><img src="${esc(row['画像（表面）'])}" alt="" onerror="this.classList.add('missing')"><img src="${esc(row['画像（裏面）'])}" alt="" onerror="this.classList.add('missing')"></div>
+          <div class="coin-info"><div class="coin-theme">${esc(row['記念テーマ'])}</div><div class="coin-spec">${esc(row['貨幣種別'])}　${esc(row['量目'])}</div></div>
+          <div class="coin-price">${esc(row['買取価格'])}</div>
+        </article>`).join('');
         document.getElementById('tableStatus').remove();
-        document.getElementById('priceTable').hidden = false;
       })
       .catch(error => { document.getElementById('tableStatus').textContent = error.message; });
   </script>
