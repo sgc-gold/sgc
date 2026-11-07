@@ -17,8 +17,7 @@
     h1 { margin: 0; color: var(--green); font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; font-size: 17pt; letter-spacing: .1em; }
     .english { margin-top: 1mm; color: var(--gold); font: italic 8pt Georgia, serif; letter-spacing: .14em; }
     .date { color: var(--muted); font-size: 8pt; text-align: right; line-height: 1.5; }
-    .notice { height: 6mm; margin: 1.5mm 0 2mm; padding: 1mm 2mm; border-left: 2px solid var(--gold); background: #faf7f0; color: #4d493f; font-size: 7.5pt; }
-    .coin-grid { height: 257mm; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(14, minmax(0, 1fr)); column-gap: 2mm; row-gap: 1mm; }
+    .coin-grid { height: 266mm; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(14, minmax(0, 1fr)); column-gap: 2mm; row-gap: 1mm; }
     .coin { min-width: 0; min-height: 0; display: grid; grid-template-columns: 26mm minmax(0, 1fr) auto; align-items: center; gap: 1.6mm; padding: 1mm 1.2mm; border: 0.25mm solid var(--line); border-radius: 1.5mm; overflow: hidden; break-inside: avoid; }
     .coin-images { display: flex; align-items: center; gap: .8mm; }
     .coin-images img { display: block; width: 12.2mm; height: 12.2mm; object-fit: contain; border-radius: 50%; background: #f7f4ed; }
@@ -34,14 +33,13 @@
       html, body { width: 210mm; height: 297mm; background: #fff; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
       .toolbar { display: none !important; }
       .sheet { width: 210mm; height: 297mm; min-height: 0; margin: 0; padding: 6mm; box-shadow: none; overflow: hidden; }
-      .coin-grid { height: 257mm; }
+      .coin-grid { height: 266mm; }
     }
     @media screen and (max-width: 760px) {
       .sheet { width: 100%; min-height: 0; margin: 0; padding: 16px 10px; overflow: auto; }
       .heading { height: auto; min-height: 58px; }
       h1 { font-size: 17px; }
       .date { font-size: 10px; }
-      .notice { height: auto; }
       .coin-grid { height: auto; grid-template-rows: none; grid-auto-rows: minmax(68px, auto); gap: 6px; }
       .coin { grid-template-columns: 92px minmax(0, 1fr) auto; gap: 5px; padding: 5px; }
       .coin-images img { width: 42px; height: 42px; }
@@ -64,7 +62,6 @@
       </div>
       <div class="date">価格改定日<br>2026年11月8日（日）</div>
     </header>
-    <p class="notice">買取価格は金貨の状態や付属品などにより異なる場合があります。</p>
     <div id="tableStatus" class="status">価格表を読み込んでいます…</div>
     <section id="coinGrid" class="coin-grid" aria-label="記念金貨の買取価格一覧"></section>
     <footer class="footer"><span>記念金貨 買取価格</span><span>価格は予告なく改定する場合があります</span></footer>
