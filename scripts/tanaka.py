@@ -27,6 +27,9 @@ DEFAULT_SPREAD = {
 }
 
 LINEWORKS_WEBHOOK_URL = os.environ["LINEWORKS_WEBHOOK_URL"]
+LINEWORKS_DELIVERY_MODE = os.environ.get("LINEWORKS_DELIVERY_MODE", "webhook")
+if LINEWORKS_DELIVERY_MODE not in {"webhook", "gas-card"}:
+    raise ValueError("Unknown LINE WORKS delivery mode")
 
 SCRIPT_DIR       = os.path.dirname(os.path.abspath(__file__))
 CHART_FILES      = {
@@ -424,11 +427,16 @@ lineworks_message = build_lineworks_message(
     spread, comment_text
 )
 
-response = requests.post(
-    LINEWORKS_WEBHOOK_URL,
-    headers={"Content-Type": "application/json"},
-    json={"body": {"text": lineworks_message}}
-)
-print("LINE WORKS response:", response.status_code)
-if response.status_code != 200:
-    print(response.text)
+if LINEWORKS_DELIVERY_MODE == "gas-card":
+    # メール成功後に既存workflowが公表時刻を記録する。GASが当日JSONとその記録を
+    # 照合し、専用Botで本番カードを送る。Webhookを併送しない。
+    print("LINE WORKS card: delegated to GAS after publication record")
+else:
+    response = requests.post(
+        LINEWORKS_WEBHOOK_URL,
+        headers={"Content-Type": "application/json"},
+        json={"body": {"text": lineworks_message}}
+    )
+    print("LINE WORKS response:", response.status_code)
+    if response.status_code != 200:
+        print(response.text)

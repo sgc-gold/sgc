@@ -138,6 +138,7 @@ jobs:
         if: steps.notify_guard.outputs.already_sent != 'true'
         run: python scripts/tanaka.py
         env:
+          LINEWORKS_DELIVERY_MODE: gas-card
           SMTP_HOST:             smtp-relay.brevo.com
           SMTP_PORT:             587
           SMTP_USERNAME:         ${{ secrets.BREVO_SMTP_USER }}
@@ -146,6 +147,7 @@ jobs:
           TANAKA_MAIL_FROM:      ${{ secrets.TANAKA_MAIL_FROM }}
           TANAKA_MAIL_TO:        ${{ secrets.TANAKA_MAIL_TO }}
           TANAKA_MAIL_BCC:       ${{ secrets.TANAKA_MAIL_BCC }}
+      # In gas-card mode this records email/source readiness; GAS owns card delivery state.
       - name: Record notification sent
         if: steps.notify_guard.outputs.already_sent != 'true'
         env:
