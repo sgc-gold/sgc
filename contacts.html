@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 <title>SGC 拠点一覧</title>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="image/leaflet/leaflet.min.css"/>
+<script src="image/leaflet/leaflet.min.js" integrity="sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO" crossorigin="anonymous"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -391,6 +391,7 @@ footer {
 <div class="map-section">
   <div class="map-header">拠点マップ</div>
   <div id="map"></div>
+  <p id="map-status" class="map-hint-text" role="status" hidden></p>
   <div class="map-legend">
     <div class="legend-item"><div class="legend-dot" style="background:#C8373B;"></div>本社</div>
     <div class="legend-item"><div class="legend-dot" style="background:#2E7D5E;"></div>事務所</div>
@@ -603,6 +604,17 @@ footer {
       </div></div>
     </div>
 
+    <div class="card store" data-type="store" data-id="16" onclick="focusMarker(16)">
+      <div class="card-inner"><div class="card-stripe"></div><div class="card-body">
+        <div class="card-top"><span class="badge store">店舗</span><div class="card-name">ゴールドショップ<br>西武池袋店</div></div>
+        <div class="card-info">
+          <div class="info-item"><div class="info-label">電話</div><div class="info-value"><a href="tel:0367093880" class="tel-link">03-6709-3880</a></div></div>
+          <div class="info-item"><div class="info-label">営業時間</div><div class="info-value">10:00–20:00</div></div>
+          <div class="info-item full"><div class="info-label">住所</div><div class="info-value"><a href="https://www.google.com/maps/search/?api=1&amp;query=東京都豊島区南池袋1-28-1%20西武池袋本店" target="_blank" rel="noopener" class="map-link"><svg class="map-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>〒171-8569 東京都豊島区南池袋1-28-1 西武池袋本店5階</a></div></div>
+        </div>
+      </div></div>
+    </div>
+
   </div>
 </div>
 
@@ -624,28 +636,43 @@ const locations = [
   { id:13, type:'store',  name:'SGCゴールドショップ 大丸神戸店',     lat:34.6900,  lng:135.1955, tel:'078-945-8455', addr:'兵庫県神戸市中央区明石町40 大丸神戸店 8階',  mapq:'兵庫県神戸市中央区明石町40 大丸神戸店' },
   { id:14, type:'store',  name:'SGCゴールドショップ 大丸福岡天神店', lat:33.5904,  lng:130.3995, tel:'092-707-1959', addr:'福岡県福岡市中央区天神1-4-1 東館エルガーラ4階', mapq:'福岡県福岡市中央区天神1-4-1 大丸福岡天神店' },
   { id:15, type:'store',  name:'SGCゴールドショップ 東武百貨店池袋店', lat:35.7306, lng:139.7108, tel:'03-5843-3350', addr:'東京都豊島区西池袋1-1-25 東武百貨店池袋店 本館6階', mapq:'東京都豊島区西池袋1-1-25 東武百貨店池袋店' },
+  { id:16, type:'store', name:'ゴールドショップ 西武池袋店', lat:35.7286, lng:139.7118, tel:'03-6709-3880', hours:'10:00–20:00', addr:'東京都豊島区南池袋1-28-1 西武池袋本店5階', mapq:'東京都豊島区南池袋1-28-1 西武池袋本店' },
 ];
 
 const typeColor   = { hq:'#C8373B', office:'#2E7D5E', store:'#4A7FC1' };
 const typeLabelJa = { hq:'本社', office:'事務所', store:'店舗' };
 const markers = {};
 
-// Init map — dark CartoDB tiles for sleek look
-const map = L.map('map', {
+// Keep the directory usable even if the map library cannot load.
+const mapStatus = document.getElementById('map-status');
+function showMapStatus(message) {
+  mapStatus.textContent = message;
+  mapStatus.hidden = !message;
+}
+const map = window.L ? L.map('map', {
   center: [37.0, 137.5],
   zoom: 5,
   scrollWheelZoom: false,
   attributionControl: true,
-});
+}) : null;
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
-  subdomains: 'abcd',
+if (!map) showMapStatus('地図を読み込めませんでした。各拠点の住所リンクからGoogle マップをご利用ください。');
+
+if (map) {
+// CARTO now returns an API-key-required image with HTTP 200. Use OSM tiles directly.
+const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   maxZoom: 19,
-}).addTo(map);
+});
+tiles.on('tileerror', () => showMapStatus('背景地図を読み込めません。各拠点の住所リンクからGoogle マップをご利用ください。'));
+tiles.addTo(map);
+// Recalculate after the portal iframe or responsive layout changes size.
+if (window.ResizeObserver) new ResizeObserver(() => map.invalidateSize()).observe(document.getElementById('map'));
+window.addEventListener('pageshow', () => map.invalidateSize());
+}
 
 // Build markers
-locations.forEach(loc => {
+if (map) locations.forEach(loc => {
   const color = typeColor[loc.type];
   const isHQ  = loc.type === 'hq';
   const size  = isHQ ? 22 : 16;
@@ -671,6 +698,7 @@ locations.forEach(loc => {
       <div class="popup-name">${loc.name}</div>
       <div class="popup-address">${loc.addr}</div>
       <div class="popup-tel">${loc.tel}</div>
+      ${loc.hours ? `<div class="popup-address">営業時間 ${loc.hours}</div>` : ''}
       <a href="${mapUrl}" target="_blank" rel="noopener" class="popup-maplink">Google マップで開く →</a>
     </div>`;
 
