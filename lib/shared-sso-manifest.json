@@ -1,0 +1,13 @@
+{
+  "appId": "internal-portal",
+  "origin": "https://sgc-internal-portal.pages.dev",
+  "clientSha256": "08bf6f0f14a676d17590e273f0340d0aebb80ac912ce32c6bcb8d96de0f76d20",
+  "files": {
+    "functions/_middleware.js": "e914b7b2d416ae95a57f5db4094780ba89419c265e9d9c7376cb9d7bae2a07c6",
+    "lib/internal-sso.mjs": "3ecc23134216387ce179002eafe631d116a4504ee651e2ab894d911c3956649f",
+    "lib/sgc-sso-client.mjs": "08bf6f0f14a676d17590e273f0340d0aebb80ac912ce32c6bcb8d96de0f76d20",
+    "sw.js": "b2b666ceb05c802dc003b9385a1d716beed112bc9676b853b2fad81f4fcbd64e",
+    "index.html": "f3efbf45c759c1f69d1342705d90523fd2fbec5141e450c69a9c475aea569e0c",
+    "wrangler.toml": "0c6caceacab20375e3052c35cc5548cc7d6fd04135a61e341968569335c77061"
+  }
+}

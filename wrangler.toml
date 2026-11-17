@@ -1,0 +1,14 @@
+# Existing Pages Git production; no new Worker, database, preview environment or Secret.
+name = "sgc-internal-portal"
+pages_build_output_dir = "./dist-portal"
+compatibility_date = "2026-05-21"
+compatibility_flags = []
+send_metrics = false
+[vars]
+INTERNAL_PORTAL_SSO_MODE = "required"
+[[services]]
+binding = "SGC_AUTH"
+service = "sgc-auth"
+entrypoint = "InternalPortalAuthEntrypoint"
+[limits]
+cpu_ms = 50

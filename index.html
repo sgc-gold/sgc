@@ -592,7 +592,8 @@
   }
   #sw-update-bar.show { display: flex; }
   #sw-update-bar button { background: var(--gold); border: none; border-radius: 8px; padding: 5px 12px; color: var(--green-dk); font-size: 0.72rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
-  </style>
+  .session-links{display:flex;gap:8px;margin-bottom:12px}.session-links a{display:inline-flex;align-items:center;justify-content:center;flex:1;min-height:44px;padding:0 6px;border:1px solid rgba(255,255,255,.22);border-radius:6px;color:var(--white);font-size:12px;text-decoration:none}.session-links a:hover{background:rgba(255,255,255,.08)}.session-links a:focus-visible{outline:2px solid var(--gold-lt);outline-offset:3px}
+</style>
 </head>
 <body>
 <div id="shell">
@@ -693,7 +694,7 @@
       </a>
 
     </div>
-    <div class="sidebar-footer">© SGC Co., Ltd. All Rights Reserved.</div>
+    <div class="sidebar-footer"><div class="session-links"><a href="https://portal.sgc-gold.workers.dev/" target="_top">業務ポータル</a><a href="/auth/logout" target="_top" aria-label="SGC共通ログアウト">ログアウト</a></div>© SGC Co., Ltd. All Rights Reserved.</div>
   </nav>
 
   <!-- ─── Content ─── -->
@@ -1224,7 +1225,7 @@ backdrop.addEventListener('click', function(e) { if (e.target === backdrop) clos
 var swRegistration = null;
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('sw.js')
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
       .then(function(reg) {
         swRegistration = reg;
         // アップデート検知
